@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { ShieldCheck } from "lucide-react";
+import { checkMfaLock, recordMfaAttempt, formatLockMessage } from "@/lib/mfaRateLimit";
 
 export const Route = createFileRoute("/admin/login")({
   component: AdminLogin,
