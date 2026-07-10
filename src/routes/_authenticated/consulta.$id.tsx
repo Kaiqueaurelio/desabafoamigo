@@ -205,11 +205,25 @@ function Consulta() {
 
   async function finish() {
     if (!appt) return;
-    if (!confirm("Marcar conversa como finalizada?")) return;
+    if (!confirm("Encerrar a conversa? Ela ficará finalizada.")) return;
     await supabase.from("appointments").update({ status: "completed", professional_notes: notesDraft }).eq("id", appt.id);
     if (appt.conversation_id) await supabase.from("conversations").update({ status: "ended", ended_at: new Date().toISOString() }).eq("id", appt.conversation_id);
-    if (!isPro) { setAskRating(true); return; }
-    navigate({ to: "/pro" });
+    if (isPro) { setAskSummary(true); return; }
+    setAskRating(true);
+  }
+
+  async function transcribe(messageId: string) {
+    try {
+      const { text } = await doTranscribe({ data: { messageId } });
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, transcription: text } : m));
+    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
+  }
+
+  async function translate(messageId: string) {
+    try {
+      const { text } = await doTranslate({ data: { messageId, targetLang } });
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, translations: { ...(m.translations ?? {}), [targetLang]: text } } : m));
+    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
   }
 
   async function saveNotes() {
