@@ -51,6 +51,7 @@ function Consulta() {
   const [askRating, setAskRating] = useState(false);
   const riskDetected = draft.length > 6 && detectRisk(draft);
   const riskInHistory = messages.some((m) => m.content && detectRisk(m.content));
+  const forensicHash = useMemo(() => (me ? getSessionForensicHash(me) : ""), [me]);
 
   const isPro = appt && me === appt.professional_id;
 
