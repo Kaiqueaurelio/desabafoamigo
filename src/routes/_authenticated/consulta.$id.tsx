@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2, Video, Languages, AudioLines, Sparkles } from "lucide-react";
+import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2, Video, Languages, AudioLines, Sparkles, Download } from "lucide-react";
+import { downloadTxt, downloadPdf, type TranscriptExport } from "@/lib/transcriptExport";
 import { Watermark, IdentityWatermark } from "@/components/Watermark";
 import { ScreenshotGuard } from "@/components/ScreenshotGuard";
 import { detectRisk } from "@/lib/riskWords";
