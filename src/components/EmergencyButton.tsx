@@ -41,8 +41,8 @@ export function EmergencyButton() {
             </div>
             <p className="mb-4 text-sm text-muted-foreground">
               Se você está em risco imediato, procure ajuda presencial ou ligue para um dos
-              serviços oficiais de emergência abaixo. Este aplicativo não substitui atendimento
-              médico ou psicológico de urgência.
+              serviços oficiais de emergência abaixo. Este aplicativo é um espaço de escuta voluntária
+              e não substitui atendimento profissional de urgência.
             </p>
             <ul className="space-y-2">
               <EmergencyLink label="CVV — Centro de Valorização da Vida" number="188" />

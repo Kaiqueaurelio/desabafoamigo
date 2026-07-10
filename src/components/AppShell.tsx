@@ -1,14 +1,24 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, Users, CalendarClock, MessageSquareText, UserCog, LogOut, ShieldCheck, Stethoscope } from "lucide-react";
+import { avatarUrl } from "@/lib/avatar";
+import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import type { ReactNode } from "react";
 
 export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNode; user: User; isPro: boolean; isAdmin: boolean }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [alias, setAlias] = useState<string>("");
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("profiles").select("display_name").eq("user_id", user.id).maybeSingle();
+      setAlias(data?.display_name ?? "");
+    })();
+  }, [user.id]);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -17,8 +27,8 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
   const patientNav = [
     { to: "/inicio", label: "Início", icon: Home },
-    { to: "/profissionais", label: "Profissionais", icon: Users },
-    { to: "/consultas", label: "Minhas consultas", icon: CalendarClock },
+    { to: "/profissionais", label: "Voluntários", icon: Users },
+    { to: "/consultas", label: "Minhas conversas", icon: CalendarClock },
   ] as const;
 
   const proNav = [
@@ -33,17 +43,17 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           <Logo size={28} />
           <div className="leading-tight">
             <p className="text-sm font-semibold text-primary">Desabafa Amigo</p>
-            <p className="text-[10px] text-muted-foreground">Teleorientação</p>
+            <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
           </div>
         </div>
         <nav className="flex-1 space-y-1 p-3">
-          <NavGroup title="Paciente">
+          <NavGroup title="Meu espaço">
             {patientNav.map((it) => (
               <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} />
             ))}
           </NavGroup>
           {isPro && (
-            <NavGroup title="Profissional">
+            <NavGroup title="Voluntário(a)">
               {proNav.map((it) => (
                 <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname === it.to || pathname.startsWith(it.to + "/")} />
               ))}
@@ -56,7 +66,13 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           )}
         </nav>
         <div className="border-t border-border p-3">
-          <p className="mb-2 truncate px-2 text-xs text-muted-foreground" title={user.email ?? ""}>{user.email}</p>
+          <div className="mb-2 flex items-center gap-2 px-1">
+            {alias && <img src={avatarUrl(alias, 64)} alt="" className="size-8 rounded-full ring-1 ring-border" />}
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium text-foreground">{alias || "..."}</p>
+              <p className="truncate text-[10px] text-muted-foreground">Apelido do app</p>
+            </div>
+          </div>
           <button onClick={signOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
             <LogOut className="size-4" /> Sair
           </button>
@@ -77,7 +93,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         <nav className="grid grid-cols-4 border-t border-border bg-card md:hidden">
           {[
             ...patientNav,
-            ...(isPro ? [{ to: "/pro" as const, label: "Pro", icon: Stethoscope }] : []),
+            ...(isPro ? [{ to: "/pro" as const, label: "Agenda", icon: HeartHandshake }] : []),
           ]
             .slice(0, 4)
             .map((it) => (
