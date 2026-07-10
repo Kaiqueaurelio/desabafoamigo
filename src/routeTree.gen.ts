@@ -23,6 +23,7 @@ import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedConversarRouteImport } from './routes/_authenticated/conversar'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedApoioRouteImport } from './routes/_authenticated/apoio'
 import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
 import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
@@ -98,6 +99,12 @@ const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
   path: '/consultas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedApoioRoute = AuthenticatedApoioRouteImport.update({
   id: '/apoio',
   path: '/apoio',
@@ -129,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/apoio': typeof AuthenticatedApoioRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
@@ -149,6 +157,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/apoio': typeof AuthenticatedApoioRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/_authenticated/apoio': typeof AuthenticatedApoioRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/conversar': typeof AuthenticatedConversarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacidade'
     | '/apoio'
+    | '/configuracoes'
     | '/consultas'
     | '/conversar'
     | '/diario'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacidade'
     | '/apoio'
+    | '/configuracoes'
     | '/consultas'
     | '/conversar'
     | '/diario'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacidade'
     | '/_authenticated/apoio'
+    | '/_authenticated/configuracoes'
     | '/_authenticated/consultas'
     | '/_authenticated/conversar'
     | '/_authenticated/diario'
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConsultasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/apoio': {
       id: '/_authenticated/apoio'
       path: '/apoio'
@@ -403,6 +423,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApoioRoute: typeof AuthenticatedApoioRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
   AuthenticatedConversarRoute: typeof AuthenticatedConversarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
@@ -415,6 +436,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApoioRoute: AuthenticatedApoioRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
   AuthenticatedConversarRoute: AuthenticatedConversarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
