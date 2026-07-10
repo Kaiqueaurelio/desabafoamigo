@@ -9,34 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VoluntarioRouteImport } from './routes/voluntario'
-import { Route as EncerradaRouteImport } from './routes/encerrada'
-import { Route as EmergenciaRouteImport } from './routes/emergencia'
-import { Route as ConversarRouteImport } from './routes/conversar'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as VoluntarioLoginRouteImport } from './routes/voluntario.login'
-import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AuthenticatedProfissionaisRouteImport } from './routes/_authenticated/profissionais'
+import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
+import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
+import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
+import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
+import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
+import { Route as AuthenticatedAgendarIdRouteImport } from './routes/_authenticated/agendar.$id'
 
-const VoluntarioRoute = VoluntarioRouteImport.update({
-  id: '/voluntario',
-  path: '/voluntario',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EncerradaRoute = EncerradaRouteImport.update({
-  id: '/encerrada',
-  path: '/encerrada',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmergenciaRoute = EmergenciaRouteImport.update({
-  id: '/emergencia',
-  path: '/emergencia',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConversarRoute = ConversarRouteImport.update({
-  id: '/conversar',
-  path: '/conversar',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,14 +42,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VoluntarioLoginRoute = VoluntarioLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => VoluntarioRoute,
-} as any)
-const ChatIdRoute = ChatIdRouteImport.update({
-  id: '/chat/$id',
-  path: '/chat/$id',
+const ProCadastroRoute = ProCadastroRouteImport.update({
+  id: '/pro/cadastro',
+  path: '/pro/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -64,116 +52,156 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedProfissionaisRoute =
+  AuthenticatedProfissionaisRouteImport.update({
+    id: '/profissionais',
+    path: '/profissionais',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
+  id: '/consultas',
+  path: '/consultas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProIndexRoute = AuthenticatedProIndexRouteImport.update({
+  id: '/pro/',
+  path: '/pro/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProPerfilRoute = AuthenticatedProPerfilRouteImport.update({
+  id: '/pro/perfil',
+  path: '/pro/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
+  id: '/consulta/$id',
+  path: '/consulta/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAgendarIdRoute = AuthenticatedAgendarIdRouteImport.update({
+  id: '/agendar/$id',
+  path: '/agendar/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/conversar': typeof ConversarRoute
-  '/emergencia': typeof EmergenciaRoute
-  '/encerrada': typeof EncerradaRoute
-  '/voluntario': typeof VoluntarioRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/consultas': typeof AuthenticatedConsultasRoute
+  '/inicio': typeof AuthenticatedInicioRoute
+  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/login': typeof AdminLoginRoute
-  '/chat/$id': typeof ChatIdRoute
-  '/voluntario/login': typeof VoluntarioLoginRoute
+  '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
+  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
+  '/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/pro/': typeof AuthenticatedProIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/conversar': typeof ConversarRoute
-  '/emergencia': typeof EmergenciaRoute
-  '/encerrada': typeof EncerradaRoute
-  '/voluntario': typeof VoluntarioRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/consultas': typeof AuthenticatedConsultasRoute
+  '/inicio': typeof AuthenticatedInicioRoute
+  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/login': typeof AdminLoginRoute
-  '/chat/$id': typeof ChatIdRoute
-  '/voluntario/login': typeof VoluntarioLoginRoute
+  '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
+  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
+  '/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/pro': typeof AuthenticatedProIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/conversar': typeof ConversarRoute
-  '/emergencia': typeof EmergenciaRoute
-  '/encerrada': typeof EncerradaRoute
-  '/voluntario': typeof VoluntarioRouteWithChildren
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
+  '/_authenticated/inicio': typeof AuthenticatedInicioRoute
+  '/_authenticated/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/login': typeof AdminLoginRoute
-  '/chat/$id': typeof ChatIdRoute
-  '/voluntario/login': typeof VoluntarioLoginRoute
+  '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
+  '/_authenticated/agendar/$id': typeof AuthenticatedAgendarIdRoute
+  '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/_authenticated/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/_authenticated/pro/': typeof AuthenticatedProIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/conversar'
-    | '/emergencia'
-    | '/encerrada'
-    | '/voluntario'
+    | '/auth'
+    | '/consultas'
+    | '/inicio'
+    | '/profissionais'
     | '/admin/login'
-    | '/chat/$id'
-    | '/voluntario/login'
+    | '/pro/cadastro'
     | '/admin/'
+    | '/agendar/$id'
+    | '/consulta/$id'
+    | '/pro/perfil'
+    | '/pro/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/conversar'
-    | '/emergencia'
-    | '/encerrada'
-    | '/voluntario'
+    | '/auth'
+    | '/consultas'
+    | '/inicio'
+    | '/profissionais'
     | '/admin/login'
-    | '/chat/$id'
-    | '/voluntario/login'
+    | '/pro/cadastro'
     | '/admin'
+    | '/agendar/$id'
+    | '/consulta/$id'
+    | '/pro/perfil'
+    | '/pro'
   id:
     | '__root__'
     | '/'
-    | '/conversar'
-    | '/emergencia'
-    | '/encerrada'
-    | '/voluntario'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/consultas'
+    | '/_authenticated/inicio'
+    | '/_authenticated/profissionais'
     | '/admin/login'
-    | '/chat/$id'
-    | '/voluntario/login'
+    | '/pro/cadastro'
     | '/admin/'
+    | '/_authenticated/agendar/$id'
+    | '/_authenticated/consulta/$id'
+    | '/_authenticated/pro/perfil'
+    | '/_authenticated/pro/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ConversarRoute: typeof ConversarRoute
-  EmergenciaRoute: typeof EmergenciaRoute
-  EncerradaRoute: typeof EncerradaRoute
-  VoluntarioRoute: typeof VoluntarioRouteWithChildren
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   AdminLoginRoute: typeof AdminLoginRoute
-  ChatIdRoute: typeof ChatIdRoute
+  ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/voluntario': {
-      id: '/voluntario'
-      path: '/voluntario'
-      fullPath: '/voluntario'
-      preLoaderRoute: typeof VoluntarioRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/encerrada': {
-      id: '/encerrada'
-      path: '/encerrada'
-      fullPath: '/encerrada'
-      preLoaderRoute: typeof EncerradaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/emergencia': {
-      id: '/emergencia'
-      path: '/emergencia'
-      fullPath: '/emergencia'
-      preLoaderRoute: typeof EmergenciaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/conversar': {
-      id: '/conversar'
-      path: '/conversar'
-      fullPath: '/conversar'
-      preLoaderRoute: typeof ConversarRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -190,18 +218,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/voluntario/login': {
-      id: '/voluntario/login'
-      path: '/login'
-      fullPath: '/voluntario/login'
-      preLoaderRoute: typeof VoluntarioLoginRouteImport
-      parentRoute: typeof VoluntarioRoute
-    }
-    '/chat/$id': {
-      id: '/chat/$id'
-      path: '/chat/$id'
-      fullPath: '/chat/$id'
-      preLoaderRoute: typeof ChatIdRouteImport
+    '/pro/cadastro': {
+      id: '/pro/cadastro'
+      path: '/pro/cadastro'
+      fullPath: '/pro/cadastro'
+      preLoaderRoute: typeof ProCadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
@@ -211,41 +232,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/profissionais': {
+      id: '/_authenticated/profissionais'
+      path: '/profissionais'
+      fullPath: '/profissionais'
+      preLoaderRoute: typeof AuthenticatedProfissionaisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inicio': {
+      id: '/_authenticated/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof AuthenticatedInicioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/consultas': {
+      id: '/_authenticated/consultas'
+      path: '/consultas'
+      fullPath: '/consultas'
+      preLoaderRoute: typeof AuthenticatedConsultasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pro/': {
+      id: '/_authenticated/pro/'
+      path: '/pro'
+      fullPath: '/pro/'
+      preLoaderRoute: typeof AuthenticatedProIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pro/perfil': {
+      id: '/_authenticated/pro/perfil'
+      path: '/pro/perfil'
+      fullPath: '/pro/perfil'
+      preLoaderRoute: typeof AuthenticatedProPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/consulta/$id': {
+      id: '/_authenticated/consulta/$id'
+      path: '/consulta/$id'
+      fullPath: '/consulta/$id'
+      preLoaderRoute: typeof AuthenticatedConsultaIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/agendar/$id': {
+      id: '/_authenticated/agendar/$id'
+      path: '/agendar/$id'
+      fullPath: '/agendar/$id'
+      preLoaderRoute: typeof AuthenticatedAgendarIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
-interface VoluntarioRouteChildren {
-  VoluntarioLoginRoute: typeof VoluntarioLoginRoute
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
+  AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
+  AuthenticatedProfissionaisRoute: typeof AuthenticatedProfissionaisRoute
+  AuthenticatedAgendarIdRoute: typeof AuthenticatedAgendarIdRoute
+  AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
+  AuthenticatedProPerfilRoute: typeof AuthenticatedProPerfilRoute
+  AuthenticatedProIndexRoute: typeof AuthenticatedProIndexRoute
 }
 
-const VoluntarioRouteChildren: VoluntarioRouteChildren = {
-  VoluntarioLoginRoute: VoluntarioLoginRoute,
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
+  AuthenticatedInicioRoute: AuthenticatedInicioRoute,
+  AuthenticatedProfissionaisRoute: AuthenticatedProfissionaisRoute,
+  AuthenticatedAgendarIdRoute: AuthenticatedAgendarIdRoute,
+  AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
+  AuthenticatedProPerfilRoute: AuthenticatedProPerfilRoute,
+  AuthenticatedProIndexRoute: AuthenticatedProIndexRoute,
 }
 
-const VoluntarioRouteWithChildren = VoluntarioRoute._addFileChildren(
-  VoluntarioRouteChildren,
-)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ConversarRoute: ConversarRoute,
-  EmergenciaRoute: EmergenciaRoute,
-  EncerradaRoute: EncerradaRoute,
-  VoluntarioRoute: VoluntarioRouteWithChildren,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   AdminLoginRoute: AdminLoginRoute,
-  ChatIdRoute: ChatIdRoute,
+  ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
