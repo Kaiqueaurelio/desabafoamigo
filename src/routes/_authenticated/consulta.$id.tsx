@@ -229,15 +229,19 @@ function Consulta() {
 
   async function transcribe(messageId: string) {
     try {
-      const { text } = await doTranscribe({ data: { messageId } });
-      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, transcription: text } : m));
+      const r = await doTranscribe({ data: { messageId } });
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, transcription: r.text, segments: r.segments } : m));
     } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
   }
 
   async function translate(messageId: string) {
     try {
-      const { text } = await doTranslate({ data: { messageId, targetLang } });
-      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, translations: { ...(m.translations ?? {}), [targetLang]: text } } : m));
+      const r = await doTranslate({ data: { messageId, targetLang } });
+      setMessages((prev) => prev.map((m) => m.id === messageId ? {
+        ...m,
+        translations: { ...(m.translations ?? {}), [targetLang]: r.text },
+        translation_segments: { ...(m.translation_segments ?? {}), [targetLang]: r.segments },
+      } : m));
     } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
   }
 
