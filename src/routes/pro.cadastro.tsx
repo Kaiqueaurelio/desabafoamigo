@@ -15,16 +15,16 @@ const schema = z.object({
   password: z.string().min(6).max(72),
   specialty: z.string().trim().min(2).max(80),
   bio: z.string().trim().min(20, "Escreva ao menos 20 caracteres").max(600),
-  credentials: z.string().trim().min(3, "Informe CRP/CRM ou formação").max(200),
+  credentials: z.string().trim().min(3, "Informe sua formação").max(200),
   motivation: z.string().trim().min(10).max(600),
-  is_psychologist: z.boolean(),
 });
 
 function ProSignup() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    full_name: "", email: "", password: "", specialty: "", bio: "", credentials: "", motivation: "", is_psychologist: true,
+    full_name: "", email: "", password: "", specialty: "", bio: "", credentials: "", motivation: "",
   });
+
   const [err, setErr] = useState("");
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
