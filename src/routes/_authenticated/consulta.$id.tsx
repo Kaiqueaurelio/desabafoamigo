@@ -369,6 +369,7 @@ function Consulta() {
         )}
       </div>
       {askRating && <RatingDialog appointmentId={appt.id} onDone={() => navigate({ to: "/consultas" })} />}
+      {askSummary && appt && <SummaryDialog appt={appt} onDone={() => { setAskSummary(false); navigate({ to: "/pro" }); }} />}
     </div>
     </ScreenshotGuard>
   );
