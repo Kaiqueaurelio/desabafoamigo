@@ -57,7 +57,7 @@ describe("ScreenshotGuard", () => {
     });
     const alert = screen.getByRole("alert");
     expect(alert).toHaveAttribute("aria-live", "assertive");
-    expect(screen.getByTestId("guard-content")).toHaveStyle({ filter: expect.stringContaining("blur") });
+    expect(screen.getByTestId("guard-content").getAttribute("style") ?? "").toMatch(/blur/);
   });
 
   it("bloqueia menu de contexto", () => {
