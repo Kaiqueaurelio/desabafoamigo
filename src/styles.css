@@ -220,13 +220,20 @@
 @utility animate-marquee {
   animation: marquee 40s linear infinite;
 }
+@utility animate-marquee-reverse {
+  animation: marquee 40s linear infinite reverse;
+}
+@utility animate-marquee-slow {
+  animation: marquee 60s linear infinite;
+}
 @utility animate-spin-slow {
   animation: spin-slow 30s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-blob, .animate-float, .animate-fade-in, .animate-pulse, .animate-bounce,
-  .animate-gradient-shift, .animate-bubble-in, .animate-infinity-draw, .animate-marquee, .animate-spin-slow {
+  .animate-gradient-shift, .animate-bubble-in, .animate-infinity-draw,
+  .animate-marquee, .animate-marquee-reverse, .animate-marquee-slow, .animate-spin-slow {
     animation: none !important;
   }
 }
