@@ -208,7 +208,7 @@ function AdminDashboard() {
                     <tr key={v.user_id} className="border-b border-border/50">
                       <td className="py-3 pr-4 font-medium text-foreground">{v.full_name || v.display_alias || "—"}</td>
                       <td className="py-3 pr-4 text-muted-foreground">{v.email || "—"}</td>
-                      <td className="py-3 pr-4">{v.is_psychologist ? "Psicólogo(a)" : "Voluntário(a)"}</td>
+                      <td className="py-3 pr-4">Voluntário(a)</td>
                       <td className="py-3 pr-4 text-muted-foreground">{new Date(v.applied_at).toLocaleDateString()}</td>
                       <td className="py-3 pr-4">
                         <StatusPill status={v.approval_status} />
