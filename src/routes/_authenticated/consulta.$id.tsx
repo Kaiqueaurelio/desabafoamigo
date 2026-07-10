@@ -270,18 +270,6 @@ function Consulta() {
       </header>
       {(riskDetected || riskInHistory) && <RiskAlert />}
 
-      <div className="flex flex-1 overflow-hidden">
-        <section className="flex flex-1 flex-col">
-          <div className="relative flex-1 overflow-y-auto">
-            <Watermark />
-            <IdentityWatermark label={myAlias} sessionHash={me ? forensicHash : undefined} />
-            <div className="relative z-10 space-y-2 px-4 py-4">
-            {messages.length === 0 && (
-              <p className="mx-auto max-w-md rounded-2xl bg-brand-soft px-4 py-3 text-center text-sm text-muted-foreground">
-                Você está em um espaço seguro de escuta acolhedora. Escreva no seu tempo.
-              </p>
-            )}
-      {(riskDetected || riskInHistory) && <RiskAlert />}
       {isPro && peerSummary && (peerSummary.summary || peerSummary.technical_details) && (
         <div className="border-b border-border bg-brand-soft/40 px-4 py-2 text-xs text-foreground">
           <p className="font-semibold text-primary">🌱 Retornante · {peerSummary.sessions_count} conversa(s) anterior(es)</p>
