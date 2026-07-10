@@ -198,6 +198,8 @@ export type Database = {
           id: string
           read_at: string | null
           sender_id: string
+          transcription: string | null
+          translations: Json
         }
         Insert: {
           attachment_id?: string | null
@@ -207,6 +209,8 @@ export type Database = {
           id?: string
           read_at?: string | null
           sender_id: string
+          transcription?: string | null
+          translations?: Json
         }
         Update: {
           attachment_id?: string | null
@@ -216,6 +220,8 @@ export type Database = {
           id?: string
           read_at?: string | null
           sender_id?: string
+          transcription?: string | null
+          translations?: Json
         }
         Relationships: [
           {
@@ -305,6 +311,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      queue: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          id: string
+          matched_volunteer_id: string | null
+          status: string
+          topic: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          matched_volunteer_id?: string | null
+          status?: string
+          topic?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          matched_volunteer_id?: string | null
+          status?: string
+          topic?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "queue_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -427,6 +474,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_summaries: {
+        Row: {
+          alias: string | null
+          created_at: string
+          last_conversation_id: string | null
+          sessions_count: number
+          summary: string
+          technical_details: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          alias?: string | null
+          created_at?: string
+          last_conversation_id?: string | null
+          sessions_count?: number
+          summary?: string
+          technical_details?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          alias?: string | null
+          created_at?: string
+          last_conversation_id?: string | null
+          sessions_count?: number
+          summary?: string
+          technical_details?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_summaries_last_conversation_id_fkey"
+            columns: ["last_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       volunteers: {
         Row: {

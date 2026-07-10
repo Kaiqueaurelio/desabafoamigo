@@ -18,15 +18,15 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
-import { Route as AuthenticatedProfissionaisRouteImport } from './routes/_authenticated/profissionais'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
+import { Route as AuthenticatedConversarRouteImport } from './routes/_authenticated/conversar'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
 import { Route as AuthenticatedApoioRouteImport } from './routes/_authenticated/apoio'
 import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
 import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
+import { Route as AuthenticatedProFilaRouteImport } from './routes/_authenticated/pro.fila'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
-import { Route as AuthenticatedAgendarIdRouteImport } from './routes/_authenticated/agendar.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -72,12 +72,6 @@ const AdminAtendimentoRoute = AdminAtendimentoRouteImport.update({
   path: '/admin/atendimento',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedProfissionaisRoute =
-  AuthenticatedProfissionaisRouteImport.update({
-    id: '/profissionais',
-    path: '/profissionais',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
@@ -86,6 +80,11 @@ const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
 const AuthenticatedDiarioRoute = AuthenticatedDiarioRouteImport.update({
   id: '/diario',
   path: '/diario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConversarRoute = AuthenticatedConversarRouteImport.update({
+  id: '/conversar',
+  path: '/conversar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
@@ -108,14 +107,14 @@ const AuthenticatedProPerfilRoute = AuthenticatedProPerfilRouteImport.update({
   path: '/pro/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProFilaRoute = AuthenticatedProFilaRouteImport.update({
+  id: '/pro/fila',
+  path: '/pro/fila',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
   id: '/consulta/$id',
   path: '/consulta/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAgendarIdRoute = AuthenticatedAgendarIdRouteImport.update({
-  id: '/agendar/$id',
-  path: '/agendar/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
@@ -124,17 +123,17 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/consultas': typeof AuthenticatedConsultasRoute
+  '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
-  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
-  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
   '/pro/': typeof AuthenticatedProIndexRoute
 }
@@ -143,17 +142,17 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/consultas': typeof AuthenticatedConsultasRoute
+  '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
-  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
-  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
   '/pro': typeof AuthenticatedProIndexRoute
 }
@@ -164,17 +163,17 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/apoio': typeof AuthenticatedApoioRoute
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
+  '/_authenticated/conversar': typeof AuthenticatedConversarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
-  '/_authenticated/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
-  '/_authenticated/agendar/$id': typeof AuthenticatedAgendarIdRoute
   '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/_authenticated/pro/fila': typeof AuthenticatedProFilaRoute
   '/_authenticated/pro/perfil': typeof AuthenticatedProPerfilRoute
   '/_authenticated/pro/': typeof AuthenticatedProIndexRoute
 }
@@ -185,17 +184,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/apoio'
     | '/consultas'
+    | '/conversar'
     | '/diario'
     | '/inicio'
-    | '/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin/'
-    | '/agendar/$id'
     | '/consulta/$id'
+    | '/pro/fila'
     | '/pro/perfil'
     | '/pro/'
   fileRoutesByTo: FileRoutesByTo
@@ -204,17 +203,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/apoio'
     | '/consultas'
+    | '/conversar'
     | '/diario'
     | '/inicio'
-    | '/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin'
-    | '/agendar/$id'
     | '/consulta/$id'
+    | '/pro/fila'
     | '/pro/perfil'
     | '/pro'
   id:
@@ -224,17 +223,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/apoio'
     | '/_authenticated/consultas'
+    | '/_authenticated/conversar'
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
-    | '/_authenticated/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin/'
-    | '/_authenticated/agendar/$id'
     | '/_authenticated/consulta/$id'
+    | '/_authenticated/pro/fila'
     | '/_authenticated/pro/perfil'
     | '/_authenticated/pro/'
   fileRoutesById: FileRoutesById
@@ -316,13 +315,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAtendimentoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/profissionais': {
-      id: '/_authenticated/profissionais'
-      path: '/profissionais'
-      fullPath: '/profissionais'
-      preLoaderRoute: typeof AuthenticatedProfissionaisRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
       path: '/inicio'
@@ -335,6 +327,13 @@ declare module '@tanstack/react-router' {
       path: '/diario'
       fullPath: '/diario'
       preLoaderRoute: typeof AuthenticatedDiarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/conversar': {
+      id: '/_authenticated/conversar'
+      path: '/conversar'
+      fullPath: '/conversar'
+      preLoaderRoute: typeof AuthenticatedConversarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/consultas': {
@@ -365,18 +364,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pro/fila': {
+      id: '/_authenticated/pro/fila'
+      path: '/pro/fila'
+      fullPath: '/pro/fila'
+      preLoaderRoute: typeof AuthenticatedProFilaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/consulta/$id': {
       id: '/_authenticated/consulta/$id'
       path: '/consulta/$id'
       fullPath: '/consulta/$id'
       preLoaderRoute: typeof AuthenticatedConsultaIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/agendar/$id': {
-      id: '/_authenticated/agendar/$id'
-      path: '/agendar/$id'
-      fullPath: '/agendar/$id'
-      preLoaderRoute: typeof AuthenticatedAgendarIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -385,11 +384,11 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApoioRoute: typeof AuthenticatedApoioRoute
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
+  AuthenticatedConversarRoute: typeof AuthenticatedConversarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
-  AuthenticatedProfissionaisRoute: typeof AuthenticatedProfissionaisRoute
-  AuthenticatedAgendarIdRoute: typeof AuthenticatedAgendarIdRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
+  AuthenticatedProFilaRoute: typeof AuthenticatedProFilaRoute
   AuthenticatedProPerfilRoute: typeof AuthenticatedProPerfilRoute
   AuthenticatedProIndexRoute: typeof AuthenticatedProIndexRoute
 }
@@ -397,11 +396,11 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApoioRoute: AuthenticatedApoioRoute,
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
+  AuthenticatedConversarRoute: AuthenticatedConversarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
-  AuthenticatedProfissionaisRoute: AuthenticatedProfissionaisRoute,
-  AuthenticatedAgendarIdRoute: AuthenticatedAgendarIdRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
+  AuthenticatedProFilaRoute: AuthenticatedProFilaRoute,
   AuthenticatedProPerfilRoute: AuthenticatedProPerfilRoute,
   AuthenticatedProIndexRoute: AuthenticatedProIndexRoute,
 }

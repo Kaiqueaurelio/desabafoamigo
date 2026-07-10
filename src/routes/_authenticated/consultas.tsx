@@ -50,7 +50,7 @@ function History() {
       {appts.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <p className="text-sm text-muted-foreground">Nenhuma conversa ainda.</p>
-          <Link to="/profissionais" className="btn-primary mt-4 inline-block">Agendar</Link>
+          <Link to="/conversar" className="btn-primary mt-4 inline-block">Conversar agora</Link>
         </div>
       ) : (
         <div className="mt-6 space-y-2">

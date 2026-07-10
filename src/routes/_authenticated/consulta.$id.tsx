@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2 } from "lucide-react";
+import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2, Video, Languages, AudioLines, Sparkles } from "lucide-react";
 import { Watermark, IdentityWatermark } from "@/components/Watermark";
 import { ScreenshotGuard } from "@/components/ScreenshotGuard";
 import { detectRisk } from "@/lib/riskWords";
@@ -9,6 +9,8 @@ import { RiskAlert } from "@/components/RiskAlert";
 import { ReportButton } from "@/components/ReportDialog";
 import { RatingDialog } from "@/components/RatingDialog";
 import { getSessionForensicHash } from "@/lib/sessionForensic";
+import { useServerFn } from "@tanstack/react-start";
+import { transcribeMessage, translateMessage, summarizeConversation } from "@/lib/ai.functions";
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
   component: Consulta,
@@ -22,13 +24,19 @@ type Appt = {
 type Message = {
   id: string; conversation_id: string; sender_id: string;
   content: string | null; attachment_id: string | null; created_at: string; read_at: string | null;
+  transcription?: string | null; translations?: Record<string, string> | null;
 };
 type Attachment = {
   id: string; storage_path: string; mime_type: string; size_bytes: number;
-  kind: "pdf"|"image"|"audio"; original_name: string | null; sender_id: string;
+  kind: "pdf"|"image"|"audio"|"video"; original_name: string | null; sender_id: string;
 };
 
-const MAX = { pdf: 10 * 1024 * 1024, image: 5 * 1024 * 1024, audio: 10 * 1024 * 1024 };
+const MAX = { pdf: 10 * 1024 * 1024, image: 5 * 1024 * 1024, audio: 10 * 1024 * 1024, video: 30 * 1024 * 1024 };
+const LANGS: { code: string; label: string }[] = [
+  { code: "pt-BR", label: "Português (BR)" }, { code: "en", label: "English" }, { code: "es", label: "Español" },
+  { code: "fr", label: "Français" }, { code: "de", label: "Deutsch" }, { code: "it", label: "Italiano" },
+  { code: "ja", label: "日本語" }, { code: "zh", label: "中文" }, { code: "ar", label: "العربية" },
+];
 
 function Consulta() {
   const { id } = Route.useParams();
@@ -49,6 +57,11 @@ function Consulta() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [askRating, setAskRating] = useState(false);
+  const [askSummary, setAskSummary] = useState(false);
+  const [peerSummary, setPeerSummary] = useState<{ summary: string; technical_details: string; sessions_count: number } | null>(null);
+  const [targetLang, setTargetLang] = useState<string>("en");
+  const doTranscribe = useServerFn(transcribeMessage);
+  const doTranslate = useServerFn(translateMessage);
   const riskDetected = draft.length > 6 && detectRisk(draft);
   const riskInHistory = messages.some((m) => m.content && detectRisk(m.content));
   const forensicHash = useMemo(() => (me ? getSessionForensicHash(me) : ""), [me]);
@@ -80,6 +93,13 @@ function Consulta() {
       }
 
       if (!a.conversation_id) return;
+
+      // If I'm the volunteer, load returning-user summary
+      if (a.professional_id === u.user.id) {
+        const { data: sum } = await supabase.from("user_summaries")
+          .select("summary, technical_details, sessions_count").eq("user_id", a.patient_id).maybeSingle();
+        if (sum) setPeerSummary(sum);
+      }
 
       const { data: msgs } = await supabase.from("messages").select("*").eq("conversation_id", a.conversation_id).order("created_at", { ascending: true });
       setMessages((msgs ?? []) as Message[]);
@@ -143,7 +163,7 @@ function Consulta() {
 
   async function uploadFile(file: File) {
     if (!me || !appt?.conversation_id) return;
-    const kind: Attachment["kind"] = file.type.startsWith("image/") ? "image" : file.type.startsWith("audio/") ? "audio" : file.type === "application/pdf" ? "pdf" : (() => { throw new Error("Tipo não suportado (PDF, imagem ou áudio)"); })();
+    const kind: Attachment["kind"] = file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : file.type.startsWith("audio/") ? "audio" : file.type === "application/pdf" ? "pdf" : (() => { throw new Error("Tipo não suportado (PDF, imagem, vídeo ou áudio)"); })();
     if (file.size > MAX[kind]) throw new Error(`Arquivo muito grande. Máx ${MAX[kind] / 1024 / 1024}MB`);
     const path = `${appt.conversation_id}/${me}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
     const { error: upErr } = await supabase.storage.from("consultation-files").upload(path, file, { contentType: file.type });
@@ -185,11 +205,25 @@ function Consulta() {
 
   async function finish() {
     if (!appt) return;
-    if (!confirm("Marcar conversa como finalizada?")) return;
+    if (!confirm("Encerrar a conversa? Ela ficará finalizada.")) return;
     await supabase.from("appointments").update({ status: "completed", professional_notes: notesDraft }).eq("id", appt.id);
     if (appt.conversation_id) await supabase.from("conversations").update({ status: "ended", ended_at: new Date().toISOString() }).eq("id", appt.conversation_id);
-    if (!isPro) { setAskRating(true); return; }
-    navigate({ to: "/pro" });
+    if (isPro) { setAskSummary(true); return; }
+    setAskRating(true);
+  }
+
+  async function transcribe(messageId: string) {
+    try {
+      const { text } = await doTranscribe({ data: { messageId } });
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, transcription: text } : m));
+    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
+  }
+
+  async function translate(messageId: string) {
+    try {
+      const { text } = await doTranslate({ data: { messageId, targetLang } });
+      setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, translations: { ...(m.translations ?? {}), [targetLang]: text } } : m));
+    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
   }
 
   async function saveNotes() {
@@ -236,6 +270,14 @@ function Consulta() {
       </header>
       {(riskDetected || riskInHistory) && <RiskAlert />}
 
+      {isPro && peerSummary && (peerSummary.summary || peerSummary.technical_details) && (
+        <div className="border-b border-border bg-brand-soft/40 px-4 py-2 text-xs text-foreground">
+          <p className="font-semibold text-primary">🌱 Retornante · {peerSummary.sessions_count} conversa(s) anterior(es)</p>
+          {peerSummary.summary && <p className="mt-1">{peerSummary.summary}</p>}
+          {peerSummary.technical_details && <details className="mt-1"><summary className="cursor-pointer text-muted-foreground">Detalhes técnicos</summary><pre className="mt-1 whitespace-pre-wrap font-sans text-[11px] text-muted-foreground">{peerSummary.technical_details}</pre></details>}
+        </div>
+      )}
+
       <div className="flex flex-1 overflow-hidden">
         <section className="flex flex-1 flex-col">
           <div className="relative flex-1 overflow-y-auto">
@@ -250,14 +292,29 @@ function Consulta() {
             {messages.map((m) => {
               const mine = m.sender_id === me;
               const att = m.attachment_id ? attachments[m.attachment_id] : null;
+              const canTranscribe = att && (att.kind === "audio" || att.kind === "video") && !m.transcription;
+              const translated = m.translations?.[targetLang];
+              const canTranslate = (m.content || m.transcription) && !translated;
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[78%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-chat-user text-chat-user-foreground rounded-br-sm" : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"}`}>
                     {m.content && <p className="whitespace-pre-wrap break-words">{m.content}</p>}
                     {att && <AttachmentView att={att} url={urls[att.id]} />}
-                    <div className={`mt-1 flex items-center gap-1 text-[10px] ${mine ? "text-chat-user-foreground/70" : "text-chat-peer-foreground/60"}`}>
+                    {m.transcription && (
+                      <p className="mt-2 rounded-lg bg-background/30 px-2 py-1 text-[12px] italic">
+                        <AudioLines className="mr-1 inline size-3" />{m.transcription}
+                      </p>
+                    )}
+                    {translated && (
+                      <p className="mt-1 rounded-lg bg-background/30 px-2 py-1 text-[12px]">
+                        <Languages className="mr-1 inline size-3" />{translated}
+                      </p>
+                    )}
+                    <div className={`mt-1 flex flex-wrap items-center gap-2 text-[10px] ${mine ? "text-chat-user-foreground/80" : "text-chat-peer-foreground/70"}`}>
                       <time>{new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time>
                       {mine && <span>· {m.read_at ? "lida" : "enviada"}</span>}
+                      {canTranscribe && <button onClick={() => transcribe(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><AudioLines className="size-3" /> transcrever</button>}
+                      {canTranslate && <button onClick={() => translate(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><Languages className="size-3" /> traduzir</button>}
                     </div>
                   </div>
                 </div>
@@ -269,8 +326,14 @@ function Consulta() {
 
           {appt.status !== "completed" && appt.status !== "cancelled" ? (
             <form onSubmit={(e) => { e.preventDefault(); send(); }} className="border-t border-border bg-card px-3 py-3">
+              <div className="mb-2 flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
+                <Languages className="size-3.5" /> Idioma p/ tradução:
+                <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="rounded border border-border bg-background px-1 py-0.5 text-[11px]">
+                  {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
+                </select>
+              </div>
               <div className="flex items-end gap-2">
-                <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*" />
+                <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*,video/*" />
                 <button type="button" onClick={() => fileRef.current?.click()} aria-label="Anexar" className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground hover:bg-muted">
                   <Paperclip className="size-5" />
                 </button>
@@ -306,6 +369,7 @@ function Consulta() {
         )}
       </div>
       {askRating && <RatingDialog appointmentId={appt.id} onDone={() => navigate({ to: "/consultas" })} />}
+      {askSummary && appt && <SummaryDialog appt={appt} onDone={() => { setAskSummary(false); navigate({ to: "/pro" }); }} />}
     </div>
     </ScreenshotGuard>
   );
@@ -313,11 +377,68 @@ function Consulta() {
 
 function AttachmentView({ att, url }: { att: Attachment; url?: string }) {
   if (att.kind === "image") return url ? <a href={url} target="_blank" rel="noreferrer"><img src={url} alt={att.original_name ?? ""} className="mt-1 max-h-64 rounded-lg" /></a> : <span>Carregando...</span>;
+  if (att.kind === "video") return url ? <video controls src={url} className="mt-1 max-h-64 rounded-lg" /> : <span>Carregando...</span>;
   if (att.kind === "audio") return url ? <audio controls src={url} className="mt-1 max-w-[240px]" /> : <span>Carregando...</span>;
   const Icon = att.kind === "pdf" ? FileText : att.mime_type.startsWith("image/") ? ImageIcon : Music;
   return (
     <a href={url} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-2 rounded-lg bg-background/40 px-3 py-2 text-xs">
       <Icon className="size-4" /> <span className="truncate">{att.original_name ?? "Arquivo"}</span>
     </a>
+  );
+}
+
+function SummaryDialog({ appt, onDone }: { appt: Appt; onDone: () => void }) {
+  const summarize = useServerFn(summarizeConversation);
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState("");
+  const [technical, setTechnical] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (!appt.conversation_id) { onDone(); return; }
+      try {
+        const r = await summarize({ data: { conversationId: appt.conversation_id } });
+        setSummary(r.summary); setTechnical(r.technical);
+      } catch (e) { console.error(e); }
+      setLoading(false);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    const { data: existing } = await supabase.from("user_summaries").select("sessions_count").eq("user_id", appt.patient_id).maybeSingle();
+    if (existing) {
+      await supabase.from("user_summaries").update({
+        summary, technical_details: technical, sessions_count: (existing.sessions_count ?? 0) + 1, last_conversation_id: appt.conversation_id,
+      }).eq("user_id", appt.patient_id);
+    } else {
+      await supabase.from("user_summaries").insert({
+        user_id: appt.patient_id, summary, technical_details: technical, sessions_count: 1, last_conversation_id: appt.conversation_id,
+      });
+    }
+    setSaving(false); onDone();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+      <div className="w-full max-w-lg rounded-2xl bg-card p-5 shadow-xl">
+        <div className="flex items-center gap-2 text-primary"><Sparkles className="size-4" /><h3 className="text-lg font-semibold">Resumo da conversa</h3></div>
+        <p className="mt-1 text-xs text-muted-foreground">Salve um resumo para acolher a mesma pessoa em conversas futuras. Ela permanece anônima.</p>
+        {loading ? <p className="mt-4 text-sm text-muted-foreground">Gerando resumo com IA...</p> : (
+          <>
+            <label className="mt-4 block text-xs font-medium text-muted-foreground">Resumo acolhedor</label>
+            <textarea rows={3} value={summary} onChange={(e) => setSummary(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm" />
+            <label className="mt-3 block text-xs font-medium text-muted-foreground">Detalhes técnicos (temas/gatilhos)</label>
+            <textarea rows={4} value={technical} onChange={(e) => setTechnical(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm" />
+          </>
+        )}
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onDone} className="rounded-full px-4 py-2 text-sm text-muted-foreground hover:bg-muted">Pular</button>
+          <button onClick={save} disabled={loading || saving} className="btn-primary text-sm">{saving ? "Salvando..." : "Salvar e sair"}</button>
+        </div>
+      </div>
+    </div>
   );
 }

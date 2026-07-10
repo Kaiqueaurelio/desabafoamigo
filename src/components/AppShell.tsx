@@ -28,14 +28,15 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
   const patientNav = [
     { to: "/inicio", label: "Início", icon: Home },
-    { to: "/profissionais", label: "Voluntários", icon: Users },
+    { to: "/conversar", label: "Conversar agora", icon: HeartHandshake },
     { to: "/consultas", label: "Minhas conversas", icon: CalendarClock },
     { to: "/diario", label: "Meu diário", icon: NotebookPen },
     { to: "/apoio", label: "Apoio", icon: BookOpen },
   ] as const;
 
   const proNav = [
-    { to: "/pro", label: "Agenda", icon: CalendarClock },
+    { to: "/pro/fila", label: "Fila de escuta", icon: Users },
+    { to: "/pro", label: "Minhas conversas", icon: CalendarClock },
     { to: "/pro/perfil", label: "Meu perfil", icon: UserCog },
   ] as const;
 

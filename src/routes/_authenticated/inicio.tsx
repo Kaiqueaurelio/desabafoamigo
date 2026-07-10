@@ -59,8 +59,8 @@ function Home() {
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <QuickCard to="/profissionais" icon={<Users className="size-5" />} title="Nova conversa" desc="Escolha um(a) voluntário(a)" />
-        <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico e agendamentos" />
+        <QuickCard to="/conversar" icon={<Users className="size-5" />} title="Conversar agora" desc="Fila rápida com voluntário(a)" />
+        <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico" />
         <QuickCard to="/diario" icon={<NotebookPen className="size-5" />} title="Meu diário" desc="Registre como se sente" />
         <QuickCard to="/apoio" icon={<BookOpen className="size-5" />} title="Apoio & técnicas" desc="Respire, se acalme" />
       </div>
@@ -75,11 +75,11 @@ function Home() {
       </div>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-lg font-semibold text-foreground">Próximas conversas</h2>
+        <h2 className="mb-3 text-lg font-semibold text-foreground">Conversas recentes</h2>
         {upcoming.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground">Você ainda não tem conversas agendadas.</p>
-            <Link to="/profissionais" className="btn-primary mt-4 inline-block">Agendar agora</Link>
+            <p className="text-sm text-muted-foreground">Você ainda não conversou por aqui.</p>
+            <Link to="/conversar" className="btn-primary mt-4 inline-block">Conversar agora</Link>
           </div>
         ) : (
           <div className="space-y-2">
