@@ -2,10 +2,12 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarClock } from "lucide-react";
+import { ensureProAal2 } from "@/lib/proGuard";
 
 export const Route = createFileRoute("/_authenticated/pro/")({
-  beforeLoad: ({ context }) => {
+  beforeLoad: async ({ context }) => {
     if (!context.isPro) throw redirect({ to: "/inicio" });
+    await ensureProAal2();
   },
   component: ProAgenda,
 });

@@ -7,7 +7,11 @@ import { Users, Clock } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/_authenticated/pro/fila")({
-  beforeLoad: ({ context }) => { if (!context.isPro) throw redirect({ to: "/inicio" }); },
+  beforeLoad: async ({ context }) => {
+    if (!context.isPro) throw redirect({ to: "/inicio" });
+    const { ensureProAal2 } = await import("@/lib/proGuard");
+    await ensureProAal2();
+  },
   component: Fila,
 });
 
