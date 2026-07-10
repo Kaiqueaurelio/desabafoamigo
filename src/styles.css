@@ -139,3 +139,29 @@
   &:active { transform: translateY(0); }
   &:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 }
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.08); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@utility animate-blob {
+  animation: blob 14s ease-in-out infinite;
+}
+@utility animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+@utility animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob, .animate-float, .animate-fade-in, .animate-pulse, .animate-bounce {
+    animation: none !important;
+  }
+}
