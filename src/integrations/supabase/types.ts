@@ -314,6 +314,60 @@ export type Database = {
           },
         ]
       }
+      screenshot_incidents: {
+        Row: {
+          admin_notes: string | null
+          appointment_id: string | null
+          conversation_id: string | null
+          created_at: string
+          id: string
+          reason: string
+          severity: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          appointment_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          reason: string
+          severity?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          appointment_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string
+          severity?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screenshot_incidents_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "screenshot_incidents_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
