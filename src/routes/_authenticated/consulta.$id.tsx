@@ -61,6 +61,8 @@ function Consulta() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setMe(u.user.id);
+      const { data: myProf } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
+      if (myProf?.display_name) setMyAlias(myProf.display_name);
 
       const { data: a } = await supabase.from("appointments").select("*").eq("id", id).maybeSingle();
       if (!a || cancelled) return;
