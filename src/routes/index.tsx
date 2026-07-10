@@ -58,7 +58,7 @@ function Landing() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">Dra. Marina Rocha</p>
-                <p className="text-[11px] text-brand-green">Online agora · Psicóloga</p>
+                <p className="text-[11px] text-brand-green">Online agora · Voluntário(a)</p>
               </div>
             </div>
             <div className="space-y-2">
