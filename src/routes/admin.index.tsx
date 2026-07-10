@@ -24,6 +24,9 @@ type Volunteer = {
   reviewed_at: string | null;
 };
 
+type Tab = "pending" | "approved" | "rejected";
+
+
 
 function AdminDashboard() {
   const navigate = useNavigate();
