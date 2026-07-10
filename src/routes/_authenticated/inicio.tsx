@@ -59,8 +59,8 @@ function Home() {
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <QuickCard to="/profissionais" icon={<Users className="size-5" />} title="Nova conversa" desc="Escolha um(a) voluntário(a)" />
-        <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico e agendamentos" />
+        <QuickCard to="/conversar" icon={<Users className="size-5" />} title="Conversar agora" desc="Fila rápida com voluntário(a)" />
+        <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico" />
         <QuickCard to="/diario" icon={<NotebookPen className="size-5" />} title="Meu diário" desc="Registre como se sente" />
         <QuickCard to="/apoio" icon={<BookOpen className="size-5" />} title="Apoio & técnicas" desc="Respire, se acalme" />
       </div>
