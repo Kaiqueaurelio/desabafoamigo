@@ -31,8 +31,13 @@ function AdminLogin() {
     setError(null);
     setLoading(true);
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const normalizedPassword = password.trim();
       await supabase.auth.signOut();
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: normalizedPassword,
+      });
       if (error) throw error;
       const { data: roles } = await supabase
         .from("user_roles")
@@ -64,6 +69,10 @@ function AdminLogin() {
             <input
               id="email"
               type="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -75,6 +84,10 @@ function AdminLogin() {
             <input
               id="password"
               type="password"
+              autoComplete="current-password"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
