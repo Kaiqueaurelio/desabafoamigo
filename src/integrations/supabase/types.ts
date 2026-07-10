@@ -14,42 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          duration_min: number
+          id: string
+          patient_id: string
+          professional_id: string
+          professional_notes: string | null
+          scheduled_at: string
+          status: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          duration_min?: number
+          id?: string
+          patient_id: string
+          professional_id: string
+          professional_notes?: string | null
+          scheduled_at: string
+          status?: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          duration_min?: number
+          id?: string
+          patient_id?: string
+          professional_id?: string
+          professional_notes?: string | null
+          scheduled_at?: string
+          status?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      attachments: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          kind: string
+          mime_type: string
+          original_name: string | null
+          sender_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          mime_type: string
+          original_name?: string | null
+          sender_id: string
+          size_bytes: number
+          storage_path: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          mime_type?: string
+          original_name?: string | null
+          sender_id?: string
+          size_bytes?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attachments_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
+          appointment_id: string | null
           created_at: string
           ended_at: string | null
           id: string
           status: Database["public"]["Enums"]["conversation_status"]
-          user_alias: string
+          user_alias: string | null
           user_id: string
-          volunteer_alias: string
+          volunteer_alias: string | null
           volunteer_id: string
         }
         Insert: {
+          appointment_id?: string | null
           created_at?: string
           ended_at?: string | null
           id?: string
           status?: Database["public"]["Enums"]["conversation_status"]
-          user_alias: string
+          user_alias?: string | null
           user_id: string
-          volunteer_alias?: string
+          volunteer_alias?: string | null
           volunteer_id: string
         }
         Update: {
+          appointment_id?: string | null
           created_at?: string
           ended_at?: string | null
           id?: string
           status?: Database["public"]["Enums"]["conversation_status"]
-          user_alias?: string
+          user_alias?: string | null
           user_id?: string
-          volunteer_alias?: string
+          volunteer_alias?: string | null
           volunteer_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "conversations_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
-          content: string
+          attachment_id: string | null
+          content: string | null
           conversation_id: string
           created_at: string
           id: string
@@ -57,7 +155,8 @@ export type Database = {
           sender_id: string
         }
         Insert: {
-          content: string
+          attachment_id?: string | null
+          content?: string | null
           conversation_id: string
           created_at?: string
           id?: string
@@ -65,7 +164,8 @@ export type Database = {
           sender_id: string
         }
         Update: {
-          content?: string
+          attachment_id?: string | null
+          content?: string | null
           conversation_id?: string
           created_at?: string
           id?: string
@@ -73,6 +173,13 @@ export type Database = {
           sender_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "messages_attachment_id_fkey"
+            columns: ["attachment_id"]
+            isOneToOne: false
+            referencedRelation: "attachments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "messages_conversation_id_fkey"
             columns: ["conversation_id"]
@@ -103,26 +210,29 @@ export type Database = {
         }
         Relationships: []
       }
-      queue: {
+      profiles: {
         Row: {
-          alias: string
+          birth_year: number | null
           created_at: string
-          id: string
-          prefer_psychologist: boolean
+          display_name: string | null
+          phone: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          alias: string
+          birth_year?: number | null
           created_at?: string
-          id?: string
-          prefer_psychologist?: boolean
+          display_name?: string | null
+          phone?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          alias?: string
+          birth_year?: number | null
           created_at?: string
-          id?: string
-          prefer_psychologist?: boolean
+          display_name?: string | null
+          phone?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -153,6 +263,8 @@ export type Database = {
           applied_at: string
           approval_status: Database["public"]["Enums"]["volunteer_approval"]
           availability: string | null
+          available_slots: Json
+          bio: string | null
           credentials: string | null
           display_alias: string
           email: string | null
@@ -160,9 +272,11 @@ export type Database = {
           full_name: string | null
           is_psychologist: boolean
           motivation: string | null
+          photo_url: string | null
           rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          specialty: string | null
           status: Database["public"]["Enums"]["volunteer_status"]
           updated_at: string
           user_id: string
@@ -171,6 +285,8 @@ export type Database = {
           applied_at?: string
           approval_status?: Database["public"]["Enums"]["volunteer_approval"]
           availability?: string | null
+          available_slots?: Json
+          bio?: string | null
           credentials?: string | null
           display_alias?: string
           email?: string | null
@@ -178,9 +294,11 @@ export type Database = {
           full_name?: string | null
           is_psychologist?: boolean
           motivation?: string | null
+          photo_url?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          specialty?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
           updated_at?: string
           user_id: string
@@ -189,6 +307,8 @@ export type Database = {
           applied_at?: string
           approval_status?: Database["public"]["Enums"]["volunteer_approval"]
           availability?: string | null
+          available_slots?: Json
+          bio?: string | null
           credentials?: string | null
           display_alias?: string
           email?: string | null
@@ -196,9 +316,11 @@ export type Database = {
           full_name?: string | null
           is_psychologist?: boolean
           motivation?: string | null
+          photo_url?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          specialty?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
           updated_at?: string
           user_id?: string
