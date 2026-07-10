@@ -26,6 +26,8 @@ type Message = {
   id: string; conversation_id: string; sender_id: string;
   content: string | null; attachment_id: string | null; created_at: string; read_at: string | null;
   transcription?: string | null; translations?: Record<string, string> | null;
+  segments?: CaptionSegment[] | null;
+  translation_segments?: Record<string, CaptionSegment[]> | null;
 };
 type Attachment = {
   id: string; storage_path: string; mime_type: string; size_bytes: number;
