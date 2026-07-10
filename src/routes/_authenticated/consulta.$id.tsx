@@ -408,11 +408,11 @@ function SummaryDialog({ appt, onDone }: { appt: Appt; onDone: () => void }) {
 
   async function save() {
     setSaving(true);
-    const { data: existing } = await supabase.from("user_summaries").select("id, sessions_count").eq("user_id", appt.patient_id).maybeSingle();
+    const { data: existing } = await supabase.from("user_summaries").select("sessions_count").eq("user_id", appt.patient_id).maybeSingle();
     if (existing) {
       await supabase.from("user_summaries").update({
         summary, technical_details: technical, sessions_count: (existing.sessions_count ?? 0) + 1, last_conversation_id: appt.conversation_id,
-      }).eq("id", existing.id);
+      }).eq("user_id", appt.patient_id);
     } else {
       await supabase.from("user_summaries").insert({
         user_id: appt.patient_id, summary, technical_details: technical, sessions_count: 1, last_conversation_id: appt.conversation_id,
