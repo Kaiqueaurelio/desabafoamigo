@@ -57,6 +57,11 @@ function Consulta() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [askRating, setAskRating] = useState(false);
+  const [askSummary, setAskSummary] = useState(false);
+  const [peerSummary, setPeerSummary] = useState<{ summary: string; technical_details: string; sessions_count: number } | null>(null);
+  const [targetLang, setTargetLang] = useState<string>("en");
+  const doTranscribe = useServerFn(transcribeMessage);
+  const doTranslate = useServerFn(translateMessage);
   const riskDetected = draft.length > 6 && detectRisk(draft);
   const riskInHistory = messages.some((m) => m.content && detectRisk(m.content));
   const forensicHash = useMemo(() => (me ? getSessionForensicHash(me) : ""), [me]);
