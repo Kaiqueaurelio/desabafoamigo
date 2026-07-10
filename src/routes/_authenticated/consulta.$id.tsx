@@ -198,11 +198,11 @@ function Consulta() {
   return (
     <ScreenshotGuard
       onAttempt={(reason) => {
-        if (!appt) return;
+        if (!appt || !me) return;
         void supabase.from("reports").insert({
           appointment_id: appt.id,
           reporter_id: me,
-          reported_user_id: null,
+          reported_user_id: me,
           reason: `screenshot_attempt: ${reason}`,
           status: "auto",
         }).then(() => {}, () => {});
