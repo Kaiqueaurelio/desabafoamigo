@@ -150,22 +150,55 @@ export type Database = {
       }
       volunteers: {
         Row: {
+          applied_at: string
+          approval_status: Database["public"]["Enums"]["volunteer_approval"]
+          availability: string | null
+          credentials: string | null
           display_alias: string
+          email: string | null
+          experience: string | null
+          full_name: string | null
           is_psychologist: boolean
+          motivation: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: Database["public"]["Enums"]["volunteer_status"]
           updated_at: string
           user_id: string
         }
         Insert: {
+          applied_at?: string
+          approval_status?: Database["public"]["Enums"]["volunteer_approval"]
+          availability?: string | null
+          credentials?: string | null
           display_alias?: string
+          email?: string | null
+          experience?: string | null
+          full_name?: string | null
           is_psychologist?: boolean
+          motivation?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
           updated_at?: string
           user_id: string
         }
         Update: {
+          applied_at?: string
+          approval_status?: Database["public"]["Enums"]["volunteer_approval"]
+          availability?: string | null
+          credentials?: string | null
           display_alias?: string
+          email?: string | null
+          experience?: string | null
+          full_name?: string | null
           is_psychologist?: boolean
+          motivation?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
           updated_at?: string
           user_id?: string
@@ -188,6 +221,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "volunteer" | "psychologist"
       conversation_status: "active" | "ended"
+      volunteer_approval: "pending" | "approved" | "rejected"
       volunteer_status: "available" | "busy" | "offline"
     }
     CompositeTypes: {
@@ -318,6 +352,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "volunteer", "psychologist"],
       conversation_status: ["active", "ended"],
+      volunteer_approval: ["pending", "approved", "rejected"],
       volunteer_status: ["available", "busy", "offline"],
     },
   },
