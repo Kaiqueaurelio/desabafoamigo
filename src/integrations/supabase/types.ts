@@ -297,6 +297,36 @@ export type Database = {
         }
         Relationships: []
       }
+      mfa_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string | null
+          scope: string
+          success: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          scope: string
+          success: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          scope?: string
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mood_entries: {
         Row: {
           created_at: string
@@ -626,6 +656,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_mfa_lock: {
+        Args: { _scope: string }
+        Returns: {
+          failed_count: number
+          locked: boolean
+          remaining_seconds: number
+        }[]
+      }
       generate_random_alias: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -645,6 +683,10 @@ export type Database = {
       }
       purge_ended_conversations: { Args: never; Returns: undefined }
       purge_old_incidents: { Args: never; Returns: undefined }
+      record_mfa_attempt: {
+        Args: { _scope: string; _success: boolean }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "volunteer" | "psychologist"

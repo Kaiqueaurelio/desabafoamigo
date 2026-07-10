@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { ShieldCheck } from "lucide-react";
+import { checkMfaLock, recordMfaAttempt, formatLockMessage } from "@/lib/mfaRateLimit";
 
 export const Route = createFileRoute("/admin/login")({
   component: AdminLogin,
@@ -86,12 +87,28 @@ function AdminLogin() {
     setLoading(true);
     setError(null);
     try {
+      const lock = await checkMfaLock("admin");
+      if (lock.locked) {
+        setError(formatLockMessage(lock.remainingSeconds));
+        return;
+      }
       const { error } = await supabase.auth.mfa.verify({
         factorId,
         challengeId,
         code: code.trim(),
       });
-      if (error) throw error;
+      if (error) {
+        await recordMfaAttempt("admin", false);
+        const after = await checkMfaLock("admin");
+        if (after.locked) {
+          setError(formatLockMessage(after.remainingSeconds));
+        } else {
+          const left = Math.max(0, 5 - after.failedCount);
+          setError(`Código inválido. Tentativas restantes: ${left}.`);
+        }
+        return;
+      }
+      await recordMfaAttempt("admin", true);
       navigate({ to: "/admin" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Código inválido.");
