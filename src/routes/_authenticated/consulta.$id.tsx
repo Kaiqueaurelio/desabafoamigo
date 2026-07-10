@@ -163,7 +163,7 @@ function Consulta() {
 
   async function uploadFile(file: File) {
     if (!me || !appt?.conversation_id) return;
-    const kind: Attachment["kind"] = file.type.startsWith("image/") ? "image" : file.type.startsWith("audio/") ? "audio" : file.type === "application/pdf" ? "pdf" : (() => { throw new Error("Tipo não suportado (PDF, imagem ou áudio)"); })();
+    const kind: Attachment["kind"] = file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : file.type.startsWith("audio/") ? "audio" : file.type === "application/pdf" ? "pdf" : (() => { throw new Error("Tipo não suportado (PDF, imagem, vídeo ou áudio)"); })();
     if (file.size > MAX[kind]) throw new Error(`Arquivo muito grande. Máx ${MAX[kind] / 1024 / 1024}MB`);
     const path = `${appt.conversation_id}/${me}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
     const { error: upErr } = await supabase.storage.from("consultation-files").upload(path, file, { contentType: file.type });
