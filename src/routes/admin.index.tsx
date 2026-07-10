@@ -190,6 +190,12 @@ function AdminDashboard() {
               <p className="mt-0.5 text-sm text-muted-foreground">Analise relatos enviados por usuários e voluntários.</p>
             </div>
             <Link to="/admin/denuncias" className="shrink-0 rounded-full bg-destructive px-4 py-2 text-center text-sm font-semibold text-destructive-foreground">Ver denúncias</Link>
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Incidentes de captura</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">Auditoria de tentativas de screenshot (só metadados, sem conteúdo da conversa).</p>
+            </div>
+            <Link to="/admin/incidentes" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Ver incidentes</Link>
           </div>
         </div>
 
