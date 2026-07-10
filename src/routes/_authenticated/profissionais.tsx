@@ -54,7 +54,7 @@ function List() {
                 )}
                 <div>
                   <p className="font-semibold text-foreground">{p.full_name ?? "Profissional"}</p>
-                  <p className="text-xs text-brand-green">{p.is_psychologist ? "Psicólogo(a)" : "Voluntário(a)"}</p>
+                  <p className="text-xs text-brand-green">Voluntário(a) treinado(a)</p>
                 </div>
               </div>
               {p.specialty && <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">{p.specialty}</p>}
