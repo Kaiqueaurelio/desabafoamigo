@@ -1,17 +1,32 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { Loader2, LogOut, Check, X, Users, Clock, MessageCircleHeart, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/admin/")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user || data.user.is_anonymous) {
+      throw redirect({ to: "/admin/login" });
+    }
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id)
+      .eq("role", "admin");
+    if (!roles || roles.length === 0) {
+      throw redirect({ to: "/admin/login" });
+    }
+  },
   component: AdminDashboard,
 });
+
 
 type Volunteer = {
   user_id: string;
   display_alias: string;
-  is_psychologist: boolean;
   status: string;
   approval_status: "pending" | "approved" | "rejected";
   full_name: string | null;
@@ -26,6 +41,8 @@ type Volunteer = {
 };
 
 type Tab = "pending" | "approved" | "rejected";
+
+
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -83,7 +100,7 @@ function AdminDashboard() {
       // Grant role — trigger updates volunteers row to approved
       const { error: roleErr } = await supabase
         .from("user_roles")
-        .insert({ user_id: v.user_id, role: v.is_psychologist ? "psychologist" : "volunteer" });
+        .insert({ user_id: v.user_id, role: "volunteer" });
       if (roleErr && !roleErr.message.includes("duplicate")) throw roleErr;
       // Ensure approval status set even if role already existed
       await supabase
@@ -111,7 +128,7 @@ function AdminDashboard() {
         })
         .eq("user_id", v.user_id);
       // Revoke any existing role
-      await supabase.from("user_roles").delete().eq("user_id", v.user_id).in("role", ["volunteer", "psychologist"]);
+      await supabase.from("user_roles").delete().eq("user_id", v.user_id).eq("role", "volunteer");
       setSelected(null);
       setRejectReason("");
       await refresh();
@@ -207,7 +224,7 @@ function AdminDashboard() {
                     <tr key={v.user_id} className="border-b border-border/50">
                       <td className="py-3 pr-4 font-medium text-foreground">{v.full_name || v.display_alias || "—"}</td>
                       <td className="py-3 pr-4 text-muted-foreground">{v.email || "—"}</td>
-                      <td className="py-3 pr-4">{v.is_psychologist ? "Psicólogo(a)" : "Voluntário(a)"}</td>
+                      <td className="py-3 pr-4">Voluntário(a)</td>
                       <td className="py-3 pr-4 text-muted-foreground">{new Date(v.applied_at).toLocaleDateString()}</td>
                       <td className="py-3 pr-4">
                         <StatusPill status={v.approval_status} />
@@ -239,7 +256,7 @@ function AdminDashboard() {
             </div>
 
             <dl className="space-y-3 text-sm">
-              <Field label="Tipo">{selected.is_psychologist ? "Psicólogo(a)" : "Voluntário(a)"}</Field>
+              <Field label="Tipo">Voluntário(a) treinado(a)</Field>
               <Field label="Motivação">{selected.motivation || "—"}</Field>
               <Field label="Experiência">{selected.experience || "—"}</Field>
               <Field label="Disponibilidade">{selected.availability || "—"}</Field>

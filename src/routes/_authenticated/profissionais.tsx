@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_authenticated/profissionais")({
 
 type Pro = {
   user_id: string; full_name: string | null; specialty: string | null; bio: string | null;
-  photo_url: string | null; is_psychologist: boolean;
+  photo_url: string | null;
 };
 
 function List() {
@@ -20,13 +20,14 @@ function List() {
     (async () => {
       const { data } = await supabase
         .from("volunteers")
-        .select("user_id, full_name, specialty, bio, photo_url, is_psychologist")
+        .select("user_id, full_name, specialty, bio, photo_url")
         .eq("approval_status", "approved")
         .order("full_name");
       setPros((data ?? []) as Pro[]);
       setLoading(false);
     })();
   }, []);
+
 
   return (
     <div className="mx-auto max-w-5xl p-6">
@@ -53,7 +54,7 @@ function List() {
                 )}
                 <div>
                   <p className="font-semibold text-foreground">{p.full_name ?? "Profissional"}</p>
-                  <p className="text-xs text-brand-green">{p.is_psychologist ? "Psicólogo(a)" : "Voluntário(a)"}</p>
+                  <p className="text-xs text-brand-green">Voluntário(a) treinado(a)</p>
                 </div>
               </div>
               {p.specialty && <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">{p.specialty}</p>}
