@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, Eye } from "lucide-react";
 
 export type ScreenshotSeverity = "low" | "medium" | "high";
 
@@ -14,7 +14,8 @@ export interface ScreenshotAttempt {
  *
  * - `high`  → sinal inequívoco no navegador (PrintScreen, atalho de captura do SO)
  * - `medium`→ perda de visibilidade/foco imediatamente após atividade do usuário
- *             (padrão típico de ferramenta externa de screenshot)
+ *             (padrão típico de ferramenta externa de screenshot) ou entrada em
+ *             modo picture-in-picture
  * - `low`   → sinal isolado que pode ter causa benigna (troca de aba, alt-tab)
  */
 export function classifyAttempt(
@@ -22,6 +23,7 @@ export function classifyAttempt(
   ctx: { msSinceLastKey: number },
 ): ScreenshotSeverity {
   if (/printscreen|atalho de captura/i.test(reason)) return "high";
+  if (/picture.in.picture|pip/i.test(reason)) return "medium";
   if (/perdeu o foco|visibilidade/i.test(reason) && ctx.msSinceLastKey < 1500) return "medium";
   return "low";
 }
@@ -33,6 +35,17 @@ export function classifyAttempt(
  * capturas de tela do sistema operacional. Isto é uma camada de dissuasão +
  * auditoria. Para bloqueio real em celular, empacote com Capacitor e use
  * FLAG_SECURE (Android) / overlay (iOS). Ver docs/mobile-screenshot-block.md.
+ *
+ * A cortina (curtain) cobre completamente o conteúdo enquanto:
+ *  - a aba está sem foco/visibilidade;
+ *  - a página está em picture-in-picture;
+ *  - uma tentativa de captura foi acabada de detectar.
+ *
+ * Acessibilidade:
+ *  - Marca `aria-hidden` no conteúdo enquanto está borrado, para leitores
+ *    de tela não anunciarem informação obscurecida.
+ *  - Alerta usa `role="alert"` + `aria-live="assertive"`.
+ *  - Respeita `prefers-reduced-motion`.
  */
 export function ScreenshotGuard({
   children,
@@ -41,26 +54,26 @@ export function ScreenshotGuard({
   children: React.ReactNode;
   onAttempt?: (attempt: ScreenshotAttempt) => void;
 }) {
-  const [blurred, setBlurred] = useState(false);
-  const [warning, setWarning] = useState<string | null>(null);
+  const [curtain, setCurtain] = useState<null | { reason: string; sticky: boolean }>(null);
   const lastActivityRef = useRef<number>(Date.now());
   const prefersReducedMotion = useRef<boolean>(false);
 
   useEffect(() => {
-    prefersReducedMotion.current = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    prefersReducedMotion.current =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
-    function flag(reason: string) {
+    function flag(reason: string, sticky = false) {
       const attempt: ScreenshotAttempt = {
         reason,
         severity: classifyAttempt(reason, { msSinceLastKey: Date.now() - lastActivityRef.current }),
         userAgent: navigator.userAgent,
       };
-      setBlurred(true);
-      setWarning(reason);
+      setCurtain({ reason, sticky });
       onAttempt?.(attempt);
-      const dur = prefersReducedMotion.current ? 1200 : 2500;
-      window.setTimeout(() => setBlurred(false), dur);
-      window.setTimeout(() => setWarning(null), dur + 1500);
+      if (!sticky) {
+        const dur = prefersReducedMotion.current ? 1200 : 2500;
+        window.setTimeout(() => setCurtain((c) => (c && !c.sticky ? null : c)), dur);
+      }
     }
 
     function bumpActivity() {
@@ -86,29 +99,52 @@ export function ScreenshotGuard({
 
     function onContext(e: MouseEvent) { e.preventDefault(); }
     function onDrag(e: DragEvent) { e.preventDefault(); }
+
+    // Cortina sticky enquanto a aba não estiver visível
     function onVisibility() {
-      if (document.visibilityState === "hidden") flag("Aba perdeu a visibilidade");
+      if (document.visibilityState === "hidden") {
+        flag("Aba perdeu a visibilidade", true);
+      } else {
+        setCurtain((c) => (c?.sticky && /visibilidade|foco|picture/i.test(c.reason) ? null : c));
+      }
     }
-    function onBlur() { flag("Janela perdeu o foco"); }
+    function onFocus() {
+      setCurtain((c) => (c?.sticky && /foco|visibilidade/i.test(c.reason) ? null : c));
+    }
+    function onBlur() { flag("Janela perdeu o foco", true); }
+
+    // Picture-in-Picture: mantém cortina enquanto o modo estiver ativo
+    function onPipEnter() { flag("Picture-in-Picture ativado", true); }
+    function onPipLeave() {
+      setCurtain((c) => (c?.sticky && /picture/i.test(c.reason) ? null : c));
+    }
 
     window.addEventListener("keydown", onKey, true);
     window.addEventListener("keyup", bumpActivity, true);
     window.addEventListener("mousemove", bumpActivity, { passive: true });
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("blur", onBlur);
     document.addEventListener("contextmenu", onContext);
     document.addEventListener("dragstart", onDrag);
     document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("blur", onBlur);
+    document.addEventListener("enterpictureinpicture", onPipEnter as EventListener);
+    document.addEventListener("leavepictureinpicture", onPipLeave as EventListener);
 
     return () => {
       window.removeEventListener("keydown", onKey, true);
       window.removeEventListener("keyup", bumpActivity, true);
       window.removeEventListener("mousemove", bumpActivity);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("blur", onBlur);
       document.removeEventListener("contextmenu", onContext);
       document.removeEventListener("dragstart", onDrag);
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("enterpictureinpicture", onPipEnter as EventListener);
+      document.removeEventListener("leavepictureinpicture", onPipLeave as EventListener);
     };
   }, [onAttempt]);
+
+  const blurred = curtain !== null;
 
   return (
     <div
@@ -121,22 +157,30 @@ export function ScreenshotGuard({
         className="h-full w-full motion-safe:transition-[filter] motion-safe:duration-200"
         style={{ filter: blurred ? "blur(18px) saturate(0.6)" : "none" }}
         aria-hidden={blurred || undefined}
+        inert={blurred || undefined}
       >
         {children}
       </div>
-      {blurred && (
+      {curtain && (
         <div
           role="alert"
           aria-live="assertive"
           data-testid="guard-alert"
-          className="pointer-events-none absolute inset-0 z-40 grid place-items-center bg-background/60 backdrop-blur-sm"
+          className="pointer-events-none absolute inset-0 z-40 grid place-items-center bg-background/70 backdrop-blur-sm"
         >
-          <div className="flex max-w-xs items-start gap-3 rounded-2xl border border-destructive/40 bg-card px-4 py-3 shadow-lg">
-            <ShieldAlert className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
+          <div className="flex max-w-sm items-start gap-3 rounded-2xl border border-destructive/40 bg-card px-4 py-3 shadow-lg">
+            {curtain.sticky ? (
+              <Eye className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+            ) : (
+              <ShieldAlert className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
+            )}
             <div>
-              <p className="text-sm font-semibold text-foreground">Captura bloqueada</p>
+              <p className="text-sm font-semibold text-foreground">
+                {curtain.sticky ? "Conteúdo oculto" : "Captura bloqueada"}
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {warning ?? "Tentativa detectada."} Para proteger o sigilo, capturas desta conversa não são permitidas.
+                {curtain.reason}. Para proteger o sigilo, a conversa fica
+                oculta enquanto a janela não está em foco.
               </p>
             </div>
           </div>

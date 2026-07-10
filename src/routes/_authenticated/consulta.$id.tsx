@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2 } from "lucide-react";
 import { Watermark, IdentityWatermark } from "@/components/Watermark";
@@ -8,6 +8,7 @@ import { detectRisk } from "@/lib/riskWords";
 import { RiskAlert } from "@/components/RiskAlert";
 import { ReportButton } from "@/components/ReportDialog";
 import { RatingDialog } from "@/components/RatingDialog";
+import { getSessionForensicHash } from "@/lib/sessionForensic";
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
   component: Consulta,
@@ -50,6 +51,7 @@ function Consulta() {
   const [askRating, setAskRating] = useState(false);
   const riskDetected = draft.length > 6 && detectRisk(draft);
   const riskInHistory = messages.some((m) => m.content && detectRisk(m.content));
+  const forensicHash = useMemo(() => (me ? getSessionForensicHash(me) : ""), [me]);
 
   const isPro = appt && me === appt.professional_id;
 
@@ -238,7 +240,7 @@ function Consulta() {
         <section className="flex flex-1 flex-col">
           <div className="relative flex-1 overflow-y-auto">
             <Watermark />
-            <IdentityWatermark label={myAlias} />
+            <IdentityWatermark label={myAlias} sessionHash={me ? forensicHash : undefined} />
             <div className="relative z-10 space-y-2 px-4 py-4">
             {messages.length === 0 && (
               <p className="mx-auto max-w-md rounded-2xl bg-brand-soft px-4 py-3 text-center text-sm text-muted-foreground">

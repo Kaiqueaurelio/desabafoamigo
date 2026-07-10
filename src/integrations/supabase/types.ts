@@ -150,6 +150,45 @@ export type Database = {
           },
         ]
       }
+      flagged_users: {
+        Row: {
+          admin_notes: string | null
+          cleared: boolean
+          created_at: string
+          flagged_at: string
+          incident_count: number
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          cleared?: boolean
+          created_at?: string
+          flagged_at?: string
+          incident_count?: number
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          cleared?: boolean
+          created_at?: string
+          flagged_at?: string
+          incident_count?: number
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_id: string | null
