@@ -304,29 +304,55 @@ function Consulta() {
             {messages.map((m) => {
               const mine = m.sender_id === me;
               const att = m.attachment_id ? attachments[m.attachment_id] : null;
-              const canTranscribe = att && (att.kind === "audio" || att.kind === "video") && !m.transcription;
-              const translated = m.translations?.[targetLang];
-              const canTranslate = (m.content || m.transcription) && !translated;
+              const isMedia = !!att && (att.kind === "audio" || att.kind === "video");
+              const canTranscribe = isMedia && !m.transcription;
+              const langsAvailable = Object.keys(m.translations ?? {});
+              const canTranslate = (m.content || m.transcription) && !(m.translations?.[targetLang]);
+              const showOriginal = isCaptionVisible(m.id, "__original");
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[78%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-chat-user text-chat-user-foreground rounded-br-sm" : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"}`}>
                     {m.content && <p className="whitespace-pre-wrap break-words">{m.content}</p>}
                     {att && <AttachmentView att={att} url={urls[att.id]} />}
-                    {m.transcription && (
+                    {m.transcription && showOriginal && (
                       <p className="mt-2 rounded-lg bg-background/30 px-2 py-1 text-[12px] italic">
                         <AudioLines className="mr-1 inline size-3" />{m.transcription}
                       </p>
                     )}
-                    {translated && (
-                      <p className="mt-1 rounded-lg bg-background/30 px-2 py-1 text-[12px]">
-                        <Languages className="mr-1 inline size-3" />{translated}
-                      </p>
+                    {langsAvailable.map((lang) => {
+                      if (!isCaptionVisible(m.id, lang)) return null;
+                      const label = LANGS.find((l) => l.code === lang)?.label ?? lang;
+                      return (
+                        <p key={lang} className="mt-1 rounded-lg bg-background/30 px-2 py-1 text-[12px]">
+                          <Languages className="mr-1 inline size-3" />
+                          <span className="mr-1 text-[10px] opacity-70">{label}</span>
+                          {m.translations?.[lang]}
+                        </p>
+                      );
+                    })}
+                    {(m.transcription || langsAvailable.length > 0) && (
+                      <div className={`mt-1 flex flex-wrap gap-1 text-[10px] ${mine ? "text-chat-user-foreground/80" : "text-chat-peer-foreground/70"}`}>
+                        {m.transcription && (
+                          <button onClick={() => toggleCaption(m.id, "__original")} className="rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70">
+                            {showOriginal ? "Ocultar" : "Mostrar"} original
+                          </button>
+                        )}
+                        {langsAvailable.map((lang) => {
+                          const label = LANGS.find((l) => l.code === lang)?.label ?? lang;
+                          const on = isCaptionVisible(m.id, lang);
+                          return (
+                            <button key={lang} onClick={() => toggleCaption(m.id, lang)} className="rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70">
+                              {on ? "Ocultar" : "Mostrar"} {label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     )}
                     <div className={`mt-1 flex flex-wrap items-center gap-2 text-[10px] ${mine ? "text-chat-user-foreground/80" : "text-chat-peer-foreground/70"}`}>
                       <time>{new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time>
                       {mine && <span>· {m.read_at ? "lida" : "enviada"}</span>}
                       {canTranscribe && <button onClick={() => transcribe(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><AudioLines className="size-3" /> transcrever</button>}
-                      {canTranslate && <button onClick={() => translate(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><Languages className="size-3" /> traduzir</button>}
+                      {canTranslate && <button onClick={() => translate(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><Languages className="size-3" /> traduzir p/ {LANGS.find(l=>l.code===targetLang)?.label ?? targetLang}</button>}
                     </div>
                   </div>
                 </div>
