@@ -28,6 +28,10 @@ function ProMfa() {
   useEffect(() => {
     (async () => {
       try {
+        const lock = await checkMfaLock("pro");
+        if (lock.locked) {
+          setError(formatLockMessage(lock.remainingSeconds));
+        }
         const { data: list } = await supabase.auth.mfa.listFactors();
         const verified = (list?.totp ?? []).filter((f) => f.status === "verified");
         if (verified.length > 0) {
