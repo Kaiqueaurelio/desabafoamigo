@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 import { z } from "zod";
 
 export const Route = createFileRoute("/pro/cadastro")({
-  head: () => ({ meta: [{ title: "Cadastro de profissional — Desabafa Amigo" }] }),
+  head: () => ({ meta: [{ title: "Cadastro de voluntário(a) — Desabafa Amigo" }] }),
   component: ProSignup,
 });
 
