@@ -270,7 +270,6 @@ export type Database = {
           email: string | null
           experience: string | null
           full_name: string | null
-          is_psychologist: boolean
           motivation: string | null
           photo_url: string | null
           rejection_reason: string | null
@@ -292,7 +291,6 @@ export type Database = {
           email?: string | null
           experience?: string | null
           full_name?: string | null
-          is_psychologist?: boolean
           motivation?: string | null
           photo_url?: string | null
           rejection_reason?: string | null
@@ -314,7 +312,6 @@ export type Database = {
           email?: string | null
           experience?: string | null
           full_name?: string | null
-          is_psychologist?: boolean
           motivation?: string | null
           photo_url?: string | null
           rejection_reason?: string | null
