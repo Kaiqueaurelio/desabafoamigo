@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2 } from "lucide-react";
+import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2, Video, Languages, AudioLines, Sparkles } from "lucide-react";
 import { Watermark, IdentityWatermark } from "@/components/Watermark";
 import { ScreenshotGuard } from "@/components/ScreenshotGuard";
 import { detectRisk } from "@/lib/riskWords";
@@ -9,6 +9,8 @@ import { RiskAlert } from "@/components/RiskAlert";
 import { ReportButton } from "@/components/ReportDialog";
 import { RatingDialog } from "@/components/RatingDialog";
 import { getSessionForensicHash } from "@/lib/sessionForensic";
+import { useServerFn } from "@tanstack/react-start";
+import { transcribeMessage, translateMessage, summarizeConversation } from "@/lib/ai.functions";
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
   component: Consulta,
@@ -22,13 +24,19 @@ type Appt = {
 type Message = {
   id: string; conversation_id: string; sender_id: string;
   content: string | null; attachment_id: string | null; created_at: string; read_at: string | null;
+  transcription?: string | null; translations?: Record<string, string> | null;
 };
 type Attachment = {
   id: string; storage_path: string; mime_type: string; size_bytes: number;
-  kind: "pdf"|"image"|"audio"; original_name: string | null; sender_id: string;
+  kind: "pdf"|"image"|"audio"|"video"; original_name: string | null; sender_id: string;
 };
 
-const MAX = { pdf: 10 * 1024 * 1024, image: 5 * 1024 * 1024, audio: 10 * 1024 * 1024 };
+const MAX = { pdf: 10 * 1024 * 1024, image: 5 * 1024 * 1024, audio: 10 * 1024 * 1024, video: 30 * 1024 * 1024 };
+const LANGS: { code: string; label: string }[] = [
+  { code: "pt-BR", label: "Português (BR)" }, { code: "en", label: "English" }, { code: "es", label: "Español" },
+  { code: "fr", label: "Français" }, { code: "de", label: "Deutsch" }, { code: "it", label: "Italiano" },
+  { code: "ja", label: "日本語" }, { code: "zh", label: "中文" }, { code: "ar", label: "العربية" },
+];
 
 function Consulta() {
   const { id } = Route.useParams();
