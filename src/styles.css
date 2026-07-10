@@ -73,7 +73,7 @@
   --secondary: oklch(0.96 0.02 245);
   --secondary-foreground: oklch(0.28 0.07 250);
   --muted: oklch(0.96 0.015 245);
-  --muted-foreground: oklch(0.48 0.03 250);
+  --muted-foreground: oklch(0.42 0.03 250);
   --accent: oklch(0.68 0.14 245);
   --accent-foreground: oklch(0.99 0.005 240);
   --destructive: oklch(0.58 0.22 27);
@@ -116,6 +116,10 @@
 }
 
 @layer base {
+  :root {
+    /* Base 16px, respects user's browser zoom / font-size setting. */
+    font-size: 100%;
+  }
   * {
     border-color: var(--color-border);
   }
@@ -124,8 +128,32 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
+  /* Global keyboard focus — visible only when navigating via keyboard. */
+  :focus { outline: none; }
+  :focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  /* Skip link — hidden until focused via Tab. */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 100;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border-radius: var(--radius);
+    font-weight: 600;
+    box-shadow: var(--shadow-calm);
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus { top: 1rem; }
 }
+
 
 @utility btn-primary {
   background-color: var(--color-primary);

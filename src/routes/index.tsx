@@ -88,15 +88,18 @@ function Reveal({
 
 function Landing() {
   return (
-    <main className="min-h-dvh overflow-hidden bg-background">
+    <div className="min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
+      <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <Header />
-      <Hero />
-      <Origin />
-      <Mission />
-      <Testimonials />
-      <HowTo />
+      <main id="conteudo" tabIndex={-1}>
+        <Hero />
+        <Origin />
+        <Mission />
+        <Testimonials />
+        <HowTo />
+      </main>
       <Footer />
-    </main>
+    </div>
   );
 }
 
@@ -104,21 +107,22 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" aria-label="Desabafa Amigo — página inicial" className="flex items-center gap-2 rounded-md">
           <Logo size={32} />
           <span className="text-sm font-semibold text-primary">Desabafa Amigo</span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <a href="#origem" className="hover:text-primary transition-colors">Nossa história</a>
-          <a href="#missao" className="hover:text-primary transition-colors">Como ajudamos</a>
-          <a href="#depoimentos" className="hover:text-primary transition-colors">Depoimentos</a>
-          <Link to="/pro/cadastro" className="hover:text-primary transition-colors">Ser voluntário(a)</Link>
+        <nav aria-label="Navegação principal" className="hidden items-center gap-6 text-sm text-foreground/80 md:flex">
+          <a href="#origem" className="rounded-md hover:text-primary transition-colors">Nossa história</a>
+          <a href="#missao" className="rounded-md hover:text-primary transition-colors">Como ajudamos</a>
+          <a href="#depoimentos" className="rounded-md hover:text-primary transition-colors">Depoimentos</a>
+          <Link to="/pro/cadastro" className="rounded-md hover:text-primary transition-colors">Ser voluntário(a)</Link>
         </nav>
         <Link to="/auth" className="btn-primary !py-2 !px-4 text-sm">Entrar</Link>
       </div>
     </header>
   );
 }
+
 
 function Hero() {
   return (
