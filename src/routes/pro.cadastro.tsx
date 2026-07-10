@@ -51,7 +51,6 @@ function ProSignup() {
       const { error: vErr } = await supabase.from("volunteers").insert({
         user_id: userId,
         display_alias: form.full_name,
-        is_psychologist: form.is_psychologist,
         full_name: form.full_name,
         email: form.email,
         specialty: form.specialty,
@@ -60,6 +59,7 @@ function ProSignup() {
         motivation: form.motivation,
         approval_status: "pending",
       });
+
       if (vErr) throw vErr;
       setOk(true);
       setTimeout(() => navigate({ to: "/auth" }), 3000);
