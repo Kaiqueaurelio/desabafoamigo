@@ -112,7 +112,7 @@ function AdminDashboard() {
         })
         .eq("user_id", v.user_id);
       // Revoke any existing role
-      await supabase.from("user_roles").delete().eq("user_id", v.user_id).in("role", ["volunteer", "psychologist"]);
+      await supabase.from("user_roles").delete().eq("user_id", v.user_id).eq("role", "volunteer");
       setSelected(null);
       setRejectReason("");
       await refresh();
