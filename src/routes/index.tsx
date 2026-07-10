@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { ChatDemo } from "@/components/ChatDemo";
-import { Watermark, InfinityFlow } from "@/components/Watermark";
+import { InfinityFlow } from "@/components/Watermark";
 import {
   MessageSquareText,
   CalendarClock,
@@ -92,7 +92,7 @@ function Reveal({
 function Landing() {
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
-      <Watermark />
+      
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <div className="relative z-10">
         <Header />
