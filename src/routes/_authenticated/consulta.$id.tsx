@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2 } from "lucide-react";
 import { Watermark } from "@/components/Watermark";
+import { detectRisk } from "@/lib/riskWords";
+import { RiskAlert } from "@/components/RiskAlert";
+import { ReportButton } from "@/components/ReportDialog";
+import { RatingDialog } from "@/components/RatingDialog";
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
   component: Consulta,
@@ -41,6 +45,9 @@ function Consulta() {
   const chunksRef = useRef<Blob[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [askRating, setAskRating] = useState(false);
+  const riskDetected = draft.length > 6 && detectRisk(draft);
+  const riskInHistory = messages.some((m) => m.content && detectRisk(m.content));
 
   const isPro = appt && me === appt.professional_id;
 
@@ -175,7 +182,8 @@ function Consulta() {
     if (!confirm("Marcar conversa como finalizada?")) return;
     await supabase.from("appointments").update({ status: "completed", professional_notes: notesDraft }).eq("id", appt.id);
     if (appt.conversation_id) await supabase.from("conversations").update({ status: "ended", ended_at: new Date().toISOString() }).eq("id", appt.conversation_id);
-    navigate({ to: isPro ? "/pro" : "/consultas" });
+    if (!isPro) { setAskRating(true); return; }
+    navigate({ to: "/pro" });
   }
 
   async function saveNotes() {
