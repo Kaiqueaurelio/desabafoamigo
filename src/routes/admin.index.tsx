@@ -84,7 +84,7 @@ function AdminDashboard() {
       // Grant role — trigger updates volunteers row to approved
       const { error: roleErr } = await supabase
         .from("user_roles")
-        .insert({ user_id: v.user_id, role: v.is_psychologist ? "psychologist" : "volunteer" });
+        .insert({ user_id: v.user_id, role: "volunteer" });
       if (roleErr && !roleErr.message.includes("duplicate")) throw roleErr;
       // Ensure approval status set even if role already existed
       await supabase
