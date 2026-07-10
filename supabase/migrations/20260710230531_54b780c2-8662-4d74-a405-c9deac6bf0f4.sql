@@ -1,0 +1,1 @@
+ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS segments jsonb, ADD COLUMN IF NOT EXISTS translation_segments jsonb NOT NULL DEFAULT '{}'::jsonb;
