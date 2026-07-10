@@ -94,6 +94,13 @@ function Consulta() {
 
       if (!a.conversation_id) return;
 
+      // If I'm the volunteer, load returning-user summary
+      if (a.professional_id === u.user.id) {
+        const { data: sum } = await supabase.from("user_summaries")
+          .select("summary, technical_details, sessions_count").eq("user_id", a.patient_id).maybeSingle();
+        if (sum) setPeerSummary(sum);
+      }
+
       const { data: msgs } = await supabase.from("messages").select("*").eq("conversation_id", a.conversation_id).order("created_at", { ascending: true });
       setMessages((msgs ?? []) as Message[]);
       await loadAttachments((msgs ?? []) as Message[]);
