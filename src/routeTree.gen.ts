@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
 import { Route as AuthenticatedProfissionaisRouteImport } from './routes/_authenticated/profissionais'
@@ -54,6 +55,11 @@ const ProCadastroRoute = ProCadastroRouteImport.update({
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIncidentesRoute = AdminIncidentesRouteImport.update({
+  id: '/admin/incidentes',
+  path: '/admin/incidentes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDenunciasRoute = AdminDenunciasRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
+  '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
+  '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
+  '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
+    | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin/'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
+    | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
+    | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin/'
@@ -233,6 +245,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
   AdminDenunciasRoute: typeof AdminDenunciasRoute
+  AdminIncidentesRoute: typeof AdminIncidentesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/incidentes': {
+      id: '/admin/incidentes'
+      path: '/admin/incidentes'
+      fullPath: '/admin/incidentes'
+      preLoaderRoute: typeof AdminIncidentesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/denuncias': {
@@ -395,6 +415,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   AdminAtendimentoRoute: AdminAtendimentoRoute,
   AdminDenunciasRoute: AdminDenunciasRoute,
+  AdminIncidentesRoute: AdminIncidentesRoute,
   AdminLoginRoute: AdminLoginRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
