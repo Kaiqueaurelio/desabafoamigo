@@ -176,6 +176,14 @@ function AdminDashboard() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
+        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-primary">Central de atendimento</h2>
+            <p className="mt-0.5 text-sm text-muted-foreground">Acompanhe conversas em tempo real, atenda a fila e apoie voluntários quando necessário.</p>
+          </div>
+          <Link to="/admin/atendimento" className="btn-primary shrink-0 text-center text-sm">Abrir atendimento</Link>
+        </div>
+
         {/* Stats */}
         <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon={<Clock className="size-5 text-brand-green" />} label="Pendentes" value={counts.pending} />
