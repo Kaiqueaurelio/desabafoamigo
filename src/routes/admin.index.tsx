@@ -35,7 +35,7 @@ function AdminDashboard() {
   const [selected, setSelected] = useState<Volunteer | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [busy, setBusy] = useState(false);
-  const [stats, setStats] = useState({ conversations: 0, messages: 0, queue: 0 });
+  const [stats, setStats] = useState({ conversations: 0, appointments: 0, upcoming: 0 });
 
   useEffect(() => {
     (async () => {
@@ -66,10 +66,10 @@ function AdminDashboard() {
 
     const [{ count: c1 }, { count: c2 }, { count: c3 }] = await Promise.all([
       supabase.from("conversations").select("*", { count: "exact", head: true }),
-      supabase.from("metrics").select("*", { count: "exact", head: true }).eq("event", "conversation_started"),
-      supabase.from("queue").select("*", { count: "exact", head: true }),
+      supabase.from("appointments").select("*", { count: "exact", head: true }),
+      supabase.from("appointments").select("*", { count: "exact", head: true }).in("status", ["scheduled", "in_progress"]),
     ]);
-    setStats({ conversations: c1 ?? 0, messages: c2 ?? 0, queue: c3 ?? 0 });
+    setStats({ conversations: c1 ?? 0, appointments: c2 ?? 0, upcoming: c3 ?? 0 });
   }
 
   const filtered = useMemo(
@@ -163,8 +163,9 @@ function AdminDashboard() {
         <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon={<Clock className="size-5 text-brand-green" />} label="Pendentes" value={counts.pending} />
           <StatCard icon={<ShieldCheck className="size-5 text-brand-green" />} label="Voluntários ativos" value={counts.approved} />
-          <StatCard icon={<MessageCircleHeart className="size-5 text-brand-green" />} label="Conversas iniciadas" value={stats.messages} />
-          <StatCard icon={<Users className="size-5 text-brand-green" />} label="Na fila agora" value={stats.queue} />
+          <StatCard icon={<MessageCircleHeart className="size-5 text-brand-green" />} label="Consultas totais" value={stats.appointments} />
+          <StatCard icon={<Users className="size-5 text-brand-green" />} label="Consultas ativas" value={stats.upcoming} />
+
         </section>
 
         {/* Tabs */}
