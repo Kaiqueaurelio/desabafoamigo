@@ -11,6 +11,7 @@ import { RatingDialog } from "@/components/RatingDialog";
 import { getSessionForensicHash } from "@/lib/sessionForensic";
 import { useServerFn } from "@tanstack/react-start";
 import { transcribeMessage, translateMessage, summarizeConversation } from "@/lib/ai.functions";
+import { SyncedAudioPlayer, type CaptionSegment } from "@/components/SyncedAudioPlayer";
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
   component: Consulta,
