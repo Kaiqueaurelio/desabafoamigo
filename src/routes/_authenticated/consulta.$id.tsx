@@ -33,6 +33,7 @@ function Consulta() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const [me, setMe] = useState<string | null>(null);
+  const [myAlias, setMyAlias] = useState<string>("Você");
   const [appt, setAppt] = useState<Appt | null>(null);
   const [peer, setPeer] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
