@@ -165,16 +165,17 @@ function Hero() {
       <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -left-20 size-[520px] rounded-full bg-brand-sky/20 blur-3xl animate-blob" />
         <div className="absolute top-20 -right-20 size-[520px] rounded-full bg-brand-green/15 blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-soft/60 via-background to-background" />
+        <InfinityFlow className="absolute inset-x-0 top-10 h-[420px] w-full opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-soft/60 via-background/70 to-background" />
       </div>
 
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
         <div className="flex flex-col justify-center animate-fade-in">
           <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-medium text-brand-green shadow-sm backdrop-blur">
-            <HeartHandshake className="size-3.5" /> Escuta acolhedora por mensagem
+            <InfinityIcon className="size-3.5 animate-spin-slow" /> Escuta acolhedora sem fim
           </span>
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-primary sm:text-5xl md:text-6xl">
-            Sua voz merece <span className="text-brand-green">ser ouvida</span>.
+            Sua voz merece <span className="bg-gradient-to-r from-brand-green via-brand-sky to-brand-green bg-clip-text text-transparent animate-gradient-shift" style={{ backgroundSize: "200% auto" }}>ser ouvida</span>.
           </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
             Um espaço confiável para desabafar por mensagem, com voluntários treinados em escuta
@@ -200,7 +201,7 @@ function Hero() {
               { k: "24/7", v: "Disponível" },
               { k: "0R$", v: "Sempre gratuito" },
             ].map((s) => (
-              <div key={s.v} className="rounded-2xl border border-border/60 bg-card/60 p-3 backdrop-blur">
+              <div key={s.v} className="rounded-2xl border border-border/60 bg-card/60 p-3 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-calm)]">
                 <dt className="text-xl font-bold text-primary">{s.k}</dt>
                 <dd className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.v}</dd>
               </div>
@@ -208,36 +209,9 @@ function Hero() {
           </dl>
         </div>
 
-        {/* Chat mockup */}
-        <div className="relative animate-fade-in">
-          <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-brand-sky/30 to-brand-green/20 blur-2xl" />
-          <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-[var(--shadow-calm)] animate-float">
-            <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
-              <img
-                src={avatarUrl("Sereno Rio 428", 96)}
-                alt=""
-                className="size-11 rounded-full ring-2 ring-brand-soft"
-              />
-              <div>
-                <p className="text-sm font-semibold text-foreground">Sereno Rio 428</p>
-                <p className="flex items-center gap-1.5 text-[11px] text-brand-green">
-                  <span className="inline-block size-1.5 rounded-full bg-brand-green animate-pulse" />
-                  Online agora · Voluntário(a) treinado(a)
-                </p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Bubble side="peer" delay={100}>Oi! Como você está se sentindo hoje?</Bubble>
-              <Bubble side="me" delay={400}>Um pouco ansiosa com o trabalho. Queria conversar um pouco.</Bubble>
-              <Bubble side="peer" delay={800}>Estou aqui pra te ouvir. Me conta com calma. 💙</Bubble>
-              <div className="flex items-center gap-1 pt-1 pl-2 text-xs text-muted-foreground">
-                <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60" />
-                <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:120ms]" />
-                <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:240ms]" />
-                <span className="ml-1">digitando…</span>
-              </div>
-            </div>
-          </div>
+        {/* Live-looping chat demo (GIF-style) */}
+        <div className="animate-fade-in">
+          <ChatDemo />
         </div>
       </div>
     </section>
