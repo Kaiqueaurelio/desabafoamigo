@@ -65,8 +65,11 @@ function Book() {
       <Link to="/profissionais" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
         <ArrowLeft className="size-4" /> Voltar
       </Link>
-      <h1 className="text-2xl font-bold text-primary">Agendar consulta</h1>
+      <h1 className="text-2xl font-bold text-primary">Agendar conversa</h1>
       {pro && <p className="mt-1 text-sm text-muted-foreground">com <span className="font-medium text-foreground">{pro.full_name}</span>{pro.specialty ? ` · ${pro.specialty}` : ""}</p>}
+      <p className="mt-2 text-xs text-muted-foreground">
+        Você conversará com um(a) voluntário(a) treinado(a) em escuta acolhedora. Não é um atendimento psicológico ou médico.
+      </p>
 
       <div className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-6">
         <div>
@@ -86,9 +89,9 @@ function Book() {
           </div>
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">Motivo da consulta</label>
+          <label className="text-xs font-medium text-muted-foreground">O que gostaria de conversar?</label>
           <textarea value={topic} onChange={(e) => setTopic(e.target.value)} rows={4} maxLength={500}
-            placeholder="Conte brevemente o que gostaria de conversar."
+            placeholder="Conte brevemente o que está sentindo."
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
         </div>
         {err && <p className="text-sm text-destructive">{err}</p>}

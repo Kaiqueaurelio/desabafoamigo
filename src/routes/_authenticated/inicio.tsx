@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, Users, MessageSquareText, Stethoscope } from "lucide-react";
+import { CalendarClock, Users, MessageSquareText, HeartHandshake } from "lucide-react";
+import { avatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/_authenticated/inicio")({
   component: Home,
@@ -14,13 +15,16 @@ type Appt = {
 function Home() {
   const [upcoming, setUpcoming] = useState<Appt[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
-  const [me, setMe] = useState<string | null>(null);
+  const [alias, setAlias] = useState<string>("");
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
-      setMe(u.user.id);
+
+      const { data: prof } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
+      setAlias(prof?.display_name ?? "");
+
       const { data } = await supabase
         .from("appointments")
         .select("id, scheduled_at, topic, status, professional_id, patient_id")
@@ -42,20 +46,25 @@ function Home() {
 
   return (
     <div className="mx-auto max-w-5xl p-6">
-      <h1 className="text-3xl font-bold text-primary">Olá 👋</h1>
-      <p className="mt-1 text-muted-foreground">Bem-vindo ao seu espaço de cuidado.</p>
+      <div className="flex items-center gap-4">
+        {alias && <img src={avatarUrl(alias, 128)} alt="Seu avatar" className="size-16 rounded-full ring-2 ring-brand-soft" />}
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Olá, {alias || "amigo(a)"} 👋</h1>
+          <p className="text-sm text-muted-foreground">Este apelido e avatar foram gerados pelo app para preservar sua identidade.</p>
+        </div>
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <QuickCard to="/profissionais" icon={<Users className="size-5" />} title="Novo agendamento" desc="Escolha um profissional" />
-        <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas consultas" desc="Histórico e próximas" />
-        <QuickCard to="/profissionais" icon={<Stethoscope className="size-5" />} title="Ver profissionais" desc="Conheça a equipe" />
+        <QuickCard to="/profissionais" icon={<Users className="size-5" />} title="Nova conversa" desc="Escolha um(a) voluntário(a)" />
+        <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico e agendamentos" />
+        <QuickCard to="/profissionais" icon={<HeartHandshake className="size-5" />} title="Ver voluntários" desc="Conheça quem pode te ouvir" />
       </div>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-lg font-semibold text-foreground">Próximas consultas</h2>
+        <h2 className="mb-3 text-lg font-semibold text-foreground">Próximas conversas</h2>
         {upcoming.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground">Você ainda não tem consultas agendadas.</p>
+            <p className="text-sm text-muted-foreground">Você ainda não tem conversas agendadas.</p>
             <Link to="/profissionais" className="btn-primary mt-4 inline-block">Agendar agora</Link>
           </div>
         ) : (
@@ -65,7 +74,7 @@ function Home() {
                 className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40">
                 <div>
                   <p className="font-medium text-foreground">{a.topic}</p>
-                  <p className="text-xs text-muted-foreground">{names[a.professional_id] ?? "Profissional"}</p>
+                  <p className="text-xs text-muted-foreground">{names[a.professional_id] ?? "Voluntário(a)"}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-medium text-primary">{new Date(a.scheduled_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</p>
@@ -76,6 +85,10 @@ function Home() {
           </div>
         )}
       </section>
+
+      <p className="mt-10 rounded-2xl bg-brand-soft p-4 text-xs text-muted-foreground">
+        O Desabafa Amigo oferece <strong>escuta acolhedora por voluntários treinados</strong>. Não é um serviço de psicologia, psiquiatria ou medicina, e não temos vínculo com esses profissionais.
+      </p>
     </div>
   );
 }

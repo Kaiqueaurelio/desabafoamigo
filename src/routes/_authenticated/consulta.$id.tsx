@@ -62,7 +62,7 @@ function Consulta() {
       if (peerVol) setPeer(`${peerVol.full_name}${peerVol.specialty ? " · " + peerVol.specialty : ""}`);
       else {
         const { data: prof } = await supabase.from("profiles").select("display_name").eq("user_id", peerId).maybeSingle();
-        setPeer(prof?.display_name ?? "Paciente");
+        setPeer(prof?.display_name ?? "Amigo(a)");
       }
 
       if (!a.conversation_id) return;
@@ -171,7 +171,7 @@ function Consulta() {
 
   async function finish() {
     if (!appt) return;
-    if (!confirm("Marcar consulta como finalizada?")) return;
+    if (!confirm("Marcar conversa como finalizada?")) return;
     await supabase.from("appointments").update({ status: "completed", professional_notes: notesDraft }).eq("id", appt.id);
     if (appt.conversation_id) await supabase.from("conversations").update({ status: "ended", ended_at: new Date().toISOString() }).eq("id", appt.conversation_id);
     navigate({ to: isPro ? "/pro" : "/consultas" });
@@ -209,7 +209,7 @@ function Consulta() {
           <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
             {messages.length === 0 && (
               <p className="mx-auto max-w-md rounded-2xl bg-brand-soft px-4 py-3 text-center text-sm text-muted-foreground">
-                Você está em um espaço seguro. As mensagens ficam registradas para acompanhamento clínico.
+                Você está em um espaço seguro de escuta acolhedora. Escreva no seu tempo.
               </p>
             )}
             {messages.map((m) => {
@@ -253,15 +253,15 @@ function Consulta() {
             </form>
           ) : (
             <div className="border-t border-border bg-muted px-4 py-3 text-center text-sm text-muted-foreground">
-              Consulta finalizada. O histórico continua disponível.
+              Conversa finalizada. O histórico continua disponível.
             </div>
           )}
         </section>
 
         {isPro && (
           <aside className="hidden w-80 shrink-0 flex-col border-l border-border bg-card p-4 lg:flex">
-            <h3 className="text-sm font-semibold text-primary">Notas clínicas (privadas)</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Somente você vê estas anotações.</p>
+            <h3 className="text-sm font-semibold text-primary">Notas privadas</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Somente você vê estas anotações da conversa.</p>
             <textarea value={notesDraft} onChange={(e) => setNotesDraft(e.target.value)}
               rows={12}
               className="mt-3 flex-1 resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-primary" />

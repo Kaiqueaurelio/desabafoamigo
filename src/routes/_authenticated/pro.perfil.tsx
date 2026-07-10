@@ -40,8 +40,8 @@ function ProProfile() {
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <h1 className="text-2xl font-bold text-primary">Meu perfil profissional</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Essas informações aparecem para pacientes.</p>
+      <h1 className="text-2xl font-bold text-primary">Meu perfil de voluntário(a)</h1>
+      <p className="mt-1 text-sm text-muted-foreground">Essas informações aparecem para quem busca uma conversa.</p>
 
       <div className="mt-6 space-y-4 rounded-2xl border border-border bg-card p-6">
         <Field label="Nome exibido"><input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className="inp" /></Field>

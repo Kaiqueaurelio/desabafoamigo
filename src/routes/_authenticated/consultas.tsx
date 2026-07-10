@@ -36,7 +36,7 @@ function History() {
       if (ids.length) {
         const { data: pros } = await supabase.from("volunteers").select("user_id, full_name").in("user_id", ids);
         const map: Record<string, string> = {};
-        (pros ?? []).forEach((p) => { map[p.user_id] = p.full_name ?? "Profissional"; });
+        (pros ?? []).forEach((p) => { map[p.user_id] = p.full_name ?? "Voluntário(a)"; });
         setNames(map);
       }
     })();
@@ -44,12 +44,12 @@ function History() {
 
   return (
     <div className="mx-auto max-w-4xl p-6">
-      <h1 className="text-2xl font-bold text-primary">Minhas consultas</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Todas as suas consultas em um só lugar.</p>
+      <h1 className="text-2xl font-bold text-primary">Minhas conversas</h1>
+      <p className="mt-1 text-sm text-muted-foreground">Todas as suas conversas em um só lugar.</p>
 
       {appts.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-          <p className="text-sm text-muted-foreground">Nenhuma consulta ainda.</p>
+          <p className="text-sm text-muted-foreground">Nenhuma conversa ainda.</p>
           <Link to="/profissionais" className="btn-primary mt-4 inline-block">Agendar</Link>
         </div>
       ) : (
@@ -61,7 +61,7 @@ function History() {
                 className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40">
                 <div className="min-w-0">
                   <p className="truncate font-medium text-foreground">{a.topic}</p>
-                  <p className="text-xs text-muted-foreground">{names[a.professional_id] ?? "Profissional"} · {new Date(a.scheduled_at).toLocaleString("pt-BR")}</p>
+                  <p className="text-xs text-muted-foreground">{names[a.professional_id] ?? "Voluntário(a)"} · {new Date(a.scheduled_at).toLocaleString("pt-BR")}</p>
                 </div>
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${st.cls}`}>{st.label}</span>
               </Link>

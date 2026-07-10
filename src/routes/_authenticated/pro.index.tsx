@@ -32,7 +32,7 @@ function ProAgenda() {
       if (ids.length) {
         const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", ids);
         const m: Record<string, string> = {};
-        (profs ?? []).forEach((p) => { m[p.user_id] = p.display_name ?? "Paciente"; });
+        (profs ?? []).forEach((p) => { m[p.user_id] = p.display_name ?? "Amigo(a)"; });
         setNames(m);
       }
     })();
@@ -44,12 +44,12 @@ function ProAgenda() {
   return (
     <div className="mx-auto max-w-4xl p-6">
       <h1 className="text-2xl font-bold text-primary">Minha agenda</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Consultas com seus pacientes.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Conversas agendadas com pessoas que buscam escuta.</p>
 
       <section className="mt-6">
         <h2 className="mb-2 text-sm font-semibold text-foreground">Próximas ({upcoming.length})</h2>
         {upcoming.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">Nenhuma consulta pendente.</p>
+          <p className="rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">Nenhuma conversa pendente.</p>
         ) : (
           <ul className="space-y-2">{upcoming.map((a) => <ApptRow key={a.id} a={a} name={names[a.patient_id]} />)}</ul>
         )}
@@ -58,7 +58,7 @@ function ProAgenda() {
       <section className="mt-8">
         <h2 className="mb-2 text-sm font-semibold text-foreground">Histórico</h2>
         {past.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Sem consultas finalizadas.</p>
+          <p className="text-sm text-muted-foreground">Sem conversas finalizadas.</p>
         ) : (
           <ul className="space-y-2">{past.map((a) => <ApptRow key={a.id} a={a} name={names[a.patient_id]} />)}</ul>
         )}
@@ -73,7 +73,7 @@ function ApptRow({ a, name }: { a: Appt; name?: string }) {
       <Link to="/consulta/$id" params={{ id: a.id }} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/40">
         <div className="min-w-0">
           <p className="truncate font-medium text-foreground">{a.topic}</p>
-          <p className="text-xs text-muted-foreground">{name ?? "Paciente"} · {new Date(a.scheduled_at).toLocaleString("pt-BR")}</p>
+          <p className="text-xs text-muted-foreground">{name ?? "Amigo(a)"} · {new Date(a.scheduled_at).toLocaleString("pt-BR")}</p>
         </div>
         <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-xs">{STATUS[a.status]}</span>
       </Link>

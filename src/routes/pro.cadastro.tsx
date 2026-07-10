@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 import { z } from "zod";
 
 export const Route = createFileRoute("/pro/cadastro")({
-  head: () => ({ meta: [{ title: "Cadastro de profissional — Desabafa Amigo" }] }),
+  head: () => ({ meta: [{ title: "Cadastro de voluntário(a) — Desabafa Amigo" }] }),
   component: ProSignup,
 });
 
@@ -88,9 +88,9 @@ function ProSignup() {
           <Logo size={28} />
           <span className="text-sm font-semibold text-primary">Desabafa Amigo</span>
         </Link>
-        <h1 className="text-2xl font-bold text-primary">Cadastro de profissional</h1>
+        <h1 className="text-2xl font-bold text-primary">Cadastro de voluntário(a)</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Após envio, um administrador irá revisar e aprovar seu cadastro. Só então você aparecerá para pacientes.
+          Após envio, um administrador irá revisar e aprovar seu cadastro. Só então você aparecerá para quem busca escuta.
         </p>
 
         <form onSubmit={submit} className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -99,7 +99,7 @@ function ProSignup() {
           <Field label="Senha"><input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} className="inp" /></Field>
           <Field label="Especialidade / área"><input placeholder="Ex.: Escuta ativa, apoio emocional" value={form.specialty} onChange={(e) => set("specialty", e.target.value)} className="inp" /></Field>
           <Field label="Formação / experiência" full><input value={form.credentials} onChange={(e) => set("credentials", e.target.value)} className="inp" /></Field>
-          <Field label="Biografia (visível para pacientes)" full><textarea rows={3} value={form.bio} onChange={(e) => set("bio", e.target.value)} className="inp" /></Field>
+          <Field label="Biografia (visível para quem busca escuta)" full><textarea rows={3} value={form.bio} onChange={(e) => set("bio", e.target.value)} className="inp" /></Field>
           <Field label="Por que quer participar?" full><textarea rows={3} value={form.motivation} onChange={(e) => set("motivation", e.target.value)} className="inp" /></Field>
 
           {err && <p className="col-span-full text-sm text-destructive">{err}</p>}
