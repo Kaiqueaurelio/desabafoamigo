@@ -157,7 +157,7 @@ export function ScreenshotGuard({
         className="h-full w-full motion-safe:transition-[filter] motion-safe:duration-200"
         style={{ filter: blurred ? "blur(18px) saturate(0.6)" : "none" }}
         aria-hidden={blurred || undefined}
-        inert={blurred ? "" : undefined}
+        inert={blurred || undefined}
       >
         {children}
       </div>
