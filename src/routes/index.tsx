@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { ChatDemo } from "@/components/ChatDemo";
-import { Watermark, InfinityFlow } from "@/components/Watermark";
+import { InfinityFlow } from "@/components/Watermark";
 import {
   MessageSquareText,
   CalendarClock,
