@@ -9,38 +9,147 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VoluntarioRouteImport } from './routes/voluntario'
+import { Route as EncerradaRouteImport } from './routes/encerrada'
+import { Route as EmergenciaRouteImport } from './routes/emergencia'
+import { Route as ConversarRouteImport } from './routes/conversar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VoluntarioLoginRouteImport } from './routes/voluntario.login'
+import { Route as ChatIdRouteImport } from './routes/chat.$id'
 
+const VoluntarioRoute = VoluntarioRouteImport.update({
+  id: '/voluntario',
+  path: '/voluntario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EncerradaRoute = EncerradaRouteImport.update({
+  id: '/encerrada',
+  path: '/encerrada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmergenciaRoute = EmergenciaRouteImport.update({
+  id: '/emergencia',
+  path: '/emergencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConversarRoute = ConversarRouteImport.update({
+  id: '/conversar',
+  path: '/conversar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VoluntarioLoginRoute = VoluntarioLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => VoluntarioRoute,
+} as any)
+const ChatIdRoute = ChatIdRouteImport.update({
+  id: '/chat/$id',
+  path: '/chat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/conversar': typeof ConversarRoute
+  '/emergencia': typeof EmergenciaRoute
+  '/encerrada': typeof EncerradaRoute
+  '/voluntario': typeof VoluntarioRouteWithChildren
+  '/chat/$id': typeof ChatIdRoute
+  '/voluntario/login': typeof VoluntarioLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/conversar': typeof ConversarRoute
+  '/emergencia': typeof EmergenciaRoute
+  '/encerrada': typeof EncerradaRoute
+  '/voluntario': typeof VoluntarioRouteWithChildren
+  '/chat/$id': typeof ChatIdRoute
+  '/voluntario/login': typeof VoluntarioLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/conversar': typeof ConversarRoute
+  '/emergencia': typeof EmergenciaRoute
+  '/encerrada': typeof EncerradaRoute
+  '/voluntario': typeof VoluntarioRouteWithChildren
+  '/chat/$id': typeof ChatIdRoute
+  '/voluntario/login': typeof VoluntarioLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/conversar'
+    | '/emergencia'
+    | '/encerrada'
+    | '/voluntario'
+    | '/chat/$id'
+    | '/voluntario/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/conversar'
+    | '/emergencia'
+    | '/encerrada'
+    | '/voluntario'
+    | '/chat/$id'
+    | '/voluntario/login'
+  id:
+    | '__root__'
+    | '/'
+    | '/conversar'
+    | '/emergencia'
+    | '/encerrada'
+    | '/voluntario'
+    | '/chat/$id'
+    | '/voluntario/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConversarRoute: typeof ConversarRoute
+  EmergenciaRoute: typeof EmergenciaRoute
+  EncerradaRoute: typeof EncerradaRoute
+  VoluntarioRoute: typeof VoluntarioRouteWithChildren
+  ChatIdRoute: typeof ChatIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/voluntario': {
+      id: '/voluntario'
+      path: '/voluntario'
+      fullPath: '/voluntario'
+      preLoaderRoute: typeof VoluntarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/encerrada': {
+      id: '/encerrada'
+      path: '/encerrada'
+      fullPath: '/encerrada'
+      preLoaderRoute: typeof EncerradaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emergencia': {
+      id: '/emergencia'
+      path: '/emergencia'
+      fullPath: '/emergencia'
+      preLoaderRoute: typeof EmergenciaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conversar': {
+      id: '/conversar'
+      path: '/conversar'
+      fullPath: '/conversar'
+      preLoaderRoute: typeof ConversarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +157,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/voluntario/login': {
+      id: '/voluntario/login'
+      path: '/login'
+      fullPath: '/voluntario/login'
+      preLoaderRoute: typeof VoluntarioLoginRouteImport
+      parentRoute: typeof VoluntarioRoute
+    }
+    '/chat/$id': {
+      id: '/chat/$id'
+      path: '/chat/$id'
+      fullPath: '/chat/$id'
+      preLoaderRoute: typeof ChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface VoluntarioRouteChildren {
+  VoluntarioLoginRoute: typeof VoluntarioLoginRoute
+}
+
+const VoluntarioRouteChildren: VoluntarioRouteChildren = {
+  VoluntarioLoginRoute: VoluntarioLoginRoute,
+}
+
+const VoluntarioRouteWithChildren = VoluntarioRoute._addFileChildren(
+  VoluntarioRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConversarRoute: ConversarRoute,
+  EmergenciaRoute: EmergenciaRoute,
+  EncerradaRoute: EncerradaRoute,
+  VoluntarioRoute: VoluntarioRouteWithChildren,
+  ChatIdRoute: ChatIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
