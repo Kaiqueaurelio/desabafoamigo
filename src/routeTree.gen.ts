@@ -9,10 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AuthenticatedProfissionaisRouteImport } from './routes/_authenticated/profissionais'
+import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
+import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
+import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
+import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
+import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
+import { Route as AuthenticatedAgendarIdRouteImport } from './routes/_authenticated/agendar.$id'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -23,44 +42,168 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProCadastroRoute = ProCadastroRouteImport.update({
+  id: '/pro/cadastro',
+  path: '/pro/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedProfissionaisRoute =
+  AuthenticatedProfissionaisRouteImport.update({
+    id: '/profissionais',
+    path: '/profissionais',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
+  id: '/consultas',
+  path: '/consultas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProIndexRoute = AuthenticatedProIndexRouteImport.update({
+  id: '/pro/',
+  path: '/pro/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProPerfilRoute = AuthenticatedProPerfilRouteImport.update({
+  id: '/pro/perfil',
+  path: '/pro/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
+  id: '/consulta/$id',
+  path: '/consulta/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAgendarIdRoute = AuthenticatedAgendarIdRouteImport.update({
+  id: '/agendar/$id',
+  path: '/agendar/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/consultas': typeof AuthenticatedConsultasRoute
+  '/inicio': typeof AuthenticatedInicioRoute
+  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/login': typeof AdminLoginRoute
+  '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
+  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
+  '/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/pro/': typeof AuthenticatedProIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/consultas': typeof AuthenticatedConsultasRoute
+  '/inicio': typeof AuthenticatedInicioRoute
+  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/login': typeof AdminLoginRoute
+  '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
+  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
+  '/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/pro': typeof AuthenticatedProIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
+  '/_authenticated/inicio': typeof AuthenticatedInicioRoute
+  '/_authenticated/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/login': typeof AdminLoginRoute
+  '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
+  '/_authenticated/agendar/$id': typeof AuthenticatedAgendarIdRoute
+  '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
+  '/_authenticated/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/_authenticated/pro/': typeof AuthenticatedProIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/login' | '/admin/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/consultas'
+    | '/inicio'
+    | '/profissionais'
+    | '/admin/login'
+    | '/pro/cadastro'
+    | '/admin/'
+    | '/agendar/$id'
+    | '/consulta/$id'
+    | '/pro/perfil'
+    | '/pro/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/login' | '/admin'
-  id: '__root__' | '/' | '/admin/login' | '/admin/'
+  to:
+    | '/'
+    | '/auth'
+    | '/consultas'
+    | '/inicio'
+    | '/profissionais'
+    | '/admin/login'
+    | '/pro/cadastro'
+    | '/admin'
+    | '/agendar/$id'
+    | '/consulta/$id'
+    | '/pro/perfil'
+    | '/pro'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/consultas'
+    | '/_authenticated/inicio'
+    | '/_authenticated/profissionais'
+    | '/admin/login'
+    | '/pro/cadastro'
+    | '/admin/'
+    | '/_authenticated/agendar/$id'
+    | '/_authenticated/consulta/$id'
+    | '/_authenticated/pro/perfil'
+    | '/_authenticated/pro/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -75,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pro/cadastro': {
+      id: '/pro/cadastro'
+      path: '/pro/cadastro'
+      fullPath: '/pro/cadastro'
+      preLoaderRoute: typeof ProCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -82,12 +232,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/profissionais': {
+      id: '/_authenticated/profissionais'
+      path: '/profissionais'
+      fullPath: '/profissionais'
+      preLoaderRoute: typeof AuthenticatedProfissionaisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inicio': {
+      id: '/_authenticated/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof AuthenticatedInicioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/consultas': {
+      id: '/_authenticated/consultas'
+      path: '/consultas'
+      fullPath: '/consultas'
+      preLoaderRoute: typeof AuthenticatedConsultasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pro/': {
+      id: '/_authenticated/pro/'
+      path: '/pro'
+      fullPath: '/pro/'
+      preLoaderRoute: typeof AuthenticatedProIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pro/perfil': {
+      id: '/_authenticated/pro/perfil'
+      path: '/pro/perfil'
+      fullPath: '/pro/perfil'
+      preLoaderRoute: typeof AuthenticatedProPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/consulta/$id': {
+      id: '/_authenticated/consulta/$id'
+      path: '/consulta/$id'
+      fullPath: '/consulta/$id'
+      preLoaderRoute: typeof AuthenticatedConsultaIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/agendar/$id': {
+      id: '/_authenticated/agendar/$id'
+      path: '/agendar/$id'
+      fullPath: '/agendar/$id'
+      preLoaderRoute: typeof AuthenticatedAgendarIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
+  AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
+  AuthenticatedProfissionaisRoute: typeof AuthenticatedProfissionaisRoute
+  AuthenticatedAgendarIdRoute: typeof AuthenticatedAgendarIdRoute
+  AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
+  AuthenticatedProPerfilRoute: typeof AuthenticatedProPerfilRoute
+  AuthenticatedProIndexRoute: typeof AuthenticatedProIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
+  AuthenticatedInicioRoute: AuthenticatedInicioRoute,
+  AuthenticatedProfissionaisRoute: AuthenticatedProfissionaisRoute,
+  AuthenticatedAgendarIdRoute: AuthenticatedAgendarIdRoute,
+  AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
+  AuthenticatedProPerfilRoute: AuthenticatedProPerfilRoute,
+  AuthenticatedProIndexRoute: AuthenticatedProIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   AdminLoginRoute: AdminLoginRoute,
+  ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
