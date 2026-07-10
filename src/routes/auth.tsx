@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
+import { Sparkles } from "lucide-react";
 import { z } from "zod";
 
 export const Route = createFileRoute("/auth")({
@@ -12,7 +13,6 @@ export const Route = createFileRoute("/auth")({
 const schema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
   password: z.string().min(6, "Mínimo de 6 caracteres").max(72),
-  displayName: z.string().trim().min(2, "Informe seu nome").max(80).optional(),
 });
 
 function AuthPage() {
@@ -20,21 +20,20 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr("");
-    const parsed = schema.safeParse({ email, password, displayName: mode === "signup" ? displayName : undefined });
+    const parsed = schema.safeParse({ email, password });
     if (!parsed.success) { setErr(parsed.error.issues[0].message); return; }
     setLoading(true);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: `${window.location.origin}/inicio`, data: { display_name: displayName } },
+          options: { emailRedirectTo: `${window.location.origin}/inicio` },
         });
         if (error) throw error;
       } else {
@@ -58,13 +57,21 @@ function AuthPage() {
           {mode === "signup" ? "Criar conta" : "Entrar"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {mode === "signup" ? "Cadastro gratuito para agendar consultas." : "Bem-vindo de volta."}
+          {mode === "signup"
+            ? "Cadastro gratuito. Nenhum nome pessoal é solicitado."
+            : "Bem-vindo de volta."}
         </p>
 
-        <form onSubmit={submit} className="mt-6 space-y-3">
-          {mode === "signup" && (
-            <Input label="Como podemos te chamar?" value={displayName} onChange={setDisplayName} placeholder="Seu nome ou apelido" />
-          )}
+        {mode === "signup" && (
+          <div className="mt-4 flex items-start gap-3 rounded-xl bg-brand-soft p-3 text-xs text-muted-foreground">
+            <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+            <p>
+              Ao criar sua conta, o app gera automaticamente um <strong>apelido</strong> e um <strong>avatar</strong> para você. Sua identidade não é compartilhada com os voluntários.
+            </p>
+          </div>
+        )}
+
+        <form onSubmit={submit} className="mt-5 space-y-3">
           <Input label="E-mail" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
           <Input label="Senha" type="password" value={password} onChange={setPassword} placeholder="••••••" />
           {err && <p className="text-sm text-destructive">{err}</p>}
@@ -77,7 +84,7 @@ function AuthPage() {
           {mode === "signup" ? "Já tenho conta" : "Criar conta"}
         </button>
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          É profissional? <Link to="/pro/cadastro" className="text-primary hover:underline">Cadastre-se aqui</Link>
+          Quer ser voluntário(a)? <Link to="/pro/cadastro" className="text-primary hover:underline">Cadastre-se aqui</Link>
         </p>
       </div>
     </main>
