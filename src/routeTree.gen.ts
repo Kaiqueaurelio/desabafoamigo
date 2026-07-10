@@ -28,6 +28,7 @@ import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authen
 import { Route as AuthenticatedApoioRouteImport } from './routes/_authenticated/apoio'
 import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
 import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
+import { Route as AuthenticatedProMfaRouteImport } from './routes/_authenticated/pro.mfa'
 import { Route as AuthenticatedProFilaRouteImport } from './routes/_authenticated/pro.fila'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
 
@@ -126,6 +127,11 @@ const AuthenticatedProPerfilRoute = AuthenticatedProPerfilRouteImport.update({
   path: '/pro/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProMfaRoute = AuthenticatedProMfaRouteImport.update({
+  id: '/pro/mfa',
+  path: '/pro/mfa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProFilaRoute = AuthenticatedProFilaRouteImport.update({
   id: '/pro/fila',
   path: '/pro/fila',
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/pro/fila': typeof AuthenticatedProFilaRoute
+  '/pro/mfa': typeof AuthenticatedProMfaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
   '/pro/': typeof AuthenticatedProIndexRoute
 }
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/pro/fila': typeof AuthenticatedProFilaRoute
+  '/pro/mfa': typeof AuthenticatedProMfaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
   '/pro': typeof AuthenticatedProIndexRoute
 }
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/_authenticated/pro/fila': typeof AuthenticatedProFilaRoute
+  '/_authenticated/pro/mfa': typeof AuthenticatedProMfaRoute
   '/_authenticated/pro/perfil': typeof AuthenticatedProPerfilRoute
   '/_authenticated/pro/': typeof AuthenticatedProIndexRoute
 }
@@ -226,6 +235,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/consulta/$id'
     | '/pro/fila'
+    | '/pro/mfa'
     | '/pro/perfil'
     | '/pro/'
   fileRoutesByTo: FileRoutesByTo
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/consulta/$id'
     | '/pro/fila'
+    | '/pro/mfa'
     | '/pro/perfil'
     | '/pro'
   id:
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/_authenticated/consulta/$id'
     | '/_authenticated/pro/fila'
+    | '/_authenticated/pro/mfa'
     | '/_authenticated/pro/perfil'
     | '/_authenticated/pro/'
   fileRoutesById: FileRoutesById
@@ -424,6 +436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pro/mfa': {
+      id: '/_authenticated/pro/mfa'
+      path: '/pro/mfa'
+      fullPath: '/pro/mfa'
+      preLoaderRoute: typeof AuthenticatedProMfaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pro/fila': {
       id: '/_authenticated/pro/fila'
       path: '/pro/fila'
@@ -450,6 +469,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
   AuthenticatedProFilaRoute: typeof AuthenticatedProFilaRoute
+  AuthenticatedProMfaRoute: typeof AuthenticatedProMfaRoute
   AuthenticatedProPerfilRoute: typeof AuthenticatedProPerfilRoute
   AuthenticatedProIndexRoute: typeof AuthenticatedProIndexRoute
 }
@@ -463,6 +483,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
   AuthenticatedProFilaRoute: AuthenticatedProFilaRoute,
+  AuthenticatedProMfaRoute: AuthenticatedProMfaRoute,
   AuthenticatedProPerfilRoute: AuthenticatedProPerfilRoute,
   AuthenticatedProIndexRoute: AuthenticatedProIndexRoute,
 }
