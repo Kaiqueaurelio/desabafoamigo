@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_authenticated")({
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
-    const isPro = (roles ?? []).some((r) => r.role === "volunteer" || r.role === "psychologist");
+    const isPro = (roles ?? []).some((r) => r.role === "volunteer");
     const isAdmin = (roles ?? []).some((r) => r.role === "admin");
     return { user: data.user, isPro, isAdmin };
   },
