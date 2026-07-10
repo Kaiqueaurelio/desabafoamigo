@@ -197,8 +197,10 @@ export type Database = {
           created_at: string
           id: string
           read_at: string | null
+          segments: Json | null
           sender_id: string
           transcription: string | null
+          translation_segments: Json
           translations: Json
         }
         Insert: {
@@ -208,8 +210,10 @@ export type Database = {
           created_at?: string
           id?: string
           read_at?: string | null
+          segments?: Json | null
           sender_id: string
           transcription?: string | null
+          translation_segments?: Json
           translations?: Json
         }
         Update: {
@@ -219,8 +223,10 @@ export type Database = {
           created_at?: string
           id?: string
           read_at?: string | null
+          segments?: Json | null
           sender_id?: string
           transcription?: string | null
+          translation_segments?: Json
           translations?: Json
         }
         Relationships: [
