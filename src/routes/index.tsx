@@ -91,18 +91,49 @@ function Reveal({
 
 function Landing() {
   return (
-    <div className="min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
+    <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
+      <Watermark />
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
-      <Header />
-      <main id="conteudo" tabIndex={-1}>
-        <Hero />
-        <Origin />
-        <Mission />
-        <Testimonials />
-        <HowTo />
-      </main>
-      <Footer />
+      <div className="relative z-10">
+        <Header />
+        <main id="conteudo" tabIndex={-1}>
+          <Hero />
+          <InfinityBand />
+          <Origin />
+          <Mission />
+          <Testimonials />
+          <HowTo />
+        </main>
+        <Footer />
+      </div>
     </div>
+  );
+}
+
+function InfinityBand() {
+  const words = [
+    "Escuta sem fim",
+    "∞",
+    "Acolhimento contínuo",
+    "∞",
+    "Sua voz importa",
+    "∞",
+    "24 horas por dia",
+    "∞",
+    "Você não está sozinho(a)",
+    "∞",
+  ];
+  const loop = [...words, ...words];
+  return (
+    <section aria-hidden className="relative border-y border-border/50 bg-brand-soft/40 py-6 overflow-hidden">
+      <div className="flex whitespace-nowrap animate-marquee">
+        {loop.map((w, i) => (
+          <span key={i} className="mx-6 text-sm font-semibold uppercase tracking-widest text-primary/70">
+            {w}
+          </span>
+        ))}
+      </div>
+    </section>
   );
 }
 
