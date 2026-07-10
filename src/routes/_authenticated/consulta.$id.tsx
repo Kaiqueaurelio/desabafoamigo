@@ -60,6 +60,18 @@ function Consulta() {
   const [askSummary, setAskSummary] = useState(false);
   const [peerSummary, setPeerSummary] = useState<{ summary: string; technical_details: string; sessions_count: number } | null>(null);
   const [targetLang, setTargetLang] = useState<string>("en");
+  const [captionVisibility, setCaptionVisibility] = useState<Record<string, Set<string>>>({});
+  function toggleCaption(msgId: string, lang: string) {
+    setCaptionVisibility((prev) => {
+      const set = new Set(prev[msgId] ?? []);
+      if (set.has(lang)) set.delete(lang); else set.add(lang);
+      return { ...prev, [msgId]: set };
+    });
+  }
+  function isCaptionVisible(msgId: string, lang: string) {
+    const set = captionVisibility[msgId];
+    return set ? set.has(lang) : true; // default visible when available
+  }
   const doTranscribe = useServerFn(transcribeMessage);
   const doTranslate = useServerFn(translateMessage);
   const riskDetected = draft.length > 6 && detectRisk(draft);
