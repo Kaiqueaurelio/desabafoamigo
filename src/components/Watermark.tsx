@@ -22,6 +22,39 @@ export function Watermark() {
   );
 }
 
+/**
+ * Marca d'água identificando o usuário — desincentiva vazamento porque
+ * qualquer screenshot leva junto o apelido + horário de quem tirou.
+ */
+export function IdentityWatermark({ label }: { label: string }) {
+  const stamp = new Date().toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const text = `${label} · ${stamp} · Desabafa Amigo`;
+  const rows = Array.from({ length: 14 });
+  const cols = Array.from({ length: 4 });
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 z-20 select-none overflow-hidden"
+    >
+      <div className="flex h-full w-full -rotate-[24deg] flex-col justify-around opacity-[0.08]">
+        {rows.map((_, r) => (
+          <div key={r} className="flex justify-around whitespace-nowrap text-[11px] font-medium text-foreground">
+            {cols.map((_, c) => (
+              <span key={c}>{text}</span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** Animated infinity SVG used as a decorative flowing background. */
 export function InfinityFlow({ className = "" }: { className?: string }) {
   return (

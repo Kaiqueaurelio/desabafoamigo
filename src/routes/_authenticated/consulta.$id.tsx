@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2 } from "lucide-react";
-import { Watermark } from "@/components/Watermark";
+import { Watermark, IdentityWatermark } from "@/components/Watermark";
+import { ScreenshotGuard } from "@/components/ScreenshotGuard";
 import { detectRisk } from "@/lib/riskWords";
 import { RiskAlert } from "@/components/RiskAlert";
 import { ReportButton } from "@/components/ReportDialog";
@@ -32,6 +33,7 @@ function Consulta() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const [me, setMe] = useState<string | null>(null);
+  const [myAlias, setMyAlias] = useState<string>("Você");
   const [appt, setAppt] = useState<Appt | null>(null);
   const [peer, setPeer] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -59,6 +61,8 @@ function Consulta() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setMe(u.user.id);
+      const { data: myProf } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
+      if (myProf?.display_name) setMyAlias(myProf.display_name);
 
       const { data: a } = await supabase.from("appointments").select("*").eq("id", id).maybeSingle();
       if (!a || cancelled) return;
@@ -195,6 +199,18 @@ function Consulta() {
   if (!appt) return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
 
   return (
+    <ScreenshotGuard
+      onAttempt={(reason) => {
+        if (!appt || !me) return;
+        void supabase.from("reports").insert({
+          appointment_id: appt.id,
+          reporter_id: me,
+          reported_user_id: me,
+          reason: `screenshot_attempt: ${reason}`,
+          status: "auto",
+        }).then(() => {}, () => {});
+      }}
+    >
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col md:h-dvh">
       <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
         <div className="flex items-center gap-3">
@@ -221,6 +237,7 @@ function Consulta() {
         <section className="flex flex-1 flex-col">
           <div className="relative flex-1 overflow-y-auto">
             <Watermark />
+            <IdentityWatermark label={myAlias} />
             <div className="relative z-10 space-y-2 px-4 py-4">
             {messages.length === 0 && (
               <p className="mx-auto max-w-md rounded-2xl bg-brand-soft px-4 py-3 text-center text-sm text-muted-foreground">
@@ -287,6 +304,7 @@ function Consulta() {
       </div>
       {askRating && <RatingDialog appointmentId={appt.id} onDone={() => navigate({ to: "/consultas" })} />}
     </div>
+    </ScreenshotGuard>
   );
 }
 
