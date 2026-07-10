@@ -206,12 +206,16 @@ function Consulta() {
             <p className="text-[11px] text-muted-foreground">{appt.topic} · {new Date(appt.scheduled_at).toLocaleString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
           </div>
         </div>
-        {appt.status !== "completed" && appt.status !== "cancelled" && (
-          <button onClick={finish} className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium hover:bg-muted">
-            <CheckCircle2 className="size-3.5" /> Finalizar
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {!isPro && <ReportButton appointmentId={appt.id} reportedUserId={appt.professional_id} />}
+          {appt.status !== "completed" && appt.status !== "cancelled" && (
+            <button onClick={finish} className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium hover:bg-muted">
+              <CheckCircle2 className="size-3.5" /> Finalizar
+            </button>
+          )}
+        </div>
       </header>
+      {(riskDetected || riskInHistory) && <RiskAlert />}
 
       <div className="flex flex-1 overflow-hidden">
         <section className="flex flex-1 flex-col">
