@@ -285,6 +285,7 @@ function Consulta() {
           </aside>
         )}
       </div>
+      {askRating && <RatingDialog appointmentId={appt.id} onDone={() => navigate({ to: "/consultas" })} />}
     </div>
   );
 }
