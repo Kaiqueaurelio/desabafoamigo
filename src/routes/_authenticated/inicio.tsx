@@ -75,11 +75,11 @@ function Home() {
       </div>
 
       <section className="mt-10">
-        <h2 className="mb-3 text-lg font-semibold text-foreground">Próximas conversas</h2>
+        <h2 className="mb-3 text-lg font-semibold text-foreground">Conversas recentes</h2>
         {upcoming.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground">Você ainda não tem conversas agendadas.</p>
-            <Link to="/profissionais" className="btn-primary mt-4 inline-block">Agendar agora</Link>
+            <p className="text-sm text-muted-foreground">Você ainda não conversou por aqui.</p>
+            <Link to="/conversar" className="btn-primary mt-4 inline-block">Conversar agora</Link>
           </div>
         ) : (
           <div className="space-y-2">
