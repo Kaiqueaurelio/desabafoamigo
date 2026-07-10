@@ -18,7 +18,6 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
-import { Route as AuthenticatedProfissionaisRouteImport } from './routes/_authenticated/profissionais'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedConversarRouteImport } from './routes/_authenticated/conversar'
@@ -28,7 +27,6 @@ import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
 import { Route as AuthenticatedProFilaRouteImport } from './routes/_authenticated/pro.fila'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
-import { Route as AuthenticatedAgendarIdRouteImport } from './routes/_authenticated/agendar.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -74,12 +72,6 @@ const AdminAtendimentoRoute = AdminAtendimentoRouteImport.update({
   path: '/admin/atendimento',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedProfissionaisRoute =
-  AuthenticatedProfissionaisRouteImport.update({
-    id: '/profissionais',
-    path: '/profissionais',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
@@ -125,11 +117,6 @@ const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
   path: '/consulta/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAgendarIdRoute = AuthenticatedAgendarIdRouteImport.update({
-  id: '/agendar/$id',
-  path: '/agendar/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -139,14 +126,12 @@ export interface FileRoutesByFullPath {
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
-  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
-  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
@@ -160,14 +145,12 @@ export interface FileRoutesByTo {
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
-  '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
-  '/agendar/$id': typeof AuthenticatedAgendarIdRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
@@ -183,14 +166,12 @@ export interface FileRoutesById {
   '/_authenticated/conversar': typeof AuthenticatedConversarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
-  '/_authenticated/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
-  '/_authenticated/agendar/$id': typeof AuthenticatedAgendarIdRoute
   '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/_authenticated/pro/fila': typeof AuthenticatedProFilaRoute
   '/_authenticated/pro/perfil': typeof AuthenticatedProPerfilRoute
@@ -206,14 +187,12 @@ export interface FileRouteTypes {
     | '/conversar'
     | '/diario'
     | '/inicio'
-    | '/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin/'
-    | '/agendar/$id'
     | '/consulta/$id'
     | '/pro/fila'
     | '/pro/perfil'
@@ -227,14 +206,12 @@ export interface FileRouteTypes {
     | '/conversar'
     | '/diario'
     | '/inicio'
-    | '/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin'
-    | '/agendar/$id'
     | '/consulta/$id'
     | '/pro/fila'
     | '/pro/perfil'
@@ -249,14 +226,12 @@ export interface FileRouteTypes {
     | '/_authenticated/conversar'
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
-    | '/_authenticated/profissionais'
     | '/admin/atendimento'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
     | '/pro/cadastro'
     | '/admin/'
-    | '/_authenticated/agendar/$id'
     | '/_authenticated/consulta/$id'
     | '/_authenticated/pro/fila'
     | '/_authenticated/pro/perfil'
@@ -340,13 +315,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAtendimentoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/profissionais': {
-      id: '/_authenticated/profissionais'
-      path: '/profissionais'
-      fullPath: '/profissionais'
-      preLoaderRoute: typeof AuthenticatedProfissionaisRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
       path: '/inicio'
@@ -410,13 +378,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConsultaIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/agendar/$id': {
-      id: '/_authenticated/agendar/$id'
-      path: '/agendar/$id'
-      fullPath: '/agendar/$id'
-      preLoaderRoute: typeof AuthenticatedAgendarIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
   }
 }
 
@@ -426,8 +387,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConversarRoute: typeof AuthenticatedConversarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
-  AuthenticatedProfissionaisRoute: typeof AuthenticatedProfissionaisRoute
-  AuthenticatedAgendarIdRoute: typeof AuthenticatedAgendarIdRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
   AuthenticatedProFilaRoute: typeof AuthenticatedProFilaRoute
   AuthenticatedProPerfilRoute: typeof AuthenticatedProPerfilRoute
@@ -440,8 +399,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConversarRoute: AuthenticatedConversarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
-  AuthenticatedProfissionaisRoute: AuthenticatedProfissionaisRoute,
-  AuthenticatedAgendarIdRoute: AuthenticatedAgendarIdRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
   AuthenticatedProFilaRoute: AuthenticatedProFilaRoute,
   AuthenticatedProPerfilRoute: AuthenticatedProPerfilRoute,
