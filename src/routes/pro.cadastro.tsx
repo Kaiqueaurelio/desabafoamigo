@@ -88,7 +88,7 @@ function ProSignup() {
           <Logo size={28} />
           <span className="text-sm font-semibold text-primary">Desabafa Amigo</span>
         </Link>
-        <h1 className="text-2xl font-bold text-primary">Cadastro de profissional</h1>
+        <h1 className="text-2xl font-bold text-primary">Cadastro de voluntário(a)</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Após envio, um administrador irá revisar e aprovar seu cadastro. Só então você aparecerá para pacientes.
         </p>

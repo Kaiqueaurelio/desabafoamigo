@@ -180,8 +180,8 @@ function AdminDashboard() {
         <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon={<Clock className="size-5 text-brand-green" />} label="Pendentes" value={counts.pending} />
           <StatCard icon={<ShieldCheck className="size-5 text-brand-green" />} label="Voluntários ativos" value={counts.approved} />
-          <StatCard icon={<MessageCircleHeart className="size-5 text-brand-green" />} label="Consultas totais" value={stats.appointments} />
-          <StatCard icon={<Users className="size-5 text-brand-green" />} label="Consultas ativas" value={stats.upcoming} />
+          <StatCard icon={<MessageCircleHeart className="size-5 text-brand-green" />} label="Conversas totais" value={stats.appointments} />
+          <StatCard icon={<Users className="size-5 text-brand-green" />} label="Conversas ativas" value={stats.upcoming} />
 
         </section>
 
