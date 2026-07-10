@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
+import { ChatDemo } from "@/components/ChatDemo";
+import { Watermark, InfinityFlow } from "@/components/Watermark";
 import {
   MessageSquareText,
   CalendarClock,
@@ -13,6 +15,7 @@ import {
   Lock,
   Clock,
   Mic,
+  Infinity as InfinityIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { avatarUrl } from "@/lib/avatar";
