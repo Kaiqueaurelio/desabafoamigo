@@ -383,6 +383,25 @@ function Consulta() {
                       {mine && <span>· {m.read_at ? "lida" : "enviada"}</span>}
                       {canTranscribe && <button onClick={() => transcribe(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><AudioLines className="size-3" /> transcrever</button>}
                       {canTranslate && <button onClick={() => translate(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><Languages className="size-3" /> traduzir p/ {LANGS.find(l=>l.code===targetLang)?.label ?? targetLang}</button>}
+                      {(m.transcription || langsAvailable.length > 0) && (() => {
+                        const payload: TranscriptExport = {
+                          title: `Transcrição — ${new Date(m.created_at).toLocaleString()}`,
+                          createdAt: m.created_at,
+                          original: m.transcription ? { label: "Transcrição original", text: m.transcription, segments: origSegs } : undefined,
+                          translations: langsAvailable.map((lang) => ({
+                            lang,
+                            label: LANGS.find((l) => l.code === lang)?.label ?? lang,
+                            text: m.translations?.[lang] ?? "",
+                            segments: (trSegsMap[lang] ?? []) as CaptionSegment[],
+                          })),
+                        };
+                        return (
+                          <>
+                            <button onClick={() => downloadTxt(payload)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70" title="Baixar como .txt"><Download className="size-3" /> .txt</button>
+                            <button onClick={() => void downloadPdf(payload)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70" title="Baixar como .pdf"><Download className="size-3" /> .pdf</button>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
