@@ -118,9 +118,17 @@ export const summarizeConversation = createServerFn({ method: "POST" })
     const { data: msgs } = await supabase.from("messages")
       .select("sender_id, content, transcription")
       .eq("conversation_id", data.conversationId).order("created_at");
+    // Redação básica de PII antes de enviar ao modelo
+    const redactPII = (s: string) => s
+      .replace(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, "[CPF]")
+      .replace(/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/g, "[CNPJ]")
+      .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, "[EMAIL]")
+      .replace(/\b(?:\+?55\s?)?\(?\d{2}\)?\s?9?\d{4}-?\d{4}\b/g, "[TELEFONE]")
+      .replace(/\b\d{5}-?\d{3}\b/g, "[CEP]")
+      .replace(/\bhttps?:\/\/\S+/g, "[LINK]");
     const lines = (msgs ?? []).map((m) => {
       const who = m.sender_id === conv.user_id ? "Usuário" : "Voluntário";
-      return `${who}: ${m.content ?? m.transcription ?? "(anexo)"}`;
+      return `${who}: ${redactPII(m.content ?? m.transcription ?? "(anexo)")}`;
     }).join("\n").slice(0, 8000);
     if (!lines) return { summary: "", technical: "" };
 

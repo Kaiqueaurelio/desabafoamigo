@@ -58,6 +58,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Um espaço seguro para desabafar. Voluntários treinados prontos para te ouvir." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "referrer", content: "no-referrer" },
+      { httpEquiv: "Content-Security-Policy", content: "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.dicebear.com https://*.lovable.app https://*.lovable.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" },
+      { httpEquiv: "X-Content-Type-Options", content: "nosniff" },
+      { httpEquiv: "Permissions-Policy", content: "camera=(), microphone=(self), geolocation=()" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
