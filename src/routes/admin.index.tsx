@@ -240,7 +240,7 @@ function AdminDashboard() {
             </div>
 
             <dl className="space-y-3 text-sm">
-              <Field label="Tipo">{selected.is_psychologist ? "Psicólogo(a)" : "Voluntário(a)"}</Field>
+              <Field label="Tipo">Voluntário(a) treinado(a)</Field>
               <Field label="Motivação">{selected.motivation || "—"}</Field>
               <Field label="Experiência">{selected.experience || "—"}</Field>
               <Field label="Disponibilidade">{selected.availability || "—"}</Field>
