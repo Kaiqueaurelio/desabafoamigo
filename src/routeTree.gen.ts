@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -28,6 +29,11 @@ import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authentica
 import { Route as AuthenticatedProFilaRouteImport } from './routes/_authenticated/pro.fila'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
 
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -121,6 +127,7 @@ const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/conversar': typeof AuthenticatedConversarRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/conversar': typeof AuthenticatedConversarRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/_authenticated/apoio': typeof AuthenticatedApoioRoute
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/conversar': typeof AuthenticatedConversarRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/privacidade'
     | '/apoio'
     | '/consultas'
     | '/conversar'
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/privacidade'
     | '/apoio'
     | '/consultas'
     | '/conversar'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/privacidade'
     | '/_authenticated/apoio'
     | '/_authenticated/consultas'
     | '/_authenticated/conversar'
@@ -242,6 +254,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
   AdminDenunciasRoute: typeof AdminDenunciasRoute
   AdminIncidentesRoute: typeof AdminIncidentesRoute
@@ -252,6 +265,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -412,6 +432,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   AdminAtendimentoRoute: AdminAtendimentoRoute,
   AdminDenunciasRoute: AdminDenunciasRoute,
   AdminIncidentesRoute: AdminIncidentesRoute,
