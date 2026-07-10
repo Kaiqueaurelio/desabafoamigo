@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Wind, X } from "lucide-react";
 
 // Ciclo 4-7-8: inspira 4s, segura 7s, solta 8s.
-const PHASES = [
+type Phase = { label: string; seconds: number; scale: number };
+const PHASES: Phase[] = [
   { label: "Inspire pelo nariz", seconds: 4, scale: 1 },
   { label: "Segure o ar", seconds: 7, scale: 1 },
   { label: "Solte pela boca", seconds: 8, scale: 0.6 },
-] as const;
+];
 
 export function BreathingButton() {
   const [open, setOpen] = useState(false);

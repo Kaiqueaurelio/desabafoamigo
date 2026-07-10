@@ -18,7 +18,9 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
 import { Route as AuthenticatedProfissionaisRouteImport } from './routes/_authenticated/profissionais'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
+import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
+import { Route as AuthenticatedApoioRouteImport } from './routes/_authenticated/apoio'
 import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
 import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
@@ -69,9 +71,19 @@ const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   path: '/inicio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDiarioRoute = AuthenticatedDiarioRouteImport.update({
+  id: '/diario',
+  path: '/diario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
   id: '/consultas',
   path: '/consultas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedApoioRoute = AuthenticatedApoioRouteImport.update({
+  id: '/apoio',
+  path: '/apoio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProIndexRoute = AuthenticatedProIndexRouteImport.update({
@@ -98,7 +110,9 @@ const AuthenticatedAgendarIdRoute = AuthenticatedAgendarIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/apoio': typeof AuthenticatedApoioRoute
   '/consultas': typeof AuthenticatedConsultasRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
@@ -113,7 +127,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/apoio': typeof AuthenticatedApoioRoute
   '/consultas': typeof AuthenticatedConsultasRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
@@ -130,7 +146,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/apoio': typeof AuthenticatedApoioRoute
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
+  '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/profissionais': typeof AuthenticatedProfissionaisRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
@@ -147,7 +165,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/apoio'
     | '/consultas'
+    | '/diario'
     | '/inicio'
     | '/profissionais'
     | '/admin/atendimento'
@@ -162,7 +182,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/apoio'
     | '/consultas'
+    | '/diario'
     | '/inicio'
     | '/profissionais'
     | '/admin/atendimento'
@@ -178,7 +200,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/apoio'
     | '/_authenticated/consultas'
+    | '/_authenticated/diario'
     | '/_authenticated/inicio'
     | '/_authenticated/profissionais'
     | '/admin/atendimento'
@@ -266,11 +290,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInicioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/diario': {
+      id: '/_authenticated/diario'
+      path: '/diario'
+      fullPath: '/diario'
+      preLoaderRoute: typeof AuthenticatedDiarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/consultas': {
       id: '/_authenticated/consultas'
       path: '/consultas'
       fullPath: '/consultas'
       preLoaderRoute: typeof AuthenticatedConsultasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/apoio': {
+      id: '/_authenticated/apoio'
+      path: '/apoio'
+      fullPath: '/apoio'
+      preLoaderRoute: typeof AuthenticatedApoioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/pro/': {
@@ -305,7 +343,9 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedApoioRoute: typeof AuthenticatedApoioRoute
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
+  AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedProfissionaisRoute: typeof AuthenticatedProfissionaisRoute
   AuthenticatedAgendarIdRoute: typeof AuthenticatedAgendarIdRoute
@@ -315,7 +355,9 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedApoioRoute: AuthenticatedApoioRoute,
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
+  AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedProfissionaisRoute: AuthenticatedProfissionaisRoute,
   AuthenticatedAgendarIdRoute: AuthenticatedAgendarIdRoute,
