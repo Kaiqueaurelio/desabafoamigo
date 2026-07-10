@@ -377,11 +377,68 @@ function Consulta() {
 
 function AttachmentView({ att, url }: { att: Attachment; url?: string }) {
   if (att.kind === "image") return url ? <a href={url} target="_blank" rel="noreferrer"><img src={url} alt={att.original_name ?? ""} className="mt-1 max-h-64 rounded-lg" /></a> : <span>Carregando...</span>;
+  if (att.kind === "video") return url ? <video controls src={url} className="mt-1 max-h-64 rounded-lg" /> : <span>Carregando...</span>;
   if (att.kind === "audio") return url ? <audio controls src={url} className="mt-1 max-w-[240px]" /> : <span>Carregando...</span>;
   const Icon = att.kind === "pdf" ? FileText : att.mime_type.startsWith("image/") ? ImageIcon : Music;
   return (
     <a href={url} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-2 rounded-lg bg-background/40 px-3 py-2 text-xs">
       <Icon className="size-4" /> <span className="truncate">{att.original_name ?? "Arquivo"}</span>
     </a>
+  );
+}
+
+function SummaryDialog({ appt, onDone }: { appt: Appt; onDone: () => void }) {
+  const summarize = useServerFn(summarizeConversation);
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState("");
+  const [technical, setTechnical] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (!appt.conversation_id) { onDone(); return; }
+      try {
+        const r = await summarize({ data: { conversationId: appt.conversation_id } });
+        setSummary(r.summary); setTechnical(r.technical);
+      } catch (e) { console.error(e); }
+      setLoading(false);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    const { data: existing } = await supabase.from("user_summaries").select("id, sessions_count").eq("user_id", appt.patient_id).maybeSingle();
+    if (existing) {
+      await supabase.from("user_summaries").update({
+        summary, technical_details: technical, sessions_count: (existing.sessions_count ?? 0) + 1, last_conversation_id: appt.conversation_id,
+      }).eq("id", existing.id);
+    } else {
+      await supabase.from("user_summaries").insert({
+        user_id: appt.patient_id, summary, technical_details: technical, sessions_count: 1, last_conversation_id: appt.conversation_id,
+      });
+    }
+    setSaving(false); onDone();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+      <div className="w-full max-w-lg rounded-2xl bg-card p-5 shadow-xl">
+        <div className="flex items-center gap-2 text-primary"><Sparkles className="size-4" /><h3 className="text-lg font-semibold">Resumo da conversa</h3></div>
+        <p className="mt-1 text-xs text-muted-foreground">Salve um resumo para acolher a mesma pessoa em conversas futuras. Ela permanece anônima.</p>
+        {loading ? <p className="mt-4 text-sm text-muted-foreground">Gerando resumo com IA...</p> : (
+          <>
+            <label className="mt-4 block text-xs font-medium text-muted-foreground">Resumo acolhedor</label>
+            <textarea rows={3} value={summary} onChange={(e) => setSummary(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm" />
+            <label className="mt-3 block text-xs font-medium text-muted-foreground">Detalhes técnicos (temas/gatilhos)</label>
+            <textarea rows={4} value={technical} onChange={(e) => setTechnical(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm" />
+          </>
+        )}
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onDone} className="rounded-full px-4 py-2 text-sm text-muted-foreground hover:bg-muted">Pular</button>
+          <button onClick={save} disabled={loading || saving} className="btn-primary text-sm">{saving ? "Salvando..." : "Salvar e sair"}</button>
+        </div>
+      </div>
+    </div>
   );
 }
