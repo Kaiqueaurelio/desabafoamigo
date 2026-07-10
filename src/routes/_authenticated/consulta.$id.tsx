@@ -281,17 +281,52 @@ function Consulta() {
                 Você está em um espaço seguro de escuta acolhedora. Escreva no seu tempo.
               </p>
             )}
+      {(riskDetected || riskInHistory) && <RiskAlert />}
+      {isPro && peerSummary && (peerSummary.summary || peerSummary.technical_details) && (
+        <div className="border-b border-border bg-brand-soft/40 px-4 py-2 text-xs text-foreground">
+          <p className="font-semibold text-primary">🌱 Retornante · {peerSummary.sessions_count} conversa(s) anterior(es)</p>
+          {peerSummary.summary && <p className="mt-1">{peerSummary.summary}</p>}
+          {peerSummary.technical_details && <details className="mt-1"><summary className="cursor-pointer text-muted-foreground">Detalhes técnicos</summary><pre className="mt-1 whitespace-pre-wrap font-sans text-[11px] text-muted-foreground">{peerSummary.technical_details}</pre></details>}
+        </div>
+      )}
+
+      <div className="flex flex-1 overflow-hidden">
+        <section className="flex flex-1 flex-col">
+          <div className="relative flex-1 overflow-y-auto">
+            <Watermark />
+            <IdentityWatermark label={myAlias} sessionHash={me ? forensicHash : undefined} />
+            <div className="relative z-10 space-y-2 px-4 py-4">
+            {messages.length === 0 && (
+              <p className="mx-auto max-w-md rounded-2xl bg-brand-soft px-4 py-3 text-center text-sm text-muted-foreground">
+                Você está em um espaço seguro de escuta acolhedora. Escreva no seu tempo.
+              </p>
+            )}
             {messages.map((m) => {
               const mine = m.sender_id === me;
               const att = m.attachment_id ? attachments[m.attachment_id] : null;
+              const canTranscribe = att && (att.kind === "audio" || att.kind === "video") && !m.transcription;
+              const translated = m.translations?.[targetLang];
+              const canTranslate = (m.content || m.transcription) && !translated;
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[78%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-chat-user text-chat-user-foreground rounded-br-sm" : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"}`}>
                     {m.content && <p className="whitespace-pre-wrap break-words">{m.content}</p>}
                     {att && <AttachmentView att={att} url={urls[att.id]} />}
-                    <div className={`mt-1 flex items-center gap-1 text-[10px] ${mine ? "text-chat-user-foreground/70" : "text-chat-peer-foreground/60"}`}>
+                    {m.transcription && (
+                      <p className="mt-2 rounded-lg bg-background/30 px-2 py-1 text-[12px] italic">
+                        <AudioLines className="mr-1 inline size-3" />{m.transcription}
+                      </p>
+                    )}
+                    {translated && (
+                      <p className="mt-1 rounded-lg bg-background/30 px-2 py-1 text-[12px]">
+                        <Languages className="mr-1 inline size-3" />{translated}
+                      </p>
+                    )}
+                    <div className={`mt-1 flex flex-wrap items-center gap-2 text-[10px] ${mine ? "text-chat-user-foreground/80" : "text-chat-peer-foreground/70"}`}>
                       <time>{new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time>
                       {mine && <span>· {m.read_at ? "lida" : "enviada"}</span>}
+                      {canTranscribe && <button onClick={() => transcribe(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><AudioLines className="size-3" /> transcrever</button>}
+                      {canTranslate && <button onClick={() => translate(m.id)} className="inline-flex items-center gap-0.5 rounded-full bg-background/40 px-2 py-0.5 hover:bg-background/70"><Languages className="size-3" /> traduzir</button>}
                     </div>
                   </div>
                 </div>
@@ -303,8 +338,14 @@ function Consulta() {
 
           {appt.status !== "completed" && appt.status !== "cancelled" ? (
             <form onSubmit={(e) => { e.preventDefault(); send(); }} className="border-t border-border bg-card px-3 py-3">
+              <div className="mb-2 flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
+                <Languages className="size-3.5" /> Idioma p/ tradução:
+                <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="rounded border border-border bg-background px-1 py-0.5 text-[11px]">
+                  {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
+                </select>
+              </div>
               <div className="flex items-end gap-2">
-                <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*" />
+                <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*,video/*" />
                 <button type="button" onClick={() => fileRef.current?.click()} aria-label="Anexar" className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground hover:bg-muted">
                   <Paperclip className="size-5" />
                 </button>
