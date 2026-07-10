@@ -11,7 +11,6 @@ export const Route = createFileRoute("/admin/")({
 type Volunteer = {
   user_id: string;
   display_alias: string;
-  is_psychologist: boolean;
   status: string;
   approval_status: "pending" | "approved" | "rejected";
   full_name: string | null;
@@ -25,7 +24,6 @@ type Volunteer = {
   reviewed_at: string | null;
 };
 
-type Tab = "pending" | "approved" | "rejected";
 
 function AdminDashboard() {
   const navigate = useNavigate();
