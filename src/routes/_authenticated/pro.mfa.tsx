@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import { checkMfaLock, recordMfaAttempt, formatLockMessage } from "@/lib/mfaRateLimit";
 
 export const Route = createFileRoute("/_authenticated/pro/mfa")({
   beforeLoad: ({ context }) => {
