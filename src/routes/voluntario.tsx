@@ -15,6 +15,8 @@ function VolunteerDashboard() {
   const navigate = useNavigate();
   const [me, setMe] = useState<string | null>(null);
   const [approved, setApproved] = useState<boolean | null>(null);
+  const [applicationStatus, setApplicationStatus] = useState<"pending" | "approved" | "rejected" | "none">("none");
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const [status, setStatus] = useState<VolStatus>("offline");
   const [queue, setQueue] = useState<QueueRow[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
@@ -36,15 +38,20 @@ function VolunteerDashboard() {
         .select("role")
         .eq("user_id", user.id);
       const isVol = (roles ?? []).some((r) => r.role === "volunteer" || r.role === "psychologist");
-      setApproved(isVol);
-      if (!isVol) return;
 
       const { data: vol } = await supabase
         .from("volunteers")
-        .select("status")
+        .select("status, approval_status, rejection_reason")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (vol) setStatus(vol.status as VolStatus);
+
+      if (vol) {
+        setApplicationStatus(vol.approval_status as "pending" | "approved" | "rejected");
+        setRejectionReason(vol.rejection_reason);
+        setStatus(vol.status as VolStatus);
+      }
+      setApproved(isVol);
+      if (!isVol) return;
 
       // Any active conversation?
       const { data: active } = await supabase
@@ -76,6 +83,7 @@ function VolunteerDashboard() {
       if (channel) supabase.removeChannel(channel);
     };
   }, [navigate]);
+
 
   async function updateStatus(next: VolStatus) {
     if (!me) return;
@@ -127,17 +135,28 @@ function VolunteerDashboard() {
   }
 
   if (!approved) {
+    const isRejected = applicationStatus === "rejected";
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center bg-brand-soft px-6 text-center">
         <Logo size={64} className="mb-4" />
-        <h1 className="text-xl font-semibold text-primary">Conta aguardando aprovação</h1>
+        <h1 className="text-xl font-semibold text-primary">
+          {isRejected ? "Inscrição não aprovada" : "Conta aguardando aprovação"}
+        </h1>
         <p className="mt-2 max-w-sm text-muted-foreground">
-          Sua conta foi criada, mas precisa ser aprovada por um administrador antes de poder atender.
+          {isRejected
+            ? "Sua inscrição foi analisada e não pôde ser aprovada no momento."
+            : "Sua inscrição foi recebida e está em análise por um administrador. Você receberá acesso assim que for aprovada."}
         </p>
+        {isRejected && rejectionReason && (
+          <p className="mt-3 max-w-sm rounded-lg bg-card p-3 text-sm text-foreground">
+            <span className="font-medium">Motivo:</span> {rejectionReason}
+          </p>
+        )}
         <button onClick={signOut} className="mt-6 text-sm text-muted-foreground hover:text-primary">Sair</button>
       </main>
     );
   }
+
 
   return (
     <main className="min-h-dvh bg-background">

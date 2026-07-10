@@ -63,7 +63,11 @@ function Landing() {
             Em caso de risco imediato, procure ajuda presencial ou ligue para o serviço de
             emergência local. O aplicativo não substitui atendimento profissional de urgência.
           </p>
+          <p className="mt-3">
+            <Link to="/admin/login" className="hover:text-primary">Admin</Link>
+          </p>
         </footer>
+
       </div>
       <EmergencyButton />
     </main>
