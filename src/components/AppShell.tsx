@@ -4,7 +4,8 @@ import { Logo } from "@/components/Logo";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { supabase } from "@/integrations/supabase/client";
 import { avatarUrl } from "@/lib/avatar";
-import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake } from "lucide-react";
+import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen } from "lucide-react";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import type { User } from "@supabase/supabase-js";
 import type { ReactNode } from "react";
 
@@ -29,6 +30,8 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
     { to: "/inicio", label: "Início", icon: Home },
     { to: "/profissionais", label: "Voluntários", icon: Users },
     { to: "/consultas", label: "Minhas conversas", icon: CalendarClock },
+    { to: "/diario", label: "Meu diário", icon: NotebookPen },
+    { to: "/apoio", label: "Apoio", icon: BookOpen },
   ] as const;
 
   const proNav = [
@@ -105,6 +108,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         </nav>
       </div>
       <EmergencyButton />
+      <OnboardingModal />
     </div>
   );
 }

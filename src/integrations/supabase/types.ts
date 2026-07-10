@@ -20,7 +20,9 @@ export type Database = {
           created_at: string
           duration_min: number
           id: string
+          patient_feedback: string | null
           patient_id: string
+          patient_rating: number | null
           professional_id: string
           professional_notes: string | null
           scheduled_at: string
@@ -33,7 +35,9 @@ export type Database = {
           created_at?: string
           duration_min?: number
           id?: string
+          patient_feedback?: string | null
           patient_id: string
+          patient_rating?: number | null
           professional_id: string
           professional_notes?: string | null
           scheduled_at: string
@@ -46,7 +50,9 @@ export type Database = {
           created_at?: string
           duration_min?: number
           id?: string
+          patient_feedback?: string | null
           patient_id?: string
+          patient_rating?: number | null
           professional_id?: string
           professional_notes?: string | null
           scheduled_at?: string
@@ -210,6 +216,30 @@ export type Database = {
         }
         Relationships: []
       }
+      mood_entries: {
+        Row: {
+          created_at: string
+          id: string
+          mood: number
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mood: number
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mood?: number
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           birth_year: number | null
@@ -236,6 +266,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reports: {
+        Row: {
+          admin_notes: string | null
+          appointment_id: string | null
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_user_id: string | null
+          reporter_id: string
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          appointment_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_user_id?: string | null
+          reporter_id: string
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          appointment_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_user_id?: string | null
+          reporter_id?: string
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

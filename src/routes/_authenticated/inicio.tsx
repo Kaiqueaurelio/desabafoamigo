@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, Users, MessageSquareText, HeartHandshake } from "lucide-react";
+import { CalendarClock, Users, NotebookPen, BookOpen } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
+import { MoodCheckIn } from "@/components/MoodCheckIn";
+import { BreathingButton } from "@/components/BreathingExercise";
 
 export const Route = createFileRoute("/_authenticated/inicio")({
   component: Home,
@@ -16,11 +18,13 @@ function Home() {
   const [upcoming, setUpcoming] = useState<Appt[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [alias, setAlias] = useState<string>("");
+  const [me, setMe] = useState<string>("");
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
+      setMe(u.user.id);
 
       const { data: prof } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
       setAlias(prof?.display_name ?? "");
@@ -54,10 +58,20 @@ function Home() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <QuickCard to="/profissionais" icon={<Users className="size-5" />} title="Nova conversa" desc="Escolha um(a) voluntário(a)" />
         <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico e agendamentos" />
-        <QuickCard to="/profissionais" icon={<HeartHandshake className="size-5" />} title="Ver voluntários" desc="Conheça quem pode te ouvir" />
+        <QuickCard to="/diario" icon={<NotebookPen className="size-5" />} title="Meu diário" desc="Registre como se sente" />
+        <QuickCard to="/apoio" icon={<BookOpen className="size-5" />} title="Apoio & técnicas" desc="Respire, se acalme" />
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        {me && <MoodCheckIn userId={me} />}
+        <div className="flex flex-col justify-center rounded-2xl border border-border bg-card p-5">
+          <p className="text-sm font-semibold text-foreground">Precisa se acalmar agora?</p>
+          <p className="text-xs text-muted-foreground">Toque para começar uma respiração guiada.</p>
+          <div className="mt-3"><BreathingButton /></div>
+        </div>
       </div>
 
       <section className="mt-10">
