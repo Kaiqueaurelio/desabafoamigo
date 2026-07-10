@@ -206,6 +206,7 @@ function Consulta() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
+        <section className="flex flex-1 flex-col">
           <div className="relative flex-1 overflow-y-auto">
             <Watermark />
             <div className="relative z-10 space-y-2 px-4 py-4">
@@ -231,6 +232,7 @@ function Consulta() {
               );
             })}
             <div ref={bottomRef} />
+            </div>
           </div>
 
           {appt.status !== "completed" && appt.status !== "cancelled" ? (
