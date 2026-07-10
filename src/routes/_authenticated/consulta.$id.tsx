@@ -311,23 +311,45 @@ function Consulta() {
             {messages.map((m) => {
               const mine = m.sender_id === me;
               const att = m.attachment_id ? attachments[m.attachment_id] : null;
+              const isAudioAtt = !!att && att.kind === "audio";
               const isMedia = !!att && (att.kind === "audio" || att.kind === "video");
               const canTranscribe = isMedia && !m.transcription;
               const langsAvailable = Object.keys(m.translations ?? {});
               const canTranslate = (m.content || m.transcription) && !(m.translations?.[targetLang]);
               const showOriginal = isCaptionVisible(m.id, "__original");
+              const origSegs = (m.segments ?? []) as CaptionSegment[];
+              const trSegsMap = m.translation_segments ?? {};
+              const hasTimedOriginal = origSegs.length > 0;
+              const visibleLangs = new Set<string>();
+              if (showOriginal) visibleLangs.add("__original");
+              langsAvailable.forEach((l) => { if (isCaptionVisible(m.id, l)) visibleLangs.add(l); });
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[78%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-chat-user text-chat-user-foreground rounded-br-sm" : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"}`}>
                     {m.content && <p className="whitespace-pre-wrap break-words">{m.content}</p>}
-                    {att && <AttachmentView att={att} url={urls[att.id]} />}
-                    {m.transcription && showOriginal && (
+                    {att && !isAudioAtt && <AttachmentView att={att} url={urls[att.id]} />}
+                    {isAudioAtt && urls[att.id] && (
+                      <SyncedAudioPlayer
+                        src={urls[att.id]}
+                        original={m.transcription ? { lang: "__original", label: "Transcrição", segments: origSegs } : undefined}
+                        tracks={langsAvailable.map((lang) => ({
+                          lang,
+                          label: LANGS.find((l) => l.code === lang)?.label ?? lang,
+                          segments: (trSegsMap[lang] ?? []) as CaptionSegment[],
+                        }))}
+                        visibleLangs={visibleLangs}
+                      />
+                    )}
+                    {/* Untimed fallback captions (non-audio messages or audio without segments) */}
+                    {!hasTimedOriginal && m.transcription && showOriginal && (
                       <p className="mt-2 rounded-lg bg-background/30 px-2 py-1 text-[12px] italic">
                         <AudioLines className="mr-1 inline size-3" />{m.transcription}
                       </p>
                     )}
                     {langsAvailable.map((lang) => {
                       if (!isCaptionVisible(m.id, lang)) return null;
+                      const hasTimedTr = (trSegsMap[lang]?.length ?? 0) > 0;
+                      if (isAudioAtt && hasTimedTr) return null; // rendered by SyncedAudioPlayer
                       const label = LANGS.find((l) => l.code === lang)?.label ?? lang;
                       return (
                         <p key={lang} className="mt-1 rounded-lg bg-background/30 px-2 py-1 text-[12px]">
