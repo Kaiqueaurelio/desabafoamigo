@@ -196,6 +196,18 @@ function Consulta() {
   if (!appt) return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
 
   return (
+    <ScreenshotGuard
+      onAttempt={(reason) => {
+        if (!appt) return;
+        void supabase.from("reports").insert({
+          appointment_id: appt.id,
+          reporter_id: me,
+          reported_user_id: null,
+          reason: `screenshot_attempt: ${reason}`,
+          status: "auto",
+        }).then(() => {}, () => {});
+      }}
+    >
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col md:h-dvh">
       <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
         <div className="flex items-center gap-3">
