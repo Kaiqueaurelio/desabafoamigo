@@ -14,16 +14,181 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversations: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          status: Database["public"]["Enums"]["conversation_status"]
+          user_alias: string
+          user_id: string
+          volunteer_alias: string
+          volunteer_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["conversation_status"]
+          user_alias: string
+          user_id: string
+          volunteer_alias?: string
+          volunteer_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["conversation_status"]
+          user_alias?: string
+          user_id?: string
+          volunteer_alias?: string
+          volunteer_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metrics: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          event: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          event: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          event?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      queue: {
+        Row: {
+          alias: string
+          created_at: string
+          id: string
+          prefer_psychologist: boolean
+          user_id: string
+        }
+        Insert: {
+          alias: string
+          created_at?: string
+          id?: string
+          prefer_psychologist?: boolean
+          user_id: string
+        }
+        Update: {
+          alias?: string
+          created_at?: string
+          id?: string
+          prefer_psychologist?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      volunteers: {
+        Row: {
+          display_alias: string
+          is_psychologist: boolean
+          status: Database["public"]["Enums"]["volunteer_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          display_alias?: string
+          is_psychologist?: boolean
+          status?: Database["public"]["Enums"]["volunteer_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          display_alias?: string
+          is_psychologist?: boolean
+          status?: Database["public"]["Enums"]["volunteer_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "volunteer" | "psychologist"
+      conversation_status: "active" | "ended"
+      volunteer_status: "available" | "busy" | "offline"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +315,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "volunteer", "psychologist"],
+      conversation_status: ["active", "ended"],
+      volunteer_status: ["available", "busy", "offline"],
+    },
   },
 } as const
