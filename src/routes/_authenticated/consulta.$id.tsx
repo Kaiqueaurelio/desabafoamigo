@@ -161,7 +161,7 @@ function Consulta() {
     });
     // signed URLs
     for (const a of atts) {
-      const { data: signed } = await supabase.storage.from("consultation-files").createSignedUrl(a.storage_path, 600);
+      const { data: signed } = await supabase.storage.from("consultation-files").createSignedUrl(a.storage_path, 120);
       if (signed?.signedUrl) setUrls((u) => ({ ...u, [a.id]: signed.signedUrl }));
     }
   }
