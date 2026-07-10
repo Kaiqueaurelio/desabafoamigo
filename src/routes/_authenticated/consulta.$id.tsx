@@ -237,6 +237,7 @@ function Consulta() {
         <section className="flex flex-1 flex-col">
           <div className="relative flex-1 overflow-y-auto">
             <Watermark />
+            <IdentityWatermark label={myAlias} />
             <div className="relative z-10 space-y-2 px-4 py-4">
             {messages.length === 0 && (
               <p className="mx-auto max-w-md rounded-2xl bg-brand-soft px-4 py-3 text-center text-sm text-muted-foreground">
