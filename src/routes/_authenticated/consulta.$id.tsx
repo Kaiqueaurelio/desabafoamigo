@@ -300,6 +300,7 @@ function Consulta() {
       </div>
       {askRating && <RatingDialog appointmentId={appt.id} onDone={() => navigate({ to: "/consultas" })} />}
     </div>
+    </ScreenshotGuard>
   );
 }
 
