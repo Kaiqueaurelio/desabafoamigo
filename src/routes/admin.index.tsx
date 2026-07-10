@@ -1,24 +1,14 @@
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { Loader2, LogOut, Check, X, Users, Clock, MessageCircleHeart, ShieldCheck } from "lucide-react";
+import { ensureAdminAal2 } from "@/lib/adminGuard";
 
 export const Route = createFileRoute("/admin/")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user || data.user.is_anonymous) {
-      throw redirect({ to: "/admin/login" });
-    }
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .eq("role", "admin");
-    if (!roles || roles.length === 0) {
-      throw redirect({ to: "/admin/login" });
-    }
+    await ensureAdminAal2();
   },
   component: AdminDashboard,
 });

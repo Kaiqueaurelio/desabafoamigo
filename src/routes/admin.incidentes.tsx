@@ -1,17 +1,13 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ShieldAlert, AlertTriangle, AlertCircle, Info, Save, UserX, CheckCircle2 } from "lucide-react";
+import { ensureAdminAal2 } from "@/lib/adminGuard";
 
 export const Route = createFileRoute("/admin/incidentes")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/admin/login" });
-    const { data: roles } = await supabase
-      .from("user_roles").select("role")
-      .eq("user_id", data.user.id).eq("role", "admin");
-    if (!roles || roles.length === 0) throw redirect({ to: "/admin/login" });
+    await ensureAdminAal2();
   },
   component: Incidentes,
   head: () => ({
