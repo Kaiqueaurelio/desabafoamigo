@@ -97,14 +97,11 @@ function ProSignup() {
           <Field label="Nome completo"><input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} className="inp" /></Field>
           <Field label="E-mail"><input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} className="inp" /></Field>
           <Field label="Senha"><input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} className="inp" /></Field>
-          <Field label="Especialidade"><input placeholder="Ex.: Terapia cognitivo-comportamental" value={form.specialty} onChange={(e) => set("specialty", e.target.value)} className="inp" /></Field>
-          <Field label="Registro (CRP / CRM / outro)" full><input value={form.credentials} onChange={(e) => set("credentials", e.target.value)} className="inp" /></Field>
+          <Field label="Especialidade / área"><input placeholder="Ex.: Escuta ativa, apoio emocional" value={form.specialty} onChange={(e) => set("specialty", e.target.value)} className="inp" /></Field>
+          <Field label="Formação / experiência" full><input value={form.credentials} onChange={(e) => set("credentials", e.target.value)} className="inp" /></Field>
           <Field label="Biografia (visível para pacientes)" full><textarea rows={3} value={form.bio} onChange={(e) => set("bio", e.target.value)} className="inp" /></Field>
           <Field label="Por que quer participar?" full><textarea rows={3} value={form.motivation} onChange={(e) => set("motivation", e.target.value)} className="inp" /></Field>
-          <label className="col-span-full flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.is_psychologist} onChange={(e) => set("is_psychologist", e.target.checked)} />
-            Sou psicólogo(a) registrado(a)
-          </label>
+
           {err && <p className="col-span-full text-sm text-destructive">{err}</p>}
           <button disabled={busy} type="submit" className="btn-primary col-span-full">
             {busy ? "Enviando..." : "Enviar cadastro"}
