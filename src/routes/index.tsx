@@ -16,6 +16,11 @@ import {
   Clock,
   Mic,
   Infinity as InfinityIcon,
+  ChevronDown,
+  ChevronRight,
+  BookOpen,
+  Wind,
+  Compass,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { avatarUrl } from "@/lib/avatar";
@@ -89,19 +94,43 @@ function Reveal({
   );
 }
 
+/** Counter que anima de 0 até `target` quando entra em vista. */
+function CountUp({ target, suffix = "", duration = 1400 }: { target: number; suffix?: string; duration?: number }) {
+  const { ref, visible } = useReveal<HTMLSpanElement>();
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!visible) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { setN(target); return; }
+    const start = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      setN(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [visible, target, duration]);
+  return <span ref={ref}>{n.toLocaleString("pt-BR")}{suffix}</span>;
+}
+
 function Landing() {
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
-      
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <div className="relative z-10">
         <Header />
         <main id="conteudo" tabIndex={-1}>
           <Hero />
           <InfinityBand />
+          <Impact />
           <Origin />
+          <InfinityBand reverse />
           <Mission />
+          <Journey />
+          <Voices />
           <Testimonials />
+          <FAQ />
           <HowTo />
         </main>
         <Footer />
@@ -110,7 +139,7 @@ function Landing() {
   );
 }
 
-function InfinityBand() {
+function InfinityBand({ reverse = false }: { reverse?: boolean }) {
   const words = [
     "Escuta sem fim",
     "∞",
@@ -123,10 +152,10 @@ function InfinityBand() {
     "Você não está sozinho(a)",
     "∞",
   ];
-  const loop = [...words, ...words];
+  const loop = [...words, ...words, ...words];
   return (
     <section aria-hidden className="relative border-y border-border/50 bg-brand-soft/40 py-6 overflow-hidden">
-      <div className="flex whitespace-nowrap animate-marquee">
+      <div className={`flex whitespace-nowrap ${reverse ? "animate-marquee-reverse" : "animate-marquee"}`}>
         {loop.map((w, i) => (
           <span key={i} className="mx-6 text-sm font-semibold uppercase tracking-widest text-primary/70">
             {w}
@@ -148,7 +177,9 @@ function Header() {
         <nav aria-label="Navegação principal" className="hidden items-center gap-6 text-sm text-foreground/80 md:flex">
           <a href="#origem" className="rounded-md hover:text-primary transition-colors">Nossa história</a>
           <a href="#missao" className="rounded-md hover:text-primary transition-colors">Como ajudamos</a>
+          <a href="#jornada" className="rounded-md hover:text-primary transition-colors">Sua jornada</a>
           <a href="#depoimentos" className="rounded-md hover:text-primary transition-colors">Depoimentos</a>
+          <a href="#faq" className="rounded-md hover:text-primary transition-colors">Dúvidas</a>
           <Link to="/pro/cadastro" className="rounded-md hover:text-primary transition-colors">Ser voluntário(a)</Link>
         </nav>
         <Link to="/auth" className="btn-primary !py-2 !px-4 text-sm">Entrar</Link>
@@ -157,11 +188,9 @@ function Header() {
   );
 }
 
-
 function Hero() {
   return (
     <section className="relative isolate">
-      {/* animated soft background */}
       <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -left-20 size-[520px] rounded-full bg-brand-sky/20 blur-3xl animate-blob" />
         <div className="absolute top-20 -right-20 size-[520px] rounded-full bg-brand-green/15 blur-3xl animate-blob animation-delay-2000" />
@@ -209,11 +238,35 @@ function Hero() {
           </dl>
         </div>
 
-        {/* Live-looping chat demo (GIF-style) */}
         <div className="animate-fade-in">
           <ChatDemo />
         </div>
       </div>
+    </section>
+  );
+}
+
+function Impact() {
+  const stats = [
+    { n: 1284, s: "+", label: "Conversas acolhidas" },
+    { n: 320, s: "+", label: "Voluntários treinados" },
+    { n: 97, s: "%", label: "Se sentiram ouvidos" },
+    { n: 24, s: "/7", label: "Sempre disponível" },
+  ];
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-16">
+      <Reveal>
+        <div className="grid gap-4 rounded-3xl border border-border bg-card/60 p-6 backdrop-blur sm:grid-cols-2 md:grid-cols-4">
+          {stats.map((s, i) => (
+            <div key={i} className="text-center">
+              <p className="bg-gradient-to-br from-brand-green to-brand-sky bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
+                <CountUp target={s.n} suffix={s.s} />
+              </p>
+              <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -261,26 +314,10 @@ function Origin() {
 
         <Reveal delay={150}>
           <div className="grid gap-3 sm:grid-cols-2">
-            <OriginCard
-              icon={<Ear className="size-5" />}
-              title="Escuta sem pressa"
-              text="Sem cronômetro, sem roteiro. Conversa no seu tempo."
-            />
-            <OriginCard
-              icon={<Shield className="size-5" />}
-              title="Identidade protegida"
-              text="Você recebe um apelido e avatar gerados pelo app."
-            />
-            <OriginCard
-              icon={<Users className="size-5" />}
-              title="Voluntários treinados"
-              text="Pessoas capacitadas em acolhimento, verificadas pela equipe."
-            />
-            <OriginCard
-              icon={<HeartHandshake className="size-5" />}
-              title="Sempre gratuito"
-              text="Nasceu para ajudar. Nunca vai custar nada para desabafar."
-            />
+            <OriginCard icon={<Ear className="size-5" />} title="Escuta sem pressa" text="Sem cronômetro, sem roteiro. Conversa no seu tempo." />
+            <OriginCard icon={<Shield className="size-5" />} title="Identidade protegida" text="Você recebe um apelido e avatar gerados pelo app." />
+            <OriginCard icon={<Users className="size-5" />} title="Voluntários treinados" text="Pessoas capacitadas em acolhimento, verificadas pela equipe." />
+            <OriginCard icon={<HeartHandshake className="size-5" />} title="Sempre gratuito" text="Nasceu para ajudar. Nunca vai custar nada para desabafar." />
           </div>
         </Reveal>
       </div>
@@ -302,36 +339,12 @@ function OriginCard({ icon, title, text }: { icon: React.ReactNode; title: strin
 
 function Mission() {
   const items = [
-    {
-      icon: <Sparkles className="size-5" />,
-      title: "Apelido no app",
-      text: "Você recebe um apelido e avatar únicos, gerados automaticamente para preservar sua identidade.",
-    },
-    {
-      icon: <MessageSquareText className="size-5" />,
-      title: "Chat no seu tempo",
-      text: "Escreva quando puder. Sem videochamada, sem constrangimento, sem pressa.",
-    },
-    {
-      icon: <CalendarClock className="size-5" />,
-      title: "Agendamento fácil",
-      text: "Reserve um horário com um(a) voluntário(a) disponível quando fizer sentido para você.",
-    },
-    {
-      icon: <Mic className="size-5" />,
-      title: "Texto, imagem e áudio",
-      text: "Se preferir gravar um áudio ou enviar uma foto, o app suporta com segurança.",
-    },
-    {
-      icon: <Lock className="size-5" />,
-      title: "Seguro por padrão",
-      text: "Conversas protegidas por criptografia em trânsito e políticas rigorosas de acesso.",
-    },
-    {
-      icon: <Clock className="size-5" />,
-      title: "24 horas por dia",
-      text: "Voluntários se revezam para que você encontre acolhimento sempre que precisar.",
-    },
+    { icon: <Sparkles className="size-5" />, title: "Apelido no app", text: "Você recebe um apelido e avatar únicos, gerados automaticamente para preservar sua identidade." },
+    { icon: <MessageSquareText className="size-5" />, title: "Chat no seu tempo", text: "Escreva quando puder. Sem videochamada, sem constrangimento, sem pressa." },
+    { icon: <CalendarClock className="size-5" />, title: "Agendamento fácil", text: "Reserve um horário com um(a) voluntário(a) disponível quando fizer sentido para você." },
+    { icon: <Mic className="size-5" />, title: "Texto, imagem e áudio", text: "Se preferir gravar um áudio ou enviar uma foto, o app suporta com segurança." },
+    { icon: <Lock className="size-5" />, title: "Seguro por padrão", text: "Conversas protegidas por criptografia em trânsito e políticas rigorosas de acesso." },
+    { icon: <Clock className="size-5" />, title: "24 horas por dia", text: "Voluntários se revezam para que você encontre acolhimento sempre que precisar." },
   ];
   return (
     <section id="missao" className="bg-brand-soft/40 py-20 md:py-28">
@@ -369,23 +382,87 @@ function Mission() {
   );
 }
 
+function Journey() {
+  const steps = [
+    { icon: <Compass className="size-5" />, title: "Chegada", text: "Você entra e recebe um apelido único. Ninguém sabe quem você é fora daqui." },
+    { icon: <MessageSquareText className="size-5" />, title: "Primeiro fôlego", text: "Escolha um horário ou entre na fila. Um(a) voluntário(a) treinado(a) te recebe." },
+    { icon: <Ear className="size-5" />, title: "Ser ouvido(a)", text: "Fale no seu tempo. Sem roteiro, sem julgamento, sem apressamento." },
+    { icon: <Wind className="size-5" />, title: "Ferramentas de calma", text: "Exercícios de respiração, biblioteca de apoio e diário emocional pra você usar quando quiser." },
+    { icon: <BookOpen className="size-5" />, title: "Continuidade", text: "Volte sempre. Seu apelido continua o mesmo — se preferir, começa outro apelido do zero." },
+  ];
+  return (
+    <section id="jornada" className="relative py-20 md:py-28">
+      <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
+        <InfinityFlow className="absolute inset-x-0 top-0 h-full w-full opacity-40" />
+      </div>
+      <div className="mx-auto max-w-6xl px-6">
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-brand-green">
+              Sua jornada aqui
+            </span>
+            <h2 className="mt-3 text-3xl font-bold text-primary md:text-4xl">
+              Uma linha contínua de acolhimento
+            </h2>
+          </div>
+        </Reveal>
+
+        <ol className="relative mt-14 space-y-6 before:absolute before:left-6 before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-brand-green/40 before:via-brand-sky/40 before:to-transparent md:before:left-1/2">
+          {steps.map((s, i) => (
+            <Reveal key={s.title} delay={i * 90}>
+              <li className={`relative grid gap-4 md:grid-cols-2 md:gap-10 ${i % 2 ? "md:[&>div:first-child]:col-start-2" : ""}`}>
+                <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                  <div className="mb-2 flex items-center gap-3">
+                    <span className="grid size-10 place-items-center rounded-xl bg-brand-soft text-primary">{s.icon}</span>
+                    <p className="text-xs font-bold uppercase tracking-widest text-brand-green">Passo {i + 1}</p>
+                  </div>
+                  <p className="font-semibold text-foreground">{s.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{s.text}</p>
+                </div>
+                <div aria-hidden className="hidden md:block" />
+                <span aria-hidden className="absolute left-4 top-6 grid size-4 place-items-center rounded-full bg-primary ring-4 ring-background md:left-[calc(50%-8px)]" />
+              </li>
+            </Reveal>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+function Voices() {
+  const phrases = [
+    "Você não precisa ter tudo resolvido pra falar.",
+    "Falar já é um começo.",
+    "Você merece um espaço só seu.",
+    "Chorar aqui também é bem-vindo.",
+    "Silêncios não incomodam.",
+    "Uma respiração de cada vez.",
+    "O seu ritmo é o ritmo certo.",
+    "Ninguém te julga aqui.",
+  ];
+  const loop = [...phrases, ...phrases];
+  return (
+    <section aria-hidden className="relative overflow-hidden bg-primary py-10 text-primary-foreground">
+      <div className="animate-marquee-slow flex whitespace-nowrap">
+        {loop.map((p, i) => (
+          <span key={i} className="mx-8 text-lg font-medium md:text-2xl">
+            {p} <span className="mx-4 opacity-40">∞</span>
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Testimonials() {
   const items = [
-    {
-      name: "Lua Serena 214",
-      role: "Amiga acolhida",
-      text: "Consegui falar de coisas que nunca tinha falado com ninguém. Ser ouvida sem julgamento mudou meu dia.",
-    },
-    {
-      name: "Nuvem Azul 087",
-      role: "Amigo acolhido",
-      text: "Estava num momento pesado e o app me ajudou a respirar. O apelido me deu coragem pra ser sincero.",
-    },
-    {
-      name: "Sol Manso 512",
-      role: "Voluntária treinada",
-      text: "É lindo poder oferecer um pouco do meu tempo pra ouvir alguém. Todo mundo merece ser escutado.",
-    },
+    { name: "Lua Serena 214", role: "Amiga acolhida", text: "Consegui falar de coisas que nunca tinha falado com ninguém. Ser ouvida sem julgamento mudou meu dia." },
+    { name: "Nuvem Azul 087", role: "Amigo acolhido", text: "Estava num momento pesado e o app me ajudou a respirar. O apelido me deu coragem pra ser sincero." },
+    { name: "Sol Manso 512", role: "Voluntária treinada", text: "É lindo poder oferecer um pouco do meu tempo pra ouvir alguém. Todo mundo merece ser escutado." },
+    { name: "Rio Calmo 331", role: "Amigo acolhido", text: "Nunca me imaginei conversando com um estranho, mas o clima aqui é diferente. Me senti seguro." },
+    { name: "Aurora Doce 706", role: "Voluntária treinada", text: "Adoro saber que existe um lugar assim. Cada conversa muda um pouco a gente também." },
+    { name: "Prado Livre 158", role: "Amiga acolhida", text: "A respiração guiada me salvou de uma crise à noite. Obrigada por existir." },
   ];
   return (
     <section id="depoimentos" className="mx-auto max-w-6xl px-6 py-20 md:py-28">
@@ -403,9 +480,9 @@ function Testimonials() {
         </div>
       </Reveal>
 
-      <div className="mt-14 grid gap-5 md:grid-cols-3">
+      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {items.map((t, i) => (
-          <Reveal key={t.name} delay={i * 120}>
+          <Reveal key={t.name} delay={(i % 3) * 120}>
             <figure className="h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
               <Quote className="size-6 text-brand-sky" />
               <blockquote className="mt-3 text-[15px] leading-relaxed text-foreground">
@@ -421,6 +498,40 @@ function Testimonials() {
             </figure>
           </Reveal>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function FAQ() {
+  const items = [
+    { q: "Preciso me identificar?", a: "Não. Você recebe um apelido e avatar gerados pelo app. Só o e-mail é pedido para poder voltar à sua conta." },
+    { q: "O voluntário sabe quem eu sou?", a: "Não. Ele também só enxerga seu apelido. A conversa é entre duas identidades geradas pelo app." },
+    { q: "Isso substitui terapia ou atendimento médico?", a: "Não. Somos escuta acolhedora. Se você precisa de atendimento clínico, procure um profissional de saúde. Em emergência, ligue 188 (CVV) ou 192 (SAMU)." },
+    { q: "Como faço para ser voluntário(a)?", a: "Você se cadastra, passa por revisão da equipe e — depois de aprovado(a) — recebe acesso à área de atendimento." },
+    { q: "Meus dados são vendidos?", a: "Nunca. Não vendemos, não compartilhamos e usamos criptografia em trânsito. Conversas ficam disponíveis apenas para você e o(a) voluntário(a)." },
+    { q: "Posso apagar minha conta?", a: "Sim, a qualquer momento. Peça pelo suporte e removemos seus dados." },
+  ];
+  return (
+    <section id="faq" className="bg-brand-soft/40 py-20 md:py-28">
+      <div className="mx-auto max-w-4xl px-6">
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-brand-green">Perguntas frequentes</span>
+            <h2 className="mt-3 text-3xl font-bold text-primary md:text-4xl">Dúvidas comuns</h2>
+          </div>
+        </Reveal>
+        <div className="mt-10 divide-y divide-border rounded-2xl border border-border bg-card">
+          {items.map((it, i) => (
+            <details key={i} className="group px-5 py-4 open:bg-brand-soft/40">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                {it.q}
+                <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden />
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{it.a}</p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -505,10 +616,12 @@ function Footer() {
         <div className="text-sm">
           <p className="mb-3 font-semibold text-foreground">Navegar</p>
           <ul className="space-y-2 text-muted-foreground">
-            <li><a href="#origem" className="hover:text-primary">Nossa história</a></li>
-            <li><a href="#missao" className="hover:text-primary">Como ajudamos</a></li>
-            <li><a href="#depoimentos" className="hover:text-primary">Depoimentos</a></li>
-            <li><Link to="/pro/cadastro" className="hover:text-primary">Ser voluntário(a)</Link></li>
+            <li><a href="#origem" className="hover:text-primary inline-flex items-center gap-1"><ChevronRight className="size-3" aria-hidden />Nossa história</a></li>
+            <li><a href="#missao" className="hover:text-primary inline-flex items-center gap-1"><ChevronRight className="size-3" aria-hidden />Como ajudamos</a></li>
+            <li><a href="#jornada" className="hover:text-primary inline-flex items-center gap-1"><ChevronRight className="size-3" aria-hidden />Sua jornada</a></li>
+            <li><a href="#depoimentos" className="hover:text-primary inline-flex items-center gap-1"><ChevronRight className="size-3" aria-hidden />Depoimentos</a></li>
+            <li><a href="#faq" className="hover:text-primary inline-flex items-center gap-1"><ChevronRight className="size-3" aria-hidden />Dúvidas</a></li>
+            <li><Link to="/pro/cadastro" className="hover:text-primary inline-flex items-center gap-1"><ChevronRight className="size-3" aria-hidden />Ser voluntário(a)</Link></li>
           </ul>
         </div>
         <div className="text-sm">
@@ -530,33 +643,5 @@ function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function Bubble({
-  side,
-  delay = 0,
-  children,
-}: {
-  side: "me" | "peer";
-  delay?: number;
-  children?: React.ReactNode;
-}) {
-  const mine = side === "me";
-  return (
-    <div
-      className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-in`}
-      style={{ animationDelay: `${delay}ms`, animationFillMode: "both" }}
-    >
-      <div
-        className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-          mine
-            ? "bg-chat-user text-chat-user-foreground rounded-br-sm"
-            : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"
-        }`}
-      >
-        {children}
-      </div>
-    </div>
   );
 }
