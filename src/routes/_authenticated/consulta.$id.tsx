@@ -15,6 +15,7 @@ import { transcribeMessage, translateMessage, summarizeConversation } from "@/li
 import { SyncedAudioPlayer, type CaptionSegment } from "@/components/SyncedAudioPlayer";
 import { QuickTemplates } from "@/components/QuickTemplates";
 import { ReplySuggestions } from "@/components/ReplySuggestions";
+import { useTypingPresence } from "@/hooks/useTypingPresence";
 
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
