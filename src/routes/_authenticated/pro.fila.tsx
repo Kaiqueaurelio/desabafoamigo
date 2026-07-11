@@ -15,7 +15,13 @@ export const Route = createFileRoute("/_authenticated/pro/fila")({
   component: Fila,
 });
 
-type Row = { id: string; user_id: string; topic: string | null; created_at: string; alias?: string; summary?: string };
+type Row = {
+  id: string; user_id: string; topic: string | null; created_at: string;
+  urgency?: "low" | "medium" | "high"; preferred_lang?: string;
+  alias?: string; summary?: string;
+};
+
+const URG_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 function Fila() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -25,9 +31,16 @@ function Fila() {
 
   async function load() {
     const { data } = await supabase.from("queue")
-      .select("id, user_id, topic, created_at")
+      .select("id, user_id, topic, created_at, urgency, preferred_lang")
       .eq("status", "waiting").order("created_at");
     const list = (data ?? []) as Row[];
+    // Reorder: urgency desc, then age asc
+    list.sort((a, b) => {
+      const ua = URG_ORDER[a.urgency ?? "low"] ?? 2;
+      const ub = URG_ORDER[b.urgency ?? "low"] ?? 2;
+      if (ua !== ub) return ua - ub;
+      return +new Date(a.created_at) - +new Date(b.created_at);
+    });
     if (list.length) {
       const ids = list.map((r) => r.user_id);
       const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", ids);
