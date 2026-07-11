@@ -15,6 +15,7 @@ import { transcribeMessage, translateMessage, summarizeConversation } from "@/li
 import { SyncedAudioPlayer, type CaptionSegment } from "@/components/SyncedAudioPlayer";
 import { QuickTemplates } from "@/components/QuickTemplates";
 import { ReplySuggestions } from "@/components/ReplySuggestions";
+import { useTypingPresence } from "@/hooks/useTypingPresence";
 
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
@@ -86,6 +87,7 @@ function Consulta() {
   const forensicHash = useMemo(() => (me ? getSessionForensicHash(me) : ""), [me]);
 
   const isPro = appt && me === appt.professional_id;
+  const { peerTyping, notifyTyping } = useTypingPresence(appt?.conversation_id ?? null, me);
 
   useEffect(() => {
     let cancelled = false;
@@ -412,6 +414,11 @@ function Consulta() {
             })}
             <div ref={bottomRef} />
             </div>
+            {peerTyping && (
+              <div className="px-4 pb-2 text-xs italic text-muted-foreground" aria-live="polite">
+                {peer || "seu par"} está digitando<span className="inline-block animate-pulse">…</span>
+              </div>
+            )}
           </div>
 
           {appt.status !== "completed" && appt.status !== "cancelled" ? (
@@ -444,8 +451,10 @@ function Consulta() {
                 <button type="button" onClick={toggleRecord} aria-label="Áudio" className={`grid size-11 shrink-0 place-items-center rounded-full ${recording ? "bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground hover:bg-muted"}`}>
                   {recording ? <StopCircle className="size-5" /> : <Mic className="size-5" />}
                 </button>
-                <textarea value={draft} onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                <textarea value={draft}
+                  onChange={(e) => { setDraft(e.target.value); notifyTyping(e.target.value.length > 0); }}
+                  onBlur={() => notifyTyping(false)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); notifyTyping(false); send(); } }}
                   rows={1} maxLength={2000} placeholder="Escreva sua mensagem..."
                   className="max-h-40 min-h-11 flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-primary" />
                 <button type="submit" disabled={!draft.trim() || sending} aria-label="Enviar"

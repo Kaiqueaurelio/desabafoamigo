@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { deleteMyAccount } from "@/lib/account.functions";
-import { ShieldCheck, Trash2, ExternalLink } from "lucide-react";
+import { deleteMyAccount, exportMyData } from "@/lib/account.functions";
+import { ShieldCheck, Trash2, ExternalLink, Download } from "lucide-react";
 import { AccessibilityPanel } from "@/components/AccessibilityPanel";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   component: SettingsPage,
@@ -14,9 +15,26 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
 function SettingsPage() {
   const navigate = useNavigate();
   const del = useServerFn(deleteMyAccount);
+  const exportFn = useServerFn(exportMyData);
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const data = await exportFn();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `desabafo-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert((e as Error).message ?? "Não foi possível exportar.");
+    } finally { setExporting(false); }
+  }
 
   async function handleDelete() {
     if (confirm !== "APAGAR") { setErr("Digite APAGAR para confirmar."); return; }
@@ -37,6 +55,7 @@ function SettingsPage() {
       <p className="mt-2 text-sm text-muted-foreground">Controle sua privacidade e sua conta.</p>
 
       <div className="mt-8 space-y-6">
+        <ThemeToggle />
         <AccessibilityPanel />
 
         <section className="rounded-2xl border border-border bg-card p-5">
@@ -48,6 +67,25 @@ function SettingsPage() {
               <a href="/privacidade" target="_blank" rel="noopener" className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
                 Ler política de privacidade <ExternalLink className="size-3.5" />
               </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-start gap-3">
+            <Download className="mt-0.5 size-5 text-primary" />
+            <div className="flex-1">
+              <h2 className="font-medium">Exportar meus dados</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Baixe um arquivo JSON com seu perfil, diário emocional, avaliações e mensagens que você enviou (LGPD art. 18 — portabilidade).
+              </p>
+              <button
+                onClick={handleExport}
+                disabled={exporting}
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-brand-soft px-4 py-2 text-sm font-medium text-primary hover:bg-brand-soft/80 disabled:opacity-50"
+              >
+                <Download className="size-4" /> {exporting ? "Preparando…" : "Baixar meus dados (JSON)"}
+              </button>
             </div>
           </div>
         </section>
