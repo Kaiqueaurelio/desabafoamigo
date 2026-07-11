@@ -3,6 +3,123 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type Segment = { start: number; end: number; text: string };
 
+// ===== Onda 2: Classificação de risco por IA =====
+export const classifyRisk = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { text: string }) => d)
+  .handler(async ({ data }) => {
+    const text = (data.text ?? "").slice(0, 2000).trim();
+    if (!text) return { severity: 0, reason: "", suggestion: "" };
+    const { chatCompletion } = await import("./ai-gateway.server");
+    const raw = await chatCompletion({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        {
+          role: "system",
+          content: `Você é um classificador de risco emocional para mensagens em português. Retorne APENAS JSON: {"severity": 0-3, "reason": "curta", "suggestion": "resposta acolhedora curta ao usuário se severity>=2"}. Níveis: 0 = sem risco, 1 = sofrimento leve, 2 = sofrimento grave (menções indiretas de morte, desesperança forte), 3 = risco iminente (ideação/plano suicida, autolesão iminente). Seja conservador — na dúvida entre 1 e 2, escolha 2.`,
+        },
+        { role: "user", content: text },
+      ],
+      response_format: { type: "json_object" },
+    });
+    try {
+      const j = JSON.parse(raw) as { severity?: number; reason?: string; suggestion?: string };
+      return {
+        severity: Math.max(0, Math.min(3, Number(j.severity ?? 0))),
+        reason: (j.reason ?? "").slice(0, 200),
+        suggestion: (j.suggestion ?? "").slice(0, 500),
+      };
+    } catch {
+      return { severity: 0, reason: "", suggestion: "" };
+    }
+  });
+
+// ===== Onda 2: Sugestões de resposta empáticas =====
+export const suggestReplies = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { conversationId: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: conv } = await supabase
+      .from("conversations")
+      .select("id, user_id, volunteer_id")
+      .eq("id", data.conversationId)
+      .maybeSingle();
+    if (!conv) throw new Error("Conversa inválida");
+    if (conv.volunteer_id !== userId) throw new Error("Somente o voluntário desta conversa");
+
+    const { data: msgs } = await supabase
+      .from("messages")
+      .select("sender_id, content, transcription, created_at")
+      .eq("conversation_id", data.conversationId)
+      .order("created_at", { ascending: false })
+      .limit(12);
+    const ordered = (msgs ?? []).reverse();
+    const lines = ordered
+      .map((m) => `${m.sender_id === conv.user_id ? "Pessoa" : "Voluntário"}: ${m.content ?? m.transcription ?? "(anexo)"}`)
+      .join("\n")
+      .slice(0, 4000);
+    if (!lines) return { suggestions: [] as string[] };
+
+    const { chatCompletion } = await import("./ai-gateway.server");
+    const raw = await chatCompletion({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        {
+          role: "system",
+          content: `Você ajuda um(a) voluntário(a) de escuta acolhedora a responder. Gere 3 sugestões CURTAS (máx 220 caracteres cada), empáticas, sem julgar, sem dar diagnóstico, sem prometer resultado. Use validação emocional e perguntas abertas. Responda APENAS JSON: {"suggestions":["...","...","..."]}. Português do Brasil.`,
+        },
+        { role: "user", content: lines },
+      ],
+      response_format: { type: "json_object" },
+    });
+    try {
+      const j = JSON.parse(raw) as { suggestions?: string[] };
+      const list = Array.isArray(j.suggestions) ? j.suggestions.filter((s) => typeof s === "string").slice(0, 3) : [];
+      return { suggestions: list };
+    } catch {
+      return { suggestions: [] as string[] };
+    }
+  });
+
+// ===== Onda 2: Chatbot de triagem antes da fila =====
+type TriageTurn = { role: "user" | "assistant"; content: string };
+export const triageStep = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { history: TriageTurn[] }) => d)
+  .handler(async ({ data }) => {
+    const history = Array.isArray(data.history) ? data.history.slice(-10) : [];
+    const { chatCompletion } = await import("./ai-gateway.server");
+    const raw = await chatCompletion({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        {
+          role: "system",
+          content: `Você é um assistente de triagem acolhedora do Desabafa Amigo. Objetivo: em NO MÁXIMO 4 turnos, entender o que a pessoa gostaria de conversar e o nível de urgência, para preparar a fila.
+Regras:
+- Tom quente, curto, sem clichês, sem dar diagnóstico ou conselho clínico.
+- Uma pergunta por vez. Nunca peça dados pessoais (nome, cidade, telefone, e-mail).
+- Se detectar risco alto (ideação suicida, autolesão iminente), NÃO faça mais perguntas: peça permissão para conectar já e sugira o CVV 188.
+- Ao decidir que já entendeu, defina done=true e escreva um "topic" resumido (máx 200 caracteres, 1ª pessoa) que aparecerá na fila para o(a) voluntário(a).
+Responda SEMPRE JSON: {"reply":"...","done":boolean,"topic":"...opcional...","urgency":"low|medium|high"}.`,
+        },
+        ...history.map((h) => ({ role: h.role, content: h.content })),
+      ],
+      response_format: { type: "json_object" },
+    });
+    try {
+      const j = JSON.parse(raw) as { reply?: string; done?: boolean; topic?: string; urgency?: string };
+      return {
+        reply: (j.reply ?? "").slice(0, 600),
+        done: Boolean(j.done),
+        topic: (j.topic ?? "").slice(0, 200),
+        urgency: (j.urgency === "high" || j.urgency === "medium" ? j.urgency : "low") as "low" | "medium" | "high",
+      };
+    } catch {
+      return { reply: "Pode me contar um pouquinho mais sobre o que está sentindo?", done: false, topic: "", urgency: "low" as const };
+    }
+  });
+
 export const transcribeMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { messageId: string }) => d)
