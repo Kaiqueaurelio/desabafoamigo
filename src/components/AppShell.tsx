@@ -87,7 +87,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
           <Link to="/inicio" className="flex items-center gap-2">
-            <Logo size={36} />
+            <Logo responsive className="h-11 w-11 sm:h-12 sm:w-12" />
             <span className="text-base font-semibold text-primary">Desabafa</span>
           </Link>
           <button onClick={signOut} aria-label="Sair" className="rounded-md p-2 text-muted-foreground hover:bg-muted">
