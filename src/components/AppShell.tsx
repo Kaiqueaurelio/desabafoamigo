@@ -45,7 +45,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
     <div className="flex min-h-dvh bg-background">
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex">
         <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-          <Logo responsive className="h-11 w-11 lg:h-12 lg:w-12" />
+          <Logo responsive decorative priority className="h-11 w-11 md:h-10 md:w-10 lg:h-12 lg:w-12" />
           <div className="leading-tight">
             <p className="text-base font-semibold text-primary">Desabafa Amigo</p>
             <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
