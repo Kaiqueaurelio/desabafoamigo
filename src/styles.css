@@ -238,6 +238,58 @@
   }
 }
 
+/* ============================================================
+ * Acessibilidade — classes aplicadas em <html> via src/lib/a11y.ts
+ * ============================================================ */
+
+/* Alto contraste — reforça fundos, texto e bordas */
+html.a11y-hc {
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.08 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.08 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.22 0 0);
+  --border: oklch(0.12 0 0);
+  --input: oklch(0.12 0 0);
+  --ring: oklch(0.15 0.18 250);
+  --primary: oklch(0.28 0.16 250);
+  --primary-foreground: oklch(1 0 0);
+}
+html.a11y-hc * {
+  text-shadow: none !important;
+}
+html.a11y-hc a,
+html.a11y-hc button {
+  outline-offset: 2px;
+}
+
+/* Fonte para dislexia — usa OpenDyslexic quando disponível, senão fallback amigável */
+html.a11y-dyslexia body,
+html.a11y-dyslexia input,
+html.a11y-dyslexia textarea,
+html.a11y-dyslexia button,
+html.a11y-dyslexia select {
+  font-family: "OpenDyslexic", "Comic Sans MS", "Trebuchet MS", "Verdana", ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: 0.02em;
+  word-spacing: 0.08em;
+}
+
+/* Texto maior — escala global respeitando rem */
+html.a11y-large {
+  font-size: 118%;
+}
+
+/* Reduzir animações — manual, além do prefers-reduced-motion */
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 /* Hide Lovable badge */
 #lovable-badge,
 #lovable-badge-v2,
@@ -245,3 +297,4 @@
 a[href*="lovable.dev"][target="_blank"] {
   display: none !important;
 }
+
