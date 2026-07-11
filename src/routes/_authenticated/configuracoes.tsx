@@ -70,6 +70,25 @@ function SettingsPage() {
             </div>
           </div>
         </section>
+
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-start gap-3">
+            <Download className="mt-0.5 size-5 text-primary" />
+            <div className="flex-1">
+              <h2 className="font-medium">Exportar meus dados</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Baixe um arquivo JSON com seu perfil, diário emocional, avaliações e mensagens que você enviou (LGPD art. 18 — portabilidade).
+              </p>
+              <button
+                onClick={handleExport}
+                disabled={exporting}
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-brand-soft px-4 py-2 text-sm font-medium text-primary hover:bg-brand-soft/80 disabled:opacity-50"
+              >
+                <Download className="size-4" /> {exporting ? "Preparando…" : "Baixar meus dados (JSON)"}
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
 
 
