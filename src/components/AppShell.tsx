@@ -44,10 +44,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   return (
     <div className="flex min-h-dvh bg-background">
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex">
-        <div className="flex items-center gap-2 border-b border-border px-5 py-4">
-          <Logo size={28} />
+        <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+          <Logo size={44} />
           <div className="leading-tight">
-            <p className="text-sm font-semibold text-primary">Desabafa Amigo</p>
+            <p className="text-base font-semibold text-primary">Desabafa Amigo</p>
             <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
           </div>
         </div>
