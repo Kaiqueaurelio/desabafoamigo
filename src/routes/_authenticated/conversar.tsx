@@ -3,8 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
-import { Loader2, HeartHandshake, X, Clock } from "lucide-react";
+import { Loader2, HeartHandshake, X, Clock, Sparkles, Pencil } from "lucide-react";
 import { BreathingButton } from "@/components/BreathingExercise";
+import { TriageBot } from "@/components/TriageBot";
 
 
 export const Route = createFileRoute("/_authenticated/conversar")({
@@ -15,6 +16,7 @@ function Instant() {
   const navigate = useNavigate();
   const enqueue = useServerFn(enqueueMe);
   const cancel = useServerFn(cancelMyQueue);
+  const [mode, setMode] = useState<"choose" | "triage" | "manual">("choose");
   const [topic, setTopic] = useState("");
   const [queueId, setQueueId] = useState<string | null>(null);
   const [position, setPosition] = useState<number | null>(null);
