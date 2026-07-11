@@ -604,7 +604,7 @@ function Footer() {
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
-            <Logo responsive className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16" />
+            <Logo responsive decorative className="h-12 w-12 sm:h-14 sm:w-14 md:h-14 md:w-14 lg:h-16 lg:w-16" />
             <span className="text-base font-semibold text-primary">Desabafa Amigo</span>
           </div>
           <p className="mt-3 max-w-xs text-xs text-muted-foreground">
