@@ -1,0 +1,17 @@
+{
+  "name": "Desabafa Amigo",
+  "short_name": "Desabafa",
+  "description": "Escuta acolhedora por mensagem, com voluntários treinados. Sua identidade fica protegida.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F2A47",
+  "theme_color": "#0F2A47",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
