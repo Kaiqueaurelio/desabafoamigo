@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MoodCheckIn } from "@/components/MoodCheckIn";
-import { NotebookPen, Trash2 } from "lucide-react";
+import { NotebookPen, Trash2, Sparkles } from "lucide-react";
+import { todaysPrompt } from "@/lib/journalPrompts";
+
 
 export const Route = createFileRoute("/_authenticated/diario")({
   component: Diario,
@@ -17,6 +19,8 @@ function Diario() {
   const [text, setText] = useState("");
   const [mood, setMood] = useState<number>(3);
   const [saving, setSaving] = useState(false);
+  const prompt = useMemo(() => todaysPrompt(), []);
+
 
   async function load(userId: string) {
     const { data } = await supabase.from("mood_entries").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(60);
@@ -63,6 +67,18 @@ function Diario() {
       <form onSubmit={saveJournal} className="mt-4 rounded-2xl border border-border bg-card p-5">
         <h3 className="text-sm font-semibold text-foreground">Só desabafar</h3>
         <p className="text-xs text-muted-foreground">Escreva livremente o que está sentindo. É só para você.</p>
+        <div className="mt-3 flex items-start gap-2 rounded-xl border border-primary/20 bg-brand-soft/40 p-3">
+          <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Provocação de hoje</p>
+            <p className="mt-0.5 text-sm text-foreground">{prompt}</p>
+            <button type="button" onClick={() => setText((t) => (t ? t + "\n\n" : "") + prompt + "\n")}
+              className="mt-2 text-[11px] font-medium text-primary underline underline-offset-2 hover:no-underline">
+              Usar como ponto de partida
+            </button>
+          </div>
+        </div>
+
         <div className="mt-3 flex gap-2">
           {[1, 2, 3, 4, 5].map((n) => (
             <button key={n} type="button" onClick={() => setMood(n)} aria-label={`Humor ${n}`}
