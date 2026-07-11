@@ -170,8 +170,8 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" aria-label="Desabafa Amigo — página inicial" className="flex items-center gap-3 rounded-md">
-          <Logo responsive className="h-12 w-12 drop-shadow-sm sm:h-14 sm:w-14 md:h-16 md:w-16" />
+        <Link to="/" aria-label="Desabafa Amigo — página inicial" className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <Logo responsive priority decorative className="h-12 w-12 drop-shadow-sm sm:h-14 sm:w-14 md:h-14 md:w-14 lg:h-16 lg:w-16" />
           <span className="text-base font-semibold text-primary md:text-lg">Desabafa Amigo</span>
         </Link>
         <nav aria-label="Navegação principal" className="hidden items-center gap-6 text-sm text-foreground/80 md:flex">
