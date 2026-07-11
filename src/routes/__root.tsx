@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { applyA11yPrefs, loadA11yPrefs } from "@/lib/a11y";
+import { applyTheme, loadTheme, watchSystemTheme } from "@/lib/theme";
 
 
 function NotFoundComponent() {
@@ -103,13 +104,15 @@ function RootComponent() {
   const router = useRouter();
   useEffect(() => {
     applyA11yPrefs(loadA11yPrefs());
+    applyTheme(loadTheme());
+    const unwatch = watchSystemTheme();
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
         router.invalidate();
         if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
       }
     });
-    return () => data.subscription.unsubscribe();
+    return () => { data.subscription.unsubscribe(); unwatch(); };
   }, [router, queryClient]);
 
   return (

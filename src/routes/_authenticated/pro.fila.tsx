@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { matchQueueEntry } from "@/lib/queue.functions";
 import { Users, Clock } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
+import { QueueNotifier } from "@/components/QueueNotifier";
 
 export const Route = createFileRoute("/_authenticated/pro/fila")({
   beforeLoad: async ({ context }) => {
@@ -72,10 +73,11 @@ function Fila() {
     <div className="mx-auto max-w-3xl p-6">
       <div className="mb-6 flex items-center gap-3">
         <div className="grid size-11 place-items-center rounded-xl bg-brand-soft text-primary"><Users className="size-6" /></div>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-primary">Fila de escuta</h1>
           <p className="text-sm text-muted-foreground">Pessoas aguardando para conversar agora.</p>
         </div>
+        <QueueNotifier count={rows.length} />
       </div>
 
       {rows.length === 0 ? (
