@@ -104,7 +104,7 @@ function Instant() {
             </div>
           ) : mode === "triage" ? (
             <TriageBot
-              onReady={({ topic: t }) => { setTopic(t); void start(t); }}
+              onReady={({ topic: t, urgency }) => { setTopic(t); void start(t, urgency); }}
               onSkip={() => setMode("manual")}
             />
           ) : (
