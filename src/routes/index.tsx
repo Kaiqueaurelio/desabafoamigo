@@ -170,9 +170,9 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" aria-label="Desabafa Amigo — página inicial" className="flex items-center gap-2 rounded-md">
-          <Logo size={32} />
-          <span className="text-sm font-semibold text-primary">Desabafa Amigo</span>
+        <Link to="/" aria-label="Desabafa Amigo — página inicial" className="flex items-center gap-3 rounded-md">
+          <Logo size={56} className="drop-shadow-sm" />
+          <span className="text-base font-semibold text-primary md:text-lg">Desabafa Amigo</span>
         </Link>
         <nav aria-label="Navegação principal" className="hidden items-center gap-6 text-sm text-foreground/80 md:flex">
           <a href="#origem" className="rounded-md hover:text-primary transition-colors">Nossa história</a>
