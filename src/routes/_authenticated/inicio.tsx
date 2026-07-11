@@ -5,6 +5,7 @@ import { CalendarClock, Users, NotebookPen, BookOpen } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
 import { MoodCheckIn } from "@/components/MoodCheckIn";
 import { BreathingButton } from "@/components/BreathingExercise";
+import { OnboardingTour } from "@/components/OnboardingTour";
 
 export const Route = createFileRoute("/_authenticated/inicio")({
   component: Home,
@@ -50,6 +51,7 @@ function Home() {
 
   return (
     <div className="mx-auto max-w-5xl p-6">
+      <OnboardingTour />
       <div className="flex items-center gap-4">
         {alias && <img src={avatarUrl(alias, 128)} alt="Seu avatar" className="size-16 rounded-full ring-2 ring-brand-soft" />}
         <div>
