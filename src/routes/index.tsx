@@ -603,9 +603,9 @@ function Footer() {
     <footer className="border-t border-border bg-card">
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2">
-            <Logo size={28} />
-            <span className="text-sm font-semibold text-primary">Desabafa Amigo</span>
+          <div className="flex items-center gap-3">
+            <Logo size={48} />
+            <span className="text-base font-semibold text-primary">Desabafa Amigo</span>
           </div>
           <p className="mt-3 max-w-xs text-xs text-muted-foreground">
             Um espaço de escuta acolhedora com voluntários treinados. Não oferecemos
