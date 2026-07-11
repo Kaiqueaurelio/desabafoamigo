@@ -1,8 +1,9 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock } from "lucide-react";
 import { ensureProAal2 } from "@/lib/proGuard";
+import { badgesFor, badgeLevel } from "@/lib/badges";
+import { Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/pro/")({
   beforeLoad: async ({ context }) => {
@@ -19,6 +20,7 @@ const STATUS: Record<string, string> = { scheduled: "Agendada", in_progress: "Em
 function ProAgenda() {
   const [appts, setAppts] = useState<Appt[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
+  const [avgRating, setAvgRating] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -28,7 +30,7 @@ function ProAgenda() {
         .select("id, scheduled_at, topic, status, patient_id")
         .eq("professional_id", u.user.id)
         .order("scheduled_at", { ascending: false })
-        .limit(50);
+        .limit(200);
       setAppts((data ?? []) as Appt[]);
       const ids = Array.from(new Set((data ?? []).map((a) => a.patient_id)));
       if (ids.length) {
@@ -36,6 +38,12 @@ function ProAgenda() {
         const m: Record<string, string> = {};
         (profs ?? []).forEach((p) => { m[p.user_id] = p.display_name ?? "Amigo(a)"; });
         setNames(m);
+      }
+      const { data: ratings } = await supabase.from("metrics")
+        .select("value").eq("kind", "rating").eq("subject_id", u.user.id);
+      if (ratings && ratings.length) {
+        const nums = ratings.map((r) => Number(r.value)).filter((n) => !isNaN(n));
+        if (nums.length) setAvgRating(nums.reduce((a, b) => a + b, 0) / nums.length);
       }
     })();
   }, []);
