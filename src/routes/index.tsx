@@ -38,7 +38,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Nasceu do desejo de ajudar pessoas e criar um lugar seguro para desabafar. Voluntários treinados, chat protegido, apelido gerado pelo app.",
+          "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida.",
       },
     ],
   }),
