@@ -7,7 +7,7 @@ export function Logo({
 }: {
   size?: number;
   className?: string;
-  /** When true, ignores `size` and relies on className (h-*/w-*) for sizing across breakpoints. */
+  /** When true, ignores size prop and relies on className (h- and w- utilities) for responsive sizing. */
   responsive?: boolean;
 }) {
   if (responsive) {
