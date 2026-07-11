@@ -50,11 +50,42 @@ function ProAgenda() {
 
   const upcoming = appts.filter((a) => a.status === "scheduled" || a.status === "in_progress");
   const past = appts.filter((a) => a.status === "completed" || a.status === "cancelled");
+  const completedCount = past.filter((a) => a.status === "completed").length;
+  const stats = useMemo(() => ({ completed: completedCount, avgRating }), [completedCount, avgRating]);
+  const badges = badgesFor(stats);
+  const level = badgeLevel(completedCount);
 
   return (
     <div className="mx-auto max-w-4xl p-6">
       <h1 className="text-2xl font-bold text-primary">Minha agenda</h1>
       <p className="mt-1 text-sm text-muted-foreground">Conversas agendadas com pessoas que buscam escuta.</p>
+
+      <section className="mt-4 rounded-2xl border border-border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="grid size-10 place-items-center rounded-xl bg-brand-soft text-primary">
+              <Trophy className="size-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Nível: {level.label}</p>
+              <p className="text-xs text-muted-foreground">
+                {completedCount} conversa(s) concluída(s){avgRating !== null && ` · avaliação média ${avgRating.toFixed(1)}★`}
+                {level.next && ` · faltam ${Math.max(0, level.next - completedCount)} p/ próximo nível`}
+              </p>
+            </div>
+          </div>
+          {badges.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5">
+              {badges.map((b) => (
+                <li key={b.key} title={b.description}
+                  className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-primary">
+                  <span aria-hidden>{b.emoji}</span> {b.label}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
 
       <section className="mt-6">
         <h2 className="mb-2 text-sm font-semibold text-foreground">Próximas ({upcoming.length})</h2>
