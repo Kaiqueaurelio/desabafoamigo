@@ -46,10 +46,11 @@ function Instant() {
     return () => { if (channelRef.current) supabase.removeChannel(channelRef.current); clearInterval(t); };
   }, [queueId, navigate]);
 
-  async function start() {
+  async function start(finalTopic?: string) {
     setErr(""); setBusy(true);
     try {
-      const { queueId: id } = await enqueue({ data: { topic: topic.trim() || "Preciso conversar" } });
+      const t = (finalTopic ?? topic).trim() || "Preciso conversar";
+      const { queueId: id } = await enqueue({ data: { topic: t.slice(0, 500) } });
       setQueueId(id);
     } catch (e) { setErr(e instanceof Error ? e.message : "Erro"); }
     finally { setBusy(false); }
