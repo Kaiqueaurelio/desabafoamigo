@@ -656,6 +656,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _test_mfa_rate_limit: { Args: never; Returns: string }
       check_mfa_lock: {
         Args: { _scope: string }
         Returns: {
