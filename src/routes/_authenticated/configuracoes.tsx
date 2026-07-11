@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { deleteMyAccount } from "@/lib/account.functions";
-import { ShieldCheck, Trash2, ExternalLink } from "lucide-react";
+import { deleteMyAccount, exportMyData } from "@/lib/account.functions";
+import { ShieldCheck, Trash2, ExternalLink, Download } from "lucide-react";
 import { AccessibilityPanel } from "@/components/AccessibilityPanel";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   component: SettingsPage,
@@ -14,9 +15,26 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
 function SettingsPage() {
   const navigate = useNavigate();
   const del = useServerFn(deleteMyAccount);
+  const exportFn = useServerFn(exportMyData);
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const data = await exportFn();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `desabafo-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert((e as Error).message ?? "Não foi possível exportar.");
+    } finally { setExporting(false); }
+  }
 
   async function handleDelete() {
     if (confirm !== "APAGAR") { setErr("Digite APAGAR para confirmar."); return; }
@@ -37,6 +55,7 @@ function SettingsPage() {
       <p className="mt-2 text-sm text-muted-foreground">Controle sua privacidade e sua conta.</p>
 
       <div className="mt-8 space-y-6">
+        <ThemeToggle />
         <AccessibilityPanel />
 
         <section className="rounded-2xl border border-border bg-card p-5">
