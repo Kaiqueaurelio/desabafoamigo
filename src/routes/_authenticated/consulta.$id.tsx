@@ -14,6 +14,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { transcribeMessage, translateMessage, summarizeConversation } from "@/lib/ai.functions";
 import { SyncedAudioPlayer, type CaptionSegment } from "@/components/SyncedAudioPlayer";
 import { QuickTemplates } from "@/components/QuickTemplates";
+import { ReplySuggestions } from "@/components/ReplySuggestions";
 
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
@@ -429,6 +430,11 @@ function Consulta() {
                   </select>
                 </div>
               </div>
+              {isPro && appt.conversation_id && (
+                <div className="mb-2">
+                  <ReplySuggestions conversationId={appt.conversation_id} onPick={(t) => setDraft((d) => (d ? d + " " : "") + t)} />
+                </div>
+              )}
 
               <div className="flex items-end gap-2">
                 <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*,video/*" />
