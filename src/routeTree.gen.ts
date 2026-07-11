@@ -16,9 +16,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
+import { Route as AdminMetricasRouteImport } from './routes/admin.metricas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
+import { Route as AdminAuditoriaRouteImport } from './routes/admin.auditoria'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
@@ -66,6 +68,11 @@ const AdminMfaRoute = AdminMfaRouteImport.update({
   path: '/admin/mfa',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMetricasRoute = AdminMetricasRouteImport.update({
+  id: '/admin/metricas',
+  path: '/admin/metricas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -79,6 +86,11 @@ const AdminIncidentesRoute = AdminIncidentesRouteImport.update({
 const AdminDenunciasRoute = AdminDenunciasRouteImport.update({
   id: '/admin/denuncias',
   path: '/admin/denuncias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAuditoriaRoute = AdminAuditoriaRouteImport.update({
+  id: '/admin/auditoria',
+  path: '/admin/auditoria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAtendimentoRoute = AdminAtendimentoRouteImport.update({
@@ -154,9 +166,11 @@ export interface FileRoutesByFullPath {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
+  '/admin/auditoria': typeof AdminAuditoriaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -177,9 +191,11 @@ export interface FileRoutesByTo {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
+  '/admin/auditoria': typeof AdminAuditoriaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
@@ -202,9 +218,11 @@ export interface FileRoutesById {
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
+  '/admin/auditoria': typeof AdminAuditoriaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -227,9 +245,11 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/admin/atendimento'
+    | '/admin/auditoria'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
+    | '/admin/metricas'
     | '/admin/mfa'
     | '/pro/cadastro'
     | '/admin/'
@@ -250,9 +270,11 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/admin/atendimento'
+    | '/admin/auditoria'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
+    | '/admin/metricas'
     | '/admin/mfa'
     | '/pro/cadastro'
     | '/admin'
@@ -274,9 +296,11 @@ export interface FileRouteTypes {
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
     | '/admin/atendimento'
+    | '/admin/auditoria'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
+    | '/admin/metricas'
     | '/admin/mfa'
     | '/pro/cadastro'
     | '/admin/'
@@ -293,9 +317,11 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
+  AdminAuditoriaRoute: typeof AdminAuditoriaRoute
   AdminDenunciasRoute: typeof AdminDenunciasRoute
   AdminIncidentesRoute: typeof AdminIncidentesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminMetricasRoute: typeof AdminMetricasRoute
   AdminMfaRoute: typeof AdminMfaRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -352,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMfaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/metricas': {
+      id: '/admin/metricas'
+      path: '/admin/metricas'
+      fullPath: '/admin/metricas'
+      preLoaderRoute: typeof AdminMetricasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -371,6 +404,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/denuncias'
       fullPath: '/admin/denuncias'
       preLoaderRoute: typeof AdminDenunciasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/auditoria': {
+      id: '/admin/auditoria'
+      path: '/admin/auditoria'
+      fullPath: '/admin/auditoria'
+      preLoaderRoute: typeof AdminAuditoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/atendimento': {
@@ -497,9 +537,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   AdminAtendimentoRoute: AdminAtendimentoRoute,
+  AdminAuditoriaRoute: AdminAuditoriaRoute,
   AdminDenunciasRoute: AdminDenunciasRoute,
   AdminIncidentesRoute: AdminIncidentesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminMetricasRoute: AdminMetricasRoute,
   AdminMfaRoute: AdminMfaRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,

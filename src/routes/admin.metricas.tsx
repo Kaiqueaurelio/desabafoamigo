@@ -37,7 +37,7 @@ function Metricas() {
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("volunteers").select("*", { count: "exact", head: true }).eq("approval_status", "approved"),
-        supabase.from("volunteers").select("*", { count: "exact", head: true }).eq("approval_status", "approved").eq("status", "online"),
+        supabase.from("volunteers").select("*", { count: "exact", head: true }).eq("approval_status", "approved").eq("status", "available"),
         supabase.from("conversations").select("*", { count: "exact", head: true }),
         supabase.from("conversations").select("*", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("queue").select("created_at").eq("status", "waiting"),
