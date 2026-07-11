@@ -4,10 +4,12 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteMyAccount } from "@/lib/account.functions";
 import { ShieldCheck, Trash2, ExternalLink } from "lucide-react";
+import { AccessibilityPanel } from "@/components/AccessibilityPanel";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   component: SettingsPage,
 });
+
 
 function SettingsPage() {
   const navigate = useNavigate();
@@ -34,18 +36,23 @@ function SettingsPage() {
       <h1 className="text-2xl font-semibold">Configurações</h1>
       <p className="mt-2 text-sm text-muted-foreground">Controle sua privacidade e sua conta.</p>
 
-      <section className="mt-8 rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-start gap-3">
-          <ShieldCheck className="mt-0.5 size-5 text-primary" />
-          <div>
-            <h2 className="font-medium">Privacidade e segurança</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Saiba o que coletamos, por quanto tempo guardamos e como protegemos suas conversas.</p>
-            <a href="/privacidade" target="_blank" rel="noopener" className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-              Ler política de privacidade <ExternalLink className="size-3.5" />
-            </a>
+      <div className="mt-8 space-y-6">
+        <AccessibilityPanel />
+
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 size-5 text-primary" />
+            <div>
+              <h2 className="font-medium">Privacidade e segurança</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Saiba o que coletamos, por quanto tempo guardamos e como protegemos suas conversas.</p>
+              <a href="/privacidade" target="_blank" rel="noopener" className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+                Ler política de privacidade <ExternalLink className="size-3.5" />
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
+
 
       <section className="mt-6 rounded-2xl border border-destructive/40 bg-destructive/5 p-5">
         <div className="flex items-start gap-3">

@@ -13,6 +13,8 @@ import { getSessionForensicHash } from "@/lib/sessionForensic";
 import { useServerFn } from "@tanstack/react-start";
 import { transcribeMessage, translateMessage, summarizeConversation } from "@/lib/ai.functions";
 import { SyncedAudioPlayer, type CaptionSegment } from "@/components/SyncedAudioPlayer";
+import { QuickTemplates } from "@/components/QuickTemplates";
+
 
 export const Route = createFileRoute("/_authenticated/consulta/$id")({
   component: Consulta,
@@ -413,12 +415,21 @@ function Consulta() {
 
           {appt.status !== "completed" && appt.status !== "cancelled" ? (
             <form onSubmit={(e) => { e.preventDefault(); send(); }} className="border-t border-border bg-card px-3 py-3">
-              <div className="mb-2 flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
-                <Languages className="size-3.5" /> Idioma p/ tradução:
-                <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="rounded border border-border bg-background px-1 py-0.5 text-[11px]">
-                  {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
-                </select>
+              <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  {isPro && <QuickTemplates onPick={(t) => setDraft((d) => (d ? d + " " : "") + t)} />}
+                  <span className="hidden text-[10px] text-muted-foreground/80 sm:inline">
+                    Dica: <kbd className="rounded border border-border bg-background px-1">Ctrl</kbd>+<kbd className="rounded border border-border bg-background px-1">H</kbd> ativa a cortina de privacidade
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Languages className="size-3.5" aria-hidden /> Idioma p/ tradução:
+                  <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="rounded border border-border bg-background px-1 py-0.5 text-[11px]">
+                    {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
+                  </select>
+                </div>
               </div>
+
               <div className="flex items-end gap-2">
                 <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*,video/*" />
                 <button type="button" onClick={() => fileRef.current?.click()} aria-label="Anexar" className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground hover:bg-muted">
