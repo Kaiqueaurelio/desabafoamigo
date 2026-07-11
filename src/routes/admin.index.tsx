@@ -188,6 +188,20 @@ function AdminDashboard() {
             </div>
             <Link to="/admin/incidentes" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Ver incidentes</Link>
           </div>
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Métricas da comunidade</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">Usuários, fila, avaliações, incidentes — visão em tempo real.</p>
+            </div>
+            <Link to="/admin/metricas" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Ver métricas</Link>
+          </div>
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Log de auditoria</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">Ações administrativas registradas para conformidade LGPD.</p>
+            </div>
+            <Link to="/admin/auditoria" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Abrir</Link>
+          </div>
         </div>
 
         {/* Stats */}
