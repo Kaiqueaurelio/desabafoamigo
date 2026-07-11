@@ -74,16 +74,55 @@ function Instant() {
         </div>
 
         {!queueId ? (
-          <>
-            <label className="text-xs font-medium text-muted-foreground">O que gostaria de conversar? (opcional)</label>
-            <textarea value={topic} onChange={(e) => setTopic(e.target.value)} rows={4} maxLength={500}
-              placeholder="Ex: estou ansioso, não consigo dormir..."
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
-            {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
-            <button onClick={start} disabled={busy} className="btn-primary mt-4 w-full">
-              {busy ? "Entrando na fila..." : "Entrar na fila e começar"}
-            </button>
-          </>
+          mode === "choose" ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                onClick={() => setMode("triage")}
+                className="group rounded-2xl border border-border bg-brand-soft/40 p-4 text-left transition hover:border-primary hover:bg-brand-soft"
+              >
+                <div className="flex items-center gap-2 text-primary">
+                  <Sparkles className="size-5" />
+                  <p className="text-sm font-semibold">Ajuda de um assistente IA</p>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Um bate-papo curto (2–4 perguntas) para preparar o(a) voluntário(a) e reduzir a espera.
+                </p>
+              </button>
+              <button
+                onClick={() => setMode("manual")}
+                className="group rounded-2xl border border-border bg-card p-4 text-left transition hover:border-primary"
+              >
+                <div className="flex items-center gap-2 text-foreground">
+                  <Pencil className="size-5" />
+                  <p className="text-sm font-semibold">Escrever eu mesmo(a)</p>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Prefiro descrever com minhas próprias palavras.
+                </p>
+              </button>
+            </div>
+          ) : mode === "triage" ? (
+            <TriageBot
+              onReady={({ topic: t }) => { setTopic(t); void start(t); }}
+              onSkip={() => setMode("manual")}
+            />
+          ) : (
+            <>
+              <label className="text-xs font-medium text-muted-foreground">O que gostaria de conversar? (opcional)</label>
+              <textarea value={topic} onChange={(e) => setTopic(e.target.value)} rows={4} maxLength={500}
+                placeholder="Ex: estou ansioso, não consigo dormir..."
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+              {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
+              <div className="mt-4 flex gap-2">
+                <button onClick={() => setMode("choose")} className="rounded-full px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
+                  Voltar
+                </button>
+                <button onClick={() => void start()} disabled={busy} className="btn-primary flex-1">
+                  {busy ? "Entrando na fila..." : "Entrar na fila e começar"}
+                </button>
+              </div>
+            </>
+          )
         ) : (
           <div className="py-6 text-center">
             <Loader2 className="mx-auto size-8 animate-spin text-primary" aria-hidden />
