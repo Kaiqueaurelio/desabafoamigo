@@ -3,7 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
-import { Loader2, HeartHandshake, X } from "lucide-react";
+import { Loader2, HeartHandshake, X, Clock } from "lucide-react";
+import { BreathingButton } from "@/components/BreathingExercise";
+
 
 export const Route = createFileRoute("/_authenticated/conversar")({
   component: Instant,
@@ -81,16 +83,32 @@ function Instant() {
           </>
         ) : (
           <div className="py-6 text-center">
-            <Loader2 className="mx-auto size-8 animate-spin text-primary" />
+            <Loader2 className="mx-auto size-8 animate-spin text-primary" aria-hidden />
             <p className="mt-4 text-lg font-semibold text-foreground">Aguardando um(a) voluntário(a)…</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {position ? `Você é o ${position}º na fila.` : "Você está na fila."}
             </p>
+            {position !== null && (
+              <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-soft px-3 py-1 text-xs text-primary">
+                <Clock className="size-3" aria-hidden />
+                Tempo estimado: ~{Math.max(1, position * 2)}–{position * 4} min
+              </p>
+            )}
             <p className="mt-2 text-xs text-muted-foreground">Assim que alguém aceitar, a conversa abre automaticamente.</p>
+
+            <div className="mx-auto mt-6 max-w-sm rounded-2xl border border-border bg-background/60 p-4 text-left">
+              <p className="text-sm font-semibold text-foreground">Enquanto espera, respire 🌿</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Uma pausa curta ajuda a organizar o que você quer contar. Toque para começar.
+              </p>
+              <div className="mt-3"><BreathingButton /></div>
+            </div>
+
             <button onClick={stop} className="mt-6 inline-flex items-center gap-1 rounded-full bg-secondary px-4 py-2 text-sm hover:bg-muted">
-              <X className="size-4" /> Sair da fila
+              <X className="size-4" aria-hidden /> Sair da fila
             </button>
           </div>
+
         )}
       </div>
     </div>
