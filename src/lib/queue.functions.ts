@@ -3,14 +3,16 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const enqueueMe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { topic: string }) => d)
+  .inputValidator((d: { topic: string; urgency?: "low" | "medium" | "high"; preferredLang?: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const urgency = data.urgency === "high" || data.urgency === "medium" ? data.urgency : "low";
+    const preferredLang = (data.preferredLang ?? "pt-BR").slice(0, 10);
     // cancel any old waiting entries from me
     await supabase.from("queue").update({ status: "cancelled" })
       .eq("user_id", userId).eq("status", "waiting");
     const { data: row, error } = await supabase.from("queue")
-      .insert({ user_id: userId, topic: data.topic.slice(0, 500), status: "waiting" })
+      .insert({ user_id: userId, topic: data.topic.slice(0, 500), status: "waiting", urgency, preferred_lang: preferredLang })
       .select("id").single();
     if (error) throw error;
     return { queueId: row.id };
