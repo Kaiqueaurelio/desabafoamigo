@@ -46,11 +46,12 @@ function Instant() {
     return () => { if (channelRef.current) supabase.removeChannel(channelRef.current); clearInterval(t); };
   }, [queueId, navigate]);
 
-  async function start(finalTopic?: string) {
+  async function start(finalTopic?: string, urgency: "low" | "medium" | "high" = "low") {
     setErr(""); setBusy(true);
     try {
       const t = (finalTopic ?? topic).trim() || "Preciso conversar";
-      const { queueId: id } = await enqueue({ data: { topic: t.slice(0, 500) } });
+      const preferredLang = typeof navigator !== "undefined" ? (navigator.language || "pt-BR") : "pt-BR";
+      const { queueId: id } = await enqueue({ data: { topic: t.slice(0, 500), urgency, preferredLang } });
       setQueueId(id);
     } catch (e) { setErr(e instanceof Error ? e.message : "Erro"); }
     finally { setBusy(false); }
@@ -103,7 +104,7 @@ function Instant() {
             </div>
           ) : mode === "triage" ? (
             <TriageBot
-              onReady={({ topic: t }) => { setTopic(t); void start(t); }}
+              onReady={({ topic: t, urgency }) => { setTopic(t); void start(t, urgency); }}
               onSkip={() => setMode("manual")}
             />
           ) : (

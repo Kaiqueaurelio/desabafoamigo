@@ -1,8 +1,9 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock } from "lucide-react";
 import { ensureProAal2 } from "@/lib/proGuard";
+import { badgesFor, badgeLevel } from "@/lib/badges";
+import { Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/pro/")({
   beforeLoad: async ({ context }) => {
@@ -19,6 +20,7 @@ const STATUS: Record<string, string> = { scheduled: "Agendada", in_progress: "Em
 function ProAgenda() {
   const [appts, setAppts] = useState<Appt[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
+  const [avgRating, setAvgRating] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -28,7 +30,7 @@ function ProAgenda() {
         .select("id, scheduled_at, topic, status, patient_id")
         .eq("professional_id", u.user.id)
         .order("scheduled_at", { ascending: false })
-        .limit(50);
+        .limit(200);
       setAppts((data ?? []) as Appt[]);
       const ids = Array.from(new Set((data ?? []).map((a) => a.patient_id)));
       if (ids.length) {
@@ -37,16 +39,53 @@ function ProAgenda() {
         (profs ?? []).forEach((p) => { m[p.user_id] = p.display_name ?? "Amigo(a)"; });
         setNames(m);
       }
+      const { data: ratings } = await supabase.from("appointments")
+        .select("patient_rating").eq("professional_id", u.user.id).not("patient_rating", "is", null);
+      if (ratings && ratings.length) {
+        const nums = ratings.map((r) => Number(r.patient_rating)).filter((n) => !isNaN(n));
+        if (nums.length) setAvgRating(nums.reduce((a, b) => a + b, 0) / nums.length);
+      }
     })();
   }, []);
 
   const upcoming = appts.filter((a) => a.status === "scheduled" || a.status === "in_progress");
   const past = appts.filter((a) => a.status === "completed" || a.status === "cancelled");
+  const completedCount = past.filter((a) => a.status === "completed").length;
+  const stats = useMemo(() => ({ completed: completedCount, avgRating }), [completedCount, avgRating]);
+  const badges = badgesFor(stats);
+  const level = badgeLevel(completedCount);
 
   return (
     <div className="mx-auto max-w-4xl p-6">
       <h1 className="text-2xl font-bold text-primary">Minha agenda</h1>
       <p className="mt-1 text-sm text-muted-foreground">Conversas agendadas com pessoas que buscam escuta.</p>
+
+      <section className="mt-4 rounded-2xl border border-border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="grid size-10 place-items-center rounded-xl bg-brand-soft text-primary">
+              <Trophy className="size-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Nível: {level.label}</p>
+              <p className="text-xs text-muted-foreground">
+                {completedCount} conversa(s) concluída(s){avgRating !== null && ` · avaliação média ${avgRating.toFixed(1)}★`}
+                {level.next && ` · faltam ${Math.max(0, level.next - completedCount)} p/ próximo nível`}
+              </p>
+            </div>
+          </div>
+          {badges.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5">
+              {badges.map((b) => (
+                <li key={b.key} title={b.description}
+                  className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-primary">
+                  <span aria-hidden>{b.emoji}</span> {b.label}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
 
       <section className="mt-6">
         <h2 className="mb-2 text-sm font-semibold text-foreground">Próximas ({upcoming.length})</h2>

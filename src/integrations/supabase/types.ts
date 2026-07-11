@@ -384,9 +384,11 @@ export type Database = {
           created_at: string
           id: string
           matched_volunteer_id: string | null
+          preferred_lang: string
           status: string
           topic: string | null
           updated_at: string
+          urgency: string
           user_id: string
         }
         Insert: {
@@ -394,9 +396,11 @@ export type Database = {
           created_at?: string
           id?: string
           matched_volunteer_id?: string | null
+          preferred_lang?: string
           status?: string
           topic?: string | null
           updated_at?: string
+          urgency?: string
           user_id: string
         }
         Update: {
@@ -404,9 +408,11 @@ export type Database = {
           created_at?: string
           id?: string
           matched_volunteer_id?: string | null
+          preferred_lang?: string
           status?: string
           topic?: string | null
           updated_at?: string
+          urgency?: string
           user_id?: string
         }
         Relationships: [
