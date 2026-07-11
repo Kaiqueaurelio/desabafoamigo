@@ -45,7 +45,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
     <div className="flex min-h-dvh bg-background">
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex">
         <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-          <Logo responsive className="h-11 w-11 lg:h-12 lg:w-12" />
+          <Logo responsive decorative priority className="h-11 w-11 md:h-10 md:w-10 lg:h-12 lg:w-12" />
           <div className="leading-tight">
             <p className="text-base font-semibold text-primary">Desabafa Amigo</p>
             <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
@@ -86,8 +86,8 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
-          <Link to="/inicio" className="flex items-center gap-2">
-            <Logo responsive className="h-11 w-11 sm:h-12 sm:w-12" />
+          <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Logo responsive decorative priority className="h-11 w-11 sm:h-12 sm:w-12" />
             <span className="text-base font-semibold text-primary">Desabafa</span>
           </Link>
           <button onClick={signOut} aria-label="Sair" className="rounded-md p-2 text-muted-foreground hover:bg-muted">
