@@ -82,6 +82,20 @@ export function ScreenshotGuard({
 
     function onKey(e: KeyboardEvent) {
       const k = e.key.toLowerCase();
+      // Cortina manual: Ctrl/Cmd + H alterna a cortina como painel de privacidade
+      if ((e.metaKey || e.ctrlKey) && k === "h") {
+        e.preventDefault();
+        setCurtain((c) => (c ? null : { reason: "Cortina de privacidade ativada", sticky: true }));
+        return;
+      }
+      // ESC libera cortina manual ou sticky por foco/visibilidade
+      if (k === "escape") {
+        setCurtain((c) =>
+          c && (c.reason.includes("Cortina de privacidade") || /foco|visibilidade/i.test(c.reason))
+            ? null
+            : c,
+        );
+      }
       if (k === "printscreen") {
         try { navigator.clipboard?.writeText(" "); } catch { /* ignore */ }
         e.preventDefault();
@@ -96,6 +110,7 @@ export function ScreenshotGuard({
       }
       bumpActivity();
     }
+
 
     function onContext(e: MouseEvent) { e.preventDefault(); }
     function onDrag(e: DragEvent) { e.preventDefault(); }
