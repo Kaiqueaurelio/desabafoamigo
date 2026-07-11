@@ -39,10 +39,10 @@ function ProAgenda() {
         (profs ?? []).forEach((p) => { m[p.user_id] = p.display_name ?? "Amigo(a)"; });
         setNames(m);
       }
-      const { data: ratings } = await supabase.from("metrics")
-        .select("value").eq("kind", "rating").eq("subject_id", u.user.id);
+      const { data: ratings } = await supabase.from("appointments")
+        .select("patient_rating").eq("professional_id", u.user.id).not("patient_rating", "is", null);
       if (ratings && ratings.length) {
-        const nums = ratings.map((r) => Number(r.value)).filter((n) => !isNaN(n));
+        const nums = ratings.map((r) => Number(r.patient_rating)).filter((n) => !isNaN(n));
         if (nums.length) setAvgRating(nums.reduce((a, b) => a + b, 0) / nums.length);
       }
     })();
