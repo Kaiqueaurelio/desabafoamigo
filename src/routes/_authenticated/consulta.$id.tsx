@@ -9,6 +9,7 @@ import { detectRisk } from "@/lib/riskWords";
 import { RiskAlert } from "@/components/RiskAlert";
 import { ReportButton } from "@/components/ReportDialog";
 import { RatingDialog } from "@/components/RatingDialog";
+import { NpsPrompt } from "@/components/NpsPrompt";
 import { getSessionForensicHash } from "@/lib/sessionForensic";
 import { useServerFn } from "@tanstack/react-start";
 import { transcribeMessage, translateMessage, summarizeConversation } from "@/lib/ai.functions";
