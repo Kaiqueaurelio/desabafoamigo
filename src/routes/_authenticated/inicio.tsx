@@ -23,8 +23,10 @@ function Home() {
   const [names, setNames] = useState<Record<string, string>>({});
   const [alias, setAlias] = useState<string>("");
   const [me, setMe] = useState<string>("");
+  const [streak, setStreak] = useState<number>(0);
 
   useEffect(() => {
+
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
