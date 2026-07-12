@@ -8,12 +8,26 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Toaster } from "@/components/ui/sonner";
+import { SkipLink } from "@/components/SkipLink";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { applyA11yPrefs, loadA11yPrefs } from "@/lib/a11y";
 import { applyTheme, loadTheme, watchSystemTheme } from "@/lib/theme";
+
+const ORG_JSONLD = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Desabafa Amigo",
+  url: "https://desabaoamigo.lovable.app",
+  logo: "https://desabaoamigo.lovable.app/favicon.png",
+  description:
+    "Escuta acolhedora anônima por voluntários treinados, via mensagens de texto.",
+  sameAs: [],
+});
+
 
 
 function NotFoundComponent() {
