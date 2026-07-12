@@ -201,8 +201,15 @@ function AdminDashboard() {
               <p className="mt-0.5 text-sm text-muted-foreground">Ações administrativas registradas para conformidade LGPD.</p>
             </div>
             <Link to="/admin/auditoria" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Abrir</Link>
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Palavras bloqueadas</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">Termos sinalizados ou bloqueados no chat.</p>
+            </div>
+            <Link to="/admin/palavras" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Gerenciar</Link>
           </div>
         </div>
+
 
         {/* Stats */}
         <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
