@@ -31,9 +31,11 @@ function Home() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setMe(u.user.id);
+      loadStreak(u.user.id).then(setStreak).catch(() => {});
 
       const { data: prof } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
       setAlias(prof?.display_name ?? "");
+
 
       const { data } = await supabase
         .from("appointments")
