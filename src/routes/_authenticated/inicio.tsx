@@ -57,15 +57,30 @@ function Home() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
+    <div id="conteudo" className="mx-auto max-w-5xl p-6">
       <OnboardingTour />
       <div className="flex items-center gap-4">
         {alias && <img src={avatarUrl(alias, 128)} alt="Seu avatar" className="size-16 rounded-full ring-2 ring-brand-soft" />}
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-primary">Olá, {alias || "amigo(a)"} 👋</h1>
           <p className="text-sm text-muted-foreground">Este apelido e avatar foram gerados pelo app para preservar sua identidade.</p>
         </div>
+        {streak > 0 && (
+          <div
+            className="hidden shrink-0 items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 sm:flex"
+            title={`Você registrou seu humor por ${streak} dia(s) seguido(s)`}
+          >
+            <Flame className="size-4 text-orange-500" aria-hidden />
+            <div className="leading-tight">
+              <p className="text-lg font-bold text-foreground">{streak}</p>
+              <p className="text-[10px] text-muted-foreground">dia{streak > 1 ? "s" : ""} de cuidado</p>
+            </div>
+          </div>
+        )}
       </div>
+
+      <div className="mt-4"><ComfortPhrase /></div>
+
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <QuickCard to="/conversar" icon={<Users className="size-5" />} title="Conversar agora" desc="Fila rápida com voluntário(a)" />
