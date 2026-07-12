@@ -6,7 +6,7 @@ export function installErrorTracking() {
   if (installed || typeof window === "undefined") return;
   installed = true;
 
-  const send = async (message: string, stack?: string, metadata: Record<string, unknown> = {}) => {
+  const send = async (message: string, stack?: string, metadata: Record<string, string> = {}) => {
     try {
       const { data } = await supabase.auth.getUser();
       await supabase.from("error_events").insert({
@@ -15,7 +15,7 @@ export function installErrorTracking() {
         stack: stack?.slice(0, 4000) ?? null,
         url: window.location.href,
         user_agent: navigator.userAgent,
-        metadata,
+        metadata: metadata as Record<string, string>,
       });
     } catch {
       /* silent */
