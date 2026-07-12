@@ -484,7 +484,7 @@ function Consulta() {
         )}
       </div>
       {askRating && <RatingDialog appointmentId={appt.id} onDone={() => setAskNps(true)} />}
-      {askNps && appt.conversation_id && (
+      {askNps && appt.conversation_id && me && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-background p-4">
             <NpsPrompt conversationId={appt.conversation_id} userId={me} onDone={() => { setAskNps(false); navigate({ to: "/consultas" }); }} />
