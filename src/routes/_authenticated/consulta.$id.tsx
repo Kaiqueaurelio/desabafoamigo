@@ -9,6 +9,7 @@ import { detectRisk } from "@/lib/riskWords";
 import { RiskAlert } from "@/components/RiskAlert";
 import { ReportButton } from "@/components/ReportDialog";
 import { RatingDialog } from "@/components/RatingDialog";
+import { NpsPrompt } from "@/components/NpsPrompt";
 import { getSessionForensicHash } from "@/lib/sessionForensic";
 import { useServerFn } from "@tanstack/react-start";
 import { transcribeMessage, translateMessage, summarizeConversation } from "@/lib/ai.functions";
@@ -65,6 +66,7 @@ function Consulta() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [askRating, setAskRating] = useState(false);
+  const [askNps, setAskNps] = useState(false);
   const [askSummary, setAskSummary] = useState(false);
   const [peerSummary, setPeerSummary] = useState<{ summary: string; technical_details: string; sessions_count: number } | null>(null);
   const [targetLang, setTargetLang] = useState<string>("en");
@@ -481,7 +483,15 @@ function Consulta() {
           </aside>
         )}
       </div>
-      {askRating && <RatingDialog appointmentId={appt.id} onDone={() => navigate({ to: "/consultas" })} />}
+      {askRating && <RatingDialog appointmentId={appt.id} onDone={() => setAskNps(true)} />}
+      {askNps && appt.conversation_id && me && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-background p-4">
+            <NpsPrompt conversationId={appt.conversation_id} userId={me} onDone={() => { setAskNps(false); navigate({ to: "/consultas" }); }} />
+            <button onClick={() => navigate({ to: "/consultas" })} className="mt-3 text-xs text-muted-foreground underline">Pular avaliação</button>
+          </div>
+        </div>
+      )}
       {askSummary && appt && <SummaryDialog appt={appt} onDone={() => { setAskSummary(false); navigate({ to: "/pro" }); }} />}
     </div>
     </ScreenshotGuard>

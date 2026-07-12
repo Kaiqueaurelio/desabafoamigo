@@ -131,6 +131,8 @@ function RootComponent() {
     applyA11yPrefs(loadA11yPrefs());
     applyTheme(loadTheme());
     const unwatch = watchSystemTheme();
+    import("@/lib/errorTracking").then((m) => m.installErrorTracking()).catch(() => {});
+
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
         router.invalidate();
