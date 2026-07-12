@@ -9,7 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SejaVoluntarioRouteImport } from './routes/seja-voluntario'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as OfflineRouteImport } from './routes/offline'
+import { Route as ImpactoRouteImport } from './routes/impacto'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -34,9 +39,34 @@ import { Route as AuthenticatedProMfaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedProFilaRouteImport } from './routes/_authenticated/pro.fila'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
 
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SejaVoluntarioRoute = SejaVoluntarioRouteImport.update({
+  id: '/seja-voluntario',
+  path: '/seja-voluntario',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfflineRoute = OfflineRouteImport.update({
+  id: '/offline',
+  path: '/offline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpactoRoute = ImpactoRouteImport.update({
+  id: '/impacto',
+  path: '/impacto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -158,7 +188,12 @@ const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/impacto': typeof ImpactoRoute
+  '/offline': typeof OfflineRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/seja-voluntario': typeof SejaVoluntarioRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sobre': typeof SobreRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/consultas': typeof AuthenticatedConsultasRoute
@@ -183,7 +218,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/impacto': typeof ImpactoRoute
+  '/offline': typeof OfflineRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/seja-voluntario': typeof SejaVoluntarioRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sobre': typeof SobreRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/consultas': typeof AuthenticatedConsultasRoute
@@ -210,7 +250,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/impacto': typeof ImpactoRoute
+  '/offline': typeof OfflineRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/seja-voluntario': typeof SejaVoluntarioRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sobre': typeof SobreRoute
   '/_authenticated/apoio': typeof AuthenticatedApoioRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
@@ -237,7 +282,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/impacto'
+    | '/offline'
     | '/privacidade'
+    | '/seja-voluntario'
+    | '/sitemap.xml'
+    | '/sobre'
     | '/apoio'
     | '/configuracoes'
     | '/consultas'
@@ -262,7 +312,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/impacto'
+    | '/offline'
     | '/privacidade'
+    | '/seja-voluntario'
+    | '/sitemap.xml'
+    | '/sobre'
     | '/apoio'
     | '/configuracoes'
     | '/consultas'
@@ -288,7 +343,12 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/impacto'
+    | '/offline'
     | '/privacidade'
+    | '/seja-voluntario'
+    | '/sitemap.xml'
+    | '/sobre'
     | '/_authenticated/apoio'
     | '/_authenticated/configuracoes'
     | '/_authenticated/consultas'
@@ -315,7 +375,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ImpactoRoute: typeof ImpactoRoute
+  OfflineRoute: typeof OfflineRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
+  SejaVoluntarioRoute: typeof SejaVoluntarioRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SobreRoute: typeof SobreRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
   AdminAuditoriaRoute: typeof AdminAuditoriaRoute
   AdminDenunciasRoute: typeof AdminDenunciasRoute
@@ -329,11 +394,46 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seja-voluntario': {
+      id: '/seja-voluntario'
+      path: '/seja-voluntario'
+      fullPath: '/seja-voluntario'
+      preLoaderRoute: typeof SejaVoluntarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacidade': {
       id: '/privacidade'
       path: '/privacidade'
       fullPath: '/privacidade'
       preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offline': {
+      id: '/offline'
+      path: '/offline'
+      fullPath: '/offline'
+      preLoaderRoute: typeof OfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impacto': {
+      id: '/impacto'
+      path: '/impacto'
+      fullPath: '/impacto'
+      preLoaderRoute: typeof ImpactoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -535,7 +635,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ImpactoRoute: ImpactoRoute,
+  OfflineRoute: OfflineRoute,
   PrivacidadeRoute: PrivacidadeRoute,
+  SejaVoluntarioRoute: SejaVoluntarioRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SobreRoute: SobreRoute,
   AdminAtendimentoRoute: AdminAtendimentoRoute,
   AdminAuditoriaRoute: AdminAuditoriaRoute,
   AdminDenunciasRoute: AdminDenunciasRoute,
