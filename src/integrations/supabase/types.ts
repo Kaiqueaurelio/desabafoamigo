@@ -136,6 +136,30 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_words: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          severity: string
+          term: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          severity?: string
+          term: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          severity?: string
+          term?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           appointment_id: string | null
@@ -180,6 +204,57 @@ export type Database = {
           },
         ]
       }
+      error_events: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metadata: Json
+          stack: string | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json
+          stack?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json
+          stack?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      favorite_volunteers: {
+        Row: {
+          created_at: string
+          user_id: string
+          volunteer_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+          volunteer_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+          volunteer_id?: string
+        }
+        Relationships: []
+      }
       flagged_users: {
         Row: {
           admin_notes: string | null
@@ -218,6 +293,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -350,6 +457,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      nps_responses: {
+        Row: {
+          comment: string | null
+          conversation_id: string | null
+          created_at: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nps_responses_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
