@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /_authenticated
+Disallow: /pro
+
+Sitemap: https://desabaoamigo.lovable.app/sitemap.xml

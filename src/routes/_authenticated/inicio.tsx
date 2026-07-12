@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, Users, NotebookPen, BookOpen } from "lucide-react";
+import { CalendarClock, Users, NotebookPen, BookOpen, Flame } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
 import { MoodCheckIn } from "@/components/MoodCheckIn";
 import { BreathingButton } from "@/components/BreathingExercise";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { ComfortPhrase } from "@/components/ComfortPhrase";
+import { loadStreak } from "@/lib/streak";
+
 
 export const Route = createFileRoute("/_authenticated/inicio")({
   component: Home,
@@ -20,15 +23,19 @@ function Home() {
   const [names, setNames] = useState<Record<string, string>>({});
   const [alias, setAlias] = useState<string>("");
   const [me, setMe] = useState<string>("");
+  const [streak, setStreak] = useState<number>(0);
 
   useEffect(() => {
+
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setMe(u.user.id);
+      loadStreak(u.user.id).then(setStreak).catch(() => {});
 
       const { data: prof } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
       setAlias(prof?.display_name ?? "");
+
 
       const { data } = await supabase
         .from("appointments")
@@ -50,15 +57,30 @@ function Home() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
+    <div id="conteudo" className="mx-auto max-w-5xl p-6">
       <OnboardingTour />
       <div className="flex items-center gap-4">
         {alias && <img src={avatarUrl(alias, 128)} alt="Seu avatar" className="size-16 rounded-full ring-2 ring-brand-soft" />}
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-primary">Olá, {alias || "amigo(a)"} 👋</h1>
           <p className="text-sm text-muted-foreground">Este apelido e avatar foram gerados pelo app para preservar sua identidade.</p>
         </div>
+        {streak > 0 && (
+          <div
+            className="hidden shrink-0 items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 sm:flex"
+            title={`Você registrou seu humor por ${streak} dia(s) seguido(s)`}
+          >
+            <Flame className="size-4 text-orange-500" aria-hidden />
+            <div className="leading-tight">
+              <p className="text-lg font-bold text-foreground">{streak}</p>
+              <p className="text-[10px] text-muted-foreground">dia{streak > 1 ? "s" : ""} de cuidado</p>
+            </div>
+          </div>
+        )}
       </div>
+
+      <div className="mt-4"><ComfortPhrase /></div>
+
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <QuickCard to="/conversar" icon={<Users className="size-5" />} title="Conversar agora" desc="Fila rápida com voluntário(a)" />
