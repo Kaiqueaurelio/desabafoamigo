@@ -481,7 +481,15 @@ function Consulta() {
           </aside>
         )}
       </div>
-      {askRating && <RatingDialog appointmentId={appt.id} onDone={() => navigate({ to: "/consultas" })} />}
+      {askRating && <RatingDialog appointmentId={appt.id} onDone={() => setAskNps(true)} />}
+      {askNps && appt.conversation_id && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-background p-4">
+            <NpsPrompt conversationId={appt.conversation_id} userId={me} onDone={() => { setAskNps(false); navigate({ to: "/consultas" }); }} />
+            <button onClick={() => navigate({ to: "/consultas" })} className="mt-3 text-xs text-muted-foreground underline">Pular avaliação</button>
+          </div>
+        </div>
+      )}
       {askSummary && appt && <SummaryDialog appt={appt} onDone={() => { setAskSummary(false); navigate({ to: "/pro" }); }} />}
     </div>
     </ScreenshotGuard>
