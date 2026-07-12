@@ -53,7 +53,7 @@ function SejaVoluntario() {
   return (
     <main id="conteudo" className="mx-auto max-w-4xl px-4 py-16">
       <div className="mb-8 flex items-center justify-between">
-        <Logo size="md" />
+        <Logo size={48} />
         <Link to="/" className="text-sm text-primary hover:underline">← Início</Link>
       </div>
 
