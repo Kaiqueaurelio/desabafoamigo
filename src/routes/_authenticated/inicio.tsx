@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, Users, NotebookPen, BookOpen } from "lucide-react";
+import { CalendarClock, Users, NotebookPen, BookOpen, Flame } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
 import { MoodCheckIn } from "@/components/MoodCheckIn";
 import { BreathingButton } from "@/components/BreathingExercise";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { ComfortPhrase } from "@/components/ComfortPhrase";
+import { loadStreak } from "@/lib/streak";
+
 
 export const Route = createFileRoute("/_authenticated/inicio")({
   component: Home,
