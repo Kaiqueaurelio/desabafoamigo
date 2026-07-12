@@ -66,6 +66,7 @@ function Consulta() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [askRating, setAskRating] = useState(false);
+  const [askNps, setAskNps] = useState(false);
   const [askSummary, setAskSummary] = useState(false);
   const [peerSummary, setPeerSummary] = useState<{ summary: string; technical_details: string; sessions_count: number } | null>(null);
   const [targetLang, setTargetLang] = useState<string>("en");
