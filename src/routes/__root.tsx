@@ -95,6 +95,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: "https://fonts.cdnfonts.com/css/opendyslexic" },
 
     ],
+    scripts: [
+      { type: "application/ld+json", children: ORG_JSONLD },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -111,12 +114,15 @@ function RootShell({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
+        <SkipLink />
         {children}
+        <Toaster position="top-center" richColors closeButton />
         <Scripts />
       </body>
     </html>
   );
 }
+
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
