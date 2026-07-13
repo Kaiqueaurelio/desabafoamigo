@@ -1,9 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
-import { ArrowLeft, MessageCircleHeart, Loader2, LogOut } from "lucide-react";
+import { ArrowLeft, MessageCircleHeart, Loader2, LogOut, Clock, Users } from "lucide-react";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
+import { matchQueueEntry } from "@/lib/queue.functions";
+import { avatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/admin/atendimento")({
   ssr: false,
@@ -12,6 +15,12 @@ export const Route = createFileRoute("/admin/atendimento")({
   },
   component: AdminAtendimento,
 });
+
+type QueueRow = {
+  id: string; user_id: string; topic: string | null; created_at: string;
+  urgency?: "low" | "medium" | "high" | null; preferred_lang?: string | null;
+  alias?: string;
+};
 
 type Row = {
   id: string;
@@ -38,25 +47,54 @@ const STATUS: Record<string, string> = {
 
 function AdminAtendimento() {
   const navigate = useNavigate();
+  const match = useServerFn(matchQueueEntry);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
+  const [queue, setQueue] = useState<QueueRow[]>([]);
   const [me, setMe] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("waiting");
+  const [pickBusy, setPickBusy] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       setMe(u.user?.id ?? null);
-      await refresh();
+      await Promise.all([refresh(), refreshQueue()]);
     })();
 
     const chan = supabase
       .channel("admin-atendimento")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => refresh())
       .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, () => refresh())
+      .on("postgres_changes", { event: "*", schema: "public", table: "queue" }, () => refreshQueue())
       .subscribe();
     return () => { supabase.removeChannel(chan); };
   }, []);
+
+  async function refreshQueue() {
+    const { data } = await supabase.from("queue")
+      .select("id, user_id, topic, created_at, urgency, preferred_lang")
+      .eq("status", "waiting").order("created_at");
+    const list = (data ?? []) as QueueRow[];
+    if (list.length) {
+      const ids = list.map((r) => r.user_id);
+      const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", ids);
+      const pm = new Map((profs ?? []).map((p) => [p.user_id, p.display_name ?? "Anônimo"]));
+      list.forEach((r) => { r.alias = pm.get(r.user_id) ?? "Anônimo"; });
+    }
+    setQueue(list);
+  }
+
+  async function pickFromQueue(id: string) {
+    setPickBusy(id);
+    try {
+      const { appointmentId } = await match({ data: { queueId: id } });
+      navigate({ to: "/consulta/$id", params: { id: appointmentId } });
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao assumir da fila.");
+      setPickBusy(null);
+    }
+  }
 
   async function refresh() {
     const { data: appts } = await supabase
@@ -141,8 +179,47 @@ function AdminAtendimento() {
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         <p className="mb-4 rounded-2xl bg-brand-soft p-4 text-sm text-muted-foreground">
-          Como administrador(a), você pode acompanhar todas as conversas e atender diretamente pessoas na fila, além de intervir em atendimentos em andamento quando necessário.
+          Como administrador(a), você pode atender diretamente as pessoas na fila de escuta, acompanhar todas as conversas e intervir em atendimentos em andamento.
         </p>
+
+        {/* Fila de espera — atendimento direto */}
+        <section className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="grid size-9 place-items-center rounded-lg bg-brand-soft text-primary"><Users className="size-5" /></div>
+            <div className="flex-1">
+              <h2 className="text-base font-semibold text-primary">Fila de escuta — atender agora</h2>
+              <p className="text-xs text-muted-foreground">Pessoas aguardando alguém para conversar neste momento.</p>
+            </div>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{queue.length}</span>
+          </div>
+          {queue.length === 0 ? (
+            <p className="rounded-lg bg-background/50 p-4 text-center text-xs text-muted-foreground">Ninguém aguardando no momento. 💛</p>
+          ) : (
+            <ul className="space-y-2">
+              {queue.map((r) => {
+                const mins = Math.max(1, Math.round((Date.now() - +new Date(r.created_at)) / 60000));
+                return (
+                  <li key={r.id} className="flex items-start gap-3 rounded-xl border border-border bg-card p-3">
+                    <img src={avatarUrl(r.alias || r.user_id, 80)} alt="" className="size-10 shrink-0 rounded-full ring-2 ring-brand-soft" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold text-foreground">{r.alias}</p>
+                        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="size-3" /> {mins} min</span>
+                        {r.urgency === "high" && <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive">Urgência alta</span>}
+                        {r.urgency === "medium" && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">Média</span>}
+                      </div>
+                      {r.topic && <p className="mt-1 line-clamp-2 text-xs text-foreground/80">"{r.topic}"</p>}
+                    </div>
+                    <button onClick={() => pickFromQueue(r.id)} disabled={pickBusy === r.id} className="btn-primary shrink-0 text-xs">
+                      {pickBusy === r.id ? "Abrindo..." : "Atender"}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
 
         <div className="mb-4 flex gap-2">
           {(["waiting", "active", "all"] as Tab[]).map((t) => (
