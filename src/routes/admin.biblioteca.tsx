@@ -1,26 +1,77 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
-import { uploadLibraryFile, removeLibraryFile, AUDIO_CATEGORIES, PHRASE_CATEGORIES, IMAGE_CATEGORIES } from "@/lib/library";
-import { ArrowLeft, Loader2, Plus, Trash2, Eye, EyeOff, Upload } from "lucide-react";
+import {
+  uploadLibraryFile,
+  removeLibraryFile,
+  AUDIO_CATEGORIES,
+  PHRASE_CATEGORIES,
+  IMAGE_CATEGORIES,
+} from "@/lib/library";
+import {
+  ArrowLeft,
+  Loader2,
+  Plus,
+  Trash2,
+  Eye,
+  EyeOff,
+  Upload,
+  Search,
+  Music,
+  Quote,
+  ImageIcon,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/biblioteca")({
   ssr: false,
-  beforeLoad: async () => { await ensureAdminAal2(); },
+  beforeLoad: async () => {
+    await ensureAdminAal2();
+  },
   component: BibliotecaAdmin,
 });
 
 type Tab = "audios" | "frases" | "imagens";
 
-type Audio = { id: string; title: string; description: string | null; category: string; audio_url: string; cover_url: string | null; duration_seconds: number | null; published: boolean };
+type Audio = {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  audio_url: string;
+  cover_url: string | null;
+  duration_seconds: number | null;
+  published: boolean;
+};
 type Phrase = { id: string; text: string; author: string | null; category: string; published: boolean };
 type Image = { id: string; title: string; caption: string | null; image_url: string; category: string; published: boolean };
 
+const TAB_META: { id: Tab; label: string; icon: typeof Music; hint: string }[] = [
+  { id: "audios", label: "Áudios", icon: Music, hint: "ASMR, meditações e sons calmantes" },
+  { id: "frases", label: "Frases", icon: Quote, hint: "Mensagens de acolhimento e autoajuda" },
+  { id: "imagens", label: "Imagens", icon: ImageIcon, hint: "Fotos e ilustrações de conforto" },
+];
+
 function BibliotecaAdmin() {
   const [tab, setTab] = useState<Tab>("audios");
+  const [counts, setCounts] = useState<Record<Tab, number>>({ audios: 0, frases: 0, imagens: 0 });
+
+  useEffect(() => {
+    (async () => {
+      const [a, p, i] = await Promise.all([
+        supabase.from("library_audios").select("id", { count: "exact", head: true }),
+        supabase.from("library_phrases").select("id", { count: "exact", head: true }),
+        supabase.from("library_images").select("id", { count: "exact", head: true }),
+      ]);
+      setCounts({ audios: a.count ?? 0, frases: p.count ?? 0, imagens: i.count ?? 0 });
+    })();
+  }, [tab]);
+
+  const active = TAB_META.find((t) => t.id === tab)!;
+
   return (
     <main className="min-h-dvh bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur">
@@ -36,17 +87,43 @@ function BibliotecaAdmin() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
-        <div className="mb-4 flex gap-2">
-          {(["audios", "frases", "imagens"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                tab === t ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-muted"
-              }`}
-            >{t === "audios" ? "Áudios" : t === "frases" ? "Frases" : "Imagens"}</button>
-          ))}
+        {/* Intro */}
+        <div className="mb-5">
+          <h1 className="text-xl font-semibold text-foreground">Conteúdos de acolhimento</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Gerencie os áudios, frases e imagens que aparecem para as pessoas na sala de relaxamento.
+          </p>
         </div>
+
+        {/* Tabs */}
+        <div className="mb-6 grid grid-cols-3 gap-2 rounded-2xl border border-border bg-card p-1.5">
+          {TAB_META.map((t) => {
+            const Icon = t.icon;
+            const isActive = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`flex flex-col items-center gap-1 rounded-xl px-3 py-3 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+                aria-pressed={isActive}
+              >
+                <Icon className="size-4" />
+                <span className="flex items-baseline gap-1.5">
+                  {t.label}
+                  <span className={`text-xs font-normal ${isActive ? "opacity-80" : "opacity-60"}`}>
+                    {counts[t.id]}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="mb-4 text-xs text-muted-foreground">{active.hint}</p>
 
         {tab === "audios" && <AudiosManager />}
         {tab === "frases" && <PhrasesManager />}
@@ -56,11 +133,74 @@ function BibliotecaAdmin() {
   );
 }
 
+/* ---------- Reusable pieces ---------- */
+
+function SectionCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-2xl border border-border bg-card p-5 ${className}`}>{children}</div>;
+}
+
+function Field({ label, children, full, hint }: { label: string; children: React.ReactNode; full?: boolean; hint?: string }) {
+  return (
+    <label className={`block ${full ? "md:col-span-2" : ""}`}>
+      <span className="mb-1.5 block text-xs font-medium text-foreground">{label}</span>
+      {children}
+      {hint && <span className="mt-1 block text-[11px] text-muted-foreground">{hint}</span>}
+    </label>
+  );
+}
+
+function SearchBar({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <div className="relative">
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="input pl-9"
+      />
+    </div>
+  );
+}
+
+function AddToggle({ open, onToggle, label }: { open: boolean; onToggle: () => void; label: string }) {
+  return (
+    <button
+      onClick={onToggle}
+      className="btn-primary inline-flex items-center gap-2 !px-4 !py-2.5 text-sm"
+    >
+      {open ? <X className="size-4" /> : <Plus className="size-4" />}
+      {open ? "Cancelar" : label}
+    </button>
+  );
+}
+
+function EmptyState({ icon: Icon, title, hint }: { icon: typeof Music; title: string; hint: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
+      <Icon className="mb-2 size-6 text-muted-foreground" />
+      <p className="text-sm font-medium text-foreground">{title}</p>
+      <p className="mt-1 max-w-xs text-xs text-muted-foreground">{hint}</p>
+    </div>
+  );
+}
+
+/* ---------- Áudios ---------- */
+
 function AudiosManager() {
   const [rows, setRows] = useState<Audio[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", category: "asmr", audio_url: "", cover_url: "", duration_seconds: "" });
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "asmr",
+    audio_url: "",
+    cover_url: "",
+    duration_seconds: "",
+  });
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
 
@@ -70,7 +210,15 @@ function AudiosManager() {
     setRows((data ?? []) as Audio[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
+
+  const filtered = useMemo(
+    () =>
+      rows.filter((r) => (q ? r.title.toLowerCase().includes(q.toLowerCase()) : true)),
+    [rows, q]
+  );
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -93,11 +241,15 @@ function AudiosManager() {
       if (error) throw error;
       toast.success("Áudio adicionado.");
       setForm({ title: "", description: "", category: "asmr", audio_url: "", cover_url: "", duration_seconds: "" });
-      setAudioFile(null); setCoverFile(null);
+      setAudioFile(null);
+      setCoverFile(null);
+      setOpen(false);
       await load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao adicionar áudio.");
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function togglePublished(row: Audio) {
@@ -113,70 +265,155 @@ function AudiosManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={add} className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground"><Plus className="size-4" /> Novo áudio</h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Field label="Título"><input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" /></Field>
-          <Field label="Categoria">
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
-              {AUDIO_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
-          </Field>
-          <Field label="Descrição (opcional)" full>
-            <textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input" />
-          </Field>
-          <Field label="Áudio (mp3, m4a, wav)">
-            <input type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)} className="text-xs" />
-            <p className="mt-1 text-[11px] text-muted-foreground">ou cole uma URL:</p>
-            <input value={form.audio_url} onChange={(e) => setForm({ ...form, audio_url: e.target.value })} placeholder="https://..." className="input mt-1" />
-          </Field>
-          <Field label="Capa (opcional)">
-            <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="text-xs" />
-            <p className="mt-1 text-[11px] text-muted-foreground">ou cole uma URL:</p>
-            <input value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} placeholder="https://..." className="input mt-1" />
-          </Field>
-          <Field label="Duração (segundos, opcional)"><input type="number" min={0} value={form.duration_seconds} onChange={(e) => setForm({ ...form, duration_seconds: e.target.value })} className="input" /></Field>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="sm:flex-1 sm:max-w-sm">
+          <SearchBar value={q} onChange={setQ} placeholder="Buscar áudios pelo título…" />
         </div>
-        <button disabled={busy} className="btn-primary mt-4 inline-flex items-center gap-2">
-          {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />} Adicionar áudio
-        </button>
-      </form>
+        <AddToggle open={open} onToggle={() => setOpen((o) => !o)} label="Novo áudio" />
+      </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="mb-3 text-sm font-semibold text-foreground">Áudios cadastrados ({rows.length})</h3>
-        {loading ? <Loader2 className="size-5 animate-spin text-primary" /> : rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum áudio cadastrado.</p>
+      {open && (
+        <SectionCard>
+          <form onSubmit={add}>
+            <h3 className="mb-4 text-sm font-semibold text-foreground">Adicionar áudio</h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Título">
+                <input
+                  required
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="input"
+                  placeholder="Ex: Respiração guiada 5 min"
+                />
+              </Field>
+              <Field label="Categoria">
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="input"
+                >
+                  {AUDIO_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Descrição" full hint="Um resumo curto que aparece junto ao áudio.">
+                <textarea
+                  rows={2}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="input"
+                />
+              </Field>
+              <Field label="Arquivo de áudio" hint="mp3, m4a ou wav. Ou cole uma URL abaixo.">
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+                  className="input !py-2"
+                />
+                <input
+                  value={form.audio_url}
+                  onChange={(e) => setForm({ ...form, audio_url: e.target.value })}
+                  placeholder="https://…"
+                  className="input mt-2"
+                />
+              </Field>
+              <Field label="Capa (opcional)" hint="Imagem quadrada de fundo. Ou cole uma URL.">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+                  className="input !py-2"
+                />
+                <input
+                  value={form.cover_url}
+                  onChange={(e) => setForm({ ...form, cover_url: e.target.value })}
+                  placeholder="https://…"
+                  className="input mt-2"
+                />
+              </Field>
+              <Field label="Duração (segundos)" hint="Opcional. Ex: 300 para 5 minutos.">
+                <input
+                  type="number"
+                  min={0}
+                  value={form.duration_seconds}
+                  onChange={(e) => setForm({ ...form, duration_seconds: e.target.value })}
+                  className="input"
+                />
+              </Field>
+            </div>
+            <div className="mt-5 flex justify-end">
+              <button disabled={busy} className="btn-primary inline-flex items-center gap-2">
+                {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                Salvar áudio
+              </button>
+            </div>
+          </form>
+        </SectionCard>
+      )}
+
+      <SectionCard>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="size-5 animate-spin text-primary" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            icon={Music}
+            title={rows.length === 0 ? "Nenhum áudio ainda" : "Nada encontrado"}
+            hint={
+              rows.length === 0
+                ? "Adicione o primeiro áudio para aparecer na sala de relaxamento."
+                : "Tente outra palavra na busca."
+            }
+          />
         ) : (
-          <ul className="divide-y divide-border">
-            {rows.map((r) => (
-              <li key={r.id} className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
+          <ul className="space-y-2">
+            {filtered.map((r) => (
+              <li
+                key={r.id}
+                className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/40 p-3"
+              >
+                <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+                  {r.cover_url ? (
+                    <img src={r.cover_url} alt="" className="size-full object-cover" />
+                  ) : (
+                    <div className="flex size-full items-center justify-center">
+                      <Music className="size-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-foreground">{r.title}</p>
-                  <p className="text-xs text-muted-foreground">{AUDIO_CATEGORIES.find((c) => c.id === r.category)?.label ?? r.category}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {AUDIO_CATEGORIES.find((c) => c.id === r.category)?.label ?? r.category}
+                    {r.duration_seconds ? ` · ${Math.round(r.duration_seconds / 60)} min` : ""}
+                    {!r.published && " · rascunho"}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => togglePublished(r)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted" title={r.published ? "Ocultar" : "Publicar"}>
-                    {r.published ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-                  </button>
-                  <button onClick={() => remove(r)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10" title="Remover">
-                    <Trash2 className="size-4" />
-                  </button>
-                </div>
+                <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} />
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </SectionCard>
     </div>
   );
 }
+
+/* ---------- Frases ---------- */
 
 function PhrasesManager() {
   const [rows, setRows] = useState<Phrase[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ text: "", author: "", category: "acolhimento" });
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
 
   async function load() {
     setLoading(true);
@@ -184,7 +421,14 @@ function PhrasesManager() {
     setRows((data ?? []) as Phrase[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
+
+  const filtered = useMemo(
+    () => rows.filter((r) => (q ? r.text.toLowerCase().includes(q.toLowerCase()) : true)),
+    [rows, q]
+  );
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -198,6 +442,7 @@ function PhrasesManager() {
     setBusy(false);
     if (error) return toast.error(error.message);
     setForm({ text: "", author: "", category: "acolhimento" });
+    setOpen(false);
     toast.success("Frase adicionada.");
     load();
   }
@@ -212,51 +457,103 @@ function PhrasesManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={add} className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground"><Plus className="size-4" /> Nova frase</h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Field label="Frase" full>
-            <textarea required rows={2} value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })} className="input" />
-          </Field>
-          <Field label="Autor (opcional)"><input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} className="input" /></Field>
-          <Field label="Categoria">
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
-              {PHRASE_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
-          </Field>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="sm:flex-1 sm:max-w-sm">
+          <SearchBar value={q} onChange={setQ} placeholder="Buscar frases…" />
         </div>
-        <button disabled={busy} className="btn-primary mt-4 inline-flex items-center gap-2">
-          {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} Adicionar frase
-        </button>
-      </form>
+        <AddToggle open={open} onToggle={() => setOpen((o) => !o)} label="Nova frase" />
+      </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="mb-3 text-sm font-semibold text-foreground">Frases ({rows.length})</h3>
-        {loading ? <Loader2 className="size-5 animate-spin text-primary" /> : (
-          <ul className="divide-y divide-border">
-            {rows.map((r) => (
-              <li key={r.id} className="flex items-start justify-between gap-3 py-3">
-                <div className="min-w-0">
+      {open && (
+        <SectionCard>
+          <form onSubmit={add}>
+            <h3 className="mb-4 text-sm font-semibold text-foreground">Adicionar frase</h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Frase" full>
+                <textarea
+                  required
+                  rows={3}
+                  value={form.text}
+                  onChange={(e) => setForm({ ...form, text: e.target.value })}
+                  className="input"
+                  placeholder="Ex: Você não precisa carregar tudo sozinho hoje."
+                />
+              </Field>
+              <Field label="Autor (opcional)">
+                <input
+                  value={form.author}
+                  onChange={(e) => setForm({ ...form, author: e.target.value })}
+                  className="input"
+                  placeholder="Nome do autor"
+                />
+              </Field>
+              <Field label="Categoria">
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="input"
+                >
+                  {PHRASE_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <div className="mt-5 flex justify-end">
+              <button disabled={busy} className="btn-primary inline-flex items-center gap-2">
+                {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+                Salvar frase
+              </button>
+            </div>
+          </form>
+        </SectionCard>
+      )}
+
+      <SectionCard>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="size-5 animate-spin text-primary" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            icon={Quote}
+            title={rows.length === 0 ? "Nenhuma frase ainda" : "Nada encontrado"}
+            hint={
+              rows.length === 0
+                ? "Cadastre a primeira mensagem de acolhimento."
+                : "Tente outra palavra na busca."
+            }
+          />
+        ) : (
+          <ul className="space-y-2">
+            {filtered.map((r) => (
+              <li
+                key={r.id}
+                className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/40 p-4"
+              >
+                <Quote className="mt-0.5 size-4 shrink-0 text-primary/70" />
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-foreground">{r.text}</p>
-                  <p className="text-xs text-muted-foreground">{PHRASE_CATEGORIES.find((c) => c.id === r.category)?.label ?? r.category}{r.author ? ` · ${r.author}` : ""}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {PHRASE_CATEGORIES.find((c) => c.id === r.category)?.label ?? r.category}
+                    {r.author ? ` · ${r.author}` : ""}
+                    {!r.published && " · rascunho"}
+                  </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <button onClick={() => togglePublished(r)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted">
-                    {r.published ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-                  </button>
-                  <button onClick={() => remove(r)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10">
-                    <Trash2 className="size-4" />
-                  </button>
-                </div>
+                <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} />
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </SectionCard>
     </div>
   );
 }
+
+/* ---------- Imagens ---------- */
 
 function ImagesManager() {
   const [rows, setRows] = useState<Image[]>([]);
@@ -264,6 +561,8 @@ function ImagesManager() {
   const [form, setForm] = useState({ title: "", caption: "", image_url: "", category: "acolhimento" });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
 
   async function load() {
     setLoading(true);
@@ -271,7 +570,14 @@ function ImagesManager() {
     setRows((data ?? []) as Image[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
+
+  const filtered = useMemo(
+    () => rows.filter((r) => (q ? r.title.toLowerCase().includes(q.toLowerCase()) : true)),
+    [rows, q]
+  );
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -291,10 +597,13 @@ function ImagesManager() {
       toast.success("Imagem adicionada.");
       setForm({ title: "", caption: "", image_url: "", category: "acolhimento" });
       setFile(null);
+      setOpen(false);
       load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao adicionar.");
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
   async function togglePublished(row: Image) {
     await supabase.from("library_images").update({ published: !row.published }).eq("id", row.id);
@@ -308,62 +617,147 @@ function ImagesManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={add} className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground"><Plus className="size-4" /> Nova imagem</h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Field label="Título"><input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" /></Field>
-          <Field label="Categoria">
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
-              {IMAGE_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
-          </Field>
-          <Field label="Legenda (opcional)" full>
-            <input value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} className="input" />
-          </Field>
-          <Field label="Arquivo">
-            <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-xs" />
-            <p className="mt-1 text-[11px] text-muted-foreground">ou cole uma URL:</p>
-            <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://..." className="input mt-1" />
-          </Field>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="sm:flex-1 sm:max-w-sm">
+          <SearchBar value={q} onChange={setQ} placeholder="Buscar imagens…" />
         </div>
-        <button disabled={busy} className="btn-primary mt-4 inline-flex items-center gap-2">
-          {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />} Adicionar imagem
-        </button>
-      </form>
+        <AddToggle open={open} onToggle={() => setOpen((o) => !o)} label="Nova imagem" />
+      </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="mb-3 text-sm font-semibold text-foreground">Imagens ({rows.length})</h3>
-        {loading ? <Loader2 className="size-5 animate-spin text-primary" /> : (
-          <ul className="divide-y divide-border">
-            {rows.map((r) => (
-              <li key={r.id} className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">{r.title}</p>
-                  <p className="text-xs text-muted-foreground">{IMAGE_CATEGORIES.find((c) => c.id === r.category)?.label ?? r.category}</p>
+      {open && (
+        <SectionCard>
+          <form onSubmit={add}>
+            <h3 className="mb-4 text-sm font-semibold text-foreground">Adicionar imagem</h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Título">
+                <input
+                  required
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="input"
+                  placeholder="Ex: Amanhecer suave"
+                />
+              </Field>
+              <Field label="Categoria">
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="input"
+                >
+                  {IMAGE_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Legenda (opcional)" full>
+                <input
+                  value={form.caption}
+                  onChange={(e) => setForm({ ...form, caption: e.target.value })}
+                  className="input"
+                />
+              </Field>
+              <Field label="Arquivo" full hint="jpg, png ou webp. Ou cole uma URL.">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  className="input !py-2"
+                />
+                <input
+                  value={form.image_url}
+                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                  placeholder="https://…"
+                  className="input mt-2"
+                />
+              </Field>
+            </div>
+            <div className="mt-5 flex justify-end">
+              <button disabled={busy} className="btn-primary inline-flex items-center gap-2">
+                {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                Salvar imagem
+              </button>
+            </div>
+          </form>
+        </SectionCard>
+      )}
+
+      <SectionCard>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="size-5 animate-spin text-primary" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            icon={ImageIcon}
+            title={rows.length === 0 ? "Nenhuma imagem ainda" : "Nada encontrado"}
+            hint={
+              rows.length === 0
+                ? "Adicione a primeira imagem de acolhimento."
+                : "Tente outra palavra na busca."
+            }
+          />
+        ) : (
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((r) => (
+              <li key={r.id} className="overflow-hidden rounded-xl border border-border/60 bg-background/40">
+                <div className="aspect-video w-full overflow-hidden bg-muted">
+                  <img src={r.image_url} alt={r.title} className="size-full object-cover" />
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <button onClick={() => togglePublished(r)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted">
-                    {r.published ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-                  </button>
-                  <button onClick={() => remove(r)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10">
-                    <Trash2 className="size-4" />
-                  </button>
+                <div className="flex items-center justify-between gap-2 p-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-foreground">{r.title}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {IMAGE_CATEGORIES.find((c) => c.id === r.category)?.label ?? r.category}
+                      {!r.published && " · rascunho"}
+                    </p>
+                  </div>
+                  <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} />
                 </div>
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </SectionCard>
     </div>
   );
 }
 
-function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+/* ---------- Row actions ---------- */
+
+function RowActions({
+  published,
+  onToggle,
+  onRemove,
+}: {
+  published: boolean;
+  onToggle: () => void;
+  onRemove: () => void;
+}) {
   return (
-    <label className={`block text-xs font-medium text-muted-foreground ${full ? "md:col-span-2" : ""}`}>
-      <span className="mb-1 block">{label}</span>
-      {children}
-    </label>
+    <div className="flex shrink-0 items-center gap-1">
+      <button
+        onClick={onToggle}
+        className={`rounded-lg p-2 transition ${
+          published
+            ? "text-primary hover:bg-primary/10"
+            : "text-muted-foreground hover:bg-muted"
+        }`}
+        title={published ? "Publicado — clique para ocultar" : "Rascunho — clique para publicar"}
+        aria-label={published ? "Ocultar" : "Publicar"}
+      >
+        {published ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+      </button>
+      <button
+        onClick={onRemove}
+        className="rounded-lg p-2 text-destructive hover:bg-destructive/10"
+        title="Remover"
+        aria-label="Remover"
+      >
+        <Trash2 className="size-4" />
+      </button>
+    </div>
   );
 }
