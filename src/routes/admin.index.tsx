@@ -244,6 +244,7 @@ function AdminDashboard() {
             </div>
           )}
         </section>
+        </div>
       </div>
 
       {/* Modal */}
