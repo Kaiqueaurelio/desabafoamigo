@@ -42,9 +42,23 @@ function AuthPage() {
       }
       navigate({ to: "/inicio" });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Erro");
+      const raw = e instanceof Error ? e.message : "Erro";
+      const lower = raw.toLowerCase();
+      if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
+        setMode("signin");
+        setErr("Este e-mail já tem cadastro. Digite sua senha para entrar.");
+      } else if (lower.includes("invalid login") || lower.includes("invalid_credentials")) {
+        setErr("E-mail ou senha incorretos.");
+      } else if (lower.includes("email not confirmed")) {
+        setErr("Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.");
+      } else if (lower.includes("rate limit") || lower.includes("over_email_send_rate_limit")) {
+        setErr("Muitas tentativas. Aguarde alguns minutos e tente novamente.");
+      } else {
+        setErr(raw);
+      }
     } finally { setLoading(false); }
   }
+
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-brand-soft px-4">
