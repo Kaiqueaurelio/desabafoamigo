@@ -218,7 +218,7 @@ function PrivacyPage() {
           <span className="font-medium">Confirme sua senha</span>
           <PasswordInput
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
             autoComplete="current-password"
             placeholder="Sua senha atual"
           />
@@ -263,7 +263,7 @@ function PrivacyPage() {
           <span className="font-medium">Confirme sua senha</span>
           <PasswordInput
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
             autoComplete="current-password"
             placeholder="Sua senha atual"
           />
