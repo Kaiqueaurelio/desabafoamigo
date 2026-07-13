@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteMyAccount, exportMyData } from "@/lib/account.functions";
-import { ShieldCheck, Trash2, ExternalLink, Download } from "lucide-react";
+import { ShieldCheck, Trash2, ExternalLink, Download, History } from "lucide-react";
 import { AccessibilityPanel } from "@/components/AccessibilityPanel";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
