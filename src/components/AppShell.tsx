@@ -96,7 +96,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             <LogOut className="size-4" />
           </button>
         </header>
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
         <nav className="grid grid-cols-4 border-t border-border bg-card md:hidden">
           {[
             ...patientNav,
