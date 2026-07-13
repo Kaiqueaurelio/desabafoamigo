@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { Loader2, LogOut, Check, X, Users, Clock, MessageCircleHeart, ShieldCheck } from "lucide-react";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
+import { AdminSidebar, AdminSidebarMobile } from "@/components/AdminSidebar";
 
 export const Route = createFileRoute("/admin/")({
   ssr: false,
