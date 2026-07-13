@@ -160,6 +160,26 @@ function AdminLogin() {
             <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? "Entrando…" : "Continuar"}
             </button>
+
+            {isPasskeySupported() && (
+              <>
+                <div className="relative my-2 text-center text-xs text-muted-foreground">
+                  <span className="bg-card px-2">ou</span>
+                  <div className="absolute inset-x-0 top-1/2 -z-10 h-px bg-border" />
+                </div>
+                <button
+                  type="button"
+                  disabled={loading || !email || !password}
+                  onClick={loginPasskey}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/40 bg-card px-3 py-2 text-sm font-medium text-primary hover:bg-brand-soft disabled:opacity-50"
+                >
+                  <KeyRound className="h-4 w-4" /> Entrar com chave de acesso
+                </button>
+                <p className="text-center text-[11px] text-muted-foreground">
+                  Use biometria (Windows Hello, Touch ID, Face ID, Android) — sem código de 6 dígitos.
+                </p>
+              </>
+            )}
           </form>
         ) : (
           <form onSubmit={submitTotp} className="space-y-4">
