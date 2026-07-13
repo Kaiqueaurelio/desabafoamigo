@@ -280,7 +280,7 @@ export const passkeyTokenValid = createServerFn({ method: "POST" })
     if (!payload) return { valid: false as const };
     if (payload.sub !== context.userId) return { valid: false as const };
     if (data.scope && payload.scope !== data.scope) return { valid: false as const };
-    return { valid: true as const, exp: payload.exp };
+    return { valid: true as const, exp: Number(payload.exp ?? 0) };
   });
 
 // ---------------------------------------------------------------------- Management
