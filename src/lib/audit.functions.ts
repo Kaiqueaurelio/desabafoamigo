@@ -5,7 +5,6 @@ export type AuditItem = {
   id: string;
   action: string;
   created_at: string;
-  metadata: unknown;
   role: "actor" | "target";
 };
 
@@ -15,13 +14,13 @@ export type AuditItem = {
  */
 export const getMyAuditTrail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<AuditItem[]> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { userId } = context;
 
     const { data, error } = await supabaseAdmin
       .from("audit_log")
-      .select("id, action, created_at, metadata, actor_id, target_id")
+      .select("id, action, created_at, actor_id, target_id")
       .or(`actor_id.eq.${userId},target_id.eq.${userId}`)
       .order("created_at", { ascending: false })
       .limit(100);
@@ -31,7 +30,7 @@ export const getMyAuditTrail = createServerFn({ method: "GET" })
       id: r.id,
       action: r.action,
       created_at: r.created_at,
-      metadata: (r.metadata as Record<string, unknown> | null) ?? null,
-      role: (r.actor_id === userId ? "actor" : "target") as "actor" | "target",
-    })) satisfies AuditItem[];
+      role: r.actor_id === userId ? "actor" : "target",
+    }));
   });
+
