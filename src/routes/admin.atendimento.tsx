@@ -1,9 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
-import { ArrowLeft, MessageCircleHeart, Loader2, LogOut } from "lucide-react";
+import { ArrowLeft, MessageCircleHeart, Loader2, LogOut, Clock, Users } from "lucide-react";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
+import { matchQueueEntry } from "@/lib/queue.functions";
+import { avatarUrl } from "@/lib/avatar";
 
 export const Route = createFileRoute("/admin/atendimento")({
   ssr: false,
@@ -12,6 +15,12 @@ export const Route = createFileRoute("/admin/atendimento")({
   },
   component: AdminAtendimento,
 });
+
+type QueueRow = {
+  id: string; user_id: string; topic: string | null; created_at: string;
+  urgency?: "low" | "medium" | "high" | null; preferred_lang?: string | null;
+  alias?: string;
+};
 
 type Row = {
   id: string;
