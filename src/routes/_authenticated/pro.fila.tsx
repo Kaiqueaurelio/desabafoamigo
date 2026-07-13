@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +7,9 @@ import { matchQueueEntry } from "@/lib/queue.functions";
 import { Users, Clock } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
 import { QueueNotifier } from "@/components/QueueNotifier";
+import { QueueSkeleton } from "@/components/QueueSkeleton";
+import { WellbeingCard } from "@/components/WellbeingCard";
+import { registerConversationStart } from "@/lib/volunteerWellbeing";
 
 export const Route = createFileRoute("/_authenticated/pro/fila")({
   beforeLoad: async ({ context }) => {
@@ -26,7 +30,9 @@ const URG_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 function Fila() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [showPause, setShowPause] = useState(false);
   const match = useServerFn(matchQueueEntry);
   const navigate = useNavigate();
 
@@ -51,6 +57,7 @@ function Fila() {
       list.forEach((r) => { r.alias = pm.get(r.user_id) ?? "Anônimo"; r.summary = sm.get(r.user_id) ?? ""; });
     }
     setRows(list);
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -65,8 +72,9 @@ function Fila() {
     setBusy(id);
     try {
       const { appointmentId } = await match({ data: { queueId: id } });
+      if (registerConversationStart()) setShowPause(true);
       navigate({ to: "/consulta/$id", params: { id: appointmentId } });
-    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); setBusy(null); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Erro"); setBusy(null); }
   }
 
   return (
@@ -80,7 +88,11 @@ function Fila() {
         <QueueNotifier count={rows.length} />
       </div>
 
-      {rows.length === 0 ? (
+      <WellbeingCard visible={showPause} onClose={() => setShowPause(false)} />
+
+      {loading ? (
+        <QueueSkeleton rows={3} />
+      ) : rows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           Ninguém na fila no momento. Obrigado por estar disponível. 💛
         </p>

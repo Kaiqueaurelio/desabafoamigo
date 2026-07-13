@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, ArrowLeft, Paperclip, Mic, StopCircle, FileText, Image as ImageIcon, Music, CheckCircle2, Video, Languages, AudioLines, Sparkles, Download } from "lucide-react";
@@ -204,7 +205,7 @@ function Consulta() {
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; e.target.value = "";
     if (!file) return;
-    try { await uploadFile(file); } catch (err) { alert(err instanceof Error ? err.message : "Erro"); }
+    try { await uploadFile(file); } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
   }
 
   async function toggleRecord() {
@@ -218,12 +219,12 @@ function Consulta() {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
         const file = new File([blob], `audio-${Date.now()}.webm`, { type: "audio/webm" });
-        try { await uploadFile(file); } catch (err) { alert(err instanceof Error ? err.message : "Erro"); }
+        try { await uploadFile(file); } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
       };
       rec.start();
       mediaRef.current = rec;
       setRecording(true);
-    } catch { alert("Não foi possível acessar o microfone."); }
+    } catch { toast.error("Não foi possível acessar o microfone."); }
   }
 
   async function finish() {
@@ -239,7 +240,7 @@ function Consulta() {
     try {
       const r = await doTranscribe({ data: { messageId } });
       setMessages((prev) => prev.map((m) => m.id === messageId ? { ...m, transcription: r.text, segments: r.segments } : m));
-    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Erro"); }
   }
 
   async function translate(messageId: string) {
@@ -250,13 +251,13 @@ function Consulta() {
         translations: { ...(m.translations ?? {}), [targetLang]: r.text },
         translation_segments: { ...(m.translation_segments ?? {}), [targetLang]: r.segments },
       } : m));
-    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Erro"); }
   }
 
   async function saveNotes() {
     if (!appt) return;
     await supabase.from("appointments").update({ professional_notes: notesDraft }).eq("id", appt.id);
-    alert("Notas salvas.");
+    toast.success("Notas salvas.");
   }
 
   if (!appt) return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;

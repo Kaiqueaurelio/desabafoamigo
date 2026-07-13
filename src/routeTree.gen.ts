@@ -32,6 +32,7 @@ import { Route as AdminBibliotecaRouteImport } from './routes/admin.biblioteca'
 import { Route as AdminAuditoriaRouteImport } from './routes/admin.auditoria'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
 import { Route as AdminAparenciaRouteImport } from './routes/admin.aparencia'
+import { Route as AuthenticatedTransparenciaRouteImport } from './routes/_authenticated/transparencia'
 import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
@@ -159,6 +160,12 @@ const AdminAparenciaRoute = AdminAparenciaRouteImport.update({
   path: '/admin/aparencia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTransparenciaRoute =
+  AuthenticatedTransparenciaRouteImport.update({
+    id: '/transparencia',
+    path: '/transparencia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRelaxarRoute = AuthenticatedRelaxarRouteImport.update({
   id: '/relaxar',
   path: '/relaxar',
@@ -237,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
+  '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
@@ -273,6 +281,7 @@ export interface FileRoutesByTo {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
+  '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
@@ -311,6 +320,7 @@ export interface FileRoutesById {
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
+  '/_authenticated/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/relaxar'
+    | '/transparencia'
     | '/admin/aparencia'
     | '/admin/atendimento'
     | '/admin/auditoria'
@@ -385,6 +396,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/relaxar'
+    | '/transparencia'
     | '/admin/aparencia'
     | '/admin/atendimento'
     | '/admin/auditoria'
@@ -422,6 +434,7 @@ export interface FileRouteTypes {
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
     | '/_authenticated/relaxar'
+    | '/_authenticated/transparencia'
     | '/admin/aparencia'
     | '/admin/atendimento'
     | '/admin/auditoria'
@@ -632,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAparenciaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/transparencia': {
+      id: '/_authenticated/transparencia'
+      path: '/transparencia'
+      fullPath: '/transparencia'
+      preLoaderRoute: typeof AuthenticatedTransparenciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/relaxar': {
       id: '/_authenticated/relaxar'
       path: '/relaxar'
@@ -727,6 +747,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedRelaxarRoute: typeof AuthenticatedRelaxarRoute
+  AuthenticatedTransparenciaRoute: typeof AuthenticatedTransparenciaRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
   AuthenticatedProFilaRoute: typeof AuthenticatedProFilaRoute
   AuthenticatedProMfaRoute: typeof AuthenticatedProMfaRoute
@@ -742,6 +763,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedRelaxarRoute: AuthenticatedRelaxarRoute,
+  AuthenticatedTransparenciaRoute: AuthenticatedTransparenciaRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
   AuthenticatedProFilaRoute: AuthenticatedProFilaRoute,
   AuthenticatedProMfaRoute: AuthenticatedProMfaRoute,
@@ -780,13 +802,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
