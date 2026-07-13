@@ -55,6 +55,8 @@ function ProProfile() {
         <button onClick={save} disabled={busy} className="btn-primary">{busy ? "Salvando..." : "Salvar"}</button>
       </div>
       <style>{`.inp{width:100%;border-radius:0.5rem;border:1px solid var(--color-border);background:var(--color-background);padding:0.5rem 0.75rem;font-size:0.875rem;outline:none}.inp:focus{border-color:var(--color-primary)}`}</style>
+
+      <VolunteerTemplatesManager />
     </div>
   );
 }
