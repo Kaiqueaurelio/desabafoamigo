@@ -30,7 +30,9 @@ const URG_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 function Fila() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [showPause, setShowPause] = useState(false);
   const match = useServerFn(matchQueueEntry);
   const navigate = useNavigate();
 
