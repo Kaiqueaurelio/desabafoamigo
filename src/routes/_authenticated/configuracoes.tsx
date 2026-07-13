@@ -1,3 +1,4 @@
+import { secureSignOut } from "@/lib/secureSignOut";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -41,7 +42,7 @@ function SettingsPage() {
     setBusy(true); setErr(null);
     try {
       await del();
-      await supabase.auth.signOut();
+      await secureSignOut();
       navigate({ to: "/", replace: true });
     } catch (e) {
       setErr((e as Error).message ?? "Não foi possível apagar agora.");
