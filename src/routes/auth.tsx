@@ -27,18 +27,20 @@ function AuthPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr("");
-    const parsed = schema.safeParse({ email, password });
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.replace(/^\s+|\s+$/g, "");
+    const parsed = schema.safeParse({ email: normalizedEmail, password: normalizedPassword });
     if (!parsed.success) { setErr(parsed.error.issues[0].message); return; }
     setLoading(true);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email, password,
+          email: normalizedEmail, password: normalizedPassword,
           options: { emailRedirectTo: `${window.location.origin}/inicio` },
         });
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password: normalizedPassword });
         if (error) throw error;
       }
       navigate({ to: "/inicio" });
