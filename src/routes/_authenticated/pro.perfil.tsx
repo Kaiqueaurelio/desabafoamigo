@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureProAal2 } from "@/lib/proGuard";
+import { VolunteerTemplatesManager } from "@/components/VolunteerTemplatesManager";
 
 export const Route = createFileRoute("/_authenticated/pro/perfil")({
   beforeLoad: async ({ context }) => {
