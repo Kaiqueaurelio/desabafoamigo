@@ -216,7 +216,15 @@ function AdminDashboard() {
             </div>
             <Link to="/admin/observabilidade" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Abrir</Link>
           </div>
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Biblioteca de acolhimento</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">Áudios (ASMR, meditação), frases e imagens para o usuário relaxar.</p>
+            </div>
+            <Link to="/admin/biblioteca" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Gerenciar</Link>
+          </div>
         </div>
+
 
 
         {/* Stats */}
