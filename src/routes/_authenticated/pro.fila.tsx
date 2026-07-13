@@ -72,6 +72,7 @@ function Fila() {
     setBusy(id);
     try {
       const { appointmentId } = await match({ data: { queueId: id } });
+      if (registerConversationStart()) setShowPause(true);
       navigate({ to: "/consulta/$id", params: { id: appointmentId } });
     } catch (e) { toast.error(e instanceof Error ? e.message : "Erro"); setBusy(null); }
   }
