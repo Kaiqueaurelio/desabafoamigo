@@ -47,25 +47,54 @@ const STATUS: Record<string, string> = {
 
 function AdminAtendimento() {
   const navigate = useNavigate();
+  const match = useServerFn(matchQueueEntry);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
+  const [queue, setQueue] = useState<QueueRow[]>([]);
   const [me, setMe] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("waiting");
+  const [pickBusy, setPickBusy] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       setMe(u.user?.id ?? null);
-      await refresh();
+      await Promise.all([refresh(), refreshQueue()]);
     })();
 
     const chan = supabase
       .channel("admin-atendimento")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => refresh())
       .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, () => refresh())
+      .on("postgres_changes", { event: "*", schema: "public", table: "queue" }, () => refreshQueue())
       .subscribe();
     return () => { supabase.removeChannel(chan); };
   }, []);
+
+  async function refreshQueue() {
+    const { data } = await supabase.from("queue")
+      .select("id, user_id, topic, created_at, urgency, preferred_lang")
+      .eq("status", "waiting").order("created_at");
+    const list = (data ?? []) as QueueRow[];
+    if (list.length) {
+      const ids = list.map((r) => r.user_id);
+      const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", ids);
+      const pm = new Map((profs ?? []).map((p) => [p.user_id, p.display_name ?? "Anônimo"]));
+      list.forEach((r) => { r.alias = pm.get(r.user_id) ?? "Anônimo"; });
+    }
+    setQueue(list);
+  }
+
+  async function pickFromQueue(id: string) {
+    setPickBusy(id);
+    try {
+      const { appointmentId } = await match({ data: { queueId: id } });
+      navigate({ to: "/consulta/$id", params: { id: appointmentId } });
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao assumir da fila.");
+      setPickBusy(null);
+    }
+  }
 
   async function refresh() {
     const { data: appts } = await supabase
