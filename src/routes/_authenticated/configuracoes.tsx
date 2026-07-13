@@ -91,7 +91,26 @@ function SettingsPage() {
             </div>
           </div>
         </section>
+
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-start gap-3">
+            <History className="mt-0.5 size-5 text-primary" />
+            <div className="flex-1">
+              <h2 className="font-medium">Transparência da conta</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Veja os últimos eventos em que sua conta aparece — entradas, saídas, ações que você fez ou que aconteceram com você.
+              </p>
+              <a
+                href="/transparencia"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-brand-soft px-4 py-2 text-sm font-medium text-primary hover:bg-brand-soft/80"
+              >
+                <History className="size-4" /> Ver histórico da minha conta
+              </a>
+            </div>
+          </div>
+        </section>
       </div>
+
 
 
       <section className="mt-6 rounded-2xl border border-destructive/40 bg-destructive/5 p-5">
