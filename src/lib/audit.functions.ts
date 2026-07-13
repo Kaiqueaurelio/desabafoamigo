@@ -5,7 +5,7 @@ export type AuditItem = {
   id: string;
   action: string;
   created_at: string;
-  metadata: Record<string, unknown> | null;
+  metadata: unknown;
   role: "actor" | "target";
 };
 
