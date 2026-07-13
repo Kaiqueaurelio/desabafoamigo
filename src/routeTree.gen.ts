@@ -27,6 +27,7 @@ import { Route as AdminMetricasRouteImport } from './routes/admin.metricas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
+import { Route as AdminBibliotecaRouteImport } from './routes/admin.biblioteca'
 import { Route as AdminAuditoriaRouteImport } from './routes/admin.auditoria'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
 import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
@@ -131,6 +132,11 @@ const AdminDenunciasRoute = AdminDenunciasRouteImport.update({
   path: '/admin/denuncias',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminBibliotecaRoute = AdminBibliotecaRouteImport.update({
+  id: '/admin/biblioteca',
+  path: '/admin/biblioteca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditoriaRoute = AdminAuditoriaRouteImport.update({
   id: '/admin/auditoria',
   path: '/admin/auditoria',
@@ -221,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
+  '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
+  '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -289,6 +297,7 @@ export interface FileRoutesById {
   '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
+  '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -324,6 +333,7 @@ export interface FileRouteTypes {
     | '/relaxar'
     | '/admin/atendimento'
     | '/admin/auditoria'
+    | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
     | '/relaxar'
     | '/admin/atendimento'
     | '/admin/auditoria'
+    | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relaxar'
     | '/admin/atendimento'
     | '/admin/auditoria'
+    | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
@@ -419,6 +431,7 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
   AdminAuditoriaRoute: typeof AdminAuditoriaRoute
+  AdminBibliotecaRoute: typeof AdminBibliotecaRoute
   AdminDenunciasRoute: typeof AdminDenunciasRoute
   AdminIncidentesRoute: typeof AdminIncidentesRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -556,6 +569,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/denuncias'
       fullPath: '/admin/denuncias'
       preLoaderRoute: typeof AdminDenunciasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/biblioteca': {
+      id: '/admin/biblioteca'
+      path: '/admin/biblioteca'
+      fullPath: '/admin/biblioteca'
+      preLoaderRoute: typeof AdminBibliotecaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/auditoria': {
@@ -704,6 +724,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   AdminAtendimentoRoute: AdminAtendimentoRoute,
   AdminAuditoriaRoute: AdminAuditoriaRoute,
+  AdminBibliotecaRoute: AdminBibliotecaRoute,
   AdminDenunciasRoute: AdminDenunciasRoute,
   AdminIncidentesRoute: AdminIncidentesRoute,
   AdminLoginRoute: AdminLoginRoute,
