@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { ShieldCheck, Loader2 } from "lucide-react";
@@ -55,6 +55,7 @@ function AdminMfa() {
         if (error) throw error;
         setFactorId(data.id);
         setSecret(data.totp.secret);
+        const QRCode = (await import("qrcode")).default;
         const url = await QRCode.toDataURL(data.totp.uri, { margin: 1, width: 220 });
         setQrDataUrl(url);
       } catch (err) {
