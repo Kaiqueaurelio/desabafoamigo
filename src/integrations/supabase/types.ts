@@ -916,6 +916,84 @@ export type Database = {
         }
         Relationships: []
       }
+      webauthn_challenges: {
+        Row: {
+          challenge: string
+          created_at: string
+          email: string | null
+          expires_at: string
+          id: string
+          kind: string
+          scope: string
+          user_id: string | null
+        }
+        Insert: {
+          challenge: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          kind: string
+          scope?: string
+          user_id?: string | null
+        }
+        Update: {
+          challenge?: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          kind?: string
+          scope?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      webauthn_credentials: {
+        Row: {
+          backed_up: boolean
+          counter: number
+          created_at: string
+          credential_id: string
+          device_name: string
+          device_type: string | null
+          id: string
+          last_used_at: string | null
+          public_key: string
+          scope: string
+          transports: string[]
+          user_id: string
+        }
+        Insert: {
+          backed_up?: boolean
+          counter?: number
+          created_at?: string
+          credential_id: string
+          device_name?: string
+          device_type?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key: string
+          scope?: string
+          transports?: string[]
+          user_id: string
+        }
+        Update: {
+          backed_up?: boolean
+          counter?: number
+          created_at?: string
+          credential_id?: string
+          device_name?: string
+          device_type?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key?: string
+          scope?: string
+          transports?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

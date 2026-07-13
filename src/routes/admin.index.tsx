@@ -223,6 +223,13 @@ function AdminDashboard() {
             </div>
             <Link to="/admin/biblioteca" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Gerenciar</Link>
           </div>
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Chaves de acesso (passkeys)</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">Entre com biometria (Windows Hello, Touch ID, Face ID, Android) sem digitar o código de 6 dígitos.</p>
+            </div>
+            <Link to="/admin/passkeys" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Gerenciar</Link>
+          </div>
         </div>
 
 

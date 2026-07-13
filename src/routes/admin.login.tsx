@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { PasswordInput } from "@/components/PasswordInput";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, KeyRound } from "lucide-react";
 import { checkMfaLock, recordMfaAttempt, formatLockMessage } from "@/lib/mfaRateLimit";
+import { isPasskeySupported, loginWithPasskey } from "@/lib/passkeys";
 
 export const Route = createFileRoute("/admin/login")({
   component: AdminLogin,
@@ -118,6 +119,46 @@ function AdminLogin() {
     }
   }
 
+  async function loginPasskey() {
+    setError(null);
+    setLoading(true);
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const normalizedPassword = password.trim();
+      if (!normalizedEmail || !normalizedPassword) {
+        throw new Error("Digite e-mail e senha antes de usar a chave de acesso.");
+      }
+      await supabase.auth.signOut();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: normalizedPassword,
+      });
+      if (error) throw error;
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user!.id);
+      if (!(roles ?? []).some((r) => r.role === "admin")) {
+        await supabase.auth.signOut();
+        throw new Error("Este usuário não é administrador.");
+      }
+      await loginWithPasskey({ email: normalizedEmail, scope: "admin" });
+      navigate({ to: "/admin" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Falha ao entrar com a chave.";
+      if (/NotAllowedError|cancel|abort/i.test(msg)) {
+        setError("Autenticação cancelada. Tente novamente.");
+      } else if (/não reconhecida|not found/i.test(msg)) {
+        setError("Nenhuma chave de acesso cadastrada para este usuário.");
+      } else {
+        setError(msg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
   return (
     <main className="flex min-h-dvh items-center justify-center bg-brand-soft px-6 py-10">
       <div className="w-full max-w-sm rounded-2xl bg-card p-8 shadow-lg">
@@ -159,6 +200,26 @@ function AdminLogin() {
             <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? "Entrando…" : "Continuar"}
             </button>
+
+            {isPasskeySupported() && (
+              <>
+                <div className="relative my-2 text-center text-xs text-muted-foreground">
+                  <span className="bg-card px-2">ou</span>
+                  <div className="absolute inset-x-0 top-1/2 -z-10 h-px bg-border" />
+                </div>
+                <button
+                  type="button"
+                  disabled={loading || !email || !password}
+                  onClick={loginPasskey}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/40 bg-card px-3 py-2 text-sm font-medium text-primary hover:bg-brand-soft disabled:opacity-50"
+                >
+                  <KeyRound className="h-4 w-4" /> Entrar com chave de acesso
+                </button>
+                <p className="text-center text-[11px] text-muted-foreground">
+                  Use biometria (Windows Hello, Touch ID, Face ID, Android) — sem código de 6 dígitos.
+                </p>
+              </>
+            )}
           </form>
         ) : (
           <form onSubmit={submitTotp} className="space-y-4">

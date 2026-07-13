@@ -1,12 +1,14 @@
 import { redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { hasValidPasskeyToken } from "@/lib/passkeys";
 
 /**
  * Guard usado por todas as rotas /admin/*.
  * Regras:
  *  1. Precisa estar autenticado e ter papel "admin".
- *  2. Se ainda não tem um fator TOTP verificado -> /admin/mfa (para inscrever).
- *  3. Se tem fator verificado mas a sessão está em AAL1 -> /admin/login (para desafiar).
+ *  2. Se possui token de passkey válido (chave de acesso) -> ok, pula TOTP.
+ *  3. Senão, se ainda não tem um fator TOTP verificado -> /admin/mfa (para inscrever).
+ *  4. Se tem fator verificado mas a sessão está em AAL1 -> /admin/login (para desafiar).
  */
 export async function ensureAdminAal2(opts: { allowMfaEnroll?: boolean } = {}) {
   const { data: userRes, error } = await supabase.auth.getUser();
@@ -20,6 +22,11 @@ export async function ensureAdminAal2(opts: { allowMfaEnroll?: boolean } = {}) {
     .eq("role", "admin");
   if (!roles || roles.length === 0) {
     throw redirect({ to: "/admin/login" });
+  }
+
+  // Bypass via passkey (chave de acesso)
+  if (await hasValidPasskeyToken("admin")) {
+    return { user: userRes.user, needsEnroll: false };
   }
 
   const { data: factorsData } = await supabase.auth.mfa.listFactors();
@@ -37,3 +44,4 @@ export async function ensureAdminAal2(opts: { allowMfaEnroll?: boolean } = {}) {
 
   return { user: userRes.user, needsEnroll: false };
 }
+
