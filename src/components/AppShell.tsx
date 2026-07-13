@@ -1,3 +1,4 @@
+import { secureSignOut } from "@/lib/secureSignOut";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
@@ -22,7 +23,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   }, [user.id]);
 
   async function signOut() {
-    await supabase.auth.signOut();
+    await secureSignOut();
     navigate({ to: "/auth" });
   }
 

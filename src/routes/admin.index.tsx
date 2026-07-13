@@ -1,3 +1,4 @@
+import { secureSignOut } from "@/lib/secureSignOut";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,7 +131,7 @@ function AdminDashboard() {
   }
 
   async function signOut() {
-    await supabase.auth.signOut();
+    await secureSignOut();
     navigate({ to: "/admin/login" });
   }
 
