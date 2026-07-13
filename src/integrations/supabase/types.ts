@@ -294,6 +294,123 @@ export type Database = {
         }
         Relationships: []
       }
+      library_audios: {
+        Row: {
+          audio_url: string
+          category: string
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          published: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url: string
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          published?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string
+          category?: string
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          published?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      library_images: {
+        Row: {
+          caption: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string
+          published: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url: string
+          published?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string
+          published?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      library_phrases: {
+        Row: {
+          author: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          published: boolean
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published?: boolean
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published?: boolean
+          text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string
