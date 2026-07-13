@@ -116,8 +116,47 @@ function AdminLogin() {
       setError(err instanceof Error ? err.message : "Código inválido.");
     } finally {
       setLoading(false);
+  }
+
+  async function loginPasskey() {
+    setError(null);
+    setLoading(true);
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const normalizedPassword = password.trim();
+      if (!normalizedEmail || !normalizedPassword) {
+        throw new Error("Digite e-mail e senha antes de usar a chave de acesso.");
+      }
+      await supabase.auth.signOut();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: normalizedPassword,
+      });
+      if (error) throw error;
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user!.id);
+      if (!(roles ?? []).some((r) => r.role === "admin")) {
+        await supabase.auth.signOut();
+        throw new Error("Este usuário não é administrador.");
+      }
+      await loginWithPasskey({ email: normalizedEmail, scope: "admin" });
+      navigate({ to: "/admin" });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Falha ao entrar com a chave.";
+      if (/NotAllowedError|cancel|abort/i.test(msg)) {
+        setError("Autenticação cancelada. Tente novamente.");
+      } else if (/não reconhecida|not found/i.test(msg)) {
+        setError("Nenhuma chave de acesso cadastrada para este usuário.");
+      } else {
+        setError(msg);
+      }
+    } finally {
+      setLoading(false);
     }
   }
+
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-brand-soft px-6 py-10">
