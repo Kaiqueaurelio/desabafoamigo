@@ -54,16 +54,3 @@ export async function loginWithPasskey(opts: {
   storePasskeyToken(opts.scope, token);
   return { token, userId, exp };
 }
-
-/** Check if a stored token is still valid server-side (also confirms user match). */
-export async function hasValidPasskeyToken(scope: "admin" | "pro" | "user"): Promise<boolean> {
-  const token = getStoredPasskeyToken(scope);
-  if (!token) return false;
-  try {
-    const { valid } = await passkeyTokenValid({ data: { token, scope } });
-    if (!valid) clearStoredPasskeyToken(scope);
-    return valid;
-  } catch {
-    return false;
-  }
-}
