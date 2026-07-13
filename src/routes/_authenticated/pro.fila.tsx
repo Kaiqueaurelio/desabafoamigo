@@ -88,7 +88,11 @@ function Fila() {
         <QueueNotifier count={rows.length} />
       </div>
 
-      {rows.length === 0 ? (
+      <WellbeingCard visible={showPause} onClose={() => setShowPause(false)} />
+
+      {loading ? (
+        <QueueSkeleton rows={3} />
+      ) : rows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
           Ninguém na fila no momento. Obrigado por estar disponível. 💛
         </p>
