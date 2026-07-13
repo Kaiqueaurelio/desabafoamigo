@@ -31,6 +31,7 @@ import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
 import { Route as AdminBibliotecaRouteImport } from './routes/admin.biblioteca'
 import { Route as AdminAuditoriaRouteImport } from './routes/admin.auditoria'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
+import { Route as AdminAparenciaRouteImport } from './routes/admin.aparencia'
 import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
@@ -153,6 +154,11 @@ const AdminAtendimentoRoute = AdminAtendimentoRouteImport.update({
   path: '/admin/atendimento',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAparenciaRoute = AdminAparenciaRouteImport.update({
+  id: '/admin/aparencia',
+  path: '/admin/aparencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRelaxarRoute = AuthenticatedRelaxarRouteImport.update({
   id: '/relaxar',
   path: '/relaxar',
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
+  '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
   '/admin/biblioteca': typeof AdminBibliotecaRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
+  '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
   '/admin/biblioteca': typeof AdminBibliotecaRoute
@@ -303,6 +311,7 @@ export interface FileRoutesById {
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
+  '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
   '/admin/biblioteca': typeof AdminBibliotecaRoute
@@ -340,6 +349,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/relaxar'
+    | '/admin/aparencia'
     | '/admin/atendimento'
     | '/admin/auditoria'
     | '/admin/biblioteca'
@@ -375,6 +385,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/relaxar'
+    | '/admin/aparencia'
     | '/admin/atendimento'
     | '/admin/auditoria'
     | '/admin/biblioteca'
@@ -411,6 +422,7 @@ export interface FileRouteTypes {
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
     | '/_authenticated/relaxar'
+    | '/admin/aparencia'
     | '/admin/atendimento'
     | '/admin/auditoria'
     | '/admin/biblioteca'
@@ -441,6 +453,7 @@ export interface RootRouteChildren {
   SejaVoluntarioRoute: typeof SejaVoluntarioRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
+  AdminAparenciaRoute: typeof AdminAparenciaRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
   AdminAuditoriaRoute: typeof AdminAuditoriaRoute
   AdminBibliotecaRoute: typeof AdminBibliotecaRoute
@@ -612,6 +625,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAtendimentoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/aparencia': {
+      id: '/admin/aparencia'
+      path: '/admin/aparencia'
+      fullPath: '/admin/aparencia'
+      preLoaderRoute: typeof AdminAparenciaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/relaxar': {
       id: '/_authenticated/relaxar'
       path: '/relaxar'
@@ -742,6 +762,7 @@ const rootRouteChildren: RootRouteChildren = {
   SejaVoluntarioRoute: SejaVoluntarioRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
+  AdminAparenciaRoute: AdminAparenciaRoute,
   AdminAtendimentoRoute: AdminAtendimentoRoute,
   AdminAuditoriaRoute: AdminAuditoriaRoute,
   AdminBibliotecaRoute: AdminBibliotecaRoute,
