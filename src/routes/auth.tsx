@@ -41,9 +41,7 @@ function AuthPage() {
 
     const isAdmin = (roles ?? []).some((role) => role.role === "admin");
     if (isAdmin) {
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const hasTotp = (factors?.totp ?? []).some((factor) => factor.status === "verified");
-      navigate({ to: hasTotp ? "/admin/login" : "/admin/mfa" });
+      navigate({ to: "/admin" });
       return;
     }
 
