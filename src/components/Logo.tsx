@@ -43,8 +43,7 @@ export function Logo({
         {...dims}
         {...a11y}
         loading={loading}
-        // @ts-expect-error — fetchpriority is a valid HTML attribute not yet in React types
-        fetchpriority={fetchPriority}
+        fetchPriority={fetchPriority}
         decoding="async"
         draggable={false}
         className={className}
