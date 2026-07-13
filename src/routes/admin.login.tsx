@@ -116,6 +116,7 @@ function AdminLogin() {
       setError(err instanceof Error ? err.message : "Código inválido.");
     } finally {
       setLoading(false);
+    }
   }
 
   async function loginPasskey() {
