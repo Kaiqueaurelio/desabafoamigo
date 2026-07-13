@@ -27,8 +27,10 @@ import { Route as AdminMetricasRouteImport } from './routes/admin.metricas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
+import { Route as AdminBibliotecaRouteImport } from './routes/admin.biblioteca'
 import { Route as AdminAuditoriaRouteImport } from './routes/admin.auditoria'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
+import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedConversarRouteImport } from './routes/_authenticated/conversar'
@@ -130,6 +132,11 @@ const AdminDenunciasRoute = AdminDenunciasRouteImport.update({
   path: '/admin/denuncias',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminBibliotecaRoute = AdminBibliotecaRouteImport.update({
+  id: '/admin/biblioteca',
+  path: '/admin/biblioteca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditoriaRoute = AdminAuditoriaRouteImport.update({
   id: '/admin/auditoria',
   path: '/admin/auditoria',
@@ -139,6 +146,11 @@ const AdminAtendimentoRoute = AdminAtendimentoRouteImport.update({
   id: '/admin/atendimento',
   path: '/admin/atendimento',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRelaxarRoute = AuthenticatedRelaxarRouteImport.update({
+  id: '/relaxar',
+  path: '/relaxar',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
@@ -212,8 +224,10 @@ export interface FileRoutesByFullPath {
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/relaxar': typeof AuthenticatedRelaxarRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
+  '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -244,8 +258,10 @@ export interface FileRoutesByTo {
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/relaxar': typeof AuthenticatedRelaxarRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
+  '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -278,8 +294,10 @@ export interface FileRoutesById {
   '/_authenticated/conversar': typeof AuthenticatedConversarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
+  '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
   '/admin/auditoria': typeof AdminAuditoriaRoute
+  '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/login': typeof AdminLoginRoute
@@ -312,8 +330,10 @@ export interface FileRouteTypes {
     | '/conversar'
     | '/diario'
     | '/inicio'
+    | '/relaxar'
     | '/admin/atendimento'
     | '/admin/auditoria'
+    | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
@@ -344,8 +364,10 @@ export interface FileRouteTypes {
     | '/conversar'
     | '/diario'
     | '/inicio'
+    | '/relaxar'
     | '/admin/atendimento'
     | '/admin/auditoria'
+    | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
@@ -377,8 +399,10 @@ export interface FileRouteTypes {
     | '/_authenticated/conversar'
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
+    | '/_authenticated/relaxar'
     | '/admin/atendimento'
     | '/admin/auditoria'
+    | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/login'
@@ -407,6 +431,7 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
   AdminAuditoriaRoute: typeof AdminAuditoriaRoute
+  AdminBibliotecaRoute: typeof AdminBibliotecaRoute
   AdminDenunciasRoute: typeof AdminDenunciasRoute
   AdminIncidentesRoute: typeof AdminIncidentesRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -546,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDenunciasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/biblioteca': {
+      id: '/admin/biblioteca'
+      path: '/admin/biblioteca'
+      fullPath: '/admin/biblioteca'
+      preLoaderRoute: typeof AdminBibliotecaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/auditoria': {
       id: '/admin/auditoria'
       path: '/admin/auditoria'
@@ -559,6 +591,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/atendimento'
       preLoaderRoute: typeof AdminAtendimentoRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/relaxar': {
+      id: '/_authenticated/relaxar'
+      path: '/relaxar'
+      fullPath: '/relaxar'
+      preLoaderRoute: typeof AuthenticatedRelaxarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
@@ -647,6 +686,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConversarRoute: typeof AuthenticatedConversarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
+  AuthenticatedRelaxarRoute: typeof AuthenticatedRelaxarRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
   AuthenticatedProFilaRoute: typeof AuthenticatedProFilaRoute
   AuthenticatedProMfaRoute: typeof AuthenticatedProMfaRoute
@@ -661,6 +701,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConversarRoute: AuthenticatedConversarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
+  AuthenticatedRelaxarRoute: AuthenticatedRelaxarRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
   AuthenticatedProFilaRoute: AuthenticatedProFilaRoute,
   AuthenticatedProMfaRoute: AuthenticatedProMfaRoute,
@@ -683,6 +724,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   AdminAtendimentoRoute: AdminAtendimentoRoute,
   AdminAuditoriaRoute: AdminAuditoriaRoute,
+  AdminBibliotecaRoute: AdminBibliotecaRoute,
   AdminDenunciasRoute: AdminDenunciasRoute,
   AdminIncidentesRoute: AdminIncidentesRoute,
   AdminLoginRoute: AdminLoginRoute,
