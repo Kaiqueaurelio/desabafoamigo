@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
+import { Route as AdminPasskeysRouteImport } from './routes/admin.passkeys'
 import { Route as AdminPalavrasRouteImport } from './routes/admin.palavras'
 import { Route as AdminObservabilidadeRouteImport } from './routes/admin.observabilidade'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
@@ -95,6 +96,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const ProCadastroRoute = ProCadastroRouteImport.update({
   id: '/pro/cadastro',
   path: '/pro/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPasskeysRoute = AdminPasskeysRouteImport.update({
+  id: '/admin/passkeys',
+  path: '/admin/passkeys',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminPalavrasRoute = AdminPalavrasRouteImport.update({
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
+  '/admin/passkeys': typeof AdminPasskeysRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
+  '/admin/passkeys': typeof AdminPasskeysRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/admin/mfa': typeof AdminMfaRoute
   '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
+  '/admin/passkeys': typeof AdminPasskeysRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
@@ -341,6 +350,7 @@ export interface FileRouteTypes {
     | '/admin/mfa'
     | '/admin/observabilidade'
     | '/admin/palavras'
+    | '/admin/passkeys'
     | '/pro/cadastro'
     | '/admin/'
     | '/consulta/$id'
@@ -375,6 +385,7 @@ export interface FileRouteTypes {
     | '/admin/mfa'
     | '/admin/observabilidade'
     | '/admin/palavras'
+    | '/admin/passkeys'
     | '/pro/cadastro'
     | '/admin'
     | '/consulta/$id'
@@ -410,6 +421,7 @@ export interface FileRouteTypes {
     | '/admin/mfa'
     | '/admin/observabilidade'
     | '/admin/palavras'
+    | '/admin/passkeys'
     | '/pro/cadastro'
     | '/admin/'
     | '/_authenticated/consulta/$id'
@@ -439,6 +451,7 @@ export interface RootRouteChildren {
   AdminMfaRoute: typeof AdminMfaRoute
   AdminObservabilidadeRoute: typeof AdminObservabilidadeRoute
   AdminPalavrasRoute: typeof AdminPalavrasRoute
+  AdminPasskeysRoute: typeof AdminPasskeysRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -520,6 +533,13 @@ declare module '@tanstack/react-router' {
       path: '/pro/cadastro'
       fullPath: '/pro/cadastro'
       preLoaderRoute: typeof ProCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/passkeys': {
+      id: '/admin/passkeys'
+      path: '/admin/passkeys'
+      fullPath: '/admin/passkeys'
+      preLoaderRoute: typeof AdminPasskeysRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/palavras': {
@@ -732,6 +752,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminMfaRoute: AdminMfaRoute,
   AdminObservabilidadeRoute: AdminObservabilidadeRoute,
   AdminPalavrasRoute: AdminPalavrasRoute,
+  AdminPasskeysRoute: AdminPasskeysRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
