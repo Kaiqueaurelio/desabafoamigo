@@ -167,83 +167,26 @@ function AdminDashboard() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <div className="mb-6 grid gap-3 md:grid-cols-2">
-          <div className="flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-primary">Central de atendimento</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Acompanhe conversas em tempo real e atenda quando necessário.</p>
-            </div>
-            <Link to="/admin/atendimento" className="btn-primary shrink-0 text-center text-sm">Abrir</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-destructive">Denúncias</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Analise relatos enviados por usuários e voluntários.</p>
-            </div>
-            <Link to="/admin/denuncias" className="shrink-0 rounded-full bg-destructive px-4 py-2 text-center text-sm font-semibold text-destructive-foreground">Ver denúncias</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Incidentes de captura</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Auditoria de tentativas de screenshot (só metadados, sem conteúdo da conversa).</p>
-            </div>
-            <Link to="/admin/incidentes" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Ver incidentes</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Métricas da comunidade</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Usuários, fila, avaliações, incidentes — visão em tempo real.</p>
-            </div>
-            <Link to="/admin/metricas" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Ver métricas</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Log de auditoria</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Ações administrativas registradas para conformidade LGPD.</p>
-            </div>
-            <Link to="/admin/auditoria" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Abrir</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Palavras bloqueadas</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Termos sinalizados ou bloqueados no chat.</p>
-            </div>
-            <Link to="/admin/palavras" className="shrink-0 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold text-secondary-foreground hover:bg-muted">Gerenciar</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Observabilidade</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Erros do cliente e respostas de NPS anonimizadas.</p>
-            </div>
-            <Link to="/admin/observabilidade" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Abrir</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Biblioteca de acolhimento</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Áudios (ASMR, meditação), frases e imagens para o usuário relaxar.</p>
-            </div>
-            <Link to="/admin/biblioteca" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Gerenciar</Link>
-          </div>
-          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Chaves de acesso (passkeys)</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">Entre com biometria (Windows Hello, Touch ID, Face ID, Android) sem digitar o código de 6 dígitos.</p>
-            </div>
-            <Link to="/admin/passkeys" className="shrink-0 rounded-full bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary hover:bg-primary/20">Gerenciar</Link>
-          </div>
-        </div>
+      <div className="mx-auto max-w-6xl gap-6 px-4 py-6 md:flex">
+        <AdminSidebar />
 
+        <div className="min-w-0 flex-1">
+          <AdminSidebarMobile />
 
+          <div className="mb-5">
+            <h1 className="text-xl font-semibold text-foreground">Voluntários</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Analise inscrições, aprove novos voluntários e acompanhe indicadores rápidos da comunidade.
+            </p>
+          </div>
 
-        {/* Stats */}
-        <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard icon={<Clock className="size-5 text-brand-green" />} label="Pendentes" value={counts.pending} />
-          <StatCard icon={<ShieldCheck className="size-5 text-brand-green" />} label="Voluntários ativos" value={counts.approved} />
-          <StatCard icon={<MessageCircleHeart className="size-5 text-brand-green" />} label="Conversas totais" value={stats.appointments} />
-          <StatCard icon={<Users className="size-5 text-brand-green" />} label="Conversas ativas" value={stats.upcoming} />
-
-        </section>
+          {/* Stats */}
+          <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard icon={<Clock className="size-5 text-brand-green" />} label="Pendentes" value={counts.pending} />
+            <StatCard icon={<ShieldCheck className="size-5 text-brand-green" />} label="Voluntários ativos" value={counts.approved} />
+            <StatCard icon={<MessageCircleHeart className="size-5 text-brand-green" />} label="Conversas totais" value={stats.appointments} />
+            <StatCard icon={<Users className="size-5 text-brand-green" />} label="Conversas ativas" value={stats.upcoming} />
+          </section>
 
         {/* Tabs */}
         <div className="mb-4 flex gap-2">
