@@ -57,6 +57,7 @@ function Fila() {
       list.forEach((r) => { r.alias = pm.get(r.user_id) ?? "Anônimo"; r.summary = sm.get(r.user_id) ?? ""; });
     }
     setRows(list);
+    setLoading(false);
   }
 
   useEffect(() => {
