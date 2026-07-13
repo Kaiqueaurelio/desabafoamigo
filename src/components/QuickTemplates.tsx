@@ -1,11 +1,9 @@
-import { useState } from "react";
-import { MessageSquareHeart, ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MessageSquareHeart, ChevronDown, Settings2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-/**
- * Templates de acolhimento para voluntários — inserção rápida no chat.
- * Não substituem escuta ativa: são pontos de partida.
- */
-const TEMPLATES: { group: string; items: string[] }[] = [
+/** Templates de acolhimento (globais + pessoais do voluntário). */
+const GLOBAL: { group: string; items: string[] }[] = [
   {
     group: "Abertura",
     items: [
@@ -40,8 +38,28 @@ const TEMPLATES: { group: string; items: string[] }[] = [
   },
 ];
 
+type Personal = { id: string; label: string; body: string; category: string };
+
 export function QuickTemplates({ onPick }: { onPick: (text: string) => void }) {
   const [open, setOpen] = useState(false);
+  const [mine, setMine] = useState<Personal[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await supabase
+        .from("volunteer_templates")
+        .select("id, label, body, category")
+        .order("position", { ascending: true })
+        .order("created_at", { ascending: true });
+      setMine((data ?? []) as Personal[]);
+    })();
+  }, [open]);
+
+  const byCategory = mine.reduce<Record<string, Personal[]>>((acc, t) => {
+    (acc[t.category] ??= []).push(t);
+    return acc;
+  }, {});
 
   return (
     <div className="relative">
@@ -59,9 +77,36 @@ export function QuickTemplates({ onPick }: { onPick: (text: string) => void }) {
       {open && (
         <div
           role="menu"
-          className="absolute bottom-full left-0 z-30 mb-2 max-h-80 w-80 overflow-y-auto rounded-2xl border border-border bg-popover p-3 shadow-lg"
+          className="absolute bottom-full left-0 z-30 mb-2 max-h-96 w-80 overflow-y-auto rounded-2xl border border-border bg-popover p-3 shadow-lg"
         >
-          {TEMPLATES.map((g) => (
+          {mine.length > 0 && (
+            <>
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary">Meus modelos</p>
+              {Object.entries(byCategory).map(([cat, items]) => (
+                <div key={cat} className="mb-2">
+                  <p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">{cat}</p>
+                  <ul className="space-y-1">
+                    {items.map((t) => (
+                      <li key={t.id}>
+                        <button
+                          type="button"
+                          onClick={() => { onPick(t.body); setOpen(false); }}
+                          className="w-full rounded-lg border border-primary/20 bg-brand-soft/40 px-2 py-1.5 text-left text-[12px] leading-snug text-foreground hover:border-primary hover:bg-brand-soft"
+                          title={t.body}
+                        >
+                          <span className="font-medium">{t.label}</span>
+                          <span className="block truncate text-[11px] text-muted-foreground">{t.body}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <div className="my-2 h-px bg-border" />
+            </>
+          )}
+
+          {GLOBAL.map((g) => (
             <div key={g.group} className="mb-2 last:mb-0">
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {g.group}
@@ -81,9 +126,13 @@ export function QuickTemplates({ onPick }: { onPick: (text: string) => void }) {
               </ul>
             </div>
           ))}
-          <p className="mt-2 border-t border-border pt-2 text-[10px] text-muted-foreground">
-            Adapte sempre à pessoa que está do outro lado. Templates são só apoio.
-          </p>
+
+          <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-[10px] text-muted-foreground">
+            <span>Adapte à pessoa — templates são só apoio.</span>
+            <a href="/pro/perfil#modelos" className="inline-flex items-center gap-1 text-primary hover:underline">
+              <Settings2 className="size-3" /> gerenciar
+            </a>
+          </div>
         </div>
       )}
     </div>
