@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
+import { PasswordInput } from "@/components/PasswordInput";
 import { Sparkles } from "lucide-react";
 import { z } from "zod";
 
@@ -87,7 +88,10 @@ function AuthPage() {
 
         <form onSubmit={submit} className="mt-5 space-y-3">
           <Input label="E-mail" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
-          <Input label="Senha" type="password" value={password} onChange={setPassword} placeholder="••••••" />
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-muted-foreground">Senha</span>
+            <PasswordInput value={password} onChange={setPassword} placeholder="••••••" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+          </label>
           {err && <p className="text-sm text-destructive">{err}</p>}
           <button disabled={loading} type="submit" className="btn-primary w-full">
             {loading ? "Enviando..." : mode === "signup" ? "Criar conta" : "Entrar"}

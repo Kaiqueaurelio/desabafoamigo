@@ -145,17 +145,13 @@ function AdminLogin() {
             </div>
             <div>
               <label htmlFor="password" className="mb-1 block text-sm font-medium text-foreground">Senha</label>
-              <input
+              <PasswordInput
                 id="password"
-                type="password"
-                autoComplete="current-password"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
+                onChange={setPassword}
+                autoComplete="current-password"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 pr-10 outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
