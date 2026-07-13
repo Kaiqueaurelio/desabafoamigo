@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { clearStoredPasskeyToken } from "@/lib/passkeys";
+import { clearStoredPasskeyToken } from "@/lib/passkeyToken";
 
 /**
  * Logout robusto: encerra a sessão Supabase, limpa tokens de biometria
