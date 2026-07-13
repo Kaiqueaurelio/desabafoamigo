@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
 import { Route as AdminPalavrasRouteImport } from './routes/admin.palavras'
+import { Route as AdminObservabilidadeRouteImport } from './routes/admin.observabilidade'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
 import { Route as AdminMetricasRouteImport } from './routes/admin.metricas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -97,6 +98,11 @@ const ProCadastroRoute = ProCadastroRouteImport.update({
 const AdminPalavrasRoute = AdminPalavrasRouteImport.update({
   id: '/admin/palavras',
   path: '/admin/palavras',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminObservabilidadeRoute = AdminObservabilidadeRouteImport.update({
+  id: '/admin/observabilidade',
+  path: '/admin/observabilidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminMfaRoute = AdminMfaRouteImport.update({
@@ -213,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
+  '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
+  '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
+  '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
+    | '/admin/observabilidade'
     | '/admin/palavras'
     | '/pro/cadastro'
     | '/admin/'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
+    | '/admin/observabilidade'
     | '/admin/palavras'
     | '/pro/cadastro'
     | '/admin'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
+    | '/admin/observabilidade'
     | '/admin/palavras'
     | '/pro/cadastro'
     | '/admin/'
@@ -400,6 +412,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMetricasRoute: typeof AdminMetricasRoute
   AdminMfaRoute: typeof AdminMfaRoute
+  AdminObservabilidadeRoute: typeof AdminObservabilidadeRoute
   AdminPalavrasRoute: typeof AdminPalavrasRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -489,6 +502,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/palavras'
       fullPath: '/admin/palavras'
       preLoaderRoute: typeof AdminPalavrasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/observabilidade': {
+      id: '/admin/observabilidade'
+      path: '/admin/observabilidade'
+      fullPath: '/admin/observabilidade'
+      preLoaderRoute: typeof AdminObservabilidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/mfa': {
@@ -668,6 +688,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminMetricasRoute: AdminMetricasRoute,
   AdminMfaRoute: AdminMfaRoute,
+  AdminObservabilidadeRoute: AdminObservabilidadeRoute,
   AdminPalavrasRoute: AdminPalavrasRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
