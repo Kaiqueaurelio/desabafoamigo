@@ -20,15 +20,20 @@ export function isPasskeySupported(): boolean {
   );
 }
 
+// Guarda o token em localStorage para persistir entre sessões do navegador.
+// A validade é garantida pelo servidor via HMAC + expiração (8h) — nenhum
+// dado sensível fica exposto: o token é opaco e revogável ao apagar a chave.
 export function getStoredPasskeyToken(scope: string): string | null {
   try {
-    return sessionStorage.getItem(TOKEN_KEY(scope));
+    return localStorage.getItem(TOKEN_KEY(scope))
+      ?? sessionStorage.getItem(TOKEN_KEY(scope));
   } catch {
     return null;
   }
 }
 export function clearStoredPasskeyToken(scope: string) {
   try {
+    localStorage.removeItem(TOKEN_KEY(scope));
     sessionStorage.removeItem(TOKEN_KEY(scope));
   } catch {
     /* noop */
@@ -36,7 +41,7 @@ export function clearStoredPasskeyToken(scope: string) {
 }
 function storePasskeyToken(scope: string, token: string) {
   try {
-    sessionStorage.setItem(TOKEN_KEY(scope), token);
+    localStorage.setItem(TOKEN_KEY(scope), token);
   } catch {
     /* noop */
   }
