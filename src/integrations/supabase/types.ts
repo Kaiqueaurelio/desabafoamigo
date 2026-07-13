@@ -294,6 +294,45 @@ export type Database = {
         }
         Relationships: []
       }
+      lgpd_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          file_path: string | null
+          format: string | null
+          id: string
+          kind: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          file_path?: string | null
+          format?: string | null
+          id?: string
+          kind: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          file_path?: string | null
+          format?: string | null
+          id?: string
+          kind?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       library_audios: {
         Row: {
           audio_url: string
