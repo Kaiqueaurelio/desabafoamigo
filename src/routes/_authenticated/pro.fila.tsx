@@ -7,6 +7,9 @@ import { matchQueueEntry } from "@/lib/queue.functions";
 import { Users, Clock } from "lucide-react";
 import { avatarUrl } from "@/lib/avatar";
 import { QueueNotifier } from "@/components/QueueNotifier";
+import { QueueSkeleton } from "@/components/QueueSkeleton";
+import { WellbeingCard } from "@/components/WellbeingCard";
+import { registerConversationStart } from "@/lib/volunteerWellbeing";
 
 export const Route = createFileRoute("/_authenticated/pro/fila")({
   beforeLoad: async ({ context }) => {
