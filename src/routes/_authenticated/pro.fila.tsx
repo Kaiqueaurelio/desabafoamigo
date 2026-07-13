@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,7 +67,7 @@ function Fila() {
     try {
       const { appointmentId } = await match({ data: { queueId: id } });
       navigate({ to: "/consulta/$id", params: { id: appointmentId } });
-    } catch (e) { alert(e instanceof Error ? e.message : "Erro"); setBusy(null); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Erro"); setBusy(null); }
   }
 
   return (

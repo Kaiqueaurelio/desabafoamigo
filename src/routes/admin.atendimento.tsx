@@ -1,4 +1,5 @@
 import { secureSignOut } from "@/lib/secureSignOut";
+import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -92,7 +93,7 @@ function AdminAtendimento() {
       const { appointmentId } = await match({ data: { queueId: id } });
       navigate({ to: "/consulta/$id", params: { id: appointmentId } });
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Erro ao assumir da fila.");
+      toast.error(e instanceof Error ? e.message : "Erro ao assumir da fila.");
       setPickBusy(null);
     }
   }

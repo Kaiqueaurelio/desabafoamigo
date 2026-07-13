@@ -1,4 +1,5 @@
 import { secureSignOut } from "@/lib/secureSignOut";
+import { toast } from "sonner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -33,7 +34,7 @@ function SettingsPage() {
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     } catch (e) {
-      alert((e as Error).message ?? "Não foi possível exportar.");
+      toast.error((e as Error).message ?? "Não foi possível exportar.");
     } finally { setExporting(false); }
   }
 

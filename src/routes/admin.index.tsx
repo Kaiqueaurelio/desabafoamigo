@@ -1,4 +1,5 @@
 import { secureSignOut } from "@/lib/secureSignOut";
+import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -102,7 +103,7 @@ function AdminDashboard() {
       setSelected(null);
       await refresh();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro ao aprovar.");
+      toast.error(err instanceof Error ? err.message : "Erro ao aprovar.");
     } finally {
       setBusy(false);
     }
@@ -125,7 +126,7 @@ function AdminDashboard() {
       setRejectReason("");
       await refresh();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro ao rejeitar.");
+      toast.error(err instanceof Error ? err.message : "Erro ao rejeitar.");
     } finally {
       setBusy(false);
     }
