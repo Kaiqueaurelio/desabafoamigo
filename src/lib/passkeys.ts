@@ -1,8 +1,4 @@
 import {
-  startRegistration,
-  startAuthentication,
-} from "@simplewebauthn/browser";
-import {
   passkeyAuthOptions,
   passkeyAuthVerify,
   passkeyRegisterOptions,
@@ -30,6 +26,7 @@ export async function registerPasskey(opts: {
   scope: "admin" | "pro" | "user";
   deviceName?: string;
 }) {
+  const { startRegistration } = await import("@simplewebauthn/browser");
   const { options, deviceName } = await passkeyRegisterOptions({
     data: { scope: opts.scope, deviceName: opts.deviceName },
   });
@@ -44,6 +41,7 @@ export async function loginWithPasskey(opts: {
   email?: string;
   scope: "admin" | "pro" | "user";
 }) {
+  const { startAuthentication } = await import("@simplewebauthn/browser");
   const { options } = await passkeyAuthOptions({
     data: { email: opts.email, scope: opts.scope },
   });
