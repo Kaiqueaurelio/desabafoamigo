@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
+import { PasswordInput } from "@/components/PasswordInput";
 import { ShieldCheck } from "lucide-react";
 import { checkMfaLock, recordMfaAttempt, formatLockMessage } from "@/lib/mfaRateLimit";
 

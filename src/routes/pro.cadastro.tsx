@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
+import { PasswordInput } from "@/components/PasswordInput";
 import { z } from "zod";
 
 export const Route = createFileRoute("/pro/cadastro")({
@@ -96,7 +97,7 @@ function ProSignup() {
         <form onSubmit={submit} className="mt-6 grid gap-3 sm:grid-cols-2">
           <Field label="Nome completo"><input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} className="inp" /></Field>
           <Field label="E-mail"><input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} className="inp" /></Field>
-          <Field label="Senha"><PasswordInput value={form.password} onChange={(v) => set("password", v)} autoComplete="new-password" className="inp pr-10" /></Field>
+          <Field label="Senha"><PasswordInput value={form.password} onChange={(v: string) => set("password", v)} autoComplete="new-password" className="inp pr-10" /></Field>
           <Field label="Especialidade / área"><input placeholder="Ex.: Escuta ativa, apoio emocional" value={form.specialty} onChange={(e) => set("specialty", e.target.value)} className="inp" /></Field>
           <Field label="Formação / experiência" full><input value={form.credentials} onChange={(e) => set("credentials", e.target.value)} className="inp" /></Field>
           <Field label="Biografia (visível para quem busca escuta)" full><textarea rows={3} value={form.bio} onChange={(e) => set("bio", e.target.value)} className="inp" /></Field>
