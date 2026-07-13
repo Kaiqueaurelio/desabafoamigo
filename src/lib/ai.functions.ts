@@ -61,13 +61,39 @@ export const suggestReplies = createServerFn({ method: "POST" })
       .slice(0, 4000);
     if (!lines) return { suggestions: [] as string[] };
 
+    // v2: contexto emocional — humor recente e temas do diário do usuário
+    let mood_ctx = "";
+    if (conv.user_id) {
+      const [{ data: moods }, { data: journal }] = await Promise.all([
+        supabase
+          .from("mood_entries")
+          .select("mood, note, created_at")
+          .eq("user_id", conv.user_id)
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase
+          .from("user_summaries")
+          .select("summary, technical_details, created_at")
+          .eq("user_id", conv.user_id)
+          .order("created_at", { ascending: false })
+          .limit(1),
+      ]);
+      const moodLine = (moods ?? [])
+        .map((m) => `humor ${m.mood}/5${m.note ? ` (${m.note.slice(0, 60)})` : ""}`)
+        .join(", ");
+      const prevSummary = journal?.[0]?.summary?.slice(0, 400) ?? "";
+      if (moodLine || prevSummary) {
+        mood_ctx = `Contexto anterior desta pessoa (para você entender melhor, NÃO cite explicitamente): ${moodLine}${prevSummary ? `. Resumo de conversa anterior: ${prevSummary}` : ""}.`;
+      }
+    }
+
     const { chatCompletion } = await import("./ai-gateway.server");
     const raw = await chatCompletion({
       model: "google/gemini-3-flash-preview",
       messages: [
         {
           role: "system",
-          content: `Você ajuda um(a) voluntário(a) de escuta acolhedora a responder. Gere 3 sugestões CURTAS (máx 220 caracteres cada), empáticas, sem julgar, sem dar diagnóstico, sem prometer resultado. Use validação emocional e perguntas abertas. Responda APENAS JSON: {"suggestions":["...","...","..."]}. Português do Brasil.`,
+          content: `Você ajuda um(a) voluntário(a) de escuta acolhedora a responder. Gere 3 sugestões CURTAS (máx 220 caracteres cada), empáticas, sem julgar, sem dar diagnóstico, sem prometer resultado. Use validação emocional e perguntas abertas. Responda APENAS JSON: {"suggestions":["...","...","..."]}. Português do Brasil.${mood_ctx ? `\n${mood_ctx}` : ""}`,
         },
         { role: "user", content: lines },
       ],
@@ -81,6 +107,7 @@ export const suggestReplies = createServerFn({ method: "POST" })
       return { suggestions: [] as string[] };
     }
   });
+
 
 // ===== Onda 2: Chatbot de triagem antes da fila =====
 type TriageTurn = { role: "user" | "assistant"; content: string };

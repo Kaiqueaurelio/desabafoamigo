@@ -850,6 +850,39 @@ export type Database = {
           },
         ]
       }
+      volunteer_templates: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          id: string
+          label: string
+          position: number
+          updated_at: string
+          volunteer_id: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          id?: string
+          label: string
+          position?: number
+          updated_at?: string
+          volunteer_id: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          id?: string
+          label?: string
+          position?: number
+          updated_at?: string
+          volunteer_id?: string
+        }
+        Relationships: []
+      }
       volunteers: {
         Row: {
           applied_at: string

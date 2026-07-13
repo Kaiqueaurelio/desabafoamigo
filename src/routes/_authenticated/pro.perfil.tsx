@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureProAal2 } from "@/lib/proGuard";
+import { VolunteerTemplatesManager } from "@/components/VolunteerTemplatesManager";
 
 export const Route = createFileRoute("/_authenticated/pro/perfil")({
   beforeLoad: async ({ context }) => {
@@ -54,6 +55,8 @@ function ProProfile() {
         <button onClick={save} disabled={busy} className="btn-primary">{busy ? "Salvando..." : "Salvar"}</button>
       </div>
       <style>{`.inp{width:100%;border-radius:0.5rem;border:1px solid var(--color-border);background:var(--color-background);padding:0.5rem 0.75rem;font-size:0.875rem;outline:none}.inp:focus{border-color:var(--color-primary)}`}</style>
+
+      <VolunteerTemplatesManager />
     </div>
   );
 }
