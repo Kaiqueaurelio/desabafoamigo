@@ -1,6 +1,6 @@
 import { redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { hasValidPasskeyToken } from "@/lib/passkeys";
+import { hasValidPasskeyToken } from "@/lib/passkeyToken";
 
 /**
  * Guard para rotas /pro/*.
