@@ -19,7 +19,6 @@ function ProMfa() {
   const [mode, setMode] = useState<Mode>("loading");
   const [factorId, setFactorId] = useState<string | null>(null);
   const [challengeId, setChallengeId] = useState<string | null>(null);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -55,9 +54,6 @@ function ProMfa() {
         if (error) throw error;
         setFactorId(data.id);
         setSecret(data.totp.secret);
-        const QRCode = (await import("qrcode")).default;
-        const url = await QRCode.toDataURL(data.totp.uri, { margin: 1, width: 220 });
-        setQrDataUrl(url);
         setMode("enroll");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Falha ao iniciar 2FA.");
@@ -133,23 +129,15 @@ function ProMfa() {
               <div className="space-y-4">
                 <ol className="list-decimal space-y-1 pl-5 text-sm text-foreground">
                   <li>Abra um app autenticador (Google Authenticator, Authy, 1Password…).</li>
-                  <li>Escaneie o QR code ou insira a chave manualmente.</li>
+                  <li>Copie a chave abaixo e adicione manualmente no app autenticador.</li>
                   <li>Digite abaixo o código de 6 dígitos gerado.</li>
                 </ol>
-                {qrDataUrl && (
-                  <div className="flex flex-col items-center gap-2">
-                    <img
-                      src={qrDataUrl}
-                      alt="QR Code para autenticador"
-                      className="rounded-lg border border-border bg-white p-2"
-                      width={220}
-                      height={220}
-                    />
-                    {secret && (
-                      <code className="select-all break-all rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
-                        {secret}
-                      </code>
-                    )}
+                {secret && (
+                  <div className="rounded-lg border border-border bg-muted p-3">
+                    <p className="mb-1 text-xs font-medium text-muted-foreground">Chave manual</p>
+                    <code className="block select-all break-all text-sm text-foreground">
+                      {secret}
+                    </code>
                   </div>
                 )}
               </div>

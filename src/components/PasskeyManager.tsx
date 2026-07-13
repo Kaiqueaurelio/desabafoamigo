@@ -70,8 +70,8 @@ export function PasskeyManager({ scope }: { scope: "admin" | "pro" | "user" }) {
   if (!supported) {
     return (
       <div className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
-        Seu navegador não suporta chaves de acesso (WebAuthn). Use um navegador moderno em
-        Windows Hello, Touch ID, Face ID, Android ou uma chave de segurança física.
+        Chaves de acesso estão temporariamente indisponíveis. Para manter sua conta segura,
+        use senha + código de 6 dígitos enquanto finalizamos essa opção.
       </div>
     );
   }
