@@ -24,6 +24,32 @@ function AuthPage() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function signInAndRoute(normalizedEmail: string, normalizedPassword: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password: normalizedPassword,
+    });
+    if (error) throw error;
+
+    const userId = data.user?.id;
+    if (!userId) throw new Error("Não foi possível iniciar a sessão.");
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    const isAdmin = (roles ?? []).some((role) => role.role === "admin");
+    if (isAdmin) {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const hasTotp = (factors?.totp ?? []).some((factor) => factor.status === "verified");
+      navigate({ to: hasTotp ? "/admin/login" : "/admin/mfa" });
+      return;
+    }
+
+    navigate({ to: "/inicio" });
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr("");
@@ -38,10 +64,17 @@ function AuthPage() {
           email: normalizedEmail, password: normalizedPassword,
           options: { emailRedirectTo: `${window.location.origin}/inicio` },
         });
+        if (error) {
+          const lower = error.message.toLowerCase();
+          if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
+            await signInAndRoute(normalizedEmail, normalizedPassword);
+            return;
+          }
+        }
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password: normalizedPassword });
-        if (error) throw error;
+        await signInAndRoute(normalizedEmail, normalizedPassword);
+        return;
       }
       navigate({ to: "/inicio" });
     } catch (e) {
@@ -49,7 +82,7 @@ function AuthPage() {
       const lower = raw.toLowerCase();
       if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
         setMode("signin");
-        setErr("Este e-mail já tem cadastro. Digite sua senha para entrar.");
+        setErr("Este e-mail já tem cadastro. Tentei entrar com a senha digitada, mas ela não conferiu.");
       } else if (lower.includes("invalid login") || lower.includes("invalid_credentials")) {
         setErr("E-mail ou senha incorretos.");
       } else if (lower.includes("email not confirmed")) {
@@ -100,7 +133,7 @@ function AuthPage() {
           </button>
         </form>
 
-        <button onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-primary">
+        <button type="button" onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-primary">
           {mode === "signup" ? "Já tenho conta" : "Criar conta"}
         </button>
         <p className="mt-6 text-center text-xs text-muted-foreground">
