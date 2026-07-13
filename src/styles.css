@@ -258,6 +258,21 @@
   }
 }
 
+/* Manual "reduce motion" preference from Aparência settings */
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Density presets applied via [data-density] on <html> */
+:root[data-density="compact"] { --density-y: 0.35rem; --density-x: 0.6rem; }
+:root[data-density="cozy"]    { --density-y: 0.6rem;  --density-x: 0.85rem; }
+:root[data-density="comfortable"] { --density-y: 0.9rem; --density-x: 1.1rem; }
+:root[data-density="compact"] table td, :root[data-density="compact"] table th { padding-top: 0.4rem; padding-bottom: 0.4rem; }
+:root[data-density="comfortable"] table td, :root[data-density="comfortable"] table th { padding-top: 1rem; padding-bottom: 1rem; }
+
 /* ============================================================
  * Acessibilidade — classes aplicadas em <html> via src/lib/a11y.ts
  * ============================================================ */
