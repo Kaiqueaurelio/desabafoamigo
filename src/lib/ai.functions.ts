@@ -67,19 +67,19 @@ export const suggestReplies = createServerFn({ method: "POST" })
       const [{ data: moods }, { data: journal }] = await Promise.all([
         supabase
           .from("mood_entries")
-          .select("score, note, created_at")
+          .select("mood, note, created_at")
           .eq("user_id", conv.user_id)
           .order("created_at", { ascending: false })
           .limit(5),
         supabase
           .from("user_summaries")
-          .select("summary, technical, created_at")
+          .select("summary, technical_details, created_at")
           .eq("user_id", conv.user_id)
           .order("created_at", { ascending: false })
           .limit(1),
       ]);
       const moodLine = (moods ?? [])
-        .map((m) => `humor ${m.score}/5${m.note ? ` (${m.note.slice(0, 60)})` : ""}`)
+        .map((m) => `humor ${m.mood}/5${m.note ? ` (${m.note.slice(0, 60)})` : ""}`)
         .join(", ");
       const prevSummary = journal?.[0]?.summary?.slice(0, 400) ?? "";
       if (moodLine || prevSummary) {
