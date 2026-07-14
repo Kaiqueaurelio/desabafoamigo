@@ -171,6 +171,15 @@ export function AmbientSounds() {
       aria-label="Sons ambientais"
       className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
     >
+      {/* Região aria-live para anunciar pausa/retomada aos leitores de tela */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
       <div className="mb-3 flex items-center gap-2">
         <Music4 className="size-4 text-sky-300" />
         <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
