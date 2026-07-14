@@ -607,28 +607,7 @@ function Journey() {
 }
 
 function Voices() {
-  const phrases = [
-    "Você não precisa ter tudo resolvido pra falar.",
-    "Falar já é um começo.",
-    "Você merece um espaço só seu.",
-    "Chorar aqui também é bem-vindo.",
-    "Silêncios não incomodam.",
-    "Uma respiração de cada vez.",
-    "O seu ritmo é o ritmo certo.",
-    "Ninguém te julga aqui.",
-  ];
-  const loop = [...phrases, ...phrases];
-  return (
-    <section aria-hidden className="relative overflow-hidden bg-primary py-10 text-primary-foreground">
-      <div className="animate-marquee-slow flex whitespace-nowrap">
-        {loop.map((p, i) => (
-          <span key={i} className="mx-8 text-lg font-medium md:text-2xl">
-            {p} <span className="mx-4 opacity-40">∞</span>
-          </span>
-        ))}
-      </div>
-    </section>
-  );
+  return <InfinityBand />;
 }
 
 function Testimonials() {
