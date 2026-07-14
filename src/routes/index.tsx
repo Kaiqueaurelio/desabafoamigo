@@ -118,6 +118,7 @@ function CountUp({ target, suffix = "", duration = 1400 }: { target: number; suf
 }
 
 function Landing() {
+  useSmoothAnchors();
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
       <ScrollProgress />
