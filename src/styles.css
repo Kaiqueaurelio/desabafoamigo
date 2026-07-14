@@ -168,6 +168,25 @@
   &:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 }
 
+/* Standardized interactive states for nav items, cards and icon buttons.
+   Guarantees a visible focus ring, consistent hover lift and active feedback. */
+@utility interactive {
+  position: relative;
+  transition: transform 0.18s ease, background-color 0.18s ease,
+              border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+  &:hover { transform: translateY(-1px); }
+  &:active { transform: translateY(0) scale(0.98); }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-ring) 55%, transparent);
+    border-radius: 12px;
+  }
+  &:disabled, &[aria-disabled="true"] {
+    opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none;
+  }
+}
+
+
 @utility input {
   width: 100%;
   background-color: color-mix(in oklch, var(--color-background) 70%, transparent);

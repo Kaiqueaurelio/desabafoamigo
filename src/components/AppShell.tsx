@@ -112,31 +112,32 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             onClick={toggle}
             aria-label="Abrir menu lateral"
             title="Abrir menu"
-            className="grid size-10 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            <PanelLeftOpen className="size-4" />
+            <PanelLeftOpen aria-hidden className="size-4" />
           </button>
-          <Link to="/inicio" aria-label="Início" className="mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15 transition hover:scale-105">
+          <Link to="/inicio" aria-label="Início" className="interactive mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15">
             <Logo responsive decorative priority className="h-7 w-7" />
           </Link>
           <div className="mt-2 flex flex-col items-center gap-1">
             {patientNav.slice(0, 5).map((it) => {
               const active = pathname.startsWith(it.to);
               return (
-                <Link key={it.to} to={it.to} aria-label={it.label} title={it.label}
-                  className={`grid size-10 place-items-center rounded-xl transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
-                  <it.icon className="size-4" />
+                <Link key={it.to} to={it.to} aria-label={it.label} aria-current={active ? "page" : undefined} title={it.label}
+                  className={`interactive grid size-10 place-items-center rounded-xl ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+                  <it.icon aria-hidden className="size-4" />
                 </Link>
               );
             })}
           </div>
           <div className="mt-auto">
-            <button onClick={signOut} aria-label="Sair" title="Sair" className="grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
-              <LogOut className="size-4" />
+            <button onClick={signOut} aria-label="Sair" title="Sair" className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
+              <LogOut aria-hidden className="size-4" />
             </button>
           </div>
         </aside>
       )}
+
 
 
       <div className="flex flex-1 flex-col">
@@ -151,7 +152,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         </header>
 
         <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
-        <nav className="grid grid-cols-4 border-t border-border bg-card md:hidden">
+        <nav aria-label="Navegação principal" className="grid grid-cols-4 border-t border-border bg-card md:hidden">
           {[
             { to: "/inicio", label: "Início", icon: Home },
             { to: "/conversar", label: "Conversar", icon: HeartHandshake },
@@ -160,13 +161,15 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           ].map((it) => {
             const active = pathname.startsWith(it.to);
             return (
-              <Link key={it.to} to={it.to} className={`flex flex-col items-center gap-1 py-2 text-[10px] transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
-                <it.icon className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`} />
+              <Link key={it.to} to={it.to} aria-current={active ? "page" : undefined} aria-label={it.label}
+                className={`interactive flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                <it.icon aria-hidden className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`} />
                 {it.label}
               </Link>
             );
           })}
         </nav>
+
       </div>
       <EmergencyButton />
       <OnboardingModal />
@@ -184,15 +187,16 @@ function NavGroup({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; label: string; icon: typeof Home; active: boolean; highlight?: boolean }) {
-  const base = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition";
+  const base = "interactive flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
   const cls = active
     ? "bg-primary/10 font-medium text-primary"
     : highlight
       ? "bg-gradient-to-r from-sky-500/10 to-transparent text-sky-700 hover:from-sky-500/20 dark:text-sky-300"
       : "text-foreground hover:bg-muted";
   return (
-    <Link to={to} className={`${base} ${cls}`}>
-      <Icon className={`size-4 ${highlight && !active ? "text-sky-500" : ""}`} /> {label}
+    <Link to={to} aria-current={active ? "page" : undefined} className={`${base} ${cls}`}>
+      <Icon aria-hidden className={`size-4 ${highlight && !active ? "text-sky-500" : ""}`} /> {label}
     </Link>
   );
 }
+

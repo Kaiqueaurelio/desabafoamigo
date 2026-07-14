@@ -129,7 +129,7 @@ function Home() {
           <div className="space-y-2">
             {upcoming.map((a) => (
               <Link key={a.id} to="/consulta/$id" params={{ id: a.id }}
-                className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40 hover:shadow-sm">
+                className="interactive flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-sm">
                 <div className="min-w-0">
                   <p className="truncate font-medium text-foreground">{a.topic}</p>
                   <p className="truncate text-xs text-muted-foreground">{names[a.professional_id] ?? "Voluntário(a)"}</p>
@@ -141,6 +141,7 @@ function Home() {
               </Link>
             ))}
           </div>
+
         )}
       </section>
 
@@ -158,13 +159,13 @@ function QuickCard({ to, icon, title, desc, tone }: { to: string; icon: React.Re
   return (
     <Link
       to={to}
-      className={`group hover-lift rounded-2xl border p-5 transition ${
+      className={`group interactive hover-lift block rounded-2xl border p-5 ${
         tone === "primary"
           ? "border-primary/30 bg-gradient-to-br from-primary/8 to-card hover:border-primary/50"
           : "border-border bg-card hover:border-primary/40"
       }`}
     >
-      <div className={`mb-3 grid size-10 place-items-center rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${
+      <div aria-hidden className={`mb-3 grid size-10 place-items-center rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${
         tone === "primary" ? "bg-primary/15 text-primary" : "bg-brand-soft text-primary"
       }`}>{icon}</div>
       <p className="font-semibold text-foreground">{title}</p>
@@ -172,4 +173,5 @@ function QuickCard({ to, icon, title, desc, tone }: { to: string; icon: React.Re
     </Link>
   );
 }
+
 

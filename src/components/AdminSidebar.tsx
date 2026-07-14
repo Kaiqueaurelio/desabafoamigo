@@ -139,16 +139,18 @@ export function AdminSidebar() {
                   <li key={item.to}>
                     <Link
                       to={item.to}
-                      className={`group relative flex items-center gap-2.5 overflow-hidden rounded-lg px-2 py-2 text-sm transition-all duration-200 ease-out press ${
+                      aria-current={active ? "page" : undefined}
+                      className={`group interactive relative flex items-center gap-2.5 overflow-hidden rounded-lg px-2 py-2 text-sm press ${
                         active
                           ? "bg-primary/12 font-semibold text-primary shadow-sm"
-                          : "text-foreground/85 hover:translate-x-0.5 hover:bg-muted"
+                          : "text-foreground/85 hover:bg-muted"
                       }`}
                     >
                       {active && <span aria-hidden className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
-                      <Icon className={`size-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${active ? "text-primary" : toneRing} group-hover:text-foreground`} />
+                      <Icon aria-hidden className={`size-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${active ? "text-primary" : toneRing} group-hover:text-foreground`} />
                       <span className="truncate">{item.label}</span>
                     </Link>
+
                   </li>
                 );
               })}
@@ -182,10 +184,10 @@ export function AdminSidebarMobile() {
             to={item.to}
             aria-current={active ? "page" : undefined}
             title={item.label}
-            className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm font-medium leading-none transition active:scale-[0.97] ${
+            className={`interactive inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm font-medium leading-none ${
               active
                 ? "border-primary bg-primary/12 text-primary shadow-sm"
-                : "border-border bg-card text-muted-foreground hover:text-foreground"
+                : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
             }`}
           >
             <Icon className="size-4 shrink-0" />
