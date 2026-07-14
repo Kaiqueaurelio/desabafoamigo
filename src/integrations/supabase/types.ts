@@ -797,6 +797,51 @@ export type Database = {
         }
         Relationships: []
       }
+      push_delivery_log: {
+        Row: {
+          created_at: string
+          endpoint_host: string | null
+          endpoint_tail: string | null
+          error_body: string | null
+          id: string
+          stale: boolean
+          status_code: number | null
+          subscription_id: string | null
+          success: boolean
+          tag: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint_host?: string | null
+          endpoint_tail?: string | null
+          error_body?: string | null
+          id?: string
+          stale?: boolean
+          status_code?: number | null
+          subscription_id?: string | null
+          success?: boolean
+          tag?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint_host?: string | null
+          endpoint_tail?: string | null
+          error_body?: string | null
+          id?: string
+          stale?: boolean
+          status_code?: number | null
+          subscription_id?: string | null
+          success?: boolean
+          tag?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           active: boolean
@@ -1391,6 +1436,7 @@ export type Database = {
       }
       purge_ended_conversations: { Args: never; Returns: undefined }
       purge_old_incidents: { Args: never; Returns: undefined }
+      purge_old_push_logs: { Args: never; Returns: undefined }
       record_mfa_attempt: {
         Args: { _scope: string; _success: boolean }
         Returns: undefined
