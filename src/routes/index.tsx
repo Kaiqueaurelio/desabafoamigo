@@ -533,23 +533,28 @@ function Testimonials() {
         </div>
       </Reveal>
 
-      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {items.map((t, i) => (
-          <Reveal key={t.name} delay={(i % 3) * 120}>
-            <figure className="h-full spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
-              <Quote className="size-6 text-brand-sky" />
-              <blockquote className="mt-3 text-[15px] leading-relaxed text-foreground">
-                “{t.text}”
-              </blockquote>
-              <figcaption className="mt-5 flex items-center gap-3 border-t border-border pt-4">
-                <img src={avatarUrl(t.name, 80)} alt="" className="size-10 rounded-full ring-2 ring-brand-soft" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </div>
-              </figcaption>
-            </figure>
-          </Reveal>
+      <div className="mt-14 space-y-5 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
+        {[items.slice(0, 3), items.slice(3)].map((row, ri) => (
+          <MarqueeRow key={ri} duration={ri === 0 ? 50 : 60} reverse={ri === 1}>
+            {row.map((t) => (
+              <figure
+                key={t.name}
+                className="w-[320px] shrink-0 spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)] md:w-[380px]"
+              >
+                <Quote className="size-6 text-brand-sky" />
+                <blockquote className="mt-3 text-[15px] leading-relaxed text-foreground">
+                  “{t.text}”
+                </blockquote>
+                <figcaption className="mt-5 flex items-center gap-3 border-t border-border pt-4">
+                  <img src={avatarUrl(t.name, 80)} alt="" className="size-10 rounded-full ring-2 ring-brand-soft" loading="lazy" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                  </div>
+                </figcaption>
+              </figure>
+            ))}
+          </MarqueeRow>
         ))}
       </div>
     </section>
