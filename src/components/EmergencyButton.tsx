@@ -18,6 +18,10 @@ export function EmergencyButton() {
   const [sharing, setSharing] = useState(false);
   const loadPlan = useServerFn(getMySafetyPlan);
   const logAction = useServerFn(logEmergencyAction);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, panelRef, { onEscape: () => setOpen(false) });
+
+
 
   useEffect(() => {
     if (!open) return;
