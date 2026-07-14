@@ -382,12 +382,22 @@ function AudiosManager() {
                 />
               </Field>
             </div>
-            <div className="mt-5 flex justify-end">
-              <button disabled={busy} className="btn-primary inline-flex items-center gap-2">
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={aiFill}
+                disabled={aiLoading || busy}
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
+              >
+                {aiLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                Preencher com IA
+              </button>
+              <button disabled={busy || aiLoading} className="btn-primary inline-flex items-center gap-2">
                 {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
                 Salvar áudio
               </button>
             </div>
+
           </form>
         </SectionCard>
       )}
