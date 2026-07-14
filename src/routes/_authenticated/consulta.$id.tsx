@@ -8,6 +8,7 @@ import { Watermark, IdentityWatermark } from "@/components/Watermark";
 import { ScreenshotGuard } from "@/components/ScreenshotGuard";
 import { detectRisk } from "@/lib/riskWords";
 import { RiskAlert } from "@/components/RiskAlert";
+import { CrisisVolunteerPanel } from "@/components/CrisisVolunteerPanel";
 import { ReportButton } from "@/components/ReportDialog";
 import { RatingDialog } from "@/components/RatingDialog";
 import { NpsPrompt } from "@/components/NpsPrompt";
