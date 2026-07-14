@@ -189,7 +189,11 @@ export function AmbientSounds() {
           type="button"
           onClick={toggleMute}
           aria-pressed={muted}
-          aria-label={muted ? "Ativar sons ambientais (atalho: M)" : "Silenciar sons ambientais (atalho: M)"}
+          aria-label={
+            muted
+              ? "Sons ambientais silenciados. Pressione para ativar (atalho: M)"
+              : "Ativar silenciamento — sons ambientais ativos no momento (atalho: M)"
+          }
           title={muted ? "Ativar som (M)" : "Silenciar (M)"}
           className={`ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
             muted
@@ -197,9 +201,12 @@ export function AmbientSounds() {
               : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
           }`}
         >
-          {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
-          <span>{muted ? "Mudo" : "Som"}</span>
-          <kbd className="ml-1 hidden rounded bg-black/30 px-1 text-[9px] tracking-widest text-slate-400 sm:inline">M</kbd>
+          {muted ? <VolumeX className="size-3.5" aria-hidden="true" /> : <Volume2 className="size-3.5" aria-hidden="true" />}
+          <span aria-hidden="true">{muted ? "Mudo" : "Som"}</span>
+          <span className="sr-only">
+            {muted ? "Sons ambientais silenciados" : "Sons ambientais ativos"}
+          </span>
+          <kbd className="ml-1 hidden rounded bg-black/30 px-1 text-[9px] tracking-widest text-slate-400 sm:inline" aria-hidden="true">M</kbd>
         </button>
       </div>
       <p className="mb-3 text-xs text-slate-400">
