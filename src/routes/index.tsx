@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { ChatDemo } from "@/components/ChatDemo";
 import { InfinityFlow } from "@/components/Watermark";
+import { ScrollProgress, SpotlightBinder, WordReveal } from "@/components/LandingFX";
 import {
   MessageSquareText,
   CalendarClock,
@@ -117,6 +118,8 @@ function CountUp({ target, suffix = "", duration = 1400 }: { target: number; suf
 function Landing() {
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
+      <ScrollProgress />
+      <SpotlightBinder />
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <div className="relative z-10">
         <Header />
@@ -204,14 +207,18 @@ function Hero() {
             <InfinityIcon className="size-3.5 animate-spin-slow" /> Escuta acolhedora sem fim
           </span>
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-primary sm:text-5xl md:text-6xl">
-            Sua voz merece <span className="bg-gradient-to-r from-brand-green via-brand-sky to-brand-green bg-clip-text text-transparent animate-gradient-shift" style={{ backgroundSize: "200% auto" }}>ser ouvida</span>.
+            <WordReveal text="Sua voz merece" />{" "}
+            <span className="bg-gradient-to-r from-brand-green via-brand-sky to-brand-green bg-clip-text text-transparent animate-gradient-shift" style={{ backgroundSize: "200% auto" }}>
+              <WordReveal text="ser ouvida" delay={280} />
+            </span>
+            .
           </h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground animate-fade-in" style={{ animationDelay: "700ms", animationFillMode: "backwards" }}>
             Um espaço confiável para desabafar por mensagem, com voluntários treinados em escuta
             ativa. Sem julgamento, sem exposição — seu apelido é gerado pelo app.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/auth" className="btn-primary inline-flex items-center gap-2 group">
+            <Link to="/auth" className="btn-primary btn-shine inline-flex items-center gap-2 group">
               <MessageSquareText className="size-5" />
               Começar a conversar
               <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
@@ -327,7 +334,7 @@ function Origin() {
 
 function OriginCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="group rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-calm)]">
+    <div className="group spotlight-card rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-calm)]">
       <div className="mb-3 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary transition-transform group-hover:scale-110">
         {icon}
       </div>
@@ -367,7 +374,7 @@ function Mission() {
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((it, i) => (
             <Reveal key={it.title} delay={i * 80}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
+              <div className="h-full spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
                 <div className="mb-4 grid size-11 place-items-center rounded-xl bg-brand-soft text-primary">
                   {it.icon}
                 </div>
@@ -483,7 +490,7 @@ function Testimonials() {
       <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {items.map((t, i) => (
           <Reveal key={t.name} delay={(i % 3) * 120}>
-            <figure className="h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
+            <figure className="h-full spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
               <Quote className="size-6 text-brand-sky" />
               <blockquote className="mt-3 text-[15px] leading-relaxed text-foreground">
                 “{t.text}”
@@ -562,7 +569,7 @@ function HowTo() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   to="/auth"
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:opacity-90"
+                  className="btn-shine inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:opacity-90"
                 >
                   Cadastre-se gratuitamente
                   <ArrowRight className="size-4" />
