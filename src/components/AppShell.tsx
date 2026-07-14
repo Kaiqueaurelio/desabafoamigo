@@ -175,7 +175,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 md:hidden">
+        <header className="safe-top flex items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <button
@@ -256,7 +256,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         </header>
 
         <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
-        <nav aria-label="Navegação principal" className="grid grid-cols-4 border-t border-border bg-card md:hidden">
+        <nav aria-label="Navegação principal" className="grid grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
           {[
             { to: "/inicio", label: "Início", icon: Home },
             { to: "/conversar", label: "Conversar", icon: HeartHandshake },
