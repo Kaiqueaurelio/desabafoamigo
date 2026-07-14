@@ -99,13 +99,13 @@ export function AdminSidebarToggle({ className = "" }: { className?: string }) {
       aria-pressed={!collapsed}
       aria-label={collapsed ? "Abrir menu lateral" : "Fechar menu lateral"}
       title={collapsed ? "Abrir menu" : "Fechar menu"}
-      className={`inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground ${className}`}
+      className={`interactive grid size-8 place-items-center rounded-md text-muted-foreground/70 transition-colors hover:bg-muted hover:text-foreground ${className}`}
     >
       {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
-      <span className="hidden sm:inline">{collapsed ? "Menu" : "Ocultar"}</span>
     </button>
   );
 }
+
 
 export function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
