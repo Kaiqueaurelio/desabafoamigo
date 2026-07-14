@@ -15,6 +15,23 @@ export const enqueueMe = createServerFn({ method: "POST" })
       .insert({ user_id: userId, topic: data.topic.slice(0, 500), status: "waiting", urgency, preferred_lang: preferredLang })
       .select("id").single();
     if (error) throw error;
+
+    // Notifica voluntários aprovados sobre nova pessoa na fila (best-effort, não bloqueia)
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { sendPushToRole } = await import("@/lib/push.server");
+      const urgencyLabel = urgency === "high" ? "🔴 Urgência alta" : urgency === "medium" ? "🟡 Urgência média" : "🟢 Fila aberta";
+      await sendPushToRole(supabaseAdmin, "volunteer", {
+        title: "Alguém precisa de escuta 💙",
+        body: `${urgencyLabel} — nova pessoa aguardando na fila.`,
+        url: "/pro/fila",
+        tag: "queue-new",
+        icon: "/icon-192.png",
+      });
+    } catch (e) {
+      console.warn("[push] queue notify failed", e);
+    }
+
     return { queueId: row.id };
   });
 
