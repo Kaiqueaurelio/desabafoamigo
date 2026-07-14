@@ -149,7 +149,8 @@ function Landing() {
           <HowTo />
         </main>
         <Footer />
-      </div>
+        <Footer />
+      </motion.div>
     </div>
   );
 }
