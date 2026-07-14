@@ -89,7 +89,7 @@ function Home() {
 
       {/* Hero card */}
       <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-brand-soft/60 via-card to-card p-6 shadow-sm sm:p-8">
-        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute right-0 top-0 size-32 rounded-full bg-primary/10 blur-3xl sm:size-56" />
         <div className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 sm:gap-5">
           {alias && (
             <img src={avatarUrl(alias, 128)} alt="Seu avatar" className="size-14 shrink-0 rounded-full ring-2 ring-brand-soft sm:size-16" />

@@ -24,6 +24,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   ShieldCheck,
+  ChevronDown,
 } from "lucide-react";
 
 
@@ -167,36 +168,42 @@ export function AdminSidebar() {
 export function AdminSidebarMobile() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const flat = groups.flatMap((g) => g.items);
+  const current = flat.find((item) => item.to === "/admin" ? pathname === "/admin" : pathname.startsWith(item.to));
   return (
-    <nav
-      aria-label="Navegação administrativa"
-      className="mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 pt-1 md:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-    >
-      {flat.map((item) => {
-        const Icon = item.icon;
-        const active =
-          item.to === "/admin"
-            ? pathname === "/admin"
-            : pathname.startsWith(item.to);
-        return (
-          <Link
-            key={item.to}
-            to={item.to}
-            aria-current={active ? "page" : undefined}
-            title={item.label}
-            className={`interactive inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm leading-none ${
-              active
-                ? "border-primary bg-primary/12 font-semibold text-primary shadow-sm"
-                : "border-border bg-card font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
-            }`}
-          >
-            <Icon aria-hidden className={`size-4 shrink-0 ${active ? "text-primary" : ""}`} />
-            <span>{item.label}</span>
-
-          </Link>
-        );
-      })}
-    </nav>
+    <details className="group mb-4 w-full max-w-full overflow-hidden rounded-2xl border border-border bg-card p-2 md:hidden">
+      <summary className="interactive flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-foreground marker:hidden [&::-webkit-details-marker]:hidden">
+        <span className="flex min-w-0 items-center gap-2">
+          {current ? <current.icon aria-hidden className="size-4 shrink-0 text-primary" /> : <LayoutDashboard aria-hidden className="size-4 shrink-0 text-primary" />}
+          <span className="truncate">{current?.label ?? "Menu administrativo"}</span>
+        </span>
+        <ChevronDown aria-hidden className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+      </summary>
+      <nav aria-label="Navegação administrativa" className="grid w-full max-w-full grid-cols-2 gap-2 pt-2">
+        {flat.map((item) => {
+          const Icon = item.icon;
+          const active =
+            item.to === "/admin"
+              ? pathname === "/admin"
+              : pathname.startsWith(item.to);
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              aria-current={active ? "page" : undefined}
+              title={item.label}
+              className={`interactive flex min-h-11 min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-xs leading-tight ${
+                active
+                  ? "border-primary bg-primary/12 font-semibold text-primary shadow-sm"
+                  : "border-border bg-background font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              }`}
+            >
+              <Icon aria-hidden className={`size-4 shrink-0 ${active ? "text-primary" : ""}`} />
+              <span className="min-w-0 truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+    </details>
   );
 }
 

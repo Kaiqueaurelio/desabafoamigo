@@ -155,7 +155,7 @@ function AdminDashboard() {
   };
 
   return (
-    <main className="min-h-dvh bg-background">
+    <main className="min-h-dvh w-full max-w-full overflow-x-clip bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur safe-top">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
           <Link to="/" aria-label="Desabafo Amigo — ir para o início" className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-1 transition-all duration-300 hover:bg-brand-soft/60 sm:gap-3 sm:px-1.5">
@@ -179,7 +179,7 @@ function AdminDashboard() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl gap-6 px-3 py-6 sm:px-4 md:flex">
+      <div className="mx-auto w-full max-w-6xl overflow-x-clip px-3 py-6 sm:px-4 md:flex md:gap-6">
 
         <AdminSidebar />
 
@@ -202,30 +202,32 @@ function AdminDashboard() {
           </section>
 
         {/* Tabs */}
-        <div className="mb-4 -mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:overflow-visible sm:px-0">
+          <div className="mb-4 grid w-full max-w-full grid-cols-3 gap-2 pb-1">
           {(["pending", "approved", "rejected"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`min-w-0 rounded-full px-2 py-2 text-xs font-medium transition sm:px-4 sm:text-sm ${
                 tab === t ? "bg-primary text-primary-foreground shadow" : "bg-secondary text-secondary-foreground hover:bg-muted"
               }`}
             >
-              {t === "pending" ? "Pendentes" : t === "approved" ? "Aprovados" : "Rejeitados"} ({counts[t]})
+              <span className="block truncate">
+                {t === "pending" ? "Pendentes" : t === "approved" ? "Aprovados" : "Rejeitados"} ({counts[t]})
+              </span>
             </button>
           ))}
         </div>
 
 
         {/* Table */}
-        <section className="rounded-2xl bg-card p-5 shadow-sm">
+        <section className="w-full max-w-full overflow-hidden rounded-2xl bg-card p-3 shadow-sm sm:p-5">
           {filtered.length === 0 ? (
             <p className="rounded-lg bg-brand-soft p-4 text-sm text-muted-foreground">
               Nenhum voluntário nesta categoria.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="w-full max-w-full overflow-x-auto">
+              <table className="min-w-[720px] text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                     <th className="py-2 pr-4">Nome</th>
