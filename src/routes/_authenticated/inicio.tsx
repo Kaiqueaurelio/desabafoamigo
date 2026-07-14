@@ -11,6 +11,7 @@ import { OnboardingTour } from "@/components/OnboardingTour";
 import { ComfortPhrase } from "@/components/ComfortPhrase";
 import { FollowUpPrompt } from "@/components/FollowUpPrompt";
 import { VolunteerTrainingBanner } from "@/components/VolunteerTrainingBanner";
+import { PushNotificationCard } from "@/components/PushNotificationCard";
 import { loadStreak } from "@/lib/streak";
 
 
@@ -90,7 +91,11 @@ function Home() {
       <OnboardingTour />
 
       <VolunteerTrainingBanner />
+      <div className="mb-4">
+        <PushNotificationCard />
+      </div>
       <FollowUpPrompt />
+
 
 
 
