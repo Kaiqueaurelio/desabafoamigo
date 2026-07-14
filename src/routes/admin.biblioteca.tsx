@@ -48,9 +48,6 @@ type BulkItem = {
   category: string;
   description: string;
   error?: string;
-};
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _tabAnchor = null;
 
 type Audio = {
   id: string;
