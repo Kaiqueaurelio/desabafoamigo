@@ -13,12 +13,31 @@ import {
   Palette,
   LayoutDashboard,
   LifeBuoy,
+  Home,
+  HeartHandshake,
+  CalendarClock,
+  NotebookPen,
+  BookOpen,
+  Volume2,
+  Settings,
 } from "lucide-react";
 
 const groups: {
   label: string;
   items: { to: string; label: string; icon: React.ComponentType<{ className?: string }>; tone?: "primary" | "destructive" | "muted" }[];
 }[] = [
+  {
+    label: "Meu espaço",
+    items: [
+      { to: "/inicio", label: "Início", icon: Home },
+      { to: "/conversar", label: "Conversar agora", icon: HeartHandshake, tone: "primary" },
+      { to: "/consultas", label: "Minhas conversas", icon: CalendarClock },
+      { to: "/diario", label: "Meu diário", icon: NotebookPen },
+      { to: "/relaxar", label: "Relaxar", icon: Volume2 },
+      { to: "/apoio", label: "Central de apoio", icon: BookOpen },
+      { to: "/configuracoes", label: "Configurações", icon: Settings },
+    ],
+  },
   {
     label: "Visão geral",
     items: [
@@ -52,6 +71,7 @@ const groups: {
     ],
   },
 ];
+
 
 export function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
