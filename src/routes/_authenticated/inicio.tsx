@@ -57,53 +57,71 @@ function Home() {
   }, []);
 
   return (
-    <div id="conteudo" className="mx-auto max-w-5xl p-6">
+    <div id="conteudo" className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <OnboardingTour />
-      <div className="flex items-center gap-4">
-        {alias && <img src={avatarUrl(alias, 128)} alt="Seu avatar" className="size-16 rounded-full ring-2 ring-brand-soft" />}
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-primary">Olá, {alias || "amigo(a)"} 👋</h1>
-          <p className="text-sm text-muted-foreground">Este apelido e avatar foram gerados pelo app para preservar sua identidade.</p>
-        </div>
-        {streak > 0 && (
-          <div
-            className="hidden shrink-0 items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 sm:flex"
-            title={`Você registrou seu humor por ${streak} dia(s) seguido(s)`}
-          >
-            <Flame className="size-4 text-orange-500" aria-hidden />
-            <div className="leading-tight">
-              <p className="text-lg font-bold text-foreground">{streak}</p>
-              <p className="text-[10px] text-muted-foreground">dia{streak > 1 ? "s" : ""} de cuidado</p>
-            </div>
+
+      {/* Hero card */}
+      <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-brand-soft/60 via-card to-card p-6 shadow-sm sm:p-8">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 sm:gap-5">
+          {alias && (
+            <img src={avatarUrl(alias, 128)} alt="Seu avatar" className="size-14 shrink-0 rounded-full ring-2 ring-brand-soft sm:size-16" />
+          )}
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-bold text-primary sm:text-2xl">
+              Olá, {alias || "amigo(a)"} <span aria-hidden>👋</span>
+            </h1>
+            <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+              Apelido e avatar gerados pelo app para preservar sua identidade.
+            </p>
           </div>
-        )}
-      </div>
+          {streak > 0 && (
+            <div
+              className="hidden shrink-0 items-center gap-2 rounded-2xl border border-border/60 bg-card/70 px-3 py-2 backdrop-blur sm:flex"
+              title={`${streak} dia(s) seguidos de cuidado`}
+            >
+              <Flame className="size-4 text-orange-500" aria-hidden />
+              <div className="leading-tight">
+                <p className="text-lg font-bold text-foreground">{streak}</p>
+                <p className="text-[10px] text-muted-foreground">dia{streak > 1 ? "s" : ""}</p>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="relative mt-5">
+          <ComfortPhrase />
+        </div>
+      </section>
 
-      <div className="mt-4"><ComfortPhrase /></div>
-
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <QuickCard to="/conversar" icon={<Users className="size-5" />} title="Conversar agora" desc="Fila rápida com voluntário(a)" />
-        <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico" />
-        <QuickCard to="/diario" icon={<NotebookPen className="size-5" />} title="Meu diário" desc="Registre como se sente" />
-        <QuickCard to="/relaxar" icon={<Volume2 className="size-5" />} title="Relaxar" desc="Áudios, frases e imagens" />
-        <QuickCard to="/apoio" icon={<BookOpen className="size-5" />} title="Apoio & técnicas" desc="Respire, se acalme" />
-      </div>
-
-
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      {/* Wellbeing band */}
+      <section className="mt-6 grid gap-4 md:grid-cols-2">
         {me && <MoodCheckIn userId={me} />}
         <div className="flex flex-col justify-center rounded-2xl border border-border bg-card p-5">
           <p className="text-sm font-semibold text-foreground">Precisa se acalmar agora?</p>
-          <p className="text-xs text-muted-foreground">Toque para começar uma respiração guiada.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Uma respiração guiada em 1 minuto pode ajudar.</p>
           <div className="mt-3"><BreathingButton /></div>
         </div>
-      </div>
+      </section>
 
+      {/* Quick actions */}
+      <section className="mt-8">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Atalhos rápidos</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <QuickCard to="/conversar" icon={<Users className="size-5" />} title="Conversar agora" desc="Fila rápida com voluntário(a)" tone="primary" />
+          <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico" />
+          <QuickCard to="/diario" icon={<NotebookPen className="size-5" />} title="Meu diário" desc="Registre como se sente" />
+          <QuickCard to="/relaxar" icon={<Volume2 className="size-5" />} title="Relaxar" desc="Áudios, frases e imagens" />
+          <QuickCard to="/apoio" icon={<BookOpen className="size-5" />} title="Apoio & técnicas" desc="Respire, se acalme" />
+        </div>
+      </section>
+
+      {/* Recent conversations */}
       <section className="mt-10">
-        <h2 className="mb-3 text-lg font-semibold text-foreground">Conversas recentes</h2>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Conversas recentes</h2>
         {upcoming.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="rounded-2xl border border-dashed border-border bg-card/60 p-8 text-center">
             <p className="text-sm text-muted-foreground">Você ainda não conversou por aqui.</p>
             <Link to="/conversar" className="btn-primary mt-4 inline-block">Conversar agora</Link>
           </div>
@@ -111,12 +129,12 @@ function Home() {
           <div className="space-y-2">
             {upcoming.map((a) => (
               <Link key={a.id} to="/consulta/$id" params={{ id: a.id }}
-                className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40">
-                <div>
-                  <p className="font-medium text-foreground">{a.topic}</p>
-                  <p className="text-xs text-muted-foreground">{names[a.professional_id] ?? "Voluntário(a)"}</p>
+                className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40 hover:shadow-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-foreground">{a.topic}</p>
+                  <p className="truncate text-xs text-muted-foreground">{names[a.professional_id] ?? "Voluntário(a)"}</p>
                 </div>
-                <div className="text-right">
+                <div className="ml-3 shrink-0 text-right">
                   <p className="text-sm font-medium text-primary">{new Date(a.scheduled_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</p>
                   <p className="text-xs text-muted-foreground">{new Date(a.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                 </div>
@@ -126,19 +144,32 @@ function Home() {
         )}
       </section>
 
-      <p className="mt-10 rounded-2xl bg-brand-soft p-4 text-xs text-muted-foreground">
+      <p className="mt-10 rounded-2xl bg-brand-soft/60 p-4 text-xs text-muted-foreground">
         O Desabafa Amigo oferece <strong>escuta acolhedora por voluntários treinados</strong>. Não é um serviço de psicologia, psiquiatria ou medicina, e não temos vínculo com esses profissionais.
       </p>
+
+      {/* espaço para o botão de emergência flutuante não cobrir o rodapé */}
+      <div aria-hidden className="h-24" />
     </div>
   );
 }
 
-function QuickCard({ to, icon, title, desc }: { to: string; icon: React.ReactNode; title: string; desc: string }) {
+function QuickCard({ to, icon, title, desc, tone }: { to: string; icon: React.ReactNode; title: string; desc: string; tone?: "primary" }) {
   return (
-    <Link to={to} className="group hover-lift rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40">
-      <div className="mb-2 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">{icon}</div>
+    <Link
+      to={to}
+      className={`group hover-lift rounded-2xl border p-5 transition ${
+        tone === "primary"
+          ? "border-primary/30 bg-gradient-to-br from-primary/8 to-card hover:border-primary/50"
+          : "border-border bg-card hover:border-primary/40"
+      }`}
+    >
+      <div className={`mb-3 grid size-10 place-items-center rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${
+        tone === "primary" ? "bg-primary/15 text-primary" : "bg-brand-soft text-primary"
+      }`}>{icon}</div>
       <p className="font-semibold text-foreground">{title}</p>
-      <p className="text-xs text-muted-foreground">{desc}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
     </Link>
   );
 }
+
