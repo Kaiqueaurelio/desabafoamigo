@@ -559,17 +559,32 @@ function FAQ() {
             <h2 className="mt-3 text-3xl font-bold text-primary md:text-4xl">Dúvidas comuns</h2>
           </div>
         </Reveal>
-        <div className="mt-10 divide-y divide-border rounded-2xl border border-border bg-card">
+        <Accordion
+          type="single"
+          collapsible
+          className="mt-10 divide-y divide-border rounded-2xl border border-border bg-card"
+        >
           {items.map((it, i) => (
-            <details key={i} className="group px-5 py-4 open:bg-brand-soft/40">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                {it.q}
-                <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden />
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{it.a}</p>
-            </details>
+            <AccordionItem
+              key={i}
+              value={`item-${i}`}
+              className="border-0 px-5 data-[state=open]:bg-brand-soft/40"
+            >
+              <AccordionTrigger className="group py-4 text-left text-sm font-semibold text-foreground hover:no-underline [&>svg]:hidden">
+                <span className="flex-1 pr-4">{it.q}</span>
+                <motion.span
+                  aria-hidden
+                  className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-soft text-primary transition-colors group-data-[state=open]:bg-primary group-data-[state=open]:text-primary-foreground"
+                >
+                  <Plus className="size-4 transition-transform duration-300 group-data-[state=open]:rotate-45 group-data-[state=open]:scale-110" />
+                </motion.span>
+              </AccordionTrigger>
+              <AccordionContent className="pb-4 pr-12 text-sm leading-relaxed text-muted-foreground">
+                {it.a}
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </div>
+        </Accordion>
       </div>
     </section>
   );
