@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BreathingButton } from "@/components/BreathingExercise";
 import {
   BookOpen, Wind, HeartPulse, Sun, Users, PhoneCall,
-  Headphones, Quote, ImageIcon, Sparkles, ArrowRight, Play,
+  Headphones, Quote, ImageIcon, Sparkles, ArrowRight, Play, ChevronRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/apoio")({
@@ -31,13 +31,22 @@ const CONTACTS = [
   { name: "Disque 100", phone: "100", desc: "Direitos humanos e violência." },
 ];
 
-const BLOCKS = [
-  { id: "tecnicas", label: "Técnicas", icon: Sparkles, color: "from-primary/20 to-primary/5", desc: "Respire e se acalme" },
-  { id: "audios", label: "Áudios", icon: Headphones, color: "from-blue-500/20 to-blue-500/5", desc: "Sons e meditações" },
-  { id: "frases", label: "Frases", icon: Quote, color: "from-amber-500/20 to-amber-500/5", desc: "Acolhimento em palavras" },
-  { id: "imagens", label: "Imagens", icon: ImageIcon, color: "from-emerald-500/20 to-emerald-500/5", desc: "Visuais para relaxar" },
-  { id: "emergencia", label: "Emergência", icon: PhoneCall, color: "from-rose-500/20 to-rose-500/5", desc: "Ajuda urgente" },
-] as const;
+type BlockTone = "sky" | "blue" | "amber" | "emerald" | "rose";
+const BLOCKS: { id: string; label: string; icon: typeof Sparkles; desc: string; tone: BlockTone }[] = [
+  { id: "tecnicas", label: "Técnicas", icon: Sparkles, desc: "Respire e se acalme", tone: "sky" },
+  { id: "audios", label: "Áudios", icon: Headphones, desc: "Sons e meditações", tone: "blue" },
+  { id: "frases", label: "Frases", icon: Quote, desc: "Acolhimento em palavras", tone: "amber" },
+  { id: "imagens", label: "Imagens", icon: ImageIcon, desc: "Visuais para relaxar", tone: "emerald" },
+  { id: "emergencia", label: "Emergência", icon: PhoneCall, desc: "Ajuda urgente", tone: "rose" },
+];
+
+const TONE_ICON: Record<BlockTone, string> = {
+  sky: "bg-sky-500/10 text-sky-300",
+  blue: "bg-blue-500/10 text-blue-300",
+  amber: "bg-amber-500/10 text-amber-300",
+  emerald: "bg-emerald-500/10 text-emerald-300",
+  rose: "bg-rose-500/10 text-rose-300",
+};
 
 function Apoio() {
   const [tab, setTab] = useState<string>("tecnicas");
@@ -66,170 +75,208 @@ function Apoio() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-6">
-      {/* Hero */}
-      <div className="flex items-center gap-3">
-        <div className="grid size-12 place-items-center rounded-2xl bg-brand-soft text-primary">
-          <BookOpen className="size-6" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Central de Apoio</h1>
-          <p className="text-sm text-muted-foreground">Tudo em um só lugar para te acolher agora.</p>
-        </div>
-      </div>
+    <div className="relative min-h-full bg-gradient-to-b from-background via-background to-[#0a0f1c]">
+      {/* Ambient glow */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-72 bg-[radial-gradient(60%_60%_at_50%_0%,theme(colors.blue.500/12),transparent_70%)]" />
 
-      <Tabs value={tab} onValueChange={setTab} className="mt-6">
-        {/* Bloco de menu — grid de cards grandes */}
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-5">
-          {BLOCKS.map((b) => {
-            const active = tab === b.id;
-            return (
-              <button
-                key={b.id}
-                onClick={() => setTab(b.id)}
-                aria-pressed={active}
-                className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition-all ${
-                  active
-                    ? "border-primary ring-2 ring-primary/30 shadow-md"
-                    : "border-border hover:border-primary/40 hover:shadow-sm"
-                } bg-gradient-to-br ${b.color}`}
-              >
-                <div className={`mb-2 grid size-9 place-items-center rounded-xl bg-background/80 text-primary`}>
-                  <b.icon className="size-5" />
-                </div>
-                <p className="text-sm font-semibold text-foreground">{b.label}</p>
-                <p className="text-[11px] text-muted-foreground">{b.desc}</p>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* TabsList escondido — acessibilidade via botões acima */}
-        <TabsList className="sr-only">
-          {BLOCKS.map((b) => (<TabsTrigger key={b.id} value={b.id}>{b.label}</TabsTrigger>))}
-        </TabsList>
-
-        {/* Técnicas */}
-        <TabsContent value="tecnicas" className="mt-6">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-sm font-semibold text-foreground">Precisa se acalmar agora?</p>
-            <p className="mb-3 text-xs text-muted-foreground">Comece uma respiração guiada em poucos segundos.</p>
-            <BreathingButton />
+      <div className="relative mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+        {/* Hero */}
+        <header className="flex items-start gap-4">
+          <div className="rounded-2xl border border-blue-500/25 bg-blue-500/10 p-3 shadow-[0_0_40px_-10px_theme(colors.blue.500/40)]">
+            <BookOpen className="size-7 text-blue-300" />
           </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {TIPS.map((t) => (
-              <article key={t.title} className="rounded-2xl border border-border bg-card p-5">
-                <div className="mb-2 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary">
-                  <t.icon className="size-5" />
-                </div>
-                <h3 className="font-semibold text-foreground">{t.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{t.body}</p>
-              </article>
-            ))}
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Central de Apoio</h1>
+            <p className="mt-1 text-base text-muted-foreground sm:text-lg">
+              Tudo em um só lugar para te acolher agora.
+            </p>
           </div>
-        </TabsContent>
+        </header>
 
-        {/* Áudios */}
-        <TabsContent value="audios" className="mt-6">
-          <SectionHeader title="Áudios para relaxar" to="/relaxar" cta="Abrir player completo" />
-          {audios.length === 0 ? (
-            <EmptyMsg text="Em breve teremos novos áudios por aqui." />
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {audios.map((a) => (
-                <Link
-                  key={a.id}
-                  to="/relaxar"
-                  className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-3 transition hover:border-primary/40"
+        <Tabs value={tab} onValueChange={setTab} className="mt-10">
+          {/* Tabs em blocos glass */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 sm:gap-4">
+            {BLOCKS.map((b) => {
+              const active = tab === b.id;
+              const isEmergency = b.tone === "rose";
+              const base = "group relative flex flex-col items-start rounded-3xl border p-5 text-left transition-all duration-200";
+              const inactive = isEmergency
+                ? "border-rose-500/20 bg-rose-500/[0.04] hover:bg-rose-500/10"
+                : "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:-translate-y-0.5";
+              const activeCls = isEmergency
+                ? "border-rose-500/50 bg-rose-500/15 shadow-[0_0_30px_-8px_theme(colors.rose.500/50)]"
+                : "border-blue-500/40 bg-blue-500/15 shadow-[0_0_30px_-8px_theme(colors.blue.500/50)] ring-1 ring-blue-500/30";
+              return (
+                <button
+                  key={b.id}
+                  onClick={() => setTab(b.id)}
+                  aria-pressed={active}
+                  className={`${base} ${active ? activeCls : inactive}`}
                 >
-                  <div className="grid size-14 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 text-primary">
-                    <Play className="size-6" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-foreground">{a.title}</p>
-                    <p className="truncate text-xs text-muted-foreground capitalize">{a.category}</p>
-                  </div>
-                  <ArrowRight className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
-                </Link>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* Frases */}
-        <TabsContent value="frases" className="mt-6">
-          <SectionHeader title="Frases de acolhimento" />
-          {phrases.length === 0 ? (
-            <EmptyMsg text="Novas frases estão chegando." />
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {phrases.map((p) => (
-                <blockquote key={p.id} className="rounded-2xl border border-border bg-gradient-to-br from-amber-500/5 to-transparent p-5">
-                  <Quote className="mb-2 size-5 text-amber-500/70" />
-                  <p className="text-sm leading-relaxed text-foreground">"{p.text}"</p>
-                  {p.author && <footer className="mt-2 text-xs text-muted-foreground">— {p.author}</footer>}
-                </blockquote>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* Imagens */}
-        <TabsContent value="imagens" className="mt-6">
-          <SectionHeader title="Imagens para se acalmar" />
-          {images.length === 0 ? (
-            <EmptyMsg text="Novas imagens em breve." />
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {images.map((im) => (
-                <figure key={im.id} className="overflow-hidden rounded-2xl border border-border bg-card">
-                  {imgUrls[im.id] ? (
-                    <img src={imgUrls[im.id]} alt={im.title} loading="lazy" className="aspect-square w-full object-cover" />
-                  ) : (
-                    <div className="aspect-square w-full animate-pulse bg-muted" />
-                  )}
-                  <figcaption className="p-2">
-                    <p className="truncate text-xs font-medium text-foreground">{im.title}</p>
-                    {im.caption && <p className="truncate text-[11px] text-muted-foreground">{im.caption}</p>}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* Emergência */}
-        <TabsContent value="emergencia" className="mt-6">
-          <SectionHeader title="Se você precisa de ajuda urgente" />
-          <div className="space-y-2">
-            {CONTACTS.map((c) => (
-              <div key={c.name} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
-                <div>
-                  <p className="font-medium text-foreground">{c.name}</p>
-                  <p className="text-xs text-muted-foreground">{c.desc}</p>
-                </div>
-                <a href={`tel:${c.phone}`} className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-                  <PhoneCall className="size-4" /> {c.phone}
-                </a>
-              </div>
-            ))}
+                  <span
+                    className={`mb-4 grid size-10 place-items-center rounded-xl transition-transform group-hover:scale-110 ${
+                      active
+                        ? isEmergency
+                          ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
+                          : "bg-blue-500 text-white shadow-lg shadow-blue-500/30"
+                        : TONE_ICON[b.tone]
+                    }`}
+                  >
+                    <b.icon className="size-5" />
+                  </span>
+                  <span className={`font-semibold ${active && isEmergency ? "text-rose-100" : active ? "text-white" : isEmergency ? "text-rose-200" : "text-foreground"}`}>
+                    {b.label}
+                  </span>
+                  <span className={`mt-1 text-xs leading-snug ${active && !isEmergency ? "text-blue-200" : isEmergency ? "text-rose-400/80" : "text-muted-foreground"}`}>
+                    {b.desc}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-        </TabsContent>
-      </Tabs>
 
-      <p className="mt-10 rounded-2xl bg-brand-soft p-4 text-xs text-muted-foreground">
-        Os conteúdos desta página são informativos e não substituem atendimento profissional de saúde.
-      </p>
+          <TabsList className="sr-only">
+            {BLOCKS.map((b) => (<TabsTrigger key={b.id} value={b.id}>{b.label}</TabsTrigger>))}
+          </TabsList>
+
+          {/* TÉCNICAS */}
+          <TabsContent value="tecnicas" className="mt-10 focus-visible:ring-0">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-lg font-semibold text-foreground">Precisa se acalmar agora?</p>
+                  <p className="text-sm text-muted-foreground">Comece uma respiração guiada em poucos segundos.</p>
+                </div>
+                <BreathingButton />
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {TIPS.map((t) => (
+                <article key={t.title} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition hover:bg-white/[0.07]">
+                  <div className="mb-4 grid size-11 place-items-center rounded-xl bg-sky-500/10 text-sky-300">
+                    <t.icon className="size-5" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground">{t.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t.body}</p>
+                </article>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* ÁUDIOS */}
+          <TabsContent value="audios" className="mt-10 focus-visible:ring-0">
+            <SectionHeader title="Áudios para relaxar" to="/relaxar" cta="Abrir player completo" />
+            {audios.length === 0 ? (
+              <EmptyMsg text="Em breve teremos novos áudios por aqui." />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {audios.map((a) => (
+                  <Link
+                    key={a.id}
+                    to="/relaxar"
+                    className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all hover:border-white/20 hover:bg-white/[0.08]"
+                  >
+                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-blue-500/20 text-blue-300 transition-colors group-hover:bg-blue-500 group-hover:text-white">
+                      <Play className="ml-0.5 size-5 fill-current" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate text-base font-medium text-foreground">{a.title}</h3>
+                      <p className="mt-0.5 truncate text-xs capitalize text-muted-foreground">{a.category}</p>
+                    </div>
+                    <ChevronRight className="size-5 text-muted-foreground/60 transition-colors group-hover:text-foreground" />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* FRASES */}
+          <TabsContent value="frases" className="mt-10 focus-visible:ring-0">
+            <SectionHeader title="Frases de acolhimento" />
+            {phrases.length === 0 ? (
+              <EmptyMsg text="Novas frases estão chegando." />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {phrases.map((p) => (
+                  <blockquote
+                    key={p.id}
+                    className="rounded-3xl border border-white/10 bg-gradient-to-br from-amber-500/[0.08] via-white/[0.03] to-transparent p-6"
+                  >
+                    <Quote className="mb-3 size-6 text-amber-300/80" />
+                    <p className="text-base leading-relaxed text-foreground">"{p.text}"</p>
+                    {p.author && <footer className="mt-3 text-xs text-muted-foreground">— {p.author}</footer>}
+                  </blockquote>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* IMAGENS */}
+          <TabsContent value="imagens" className="mt-10 focus-visible:ring-0">
+            <SectionHeader title="Imagens para se acalmar" />
+            {images.length === 0 ? (
+              <EmptyMsg text="Novas imagens em breve." />
+            ) : (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {images.map((im) => (
+                  <figure key={im.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition hover:border-white/20">
+                    {imgUrls[im.id] ? (
+                      <img src={imgUrls[im.id]} alt={im.title} loading="lazy" className="aspect-square w-full object-cover" />
+                    ) : (
+                      <div className="aspect-square w-full animate-pulse bg-white/5" />
+                    )}
+                    <figcaption className="p-3">
+                      <p className="truncate text-sm font-medium text-foreground">{im.title}</p>
+                      {im.caption && <p className="truncate text-xs text-muted-foreground">{im.caption}</p>}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* EMERGÊNCIA */}
+          <TabsContent value="emergencia" className="mt-10 focus-visible:ring-0">
+            <SectionHeader title="Se você precisa de ajuda urgente" />
+            <div className="space-y-3">
+              {CONTACTS.map((c) => (
+                <div
+                  key={c.name}
+                  className="flex items-center justify-between rounded-2xl border border-rose-500/15 bg-rose-500/[0.04] p-4"
+                >
+                  <div>
+                    <p className="font-medium text-foreground">{c.name}</p>
+                    <p className="text-xs text-muted-foreground">{c.desc}</p>
+                  </div>
+                  <a
+                    href={`tel:${c.phone}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-900/30 transition hover:bg-rose-500 active:scale-95"
+                  >
+                    <PhoneCall className="size-4" /> {c.phone}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <p className="mt-12 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-muted-foreground">
+          Os conteúdos desta página são informativos e não substituem atendimento profissional de saúde.
+        </p>
+      </div>
     </div>
   );
 }
 
 function SectionHeader({ title, to, cta }: { title: string; to?: "/relaxar"; cta?: string }) {
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+    <div className="mb-6 flex items-center justify-between">
+      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
       {to && cta && (
-        <Link to={to} className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+        <Link
+          to={to}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-400 transition-colors hover:text-blue-300"
+        >
           {cta} <ArrowRight className="size-4" />
         </Link>
       )}
@@ -239,7 +286,7 @@ function SectionHeader({ title, to, cta }: { title: string; to?: "/relaxar"; cta
 
 function EmptyMsg({ text }: { text: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
+    <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center text-sm text-muted-foreground">
       {text}
     </div>
   );
