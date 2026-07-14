@@ -135,8 +135,8 @@ function Home() {
 
 function QuickCard({ to, icon, title, desc }: { to: string; icon: React.ReactNode; title: string; desc: string }) {
   return (
-    <Link to={to} className="rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40">
-      <div className="mb-2 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary">{icon}</div>
+    <Link to={to} className="group hover-lift rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40">
+      <div className="mb-2 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">{icon}</div>
       <p className="font-semibold text-foreground">{title}</p>
       <p className="text-xs text-muted-foreground">{desc}</p>
     </Link>
