@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LifeBuoy, Phone, X, MapPin, HeartPulse, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { getMySafetyPlan, logEmergencyAction } from "@/lib/crisis.functions";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 type Plan = {
   emergency_contact_name: string | null;
