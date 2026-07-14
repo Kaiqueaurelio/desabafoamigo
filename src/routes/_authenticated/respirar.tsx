@@ -386,6 +386,9 @@ function RespirarPage() {
                   <RotateCcw className="size-4" /> Recomeçar
                 </motion.button>
               </div>
+              <div className="mt-8 w-full max-w-md">
+                <AmbientSounds />
+              </div>
             </motion.div>
           )}
 
