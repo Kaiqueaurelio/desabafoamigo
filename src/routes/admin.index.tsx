@@ -156,9 +156,9 @@ function AdminDashboard() {
       <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link to="/" aria-label="Desabafa Amigo — ir para o início" className="group flex items-center gap-3 rounded-xl px-1.5 py-1 transition-all duration-300 hover:bg-brand-soft/60">
-            <span className="relative grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white shadow-calm ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105">
-              <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
-              <Logo responsive priority decorative className="relative h-9 w-9" />
+            <span className="relative grid size-12 place-items-center rounded-2xl bg-white shadow-calm ring-2 ring-primary/40 transition-transform duration-300 group-hover:scale-105">
+              <span aria-hidden className="absolute -inset-0.5 rounded-2xl bg-primary/25 opacity-40 blur-md transition-opacity duration-500 group-hover:opacity-80" />
+              <Logo responsive priority decorative className="relative h-10 w-10 drop-shadow-sm" />
             </span>
             <span className="leading-tight">
               <span className="block text-sm font-bold text-primary">Desabafa Amigo</span>
