@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Flag } from "lucide-react";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
+import { CardListSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/denuncias")({
   ssr: false,
