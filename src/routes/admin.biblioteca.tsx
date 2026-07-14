@@ -10,6 +10,7 @@ import {
   PHRASE_CATEGORIES,
   IMAGE_CATEGORIES,
 } from "@/lib/library";
+import { autofillLibraryMedia } from "@/lib/libraryAutofill.functions";
 import {
   ArrowLeft,
   Loader2,
@@ -23,8 +24,10 @@ import {
   Quote,
   ImageIcon,
   X,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/admin/biblioteca")({
   ssr: false,
