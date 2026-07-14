@@ -46,13 +46,16 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   return (
     <div className="flex min-h-dvh bg-background">
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex">
-        <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-          <Logo responsive decorative priority className="h-11 w-11 md:h-10 md:w-10 lg:h-12 lg:w-12" />
+        <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40">
+          <span className="relative grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white shadow-calm ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105">
+            <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
+            <Logo responsive decorative priority className="relative h-10 w-10" />
+          </span>
           <div className="leading-tight">
             <p className="text-base font-semibold text-primary">Desabafa Amigo</p>
             <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
           </div>
-        </div>
+        </Link>
         <nav className="flex-1 space-y-1 p-3">
           <NavGroup title="Meu espaço">
             {patientNav.map((it) => (
