@@ -11,6 +11,7 @@ import { OnboardingModal } from "@/components/OnboardingModal";
 import { RouteFade } from "@/components/RouteFade";
 import type { User } from "@supabase/supabase-js";
 import type { ReactNode } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNode; user: User; isPro: boolean; isAdmin: boolean }) {
@@ -106,37 +107,64 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
       )}
 
       {collapsed && (
-        <aside className="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-3 md:flex animate-fade-in">
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label="Abrir menu lateral"
-            title="Abrir menu"
-            className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <PanelLeftOpen aria-hidden className="size-4" />
-          </button>
-          <Link to="/inicio" aria-label="Início" className="interactive mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15">
-            <Logo responsive decorative priority className="h-7 w-7" />
-          </Link>
-          <div className="mt-2 flex flex-col items-center gap-1">
-            {patientNav.slice(0, 5).map((it) => {
-              const active = pathname.startsWith(it.to);
-              return (
-                <Link key={it.to} to={it.to} aria-label={it.label} aria-current={active ? "page" : undefined} title={it.label}
-                  className={`interactive grid size-10 place-items-center rounded-xl ${active ? "nav-active-rail" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
-                  <it.icon aria-hidden className="size-4" />
-                </Link>
+        <TooltipProvider delayDuration={150} skipDelayDuration={0}>
+          <aside className="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-3 md:flex animate-fade-in">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={toggle}
+                  aria-label="Abrir menu lateral"
+                  className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <PanelLeftOpen aria-hidden className="size-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" sideOffset={8}>Abrir menu</TooltipContent>
+            </Tooltip>
 
-              );
-            })}
-          </div>
-          <div className="mt-auto">
-            <button onClick={signOut} aria-label="Sair" title="Sair" className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
-              <LogOut aria-hidden className="size-4" />
-            </button>
-          </div>
-        </aside>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/inicio" aria-label="Início" className="interactive mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15">
+                  <Logo responsive decorative priority className="h-7 w-7" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right" sideOffset={8}>Início — Desabafa Amigo</TooltipContent>
+            </Tooltip>
+
+            <div className="mt-2 flex flex-col items-center gap-1">
+              {patientNav.slice(0, 5).map((it) => {
+                const active = pathname.startsWith(it.to);
+                return (
+                  <Tooltip key={it.to}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={it.to}
+                        aria-label={it.label}
+                        aria-current={active ? "page" : undefined}
+                        className={`interactive grid size-10 place-items-center rounded-xl ${active ? "nav-active-rail" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                      >
+                        <it.icon aria-hidden className="size-4" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={8}>{it.label}</TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+
+            <div className="mt-auto">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button onClick={signOut} aria-label="Sair" className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
+                    <LogOut aria-hidden className="size-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>Sair da conta</TooltipContent>
+              </Tooltip>
+            </div>
+          </aside>
+        </TooltipProvider>
       )}
 
 
