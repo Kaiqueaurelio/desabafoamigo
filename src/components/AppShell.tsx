@@ -124,9 +124,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
               const active = pathname.startsWith(it.to);
               return (
                 <Link key={it.to} to={it.to} aria-label={it.label} aria-current={active ? "page" : undefined} title={it.label}
-                  className={`interactive grid size-10 place-items-center rounded-xl ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+                  className={`interactive grid size-10 place-items-center rounded-xl ${active ? "nav-active-rail" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                   <it.icon aria-hidden className="size-4" />
                 </Link>
+
               );
             })}
           </div>
@@ -162,9 +163,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             const active = pathname.startsWith(it.to);
             return (
               <Link key={it.to} to={it.to} aria-current={active ? "page" : undefined} aria-label={it.label}
-                className={`interactive flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                className={`interactive relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] ${active ? "nav-active-tab" : "text-muted-foreground hover:text-foreground"}`}>
                 <it.icon aria-hidden className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`} />
-                {it.label}
+                <span className={active ? "font-semibold" : undefined}>{it.label}</span>
+
               </Link>
             );
           })}
@@ -189,14 +191,16 @@ function NavGroup({ title, children }: { title: string; children: ReactNode }) {
 function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; label: string; icon: typeof Home; active: boolean; highlight?: boolean }) {
   const base = "interactive flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
   const cls = active
-    ? "bg-primary/10 font-medium text-primary"
+    ? "nav-active-row"
     : highlight
       ? "bg-gradient-to-r from-sky-500/10 to-transparent text-sky-700 hover:from-sky-500/20 dark:text-sky-300"
       : "text-foreground hover:bg-muted";
   return (
     <Link to={to} aria-current={active ? "page" : undefined} className={`${base} ${cls}`}>
-      <Icon aria-hidden className={`size-4 ${highlight && !active ? "text-sky-500" : ""}`} /> {label}
+      <Icon aria-hidden className={`size-4 ${highlight && !active ? "text-sky-500" : ""}`} />
+      <span className={active ? "font-semibold" : undefined}>{label}</span>
     </Link>
   );
 }
+
 
