@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Waves, CloudRain, Wind as WindIcon, Music4 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Waves, CloudRain, Wind as WindIcon, Music4, Volume2, VolumeX } from "lucide-react";
 
 type AmbientKey = "waves" | "rain" | "forest";
 
