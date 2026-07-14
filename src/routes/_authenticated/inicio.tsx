@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, Users, NotebookPen, BookOpen, Flame, Volume2 } from "lucide-react";
+import { CalendarClock, Users, NotebookPen, BookOpen, Flame, Volume2, Loader2, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { avatarUrl } from "@/lib/avatar";
 import { MoodCheckIn } from "@/components/MoodCheckIn";
 import { BreathingButton } from "@/components/BreathingExercise";
@@ -18,43 +20,68 @@ type Appt = {
   id: string; scheduled_at: string; topic: string; status: string; professional_id: string; patient_id: string;
 };
 
+const PAGE_SIZE = 5;
+
 function Home() {
   const [upcoming, setUpcoming] = useState<Appt[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [alias, setAlias] = useState<string>("");
   const [me, setMe] = useState<string>("");
   const [streak, setStreak] = useState<number>(0);
+  const [visible, setVisible] = useState<number>(0);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true);
+
+  async function fetchPage(userId: string, from: number, to: number) {
+    const { data } = await supabase
+      .from("appointments")
+      .select("id, scheduled_at, topic, status, professional_id, patient_id")
+      .eq("patient_id", userId)
+      .in("status", ["scheduled", "in_progress"])
+      .order("scheduled_at", { ascending: true })
+      .range(from, to);
+    const rows = (data ?? []) as Appt[];
+    const ids = Array.from(new Set(rows.map((a) => a.professional_id)));
+    if (ids.length) {
+      const { data: pros } = await supabase.from("volunteers").select("user_id, full_name, specialty").in("user_id", ids);
+      const map: Record<string, string> = {};
+      (pros ?? []).forEach((p) => { map[p.user_id] = `${p.full_name}${p.specialty ? " · " + p.specialty : ""}`; });
+      setNames((prev) => ({ ...prev, ...map }));
+    }
+    return rows;
+  }
 
   useEffect(() => {
-
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
+      if (!u.user) { setInitialLoading(false); return; }
       setMe(u.user.id);
       loadStreak(u.user.id).then(setStreak).catch(() => {});
 
       const { data: prof } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
       setAlias(prof?.display_name ?? "");
 
-
-      const { data } = await supabase
-        .from("appointments")
-        .select("id, scheduled_at, topic, status, professional_id, patient_id")
-        .eq("patient_id", u.user.id)
-        .in("status", ["scheduled", "in_progress"])
-        .order("scheduled_at", { ascending: true })
-        .limit(5);
-      setUpcoming((data ?? []) as Appt[]);
-
-      const ids = Array.from(new Set((data ?? []).map((a) => a.professional_id)));
-      if (ids.length) {
-        const { data: pros } = await supabase.from("volunteers").select("user_id, full_name, specialty").in("user_id", ids);
-        const map: Record<string, string> = {};
-        (pros ?? []).forEach((p) => { map[p.user_id] = `${p.full_name}${p.specialty ? " · " + p.specialty : ""}`; });
-        setNames(map);
-      }
+      // fetch PAGE_SIZE + 1 to know if there are more pages
+      const rows = await fetchPage(u.user.id, 0, PAGE_SIZE);
+      setHasMore(rows.length > PAGE_SIZE);
+      setUpcoming(rows.slice(0, PAGE_SIZE));
+      setVisible(PAGE_SIZE);
+      setInitialLoading(false);
     })();
   }, []);
+
+  async function loadMore() {
+    if (!me || loadingMore) return;
+    setLoadingMore(true);
+    const from = visible;
+    const to = visible + PAGE_SIZE;
+    const rows = await fetchPage(me, from, to);
+    setUpcoming((prev) => [...prev, ...rows.slice(0, PAGE_SIZE)]);
+    setHasMore(rows.length > PAGE_SIZE);
+    setVisible(visible + PAGE_SIZE);
+    setLoadingMore(false);
+  }
 
   return (
     <div id="conteudo" className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -119,31 +146,93 @@ function Home() {
 
       {/* Recent conversations */}
       <section className="mt-10">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Conversas recentes</h2>
-        {upcoming.length === 0 ? (
+        <div className="mb-3 flex items-baseline justify-between gap-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Conversas recentes</h2>
+          {upcoming.length > 0 && (
+            <Link to="/consultas" className="text-xs font-medium text-primary hover:underline">Ver todas</Link>
+          )}
+        </div>
+        {initialLoading ? (
+          <div className="space-y-2" aria-busy="true" aria-live="polite">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-4">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                  <div className="min-w-0 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <Skeleton className="ml-auto h-3 w-14" />
+                    <Skeleton className="ml-auto h-3 w-10" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : upcoming.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/60 p-8 text-center">
             <p className="text-sm text-muted-foreground">Você ainda não conversou por aqui.</p>
             <Link to="/conversar" className="btn-primary mt-4 inline-block">Conversar agora</Link>
           </div>
         ) : (
-          <div className="space-y-2">
-            {upcoming.map((a) => (
-              <Link key={a.id} to="/consulta/$id" params={{ id: a.id }}
-                className="interactive flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-sm">
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-foreground">{a.topic}</p>
-                  <p className="truncate text-xs text-muted-foreground">{names[a.professional_id] ?? "Voluntário(a)"}</p>
-                </div>
-                <div className="ml-3 shrink-0 text-right">
-                  <p className="text-sm font-medium text-primary">{new Date(a.scheduled_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(a.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-
+          <>
+            <ul className="space-y-2">
+              {upcoming.map((a) => (
+                <li key={a.id}>
+                  <Link
+                    to="/consulta/$id"
+                    params={{ id: a.id }}
+                    className="interactive grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-sm"
+                  >
+                    <div className="min-w-0">
+                      <p
+                        className="line-clamp-1 break-words text-sm font-medium text-foreground sm:text-base"
+                        title={a.topic}
+                      >
+                        {a.topic}
+                      </p>
+                      <p
+                        className="line-clamp-1 break-words text-xs text-muted-foreground"
+                        title={names[a.professional_id] ?? "Voluntário(a)"}
+                      >
+                        {names[a.professional_id] ?? "Voluntário(a)"}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-xs font-medium text-primary sm:text-sm">
+                        {new Date(a.scheduled_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground sm:text-xs">
+                        {new Date(a.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {hasMore && (
+              <div className="mt-4 flex justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="interactive gap-2"
+                  aria-label="Carregar mais conversas"
+                >
+                  {loadingMore ? (
+                    <><Loader2 className="size-4 animate-spin" aria-hidden /> Carregando…</>
+                  ) : (
+                    <><ChevronDown className="size-4" aria-hidden /> Carregar mais</>
+                  )}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </section>
+
 
       <p className="mt-10 rounded-2xl bg-brand-soft/60 p-4 text-xs text-muted-foreground">
         O Desabafa Amigo oferece <strong>escuta acolhedora por voluntários treinados</strong>. Não é um serviço de psicologia, psiquiatria ou medicina, e não temos vínculo com esses profissionais.
