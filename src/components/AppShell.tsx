@@ -50,49 +50,73 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
   return (
     <div className="flex min-h-dvh bg-background">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex">
-        <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40">
-          <span className="relative grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white shadow-calm ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105">
-            <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
-            <Logo responsive decorative priority className="relative h-10 w-10" />
-          </span>
-          <div className="leading-tight">
-            <p className="text-base font-semibold text-primary">Desabafa Amigo</p>
-            <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
-          </div>
-        </Link>
-        <nav className="flex-1 space-y-1 p-3">
-          <NavGroup title="Meu espaço">
-            {patientNav.map((it) => (
-              <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} highlight={"highlight" in it && it.highlight} />
-            ))}
-          </NavGroup>
-          {isPro && (
-            <NavGroup title="Voluntário(a)">
-              {proNav.map((it) => (
-                <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname === it.to || pathname.startsWith(it.to + "/")} />
+      {!collapsed && (
+        <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex animate-fade-in">
+          <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40">
+            <span className="relative grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white shadow-calm ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105">
+              <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
+              <Logo responsive decorative priority className="relative h-10 w-10" />
+            </span>
+            <div className="leading-tight flex-1">
+              <p className="text-base font-semibold text-primary">Desabafa Amigo</p>
+              <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(); }}
+              aria-label="Fechar menu lateral"
+              title="Fechar menu"
+              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <PanelLeftClose className="size-4" />
+            </button>
+          </Link>
+          <nav className="flex-1 space-y-1 p-3">
+            <NavGroup title="Meu espaço">
+              {patientNav.map((it) => (
+                <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} highlight={"highlight" in it && it.highlight} />
               ))}
             </NavGroup>
-          )}
-          {isAdmin && (
-            <NavGroup title="Administração">
-              <NavItem to="/admin" label="Painel admin" icon={ShieldCheck} active={pathname.startsWith("/admin")} />
-            </NavGroup>
-          )}
-        </nav>
-        <div className="border-t border-border p-3">
-          <div className="mb-2 flex items-center gap-2 px-1">
-            {alias && <img src={avatarUrl(alias, 64)} alt="" className="size-8 rounded-full ring-1 ring-border" />}
-            <div className="min-w-0">
-              <p className="truncate text-xs font-medium text-foreground">{alias || "..."}</p>
-              <p className="truncate text-[10px] text-muted-foreground">Apelido do app</p>
+            {isPro && (
+              <NavGroup title="Voluntário(a)">
+                {proNav.map((it) => (
+                  <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname === it.to || pathname.startsWith(it.to + "/")} />
+                ))}
+              </NavGroup>
+            )}
+            {isAdmin && (
+              <NavGroup title="Administração">
+                <NavItem to="/admin" label="Painel admin" icon={ShieldCheck} active={pathname.startsWith("/admin")} />
+              </NavGroup>
+            )}
+          </nav>
+          <div className="border-t border-border p-3">
+            <div className="mb-2 flex items-center gap-2 px-1">
+              {alias && <img src={avatarUrl(alias, 64)} alt="" className="size-8 rounded-full ring-1 ring-border" />}
+              <div className="min-w-0">
+                <p className="truncate text-xs font-medium text-foreground">{alias || "..."}</p>
+                <p className="truncate text-[10px] text-muted-foreground">Apelido do app</p>
+              </div>
             </div>
+            <button onClick={signOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
+              <LogOut className="size-4" /> Sair
+            </button>
           </div>
-          <button onClick={signOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
-            <LogOut className="size-4" /> Sair
-          </button>
-        </div>
-      </aside>
+        </aside>
+      )}
+
+      {collapsed && (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label="Abrir menu lateral"
+          title="Abrir menu"
+          className="fixed left-3 top-3 z-40 hidden items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:text-foreground md:inline-flex"
+        >
+          <PanelLeftOpen className="size-4" />
+          Menu
+        </button>
+      )}
 
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
@@ -104,6 +128,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             <LogOut className="size-4" />
           </button>
         </header>
+
         <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
         <nav className="grid grid-cols-4 border-t border-border bg-card md:hidden">
           {[
