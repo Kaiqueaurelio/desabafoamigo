@@ -4,9 +4,9 @@ import { ShieldCheck, Lock, Trash2, Eye, Clock, FileWarning } from "lucide-react
 export const Route = createFileRoute("/privacidade")({
   head: () => ({
     meta: [
-      { title: "Privacidade e Segurança — Desabafa Amigo" },
-      { name: "description", content: "Como o Desabafa Amigo protege seus dados: apelido gerado pelo app, retenção curta, criptografia em trânsito e direito de apagar sua conta." },
-      { property: "og:title", content: "Privacidade e Segurança — Desabafa Amigo" },
+      { title: "Privacidade e Segurança — Desabafo Amigo" },
+      { name: "description", content: "Como o Desabafo Amigo protege seus dados: apelido gerado pelo app, retenção curta, criptografia em trânsito e direito de apagar sua conta." },
+      { property: "og:title", content: "Privacidade e Segurança — Desabafo Amigo" },
       { property: "og:description", content: "Transparência sobre o que coletamos, por quanto tempo guardamos e como você pode apagar tudo." },
     ],
   }),

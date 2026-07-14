@@ -5,7 +5,7 @@ export const Route = createFileRoute("/offline")({
   component: OfflinePage,
   head: () => ({
     meta: [
-      { title: "Sem conexão — Desabafa Amigo" },
+      { title: "Sem conexão — Desabafo Amigo" },
       { name: "description", content: "Você está sem conexão no momento." },
       { name: "robots", content: "noindex" },
     ],

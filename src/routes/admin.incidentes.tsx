@@ -12,7 +12,7 @@ export const Route = createFileRoute("/admin/incidentes")({
   component: Incidentes,
   head: () => ({
     meta: [
-      { title: "Incidentes de captura · Admin · Desabafa Amigo" },
+      { title: "Incidentes de captura · Admin · Desabafo Amigo" },
       { name: "description", content: "Auditoria de tentativas de captura de tela nas conversas." },
       { name: "robots", content: "noindex" },
     ],

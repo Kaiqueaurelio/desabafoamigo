@@ -122,7 +122,7 @@ export const triageStep = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `Você é um assistente de triagem acolhedora do Desabafa Amigo. Objetivo: em NO MÁXIMO 4 turnos, entender o que a pessoa gostaria de conversar e o nível de urgência, para preparar a fila.
+          content: `Você é um assistente de triagem acolhedora do Desabafo Amigo. Objetivo: em NO MÁXIMO 4 turnos, entender o que a pessoa gostaria de conversar e o nível de urgência, para preparar a fila.
 Regras:
 - Tom quente, curto, sem clichês, sem dar diagnóstico ou conselho clínico.
 - Uma pergunta por vez. Nunca peça dados pessoais (nome, cidade, telefone, e-mail).

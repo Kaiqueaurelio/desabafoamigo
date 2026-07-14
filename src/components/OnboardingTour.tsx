@@ -5,7 +5,7 @@ import { useFocusTrap } from "@/lib/useFocusTrap";
 const KEY = "desabafo:onboarded";
 
 const STEPS = [
-  { icon: Heart, title: "Bem-vindo(a) ao Desabafa Amigo", body: "Um espaço acolhedor para você conversar por mensagem com voluntários treinados em escuta." },
+  { icon: Heart, title: "Bem-vindo(a) ao Desabafo Amigo", body: "Um espaço acolhedor para você conversar por mensagem com voluntários treinados em escuta." },
   { icon: Shield, title: "Sua identidade fica protegida", body: "Geramos um apelido e um avatar para você. Ninguém precisa saber quem é a pessoa por trás." },
   { icon: MessagesSquare, title: "Comece quando quiser", body: "Toque em 'Conversar agora' para entrar na fila. Se preferir, use nosso assistente de triagem." },
   { icon: Sparkles, title: "Você também tem apoio próprio", body: "Diário emocional, exercícios de respiração e biblioteca de apoio estão em Início." },

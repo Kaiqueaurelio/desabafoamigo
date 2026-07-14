@@ -7,13 +7,13 @@ export const Route = createFileRoute("/seja-voluntario")({
   component: SejaVoluntario,
   head: () => ({
     meta: [
-      { title: "Seja voluntário(a) — Desabafa Amigo" },
+      { title: "Seja voluntário(a) — Desabafo Amigo" },
       {
         name: "description",
         content:
-          "Ajude a ouvir quem mais precisa. Cadastre-se como voluntário do Desabafa Amigo e receba treinamento antes de atender.",
+          "Ajude a ouvir quem mais precisa. Cadastre-se como voluntário do Desabafo Amigo e receba treinamento antes de atender.",
       },
-      { property: "og:title", content: "Seja voluntário(a) — Desabafa Amigo" },
+      { property: "og:title", content: "Seja voluntário(a) — Desabafo Amigo" },
       { property: "og:url", content: "https://desabaoamigo.lovable.app/seja-voluntario" },
     ],
     links: [{ rel: "canonical", href: "https://desabaoamigo.lovable.app/seja-voluntario" }],

@@ -14,7 +14,7 @@ export function Watermark() {
         <div className="flex -rotate-12 items-center gap-4">
           <Logo size={120} />
           <span className="text-6xl font-bold tracking-tight text-primary md:text-8xl">
-            Desabafa Amigo
+            Desabafo Amigo
           </span>
         </div>
       </div>
@@ -41,7 +41,7 @@ export function IdentityWatermark({
     hour: "2-digit",
     minute: "2-digit",
   });
-  const parts = [label, stamp, sessionHash ? `#${sessionHash}` : null, "Desabafa Amigo"]
+  const parts = [label, stamp, sessionHash ? `#${sessionHash}` : null, "Desabafo Amigo"]
     .filter(Boolean)
     .join(" · ");
   const rows = Array.from({ length: 14 });

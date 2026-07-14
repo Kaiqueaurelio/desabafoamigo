@@ -4,7 +4,7 @@ import { useFocusTrap } from "@/lib/useFocusTrap";
 
 const KEY = "desabafa_onboarding_v1";
 const STEPS = [
-  { icon: HeartHandshake, title: "Bem-vindo(a) ao Desabafa Amigo", body: "Um espaço seguro onde você pode desabafar e ser ouvido(a) por voluntários(as) treinados(as). Sem julgamentos, no seu tempo." },
+  { icon: HeartHandshake, title: "Bem-vindo(a) ao Desabafo Amigo", body: "Um espaço seguro onde você pode desabafar e ser ouvido(a) por voluntários(as) treinados(as). Sem julgamentos, no seu tempo." },
   { icon: Shield, title: "Sua identidade é protegida", body: "Nós geramos automaticamente um apelido e um avatar para você. Ninguém sabe quem você é fora da conversa." },
   { icon: MessageCircleHeart, title: "Você não está sozinho(a)", body: "Se estiver em crise, use o botão de emergência (💙 canto da tela) para acessar o CVV (188) a qualquer momento." },
 ] as const;

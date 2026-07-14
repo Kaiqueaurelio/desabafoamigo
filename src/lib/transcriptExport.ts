@@ -34,7 +34,7 @@ export function buildTranscriptText(data: TranscriptExport): string {
     parts.push(renderBlock(`Tradução — ${t.label}`, t.text, t.segments));
   }
   parts.push("");
-  parts.push("— Desabafa Amigo · escuta acolhedora");
+  parts.push("— Desabafo Amigo · escuta acolhedora");
   return parts.join("\n");
 }
 
@@ -85,7 +85,7 @@ export async function downloadPdf(data: TranscriptExport): Promise<void> {
   if (data.original) writeBlock(data.original.label, data.original.text, data.original.segments);
   for (const t of data.translations) writeBlock(`Tradução — ${t.label}`, t.text, t.segments);
 
-  writeLine("— Desabafa Amigo · escuta acolhedora", 9, "italic");
+  writeLine("— Desabafo Amigo · escuta acolhedora", 9, "italic");
   doc.save(`${slug(data.title)}.pdf`);
 }
 
