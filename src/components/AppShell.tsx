@@ -266,8 +266,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
         <main
           key={pathname}
-          className="flex-1 overflow-y-auto md:pb-6"
-          style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 7rem)" }}
+          className="flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+7rem)] md:pb-6"
         >
           <RouteFade>{children}</RouteFade>
         </main>
