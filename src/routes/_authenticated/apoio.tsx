@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { libraryMediaUrl } from "@/lib/library";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { BreathingButton } from "@/components/BreathingExercise";
 import {
   BookOpen, Wind, HeartPulse, Sun, Users, PhoneCall,
@@ -143,10 +143,6 @@ function Apoio() {
               );
             })}
           </div>
-
-          <TabsList className="sr-only">
-            {BLOCKS.map((b) => (<TabsTrigger key={b.id} value={b.id}>{b.label}</TabsTrigger>))}
-          </TabsList>
 
           {/* TÉCNICAS */}
           <TabsContent value="tecnicas" className="mt-6 focus-visible:ring-0 sm:mt-10">

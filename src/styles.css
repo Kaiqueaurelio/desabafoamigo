@@ -124,11 +124,19 @@
     border-color: var(--color-border);
   }
   html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+  body > div {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
   }
   /* Global keyboard focus — visible only when navigating via keyboard. */
   :focus { outline: none; }
