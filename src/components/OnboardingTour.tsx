@@ -25,6 +25,9 @@ export function OnboardingTour() {
     setOpen(false);
   }
 
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, panelRef, { onEscape: finish });
+
   if (!open) return null;
   const S = STEPS[step];
   const Icon = S.icon;
@@ -32,7 +35,7 @@ export function OnboardingTour() {
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="tour-title"
       className="fixed inset-0 z-[80] grid place-items-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl">
+      <div ref={panelRef} className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl">
         <div className="mb-3 flex items-start justify-between">
           <div className="grid size-11 place-items-center rounded-2xl bg-brand-soft text-primary">
             <Icon className="size-6" aria-hidden />
