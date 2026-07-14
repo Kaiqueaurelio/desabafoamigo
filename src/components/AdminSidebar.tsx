@@ -46,10 +46,12 @@ const groups: {
     label: "Visão geral",
     items: [
       { to: "/admin", label: "Voluntários", icon: Users, tone: "primary" },
+      { to: "/admin/usuarios", label: "Usuários e permissões", icon: ShieldCheck },
       { to: "/admin/metricas", label: "Métricas", icon: BarChart3 },
       { to: "/admin/observabilidade", label: "Observabilidade", icon: Activity },
     ],
   },
+
   {
     label: "Atendimento",
     items: [
