@@ -64,7 +64,7 @@ function Auditoria() {
 
         <div className="overflow-x-auto rounded-2xl border border-border bg-card">
           {loading ? (
-            <p className="p-6 text-sm text-muted-foreground">Carregando…</p>
+            <TableRowsSkeleton rows={8} cols={4} />
           ) : rows.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">Nenhum evento encontrado.</p>
           ) : (
