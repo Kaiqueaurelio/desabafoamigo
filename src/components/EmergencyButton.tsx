@@ -81,7 +81,8 @@ export function EmergencyButton() {
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
           onClick={() => setOpen(false)}
         >
-          <div className="w-full max-w-md rounded-2xl bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div ref={panelRef} className="w-full max-w-md rounded-2xl bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+
             <div className="mb-4 flex items-start justify-between gap-4">
               <h2 id="emergencia-titulo" className="text-xl font-semibold text-foreground">
                 Você não está sozinho(a)
