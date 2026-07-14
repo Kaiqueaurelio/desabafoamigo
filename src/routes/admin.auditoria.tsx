@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { ArrowLeft, FileText } from "lucide-react";
+import { TableRowsSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/auditoria")({
   ssr: false,
