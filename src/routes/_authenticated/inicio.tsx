@@ -18,43 +18,68 @@ type Appt = {
   id: string; scheduled_at: string; topic: string; status: string; professional_id: string; patient_id: string;
 };
 
+const PAGE_SIZE = 5;
+
 function Home() {
   const [upcoming, setUpcoming] = useState<Appt[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [alias, setAlias] = useState<string>("");
   const [me, setMe] = useState<string>("");
   const [streak, setStreak] = useState<number>(0);
+  const [visible, setVisible] = useState<number>(0);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true);
+
+  async function fetchPage(userId: string, from: number, to: number) {
+    const { data } = await supabase
+      .from("appointments")
+      .select("id, scheduled_at, topic, status, professional_id, patient_id")
+      .eq("patient_id", userId)
+      .in("status", ["scheduled", "in_progress"])
+      .order("scheduled_at", { ascending: true })
+      .range(from, to);
+    const rows = (data ?? []) as Appt[];
+    const ids = Array.from(new Set(rows.map((a) => a.professional_id)));
+    if (ids.length) {
+      const { data: pros } = await supabase.from("volunteers").select("user_id, full_name, specialty").in("user_id", ids);
+      const map: Record<string, string> = {};
+      (pros ?? []).forEach((p) => { map[p.user_id] = `${p.full_name}${p.specialty ? " · " + p.specialty : ""}`; });
+      setNames((prev) => ({ ...prev, ...map }));
+    }
+    return rows;
+  }
 
   useEffect(() => {
-
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
+      if (!u.user) { setInitialLoading(false); return; }
       setMe(u.user.id);
       loadStreak(u.user.id).then(setStreak).catch(() => {});
 
       const { data: prof } = await supabase.from("profiles").select("display_name").eq("user_id", u.user.id).maybeSingle();
       setAlias(prof?.display_name ?? "");
 
-
-      const { data } = await supabase
-        .from("appointments")
-        .select("id, scheduled_at, topic, status, professional_id, patient_id")
-        .eq("patient_id", u.user.id)
-        .in("status", ["scheduled", "in_progress"])
-        .order("scheduled_at", { ascending: true })
-        .limit(5);
-      setUpcoming((data ?? []) as Appt[]);
-
-      const ids = Array.from(new Set((data ?? []).map((a) => a.professional_id)));
-      if (ids.length) {
-        const { data: pros } = await supabase.from("volunteers").select("user_id, full_name, specialty").in("user_id", ids);
-        const map: Record<string, string> = {};
-        (pros ?? []).forEach((p) => { map[p.user_id] = `${p.full_name}${p.specialty ? " · " + p.specialty : ""}`; });
-        setNames(map);
-      }
+      // fetch PAGE_SIZE + 1 to know if there are more pages
+      const rows = await fetchPage(u.user.id, 0, PAGE_SIZE);
+      setHasMore(rows.length > PAGE_SIZE);
+      setUpcoming(rows.slice(0, PAGE_SIZE));
+      setVisible(PAGE_SIZE);
+      setInitialLoading(false);
     })();
   }, []);
+
+  async function loadMore() {
+    if (!me || loadingMore) return;
+    setLoadingMore(true);
+    const from = visible;
+    const to = visible + PAGE_SIZE;
+    const rows = await fetchPage(me, from, to);
+    setUpcoming((prev) => [...prev, ...rows.slice(0, PAGE_SIZE)]);
+    setHasMore(rows.length > PAGE_SIZE);
+    setVisible(visible + PAGE_SIZE);
+    setLoadingMore(false);
+  }
 
   return (
     <div id="conteudo" className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
