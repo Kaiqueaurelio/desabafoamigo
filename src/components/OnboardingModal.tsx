@@ -23,11 +23,14 @@ export function OnboardingModal() {
     setOpen(false);
   }
 
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, panelRef, { onEscape: close });
+
   if (!open) return null;
   const S = STEPS[step];
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="dialog" aria-modal="true">
-      <div className="relative w-full max-w-md rounded-3xl bg-card p-8 shadow-2xl">
+      <div ref={panelRef} className="relative w-full max-w-md rounded-3xl bg-card p-8 shadow-2xl">
         <button onClick={close} aria-label="Pular" className="absolute right-3 top-3 rounded-full p-2 text-muted-foreground hover:bg-muted">
           <X className="size-4" />
         </button>
