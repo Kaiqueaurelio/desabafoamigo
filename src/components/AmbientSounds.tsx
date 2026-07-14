@@ -142,6 +142,12 @@ export function AmbientSounds() {
       (Object.keys(nodesRef.current) as AmbientKey[]).forEach(k => {
         applyGain(k, volumes[k], next);
       });
+      // Anúncio para leitores de tela — força mudança de valor para re-anunciar
+      setAnnouncement(
+        next
+          ? "Sons ambientais pausados."
+          : "Sons ambientais retomados."
+      );
       return next;
     });
   }, [volumes]);
