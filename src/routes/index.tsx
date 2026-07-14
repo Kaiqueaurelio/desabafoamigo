@@ -195,20 +195,32 @@ function Header() {
 }
 
 function Hero() {
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
+  const orb1Y = useTransform(scrollY, [0, 600], [0, reduce ? 0 : 120]);
+  const orb2Y = useTransform(scrollY, [0, 600], [0, reduce ? 0 : -120]);
+  const heroScale = useTransform(scrollY, [0, 400], [1, reduce ? 1 : 0.96]);
+  const heroOpacity = useTransform(scrollY, [0, 400], [1, reduce ? 1 : 0.6]);
+
   return (
     <section className="relative isolate">
       <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -left-20 size-[520px] rounded-full bg-brand-sky/20 blur-3xl animate-blob" />
-        <div className="absolute top-20 -right-20 size-[520px] rounded-full bg-brand-green/15 blur-3xl animate-blob animation-delay-2000" />
+        <motion.div style={{ y: orb1Y }} className="absolute -top-40 -left-20 size-[520px] rounded-full bg-brand-sky/20 blur-3xl animate-blob" />
+        <motion.div style={{ y: orb2Y }} className="absolute top-20 -right-20 size-[520px] rounded-full bg-brand-green/15 blur-3xl animate-blob animation-delay-2000" />
         <InfinityFlow className="absolute inset-x-0 top-10 h-[420px] w-full opacity-70" />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-soft/60 via-background/70 to-background" />
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
-        <div className="flex flex-col justify-center animate-fade-in">
-          <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-medium text-brand-green shadow-sm backdrop-blur">
+      <motion.div style={{ scale: heroScale, opacity: heroOpacity }} className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
+        <div className="flex flex-col justify-center">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-medium text-brand-green shadow-sm backdrop-blur"
+          >
             <InfinityIcon className="size-3.5 animate-spin-slow" /> Escuta acolhedora sem fim
-          </span>
+          </motion.span>
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-primary sm:text-5xl md:text-6xl">
             <WordReveal text="Sua voz merece" />{" "}
             <span className="bg-gradient-to-r from-brand-green via-brand-sky to-brand-green bg-clip-text text-transparent animate-gradient-shift" style={{ backgroundSize: "200% auto" }}>
@@ -216,45 +228,69 @@ function Hero() {
             </span>
             .
           </h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground animate-fade-in" style={{ animationDelay: "700ms", animationFillMode: "backwards" }}>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.7 }}
+            className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground"
+          >
             Um espaço confiável para desabafar por mensagem, com voluntários treinados em escuta
             ativa. Sem julgamento, sem exposição — seu apelido é gerado pelo app.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/auth" className="btn-primary btn-shine inline-flex items-center gap-2 group">
-              <MessageSquareText className="size-5" />
-              Começar a conversar
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.6 }}
+            className="mt-8 flex flex-wrap gap-3"
+          >
+            <MagneticWrap>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 300, damping: 18 }}>
+                <Link to="/auth" className="btn-primary btn-shine inline-flex items-center gap-2 group">
+                  <MessageSquareText className="size-5" />
+                  Começar a conversar
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </motion.div>
+            </MagneticWrap>
             <a
               href="#origem"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-primary transition hover:bg-muted"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-primary transition hover:bg-muted hover:-translate-y-0.5"
             >
               Nossa história
             </a>
-          </div>
+          </motion.div>
 
-          <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 text-center">
+          <MotionStagger className="mt-10 grid max-w-md grid-cols-3 gap-4 text-center">
             {[
               { k: "100%", v: "Anônimo" },
               { k: "24/7", v: "Disponível" },
               { k: "0R$", v: "Sempre gratuito" },
             ].map((s) => (
-              <div key={s.v} className="rounded-2xl border border-border/60 bg-card/60 p-3 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-calm)]">
+              <MotionItem key={s.v} className="rounded-2xl border border-border/60 bg-card/60 p-3 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-calm)]">
                 <dt className="text-xl font-bold text-primary">{s.k}</dt>
                 <dd className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.v}</dd>
-              </div>
+              </MotionItem>
             ))}
-          </dl>
+          </MotionStagger>
         </div>
 
-        <div className="animate-fade-in">
-          <ChatDemo />
-        </div>
-      </div>
+        <Parallax offset={40}>
+          <motion.div
+            initial={{ opacity: 0, y: 24, rotateX: 8 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ delay: 0.3, duration: 0.9, ease: [0.22, 0.9, 0.28, 1] }}
+            whileHover={{ rotateY: 2, rotateX: -2, scale: 1.01 }}
+            style={{ transformPerspective: 1000 }}
+          >
+            <ChatDemo />
+          </motion.div>
+        </Parallax>
+      </motion.div>
     </section>
   );
 }
+
+
 
 function Impact() {
   const stats = [
