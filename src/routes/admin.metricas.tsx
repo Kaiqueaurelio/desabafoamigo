@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { ArrowLeft, Activity, Users, MessageCircleHeart, Clock, Star, ShieldAlert } from "lucide-react";
+import { MetricsGridSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/metricas")({
   ssr: false,
