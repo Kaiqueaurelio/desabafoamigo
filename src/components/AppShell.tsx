@@ -306,4 +306,27 @@ function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; lab
   );
 }
 
+function MobileNavGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+      <div className="flex flex-col gap-1">{children}</div>
+    </div>
+  );
+}
+
+function MobileNavItem({ to, label, Icon, active, highlight }: { to: string; label: string; Icon: typeof Home; active: boolean; highlight?: boolean }) {
+  const base = "interactive flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 text-[15px]";
+  const cls = active
+    ? "nav-active-row"
+    : highlight
+      ? "bg-gradient-to-r from-sky-500/10 to-transparent text-sky-700 hover:from-sky-500/20 dark:text-sky-300"
+      : "text-foreground hover:bg-muted";
+  return (
+    <Link to={to} aria-current={active ? "page" : undefined} className={`${base} ${cls}`}>
+      <Icon aria-hidden className={`size-5 shrink-0 ${highlight && !active ? "text-sky-500" : ""}`} />
+      <span className={`min-w-0 flex-1 break-words leading-tight ${active ? "font-semibold" : ""}`}>{label}</span>
+    </Link>
+  );
+}
 
