@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { PasswordInput } from "@/components/PasswordInput";
@@ -16,13 +16,38 @@ const schema = z.object({
   password: z.string().min(6, "Mínimo de 6 caracteres").max(72),
 });
 
+// Chave e helpers para "Lembrar-me" (armazenamento local ofuscado; opt-in do usuário).
+const REMEMBER_KEY = "desabafo:auth:remember";
+type RememberPayload = { email: string; password?: string };
+function encodeRemember(v: RememberPayload): string {
+  try { return btoa(unescape(encodeURIComponent(JSON.stringify(v)))); } catch { return ""; }
+}
+function decodeRemember(raw: string | null): RememberPayload | null {
+  if (!raw) return null;
+  try { return JSON.parse(decodeURIComponent(escape(atob(raw)))) as RememberPayload; } catch { return null; }
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Carrega credenciais salvas (se houver) — apenas no cliente.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = decodeRemember(window.localStorage.getItem(REMEMBER_KEY));
+    if (saved?.email) {
+      setEmail(saved.email);
+      setMode("signin");
+      if (saved.password) setPassword(saved.password);
+      setRemember(true);
+    }
+  }, []);
+
 
   async function signInAndRoute(normalizedEmail: string, normalizedPassword: string) {
     const { data, error } = await supabase.auth.signInWithPassword({
