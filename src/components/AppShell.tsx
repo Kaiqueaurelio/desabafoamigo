@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { supabase } from "@/integrations/supabase/client";
 import { avatarUrl } from "@/lib/avatar";
-import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings } from "lucide-react";
+import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings, Wind } from "lucide-react";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { RouteFade } from "@/components/RouteFade";
 import type { User } from "@supabase/supabase-js";
@@ -31,6 +31,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   const patientNav = [
     { to: "/inicio", label: "Início", icon: Home },
     { to: "/conversar", label: "Conversar agora", icon: HeartHandshake },
+    { to: "/respirar", label: "Respire comigo", icon: Wind, highlight: true },
     { to: "/consultas", label: "Minhas conversas", icon: CalendarClock },
     { to: "/diario", label: "Meu diário", icon: NotebookPen },
     { to: "/apoio", label: "Apoio", icon: BookOpen },
@@ -59,7 +60,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         <nav className="flex-1 space-y-1 p-3">
           <NavGroup title="Meu espaço">
             {patientNav.map((it) => (
-              <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} />
+              <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} highlight={"highlight" in it && it.highlight} />
             ))}
           </NavGroup>
           {isPro && (
@@ -102,16 +103,19 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
         <nav className="grid grid-cols-4 border-t border-border bg-card md:hidden">
           {[
-            ...patientNav,
-            ...(isPro ? [{ to: "/pro" as const, label: "Agenda", icon: HeartHandshake }] : []),
-          ]
-            .slice(0, 4)
-            .map((it) => (
-              <Link key={it.to} to={it.to} className={`flex flex-col items-center gap-1 py-2 text-[10px] ${pathname.startsWith(it.to) ? "text-primary" : "text-muted-foreground"}`}>
-                <it.icon className="size-5" />
+            { to: "/inicio", label: "Início", icon: Home },
+            { to: "/conversar", label: "Conversar", icon: HeartHandshake },
+            { to: "/respirar", label: "Respirar", icon: Wind },
+            { to: "/apoio", label: "Apoio", icon: BookOpen },
+          ].map((it) => {
+            const active = pathname.startsWith(it.to);
+            return (
+              <Link key={it.to} to={it.to} className={`flex flex-col items-center gap-1 py-2 text-[10px] transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
+                <it.icon className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`} />
                 {it.label}
               </Link>
-            ))}
+            );
+          })}
         </nav>
       </div>
       <EmergencyButton />
@@ -129,10 +133,16 @@ function NavGroup({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function NavItem({ to, label, icon: Icon, active }: { to: string; label: string; icon: typeof Home; active: boolean }) {
+function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; label: string; icon: typeof Home; active: boolean; highlight?: boolean }) {
+  const base = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition";
+  const cls = active
+    ? "bg-primary/10 font-medium text-primary"
+    : highlight
+      ? "bg-gradient-to-r from-sky-500/10 to-transparent text-sky-700 hover:from-sky-500/20 dark:text-sky-300"
+      : "text-foreground hover:bg-muted";
   return (
-    <Link to={to} className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${active ? "bg-primary/10 font-medium text-primary" : "text-foreground hover:bg-muted"}`}>
-      <Icon className="size-4" /> {label}
+    <Link to={to} className={`${base} ${cls}`}>
+      <Icon className={`size-4 ${highlight && !active ? "text-sky-500" : ""}`} /> {label}
     </Link>
   );
 }
