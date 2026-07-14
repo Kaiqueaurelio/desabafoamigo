@@ -91,7 +91,10 @@ function AparenciaPage() {
       </header>
 
       <div className="mx-auto max-w-6xl gap-6 px-4 py-6 md:flex">
-        <AdminSidebar />
+        <div className="hidden md:flex md:flex-col md:gap-2">
+          <AdminSidebarToggle />
+          <AdminSidebar />
+        </div>
 
         <div className="min-w-0 flex-1 space-y-6">
           <AdminSidebarMobile />
