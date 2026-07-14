@@ -142,29 +142,46 @@ export function AmbientSounds() {
       (Object.keys(nodesRef.current) as AmbientKey[]).forEach(k => {
         applyGain(k, volumes[k], next);
       });
-      // Anúncio para leitores de tela — força mudança de valor para re-anunciar
+      // Anúncio para leitores de tela — mensagem descritiva com contexto e como reverter.
+      // Prefixo com espaço não-quebrável zero-width alterna a cada disparo para forçar
+      // re-anúncio mesmo quando o texto lógico coincide, sem deslocar o foco do usuário.
+      const marker = announceTickRef.current++ % 2 === 0 ? "" : "\u200B";
       setAnnouncement(
         next
-          ? "Sons ambientais pausados."
-          : "Sons ambientais retomados."
+          ? `${marker}Sons ambientais silenciados. Pressione M novamente para retomar.`
+          : `${marker}Sons ambientais retomados. Pressione M para silenciar.`
       );
       return next;
     });
   }, [volumes]);
 
-  // Atalho de teclado: M para alternar mute
+  // Atalho de teclado: M para alternar mute — preserva o foco onde o usuário está
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key !== "m" && e.key !== "M") return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Não roubar o foco: guardamos o elemento ativo e restauramos após o toggle
+      // caso alguma re-renderização o desloque.
+      const previouslyFocused = document.activeElement as HTMLElement | null;
       e.preventDefault();
       toggleMute();
+      // Restauração defensiva de foco no próximo frame, sem interromper navegação
+      requestAnimationFrame(() => {
+        if (
+          previouslyFocused &&
+          document.activeElement !== previouslyFocused &&
+          document.contains(previouslyFocused)
+        ) {
+          try { previouslyFocused.focus({ preventScroll: true }); } catch {}
+        }
+      });
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleMute]);
+
 
   return (
     <section
