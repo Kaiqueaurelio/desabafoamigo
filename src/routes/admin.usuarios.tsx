@@ -168,7 +168,7 @@ function UsuariosPage() {
 
           <div className="w-full max-w-full overflow-hidden rounded-2xl border border-border bg-card">
             {loading ? (
-              <p className="p-4 text-sm text-muted-foreground">Carregando…</p>
+              <TableRowsSkeleton rows={6} cols={3} />
             ) : filtered.length === 0 ? (
               <p className="p-6 text-center text-sm text-muted-foreground">Nenhum usuário encontrado.</p>
             ) : (
