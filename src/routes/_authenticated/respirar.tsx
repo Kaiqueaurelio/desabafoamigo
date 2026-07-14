@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wind, ArrowLeft, Play, Pause, RotateCcw, Volume2, VolumeX, Check, Sparkles } from "lucide-react";
+import { AmbientSounds } from "@/components/AmbientSounds";
 
 export const Route = createFileRoute("/_authenticated/respirar")({
   component: RespirarPage,
