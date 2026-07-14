@@ -131,8 +131,9 @@ function ObservabilityPage() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="size-6 animate-spin text-primary" />
+          <div className="space-y-4">
+            <MetricsGridSkeleton count={tab === "nps" ? 5 : 3} />
+            <CardListSkeleton rows={4} />
           </div>
         ) : tab === "errors" ? (
           <section className="space-y-4">
