@@ -212,6 +212,8 @@ function AudiosManager() {
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [editing, setEditing] = useState<Audio | null>(null);
+
   const [form, setForm] = useState({
     title: "",
     description: "",
