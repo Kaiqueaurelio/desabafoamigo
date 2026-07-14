@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
+import { Route as AdminPlantaoRouteImport } from './routes/admin.plantao'
 import { Route as AdminPasskeysRouteImport } from './routes/admin.passkeys'
 import { Route as AdminPalavrasRouteImport } from './routes/admin.palavras'
 import { Route as AdminObservabilidadeRouteImport } from './routes/admin.observabilidade'
@@ -34,6 +35,7 @@ import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento
 import { Route as AdminAparenciaRouteImport } from './routes/admin.aparencia'
 import { Route as AuthenticatedTransparenciaRouteImport } from './routes/_authenticated/transparencia'
 import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
+import { Route as AuthenticatedPlanoSegurancaRouteImport } from './routes/_authenticated/plano-seguranca'
 import { Route as AuthenticatedMeusDadosRouteImport } from './routes/_authenticated/meus-dados'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
@@ -99,6 +101,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const ProCadastroRoute = ProCadastroRouteImport.update({
   id: '/pro/cadastro',
   path: '/pro/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPlantaoRoute = AdminPlantaoRouteImport.update({
+  id: '/admin/plantao',
+  path: '/admin/plantao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminPasskeysRoute = AdminPasskeysRouteImport.update({
@@ -172,6 +179,12 @@ const AuthenticatedRelaxarRoute = AuthenticatedRelaxarRouteImport.update({
   path: '/relaxar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlanoSegurancaRoute =
+  AuthenticatedPlanoSegurancaRouteImport.update({
+    id: '/plano-seguranca',
+    path: '/plano-seguranca',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMeusDadosRoute = AuthenticatedMeusDadosRouteImport.update({
   id: '/meus-dados',
   path: '/meus-dados',
@@ -250,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/meus-dados': typeof AuthenticatedMeusDadosRoute
+  '/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
@@ -264,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
   '/admin/passkeys': typeof AdminPasskeysRoute
+  '/admin/plantao': typeof AdminPlantaoRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
@@ -288,6 +303,7 @@ export interface FileRoutesByTo {
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/meus-dados': typeof AuthenticatedMeusDadosRoute
+  '/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
@@ -302,6 +318,7 @@ export interface FileRoutesByTo {
   '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
   '/admin/passkeys': typeof AdminPasskeysRoute
+  '/admin/plantao': typeof AdminPlantaoRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
@@ -328,6 +345,7 @@ export interface FileRoutesById {
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/meus-dados': typeof AuthenticatedMeusDadosRoute
+  '/_authenticated/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
   '/_authenticated/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
@@ -342,6 +360,7 @@ export interface FileRoutesById {
   '/admin/observabilidade': typeof AdminObservabilidadeRoute
   '/admin/palavras': typeof AdminPalavrasRoute
   '/admin/passkeys': typeof AdminPasskeysRoute
+  '/admin/plantao': typeof AdminPlantaoRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
@@ -368,6 +387,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/meus-dados'
+    | '/plano-seguranca'
     | '/relaxar'
     | '/transparencia'
     | '/admin/aparencia'
@@ -382,6 +402,7 @@ export interface FileRouteTypes {
     | '/admin/observabilidade'
     | '/admin/palavras'
     | '/admin/passkeys'
+    | '/admin/plantao'
     | '/pro/cadastro'
     | '/admin/'
     | '/consulta/$id'
@@ -406,6 +427,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/inicio'
     | '/meus-dados'
+    | '/plano-seguranca'
     | '/relaxar'
     | '/transparencia'
     | '/admin/aparencia'
@@ -420,6 +442,7 @@ export interface FileRouteTypes {
     | '/admin/observabilidade'
     | '/admin/palavras'
     | '/admin/passkeys'
+    | '/admin/plantao'
     | '/pro/cadastro'
     | '/admin'
     | '/consulta/$id'
@@ -445,6 +468,7 @@ export interface FileRouteTypes {
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
     | '/_authenticated/meus-dados'
+    | '/_authenticated/plano-seguranca'
     | '/_authenticated/relaxar'
     | '/_authenticated/transparencia'
     | '/admin/aparencia'
@@ -459,6 +483,7 @@ export interface FileRouteTypes {
     | '/admin/observabilidade'
     | '/admin/palavras'
     | '/admin/passkeys'
+    | '/admin/plantao'
     | '/pro/cadastro'
     | '/admin/'
     | '/_authenticated/consulta/$id'
@@ -490,6 +515,7 @@ export interface RootRouteChildren {
   AdminObservabilidadeRoute: typeof AdminObservabilidadeRoute
   AdminPalavrasRoute: typeof AdminPalavrasRoute
   AdminPasskeysRoute: typeof AdminPasskeysRoute
+  AdminPlantaoRoute: typeof AdminPlantaoRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -571,6 +597,13 @@ declare module '@tanstack/react-router' {
       path: '/pro/cadastro'
       fullPath: '/pro/cadastro'
       preLoaderRoute: typeof ProCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/plantao': {
+      id: '/admin/plantao'
+      path: '/admin/plantao'
+      fullPath: '/admin/plantao'
+      preLoaderRoute: typeof AdminPlantaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/passkeys': {
@@ -671,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelaxarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/plano-seguranca': {
+      id: '/_authenticated/plano-seguranca'
+      path: '/plano-seguranca'
+      fullPath: '/plano-seguranca'
+      preLoaderRoute: typeof AuthenticatedPlanoSegurancaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/meus-dados': {
       id: '/_authenticated/meus-dados'
       path: '/meus-dados'
@@ -766,6 +806,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedMeusDadosRoute: typeof AuthenticatedMeusDadosRoute
+  AuthenticatedPlanoSegurancaRoute: typeof AuthenticatedPlanoSegurancaRoute
   AuthenticatedRelaxarRoute: typeof AuthenticatedRelaxarRoute
   AuthenticatedTransparenciaRoute: typeof AuthenticatedTransparenciaRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
@@ -783,6 +824,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedMeusDadosRoute: AuthenticatedMeusDadosRoute,
+  AuthenticatedPlanoSegurancaRoute: AuthenticatedPlanoSegurancaRoute,
   AuthenticatedRelaxarRoute: AuthenticatedRelaxarRoute,
   AuthenticatedTransparenciaRoute: AuthenticatedTransparenciaRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
@@ -817,6 +859,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminObservabilidadeRoute: AdminObservabilidadeRoute,
   AdminPalavrasRoute: AdminPalavrasRoute,
   AdminPasskeysRoute: AdminPasskeysRoute,
+  AdminPlantaoRoute: AdminPlantaoRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

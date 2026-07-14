@@ -96,7 +96,7 @@ export const logEmergencyAction = createServerFn({ method: "POST" })
     const { error } = await supabase.from("emergency_actions").insert({
       user_id: userId,
       kind: data.kind,
-      metadata: data.metadata ?? {},
+      metadata: (data.metadata ?? {}) as never,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
