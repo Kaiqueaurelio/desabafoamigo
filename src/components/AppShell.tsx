@@ -17,6 +17,8 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [alias, setAlias] = useState<string>("");
+  const { collapsed, toggle } = useSidebarToggle("ui:appSidebarCollapsed");
+
 
   useEffect(() => {
     (async () => {
