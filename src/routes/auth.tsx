@@ -91,14 +91,17 @@ function AuthPage() {
           const lower = error.message.toLowerCase();
           if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
             await signInAndRoute(normalizedEmail, normalizedPassword);
+            persistRemember(normalizedEmail, normalizedPassword);
             return;
           }
         }
         if (error) throw error;
       } else {
         await signInAndRoute(normalizedEmail, normalizedPassword);
+        persistRemember(normalizedEmail, normalizedPassword);
         return;
       }
+      persistRemember(normalizedEmail, normalizedPassword);
       navigate({ to: "/inicio" });
     } catch (e) {
       const raw = e instanceof Error ? e.message : "Erro";
@@ -117,6 +120,17 @@ function AuthPage() {
       }
     } finally { setLoading(false); }
   }
+
+  function persistRemember(mail: string, pwd: string) {
+    if (typeof window === "undefined") return;
+    if (remember) {
+      window.localStorage.setItem(REMEMBER_KEY, encodeRemember({ email: mail, password: pwd }));
+    } else {
+      window.localStorage.removeItem(REMEMBER_KEY);
+    }
+  }
+
+
 
 
   return (
