@@ -618,19 +618,25 @@ function HowTo() {
                 burocracia, sem exposição.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  to="/auth"
-                  className="btn-shine inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:opacity-90"
-                >
-                  Cadastre-se gratuitamente
-                  <ArrowRight className="size-4" />
-                </Link>
-                <Link
-                  to="/pro/cadastro"
-                  className="inline-flex items-center gap-2 rounded-xl border border-primary-foreground/30 px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary-foreground/10"
-                >
-                  Quero ser voluntário(a)
-                </Link>
+                <MagneticWrap>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 300, damping: 18 }}>
+                    <Link
+                      to="/auth"
+                      className="btn-shine inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:opacity-90"
+                    >
+                      Cadastre-se gratuitamente
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </motion.div>
+                </MagneticWrap>
+                <motion.div whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                  <Link
+                    to="/pro/cadastro"
+                    className="inline-flex items-center gap-2 rounded-xl border border-primary-foreground/30 px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary-foreground/10"
+                  >
+                    Quero ser voluntário(a)
+                  </Link>
+                </motion.div>
               </div>
             </div>
 
