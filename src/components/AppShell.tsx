@@ -6,7 +6,8 @@ import { EmergencyButton } from "@/components/EmergencyButton";
 import { supabase } from "@/integrations/supabase/client";
 import { avatarUrl } from "@/lib/avatar";
 import { useSidebarToggle } from "@/lib/useSidebarToggle";
-import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings, Wind, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings, Wind, PanelLeftClose, PanelLeftOpen, Menu, X } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { RouteFade } from "@/components/RouteFade";
 import type { User } from "@supabase/supabase-js";
@@ -19,6 +20,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [alias, setAlias] = useState<string>("");
   const { collapsed, toggle } = useSidebarToggle("ui:appSidebarCollapsed");
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Fecha o drawer ao navegar (mudança de rota)
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
 
 
   useEffect(() => {
@@ -170,13 +175,83 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
-          <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-            <Logo responsive decorative priority className="h-11 w-11 sm:h-12 sm:w-12" />
-            <span className="text-base font-semibold text-primary">Desabafa</span>
+        <header className="flex items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 md:hidden">
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label="Abrir menu de navegação"
+                className="interactive grid size-11 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <Menu aria-hidden className="size-5" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex w-[85vw] max-w-sm flex-col gap-0 p-0 sm:max-w-sm">
+              <SheetHeader className="border-b border-border px-5 py-4 text-left">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15">
+                    <Logo responsive decorative priority className="h-9 w-9" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <SheetTitle className="text-base font-semibold text-primary">Desabafa Amigo</SheetTitle>
+                    <SheetDescription className="text-[11px] text-muted-foreground">Escuta acolhedora</SheetDescription>
+                  </div>
+                </div>
+              </SheetHeader>
+
+              <nav aria-label="Navegação" className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+                <MobileNavGroup title="Meu espaço">
+                  {patientNav.map((it) => {
+                    const active = pathname.startsWith(it.to);
+                    return (
+                      <MobileNavItem key={it.to} to={it.to} label={it.label} Icon={it.icon} active={active} highlight={"highlight" in it && it.highlight} />
+                    );
+                  })}
+                </MobileNavGroup>
+
+                {isPro && (
+                  <MobileNavGroup title="Voluntário(a)">
+                    {proNav.map((it) => {
+                      const active = pathname === it.to || pathname.startsWith(it.to + "/");
+                      return <MobileNavItem key={it.to} to={it.to} label={it.label} Icon={it.icon} active={active} />;
+                    })}
+                  </MobileNavGroup>
+                )}
+
+                {isAdmin && (
+                  <MobileNavGroup title="Administração">
+                    <MobileNavItem to="/admin" label="Painel admin" Icon={ShieldCheck} active={pathname.startsWith("/admin")} />
+                  </MobileNavGroup>
+                )}
+              </nav>
+
+              <div className="border-t border-border p-3">
+                <div className="mb-2 flex items-center gap-2 px-2">
+                  {alias && <img src={avatarUrl(alias, 64)} alt="" className="size-9 rounded-full ring-1 ring-border" />}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-foreground">{alias || "..."}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">Apelido do app</p>
+                  </div>
+                  <SheetClose asChild>
+                    <button aria-label="Fechar menu" className="interactive grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground">
+                      <X aria-hidden className="size-4" />
+                    </button>
+                  </SheetClose>
+                </div>
+                <button onClick={signOut} className="interactive flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <LogOut aria-hidden className="size-4" /> Sair da conta
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Logo responsive decorative priority className="h-10 w-10" />
+            <span className="truncate text-base font-semibold text-primary">Desabafa</span>
           </Link>
-          <button onClick={signOut} aria-label="Sair" className="rounded-md p-2 text-muted-foreground hover:bg-muted">
-            <LogOut className="size-4" />
+
+          <button onClick={signOut} aria-label="Sair" className="interactive grid size-11 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
+            <LogOut aria-hidden className="size-5" />
           </button>
         </header>
 
@@ -231,4 +306,27 @@ function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; lab
   );
 }
 
+function MobileNavGroup({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+      <div className="flex flex-col gap-1">{children}</div>
+    </div>
+  );
+}
+
+function MobileNavItem({ to, label, Icon, active, highlight }: { to: string; label: string; Icon: typeof Home; active: boolean; highlight?: boolean }) {
+  const base = "interactive flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 text-[15px]";
+  const cls = active
+    ? "nav-active-row"
+    : highlight
+      ? "bg-gradient-to-r from-sky-500/10 to-transparent text-sky-700 hover:from-sky-500/20 dark:text-sky-300"
+      : "text-foreground hover:bg-muted";
+  return (
+    <Link to={to} aria-current={active ? "page" : undefined} className={`${base} ${cls}`}>
+      <Icon aria-hidden className={`size-5 shrink-0 ${highlight && !active ? "text-sky-500" : ""}`} />
+      <span className={`min-w-0 flex-1 break-words leading-tight ${active ? "font-semibold" : ""}`}>{label}</span>
+    </Link>
+  );
+}
 
