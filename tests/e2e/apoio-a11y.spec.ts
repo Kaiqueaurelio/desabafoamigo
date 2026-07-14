@@ -87,29 +87,28 @@ async function collectInteractiveNames(page: Page) {
       )
     );
     return nodes.map((el) => {
-      const label =
-        el.getAttribute("aria-label") ??
-        (el.getAttribute("aria-labelledby")
-          ? Array.from(
-              document.querySelectorAll(
-                el
-                  .getAttribute("aria-labelledby")!
-                  .split(/\s+/)
-                  .map((id) => `#${CSS.escape(id)}`)
-                  .join(",")
-              )
-            )
-              .map((n) => (n.textContent || "").trim())
-              .join(" ")
-          : "") ||
-        (el.textContent || "").trim() ||
-        el.getAttribute("title") ||
-        "";
+      const ariaLabel = el.getAttribute("aria-label");
+      const labelledby = el.getAttribute("aria-labelledby");
+      let name = ariaLabel || "";
+      if (!name && labelledby) {
+        name = Array.from(
+          document.querySelectorAll(
+            labelledby
+              .split(/\s+/)
+              .map((id) => `#${CSS.escape(id)}`)
+              .join(",")
+          )
+        )
+          .map((n) => (n.textContent || "").trim())
+          .join(" ");
+      }
+      if (!name) name = (el.textContent || "").trim();
+      if (!name) name = el.getAttribute("title") || "";
       const rect = el.getBoundingClientRect();
       const visible = rect.width > 0 && rect.height > 0;
       return {
         tag: el.tagName.toLowerCase(),
-        name: label.slice(0, 60),
+        name: name.slice(0, 60),
         visible,
         tabIndex: el.tabIndex,
       };
