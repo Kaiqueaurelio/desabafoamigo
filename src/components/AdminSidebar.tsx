@@ -12,6 +12,7 @@ import {
   Users,
   Palette,
   LayoutDashboard,
+  LifeBuoy,
 } from "lucide-react";
 
 const groups: {
@@ -30,6 +31,7 @@ const groups: {
     label: "Atendimento",
     items: [
       { to: "/admin/atendimento", label: "Central de atendimento", icon: Headphones, tone: "primary" },
+      { to: "/admin/plantao", label: "Plantão de crise", icon: LifeBuoy, tone: "destructive" },
       { to: "/admin/denuncias", label: "Denúncias", icon: Flag, tone: "destructive" },
       { to: "/admin/incidentes", label: "Incidentes de captura", icon: Camera },
     ],

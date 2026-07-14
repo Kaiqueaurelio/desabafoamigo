@@ -8,6 +8,7 @@ import { Watermark, IdentityWatermark } from "@/components/Watermark";
 import { ScreenshotGuard } from "@/components/ScreenshotGuard";
 import { detectRisk } from "@/lib/riskWords";
 import { RiskAlert } from "@/components/RiskAlert";
+import { CrisisVolunteerPanel } from "@/components/CrisisVolunteerPanel";
 import { ReportButton } from "@/components/ReportDialog";
 import { RatingDialog } from "@/components/RatingDialog";
 import { NpsPrompt } from "@/components/NpsPrompt";
@@ -297,6 +298,9 @@ function Consulta() {
         </div>
       </header>
       {(riskDetected || riskInHistory) && <RiskAlert />}
+      {isPro && (riskDetected || riskInHistory) && (
+        <CrisisVolunteerPanel conversationId={appt.id} userId={appt.patient_id} />
+      )}
 
       {isPro && peerSummary && (peerSummary.summary || peerSummary.technical_details) && (
         <div className="border-b border-border bg-brand-soft/40 px-4 py-2 text-xs text-foreground">

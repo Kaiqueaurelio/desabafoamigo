@@ -204,6 +204,83 @@ export type Database = {
           },
         ]
       }
+      crisis_escalations: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          raised_by: string
+          resolved_at: string | null
+          severity: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          raised_by: string
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          raised_by?: string
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crisis_escalations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emergency_actions: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          metadata: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          metadata?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          metadata?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       error_events: {
         Row: {
           created_at: string
@@ -769,6 +846,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      safety_plans: {
+        Row: {
+          coping_strategies: string | null
+          created_at: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          id: string
+          reasons_to_live: string | null
+          share_location_with_contact: boolean
+          updated_at: string
+          user_id: string
+          warning_signs: string | null
+        }
+        Insert: {
+          coping_strategies?: string | null
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          reasons_to_live?: string | null
+          share_location_with_contact?: boolean
+          updated_at?: string
+          user_id: string
+          warning_signs?: string | null
+        }
+        Update: {
+          coping_strategies?: string | null
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          reasons_to_live?: string | null
+          share_location_with_contact?: boolean
+          updated_at?: string
+          user_id?: string
+          warning_signs?: string | null
+        }
+        Relationships: []
       }
       screenshot_incidents: {
         Row: {

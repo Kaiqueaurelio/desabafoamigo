@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShieldCheck, ExternalLink, History, FileLock2 } from "lucide-react";
+import { ShieldCheck, ExternalLink, History, FileLock2, HeartPulse } from "lucide-react";
 import { AccessibilityPanel } from "@/components/AccessibilityPanel";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -20,6 +20,25 @@ function SettingsPage() {
       <div className="mt-8 space-y-6">
         <ThemeToggle />
         <AccessibilityPanel />
+
+        <section className="rounded-2xl border border-primary/30 bg-brand-soft/40 p-5">
+          <div className="flex items-start gap-3">
+            <HeartPulse className="mt-0.5 size-5 text-primary" />
+            <div className="flex-1">
+              <h2 className="font-medium">Meu plano de segurança</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Um espaço só seu: contato de confiança, motivos para viver, sinais de alerta e o que
+                te acalma. Ninguém mais tem acesso — nem voluntários, nem admins.
+              </p>
+              <Link
+                to="/plano-seguranca"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                <HeartPulse className="size-4" /> Montar meu plano de segurança
+              </Link>
+            </div>
+          </div>
+        </section>
 
         <section className="rounded-2xl border border-border bg-card p-5">
           <div className="flex items-start gap-3">
