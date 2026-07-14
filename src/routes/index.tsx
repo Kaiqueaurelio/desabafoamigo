@@ -171,13 +171,17 @@ function InfinityBand({ reverse = false }: { reverse?: boolean }) {
   const loop = [...words, ...words, ...words];
   return (
     <section aria-hidden className="relative border-y border-border/50 bg-brand-soft/40 py-6 overflow-hidden">
-      <div className={`flex whitespace-nowrap ${reverse ? "animate-marquee-reverse" : "animate-marquee"}`}>
+      <motion.div
+        className="flex whitespace-nowrap will-change-transform"
+        animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
+        transition={{ duration: 32, ease: "linear", repeat: Infinity }}
+      >
         {loop.map((w, i) => (
           <span key={i} className="mx-6 text-sm font-semibold uppercase tracking-widest text-primary/70">
             {w}
           </span>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }
