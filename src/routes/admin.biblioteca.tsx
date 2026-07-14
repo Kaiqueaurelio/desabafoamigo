@@ -207,6 +207,78 @@ function AudiosManager() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkItems, setBulkItems] = useState<BulkItem[]>([]);
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState<string>("asmr");
+
+  function addBulkFiles(files: FileList | null) {
+    if (!files || !files.length) return;
+    const next: BulkItem[] = Array.from(files).map((f) => ({
+      id: crypto.randomUUID(),
+      file: f,
+      status: "pending",
+      title: f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "),
+      category: bulkCategory,
+      description: "",
+    }));
+    setBulkItems((prev) => [...prev, ...next]);
+  }
+
+  function updateBulk(id: string, patch: Partial<BulkItem>) {
+    setBulkItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+  }
+
+  async function runBulk(withAi: boolean) {
+    if (!bulkItems.length) return;
+    setBulkRunning(true);
+    const t = toast.loading(withAi ? "Enviando e analisando com IA…" : "Enviando arquivos…");
+    let ok = 0;
+    let fail = 0;
+    for (const item of bulkItems) {
+      if (item.status === "saved") continue;
+      try {
+        updateBulk(item.id, { status: "uploading", error: undefined });
+        const path = await uploadLibraryFile(item.file, "audio");
+        let title = item.title;
+        let category = item.category;
+        let description = item.description;
+        if (withAi) {
+          updateBulk(item.id, { status: "analyzing" });
+          try {
+            const r = await autofillLibraryMedia({
+              data: { kind: "audio", storagePath: path, filename: item.file.name },
+            });
+            title = r.title || title;
+            category = r.category || category;
+            description = r.description || description;
+          } catch {
+            /* segue com metadados manuais */
+          }
+        }
+        updateBulk(item.id, { status: "saving", title, category, description });
+        const { error } = await supabase.from("library_audios").insert({
+          title: (title || item.file.name).trim(),
+          description: description?.trim() || null,
+          category,
+          audio_url: path,
+        });
+        if (error) throw error;
+        updateBulk(item.id, { status: "saved" });
+        ok++;
+      } catch (e) {
+        fail++;
+        updateBulk(item.id, {
+          status: "error",
+          error: e instanceof Error ? e.message : "Falha",
+        });
+      }
+    }
+    setBulkRunning(false);
+    toast.success(`Concluído: ${ok} salvos${fail ? `, ${fail} com erro` : ""}.`, { id: t });
+    await load();
+  }
+
 
   async function aiFill() {
     if (!audioFile && !form.audio_url) return toast.error("Selecione o arquivo de áudio antes.");
