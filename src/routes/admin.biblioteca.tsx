@@ -671,8 +671,10 @@ function AudiosManager() {
           </ul>
         )}
       </SectionCard>
+      <EditAudioDialog row={editing} onClose={() => setEditing(null)} onSaved={load} />
     </div>
   );
+
 }
 
 /* ---------- Frases ---------- */
