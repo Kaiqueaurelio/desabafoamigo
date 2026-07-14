@@ -91,7 +91,11 @@ function Home() {
       <OnboardingTour />
 
       <VolunteerTrainingBanner />
+      <div className="mb-4">
+        <PushNotificationCard />
+      </div>
       <FollowUpPrompt />
+
 
 
 
