@@ -358,14 +358,19 @@ function Origin() {
           </div>
         </Reveal>
 
-        <Reveal delay={150}>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <OriginCard icon={<Ear className="size-5" />} title="Escuta sem pressa" text="Sem cronômetro, sem roteiro. Conversa no seu tempo." />
-            <OriginCard icon={<Shield className="size-5" />} title="Identidade protegida" text="Você recebe um apelido e avatar gerados pelo app." />
-            <OriginCard icon={<Users className="size-5" />} title="Voluntários treinados" text="Pessoas capacitadas em acolhimento, verificadas pela equipe." />
-            <OriginCard icon={<HeartHandshake className="size-5" />} title="Sempre gratuito" text="Nasceu para ajudar. Nunca vai custar nada para desabafar." />
-          </div>
-        </Reveal>
+        <MotionStagger className="grid gap-3 sm:grid-cols-2">
+          {[
+            { icon: <Ear className="size-5" />, title: "Escuta sem pressa", text: "Sem cronômetro, sem roteiro. Conversa no seu tempo." },
+            { icon: <Shield className="size-5" />, title: "Identidade protegida", text: "Você recebe um apelido e avatar gerados pelo app." },
+            { icon: <Users className="size-5" />, title: "Voluntários treinados", text: "Pessoas capacitadas em acolhimento, verificadas pela equipe." },
+            { icon: <HeartHandshake className="size-5" />, title: "Sempre gratuito", text: "Nasceu para ajudar. Nunca vai custar nada para desabafar." },
+          ].map((c) => (
+            <MotionItem key={c.title}>
+              <OriginCard icon={c.icon} title={c.title} text={c.text} />
+            </MotionItem>
+          ))}
+        </MotionStagger>
+
       </div>
     </section>
   );
