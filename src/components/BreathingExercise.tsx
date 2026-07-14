@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Wind, X } from "lucide-react";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 // Ciclo 4-7-8: inspira 4s, segura 7s, solta 8s.
 type Phase = { label: string; seconds: number; scale: number };
