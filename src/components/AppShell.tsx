@@ -20,6 +20,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [alias, setAlias] = useState<string>("");
   const { collapsed, toggle } = useSidebarToggle("ui:appSidebarCollapsed");
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Fecha o drawer ao navegar (mudança de rota)
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
 
 
   useEffect(() => {
