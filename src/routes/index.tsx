@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { ChatDemo } from "@/components/ChatDemo";
+import { TestimonialsCarousel } from "@/components/TestimonialsCarousel";
 import { InfinityFlow } from "@/components/Watermark";
 import { ScrollProgress, SpotlightBinder, WordReveal } from "@/components/LandingFX";
 import { MotionStagger, MotionItem, MagneticWrap, Parallax, MarqueeRow, useSmoothAnchors } from "@/components/LandingMotion";
