@@ -844,7 +844,8 @@ function PhrasesManager() {
                     {!r.published && " · rascunho"}
                   </p>
                 </div>
-                <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} />
+                <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} onEdit={() => setEditing(r)} />
+
               </li>
             ))}
           </ul>
