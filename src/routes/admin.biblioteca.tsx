@@ -39,6 +39,19 @@ export const Route = createFileRoute("/admin/biblioteca")({
 
 type Tab = "audios" | "frases" | "imagens";
 
+type BulkStatus = "pending" | "uploading" | "analyzing" | "saving" | "saved" | "error";
+type BulkItem = {
+  id: string;
+  file: File;
+  status: BulkStatus;
+  title: string;
+  category: string;
+  description: string;
+  error?: string;
+};
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _tabAnchor = null;
+
 type Audio = {
   id: string;
   title: string;
