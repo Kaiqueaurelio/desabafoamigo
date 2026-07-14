@@ -75,34 +75,35 @@ function Apoio() {
   }, []);
 
   return (
-    <div className="relative min-h-full bg-gradient-to-b from-background via-background to-[#0a0f1c]">
+    <div className="relative min-h-full overflow-x-clip bg-gradient-to-b from-background via-background to-[#0a0f1c]">
       {/* Ambient glow */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-72 bg-[radial-gradient(60%_60%_at_50%_0%,theme(colors.blue.500/12),transparent_70%)]" />
 
-      <div className="relative mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
-        {/* Hero */}
-        <header className="flex items-start gap-4">
-          <div className="rounded-2xl border border-blue-500/25 bg-blue-500/10 p-3 shadow-[0_0_40px_-10px_theme(colors.blue.500/40)]">
-            <BookOpen className="size-7 text-blue-300" />
+      <div className="relative mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-12">
+        {/* Hero — compacto em mobile */}
+        <header className="flex items-start gap-3 sm:gap-4">
+          <div className="shrink-0 rounded-2xl border border-blue-500/25 bg-blue-500/10 p-2.5 shadow-[0_0_40px_-10px_theme(colors.blue.500/40)] sm:p-3">
+            <BookOpen className="size-6 text-blue-300 sm:size-7" />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Central de Apoio</h1>
-            <p className="mt-1 text-base text-muted-foreground sm:text-lg">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">Central de Apoio</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:text-lg">
               Tudo em um só lugar para te acolher agora.
             </p>
           </div>
         </header>
 
-        <Tabs value={tab} onValueChange={setTab} className="mt-10">
-          {/* Tabs em blocos glass */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 sm:gap-4">
+        <Tabs value={tab} onValueChange={setTab} className="mt-6 sm:mt-10">
+          {/* Mobile: chips em scroll horizontal com snap. Desktop: grid glass. */}
+          <div className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:snap-none sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 md:grid-cols-5">
             {BLOCKS.map((b) => {
               const active = tab === b.id;
               const isEmergency = b.tone === "rose";
-              const base = "group relative flex flex-col items-start rounded-3xl border p-5 text-left transition-all duration-200";
+              const base =
+                "group relative flex snap-start shrink-0 basis-[42%] flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-200 sm:basis-auto sm:rounded-3xl sm:p-5";
               const inactive = isEmergency
                 ? "border-rose-500/20 bg-rose-500/[0.04] hover:bg-rose-500/10"
-                : "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:-translate-y-0.5";
+                : "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] sm:hover:-translate-y-0.5";
               const activeCls = isEmergency
                 ? "border-rose-500/50 bg-rose-500/15 shadow-[0_0_30px_-8px_theme(colors.rose.500/50)]"
                 : "border-blue-500/40 bg-blue-500/15 shadow-[0_0_30px_-8px_theme(colors.blue.500/50)] ring-1 ring-blue-500/30";
@@ -114,7 +115,7 @@ function Apoio() {
                   className={`${base} ${active ? activeCls : inactive}`}
                 >
                   <span
-                    className={`mb-4 grid size-10 place-items-center rounded-xl transition-transform group-hover:scale-110 ${
+                    className={`mb-2.5 grid size-9 place-items-center rounded-xl transition-transform group-hover:scale-110 sm:mb-4 sm:size-10 ${
                       active
                         ? isEmergency
                           ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
@@ -122,12 +123,20 @@ function Apoio() {
                         : TONE_ICON[b.tone]
                     }`}
                   >
-                    <b.icon className="size-5" />
+                    <b.icon className="size-4 sm:size-5" />
                   </span>
-                  <span className={`font-semibold ${active && isEmergency ? "text-rose-100" : active ? "text-white" : isEmergency ? "text-rose-200" : "text-foreground"}`}>
+                  <span
+                    className={`text-sm font-semibold sm:text-base ${
+                      active && isEmergency ? "text-rose-100" : active ? "text-white" : isEmergency ? "text-rose-200" : "text-foreground"
+                    }`}
+                  >
                     {b.label}
                   </span>
-                  <span className={`mt-1 text-xs leading-snug ${active && !isEmergency ? "text-blue-200" : isEmergency ? "text-rose-400/80" : "text-muted-foreground"}`}>
+                  <span
+                    className={`mt-0.5 line-clamp-2 text-[11px] leading-snug sm:mt-1 sm:text-xs ${
+                      active && !isEmergency ? "text-blue-200" : isEmergency ? "text-rose-400/80" : "text-muted-foreground"
+                    }`}
+                  >
                     {b.desc}
                   </span>
                 </button>
@@ -140,39 +149,39 @@ function Apoio() {
           </TabsList>
 
           {/* TÉCNICAS */}
-          <TabsContent value="tecnicas" className="mt-10 focus-visible:ring-0">
+          <TabsContent value="tecnicas" className="mt-6 focus-visible:ring-0 sm:mt-10">
             <Link
               to="/respirar"
-              className="group block rounded-3xl border border-sky-400/30 bg-gradient-to-br from-sky-500/15 via-blue-500/10 to-transparent p-6 transition hover:border-sky-400/60"
+              className="group block rounded-2xl border border-sky-400/30 bg-gradient-to-br from-sky-500/15 via-blue-500/10 to-transparent p-4 transition hover:border-sky-400/60 sm:rounded-3xl sm:p-6"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-4">
-                  <span className="grid size-12 place-items-center rounded-2xl bg-sky-500/20 text-sky-300">
-                    <Wind className="size-6" />
+                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-sky-500/20 text-sky-300 sm:size-12">
+                    <Wind className="size-5 sm:size-6" />
                   </span>
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">Respiração guiada</p>
-                    <p className="text-sm text-muted-foreground">Sessões de 1, 5 ou 10 minutos com círculo que respira junto.</p>
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-foreground sm:text-lg">Respiração guiada</p>
+                    <p className="text-xs text-muted-foreground sm:text-sm">Sessões de 1, 5 ou 10 minutos com círculo que respira junto.</p>
                   </div>
                 </div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white transition group-hover:bg-sky-400">
+                <span className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition group-hover:bg-sky-400 sm:w-auto">
                   <Play className="size-4" /> Começar agora
                 </span>
               </div>
             </Link>
-            <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:rounded-3xl sm:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-foreground">Só uma pausa rápida?</p>
                   <p className="text-xs text-muted-foreground">Abre um mini-exercício 4-7-8 sem sair da tela.</p>
                 </div>
                 <BreathingButton />
               </div>
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-4">
               {TIPS.map((t) => (
-                <article key={t.title} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 transition hover:bg-white/[0.07]">
-                  <div className="mb-4 grid size-11 place-items-center rounded-xl bg-sky-500/10 text-sky-300">
+                <article key={t.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.07] sm:rounded-3xl sm:p-6">
+                  <div className="mb-3 grid size-10 place-items-center rounded-xl bg-sky-500/10 text-sky-300 sm:mb-4 sm:size-11">
                     <t.icon className="size-5" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground">{t.title}</h3>
@@ -183,26 +192,26 @@ function Apoio() {
           </TabsContent>
 
           {/* ÁUDIOS */}
-          <TabsContent value="audios" className="mt-10 focus-visible:ring-0">
+          <TabsContent value="audios" className="mt-6 focus-visible:ring-0 sm:mt-10">
             <SectionHeader title="Áudios para relaxar" to="/relaxar" cta="Abrir player completo" />
             {audios.length === 0 ? (
               <EmptyMsg text="Em breve teremos novos áudios por aqui." />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                 {audios.map((a) => (
                   <Link
                     key={a.id}
                     to="/relaxar"
-                    className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all hover:border-white/20 hover:bg-white/[0.08]"
+                    className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 transition-all hover:border-white/20 hover:bg-white/[0.08] sm:gap-4 sm:p-4"
                   >
-                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-blue-500/20 text-blue-300 transition-colors group-hover:bg-blue-500 group-hover:text-white">
+                    <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-500/20 text-blue-300 transition-colors group-hover:bg-blue-500 group-hover:text-white sm:size-12">
                       <Play className="ml-0.5 size-5 fill-current" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-base font-medium text-foreground">{a.title}</h3>
+                      <h3 className="truncate text-sm font-medium text-foreground sm:text-base">{a.title}</h3>
                       <p className="mt-0.5 truncate text-xs capitalize text-muted-foreground">{a.category}</p>
                     </div>
-                    <ChevronRight className="size-5 text-muted-foreground/60 transition-colors group-hover:text-foreground" />
+                    <ChevronRight className="size-5 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-foreground" />
                   </Link>
                 ))}
               </div>
@@ -210,20 +219,20 @@ function Apoio() {
           </TabsContent>
 
           {/* FRASES */}
-          <TabsContent value="frases" className="mt-10 focus-visible:ring-0">
+          <TabsContent value="frases" className="mt-6 focus-visible:ring-0 sm:mt-10">
             <SectionHeader title="Frases de acolhimento" />
             {phrases.length === 0 ? (
               <EmptyMsg text="Novas frases estão chegando." />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                 {phrases.map((p) => (
                   <blockquote
                     key={p.id}
-                    className="rounded-3xl border border-white/10 bg-gradient-to-br from-amber-500/[0.08] via-white/[0.03] to-transparent p-6"
+                    className="rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/[0.08] via-white/[0.03] to-transparent p-4 sm:rounded-3xl sm:p-6"
                   >
-                    <Quote className="mb-3 size-6 text-amber-300/80" />
-                    <p className="text-base leading-relaxed text-foreground">"{p.text}"</p>
-                    {p.author && <footer className="mt-3 text-xs text-muted-foreground">— {p.author}</footer>}
+                    <Quote className="mb-2 size-5 text-amber-300/80 sm:mb-3 sm:size-6" />
+                    <p className="text-sm leading-relaxed text-foreground sm:text-base">"{p.text}"</p>
+                    {p.author && <footer className="mt-2 text-xs text-muted-foreground sm:mt-3">— {p.author}</footer>}
                   </blockquote>
                 ))}
               </div>
@@ -231,12 +240,12 @@ function Apoio() {
           </TabsContent>
 
           {/* IMAGENS */}
-          <TabsContent value="imagens" className="mt-10 focus-visible:ring-0">
+          <TabsContent value="imagens" className="mt-6 focus-visible:ring-0 sm:mt-10">
             <SectionHeader title="Imagens para se acalmar" />
             {images.length === 0 ? (
               <EmptyMsg text="Novas imagens em breve." />
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                 {images.map((im) => (
                   <figure key={im.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition hover:border-white/20">
                     {imgUrls[im.id] ? (
@@ -244,7 +253,7 @@ function Apoio() {
                     ) : (
                       <div className="aspect-square w-full animate-pulse bg-white/5" />
                     )}
-                    <figcaption className="p-3">
+                    <figcaption className="p-2.5 sm:p-3">
                       <p className="truncate text-sm font-medium text-foreground">{im.title}</p>
                       {im.caption && <p className="truncate text-xs text-muted-foreground">{im.caption}</p>}
                     </figcaption>
@@ -254,24 +263,25 @@ function Apoio() {
             )}
           </TabsContent>
 
-          {/* EMERGÊNCIA */}
-          <TabsContent value="emergencia" className="mt-10 focus-visible:ring-0">
+          {/* EMERGÊNCIA — botão de ligar full-width em mobile */}
+          <TabsContent value="emergencia" className="mt-6 focus-visible:ring-0 sm:mt-10">
             <SectionHeader title="Se você precisa de ajuda urgente" />
             <div className="space-y-3">
               {CONTACTS.map((c) => (
                 <div
                   key={c.name}
-                  className="flex items-center justify-between rounded-2xl border border-rose-500/15 bg-rose-500/[0.04] p-4"
+                  className="flex flex-col gap-3 rounded-2xl border border-rose-500/15 bg-rose-500/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium text-foreground">{c.name}</p>
                     <p className="text-xs text-muted-foreground">{c.desc}</p>
                   </div>
                   <a
                     href={`tel:${c.phone}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-900/30 transition hover:bg-rose-500 active:scale-95"
+                    aria-label={`Ligar para ${c.name} no número ${c.phone}`}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-900/30 transition hover:bg-rose-500 active:scale-95 sm:w-auto sm:py-2.5"
                   >
-                    <PhoneCall className="size-4" /> {c.phone}
+                    <PhoneCall className="size-4" /> Ligar {c.phone}
                   </a>
                 </div>
               ))}
@@ -279,7 +289,7 @@ function Apoio() {
           </TabsContent>
         </Tabs>
 
-        <p className="mt-12 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-muted-foreground">
+        <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-muted-foreground sm:mt-12">
           Os conteúdos desta página são informativos e não substituem atendimento profissional de saúde.
         </p>
       </div>
