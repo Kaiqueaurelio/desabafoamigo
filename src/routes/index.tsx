@@ -415,19 +415,21 @@ function Mission() {
           </div>
         </Reveal>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((it, i) => (
-            <Reveal key={it.title} delay={i * 80}>
-              <div className="h-full spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
-                <div className="mb-4 grid size-11 place-items-center rounded-xl bg-brand-soft text-primary">
-                  {it.icon}
-                </div>
-                <p className="text-lg font-semibold text-foreground">{it.title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{it.text}</p>
-              </div>
-            </Reveal>
+        <MotionStagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.08}>
+          {items.map((it) => (
+            <MotionItem key={it.title} className="h-full spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
+              <motion.div
+                whileHover={{ scale: 1.12, rotate: -6 }}
+                transition={{ type: "spring", stiffness: 260, damping: 14 }}
+                className="mb-4 grid size-11 place-items-center rounded-xl bg-brand-soft text-primary"
+              >
+                {it.icon}
+              </motion.div>
+              <p className="text-lg font-semibold text-foreground">{it.title}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{it.text}</p>
+            </MotionItem>
           ))}
-        </div>
+        </MotionStagger>
       </div>
     </section>
   );
