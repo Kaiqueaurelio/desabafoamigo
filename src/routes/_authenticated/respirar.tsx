@@ -268,6 +268,8 @@ function RespirarPage() {
                   })}
                 </div>
               </section>
+              <AmbientSounds />
+
 
               <motion.button
                 onClick={start}
