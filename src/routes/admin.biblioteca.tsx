@@ -206,6 +206,39 @@ function AudiosManager() {
   });
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function aiFill() {
+    if (!audioFile && !form.audio_url) return toast.error("Selecione o arquivo de áudio antes.");
+    setAiLoading(true);
+    const t = toast.loading("Analisando áudio com IA…");
+    try {
+      let path = form.audio_url;
+      let filename = "";
+      if (audioFile) {
+        path = await uploadLibraryFile(audioFile, "audio");
+        filename = audioFile.name;
+        setForm((f) => ({ ...f, audio_url: path }));
+        setAudioFile(null);
+      }
+      if (/^https?:\/\//i.test(path)) throw new Error("IA só funciona com upload direto, não URL externa.");
+      const r = await autofillLibraryMedia({
+        data: { kind: "audio", storagePath: path, filename },
+      });
+      setForm((f) => ({
+        ...f,
+        title: f.title || r.title,
+        description: f.description || r.description,
+        category: r.category || f.category,
+      }));
+      toast.success("Sugestões preenchidas!", { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha na IA", { id: t });
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
 
   async function load() {
     setLoading(true);
