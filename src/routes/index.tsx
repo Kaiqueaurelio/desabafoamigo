@@ -156,49 +156,79 @@ function Landing() {
 }
 
 function InfinityBand({ reverse = false }: { reverse?: boolean }) {
-  const words = [
-    "Escuta sem fim",
-    "∞",
-    "Acolhimento contínuo",
-    "∞",
-    "Sua voz importa",
-    "∞",
-    "24 horas por dia",
-    "∞",
-    "Você não está sozinho(a)",
-    "∞",
-  ];
-  const loop = [...words, ...words, ...words];
+  const phrase = ["Escuta sem fim", "∞", "Acolhimento contínuo", "∞", "Sua voz importa", "∞"];
+  const group = [...phrase, ...phrase, ...phrase];
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const groupRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
+    const track = trackRef.current;
+    const firstGroup = groupRef.current;
+    if (!track || !firstGroup) return;
+
     let raf = 0;
     let last = performance.now();
-    let x = reverse ? -50 : 0;
-    const speed = 8; // % da largura por segundo
+    let loopWidth = Math.max(1, firstGroup.scrollWidth);
+    let x = reverse ? -loopWidth : 0;
+    const speed = 42; // pixels por segundo para um movimento sempre suave
+
+    const measure = () => {
+      loopWidth = Math.max(1, firstGroup.scrollWidth);
+      if (!reverse && x <= -loopWidth) x = x % loopWidth;
+      if (reverse && (x >= 0 || x < -loopWidth)) x = -loopWidth + (Math.abs(x) % loopWidth);
+    };
+
+    const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    resizeObserver?.observe(firstGroup);
+    window.addEventListener("resize", measure, { passive: true });
+    measure();
+
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
       x += (reverse ? 1 : -1) * speed * dt;
-      if (!reverse && x <= -50) x += 50;
-      if (reverse && x >= 0) x -= 50;
-      el.style.transform = `translate3d(${x}%,0,0)`;
+      if (!reverse && x <= -loopWidth) x += loopWidth;
+      if (reverse && x >= 0) x -= loopWidth;
+      track.style.transform = `translate3d(${x}px,0,0)`;
       raf = requestAnimationFrame(tick);
     };
+
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, [reverse]);
 
+  const renderGroup = (groupIndex: number) => (
+    <div
+      ref={groupIndex === 0 ? groupRef : undefined}
+      className="flex shrink-0 items-center whitespace-nowrap px-3"
+      aria-hidden={groupIndex > 0}
+    >
+      {group.map((word, i) => (
+        <span
+          key={`${groupIndex}-${word}-${i}`}
+          className={`mx-3 text-sm font-semibold uppercase tracking-widest md:mx-5 ${
+            word === "∞" ? "text-brand-green/80" : "text-primary/75"
+          }`}
+        >
+          {word}
+        </span>
+      ))}
+    </div>
+  );
+
   return (
-    <section aria-hidden className="relative border-y border-border/50 bg-brand-soft/40 py-6 overflow-hidden">
-      <div ref={trackRef} className="flex whitespace-nowrap will-change-transform">
-        {loop.map((w, i) => (
-          <span key={i} className="mx-6 text-sm font-semibold uppercase tracking-widest text-primary/70">
-            {w}
-          </span>
-        ))}
+    <section
+      className="relative overflow-hidden border-y border-border/50 bg-brand-soft/40 py-6"
+      aria-label="Escuta sem fim, acolhimento contínuo, sua voz importa"
+      style={{ maskImage: "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)" }}
+    >
+      <div ref={trackRef} className="flex w-max will-change-transform" data-force-motion="true">
+        {renderGroup(0)}
+        {renderGroup(1)}
       </div>
     </section>
   );
