@@ -4,6 +4,7 @@ import { ChatDemo } from "@/components/ChatDemo";
 import { TestimonialsCarousel } from "@/components/TestimonialsCarousel";
 import { InfinityFlow } from "@/components/Watermark";
 import { ScrollProgress, SpotlightBinder, WordReveal } from "@/components/LandingFX";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MotionStagger, MotionItem, MagneticWrap, Parallax, MarqueeRow, useSmoothAnchors } from "@/components/LandingMotion";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import {
