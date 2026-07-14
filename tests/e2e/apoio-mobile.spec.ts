@@ -93,6 +93,8 @@ async function measureOverflow(page: Page) {
     return {
       docOverflow: doc.scrollWidth - doc.clientWidth,
       bodyOverflow: body.scrollWidth - body.clientWidth,
+      bodyWidth: body.getBoundingClientRect().width,
+      mainWidth: document.querySelector("main")?.getBoundingClientRect().width ?? null,
       vw,
       offenders,
     };
@@ -136,7 +138,9 @@ for (const vp of MOBILE_WIDTHS) {
         result.docOverflow,
         `document overflow=${result.docOverflow}px. Offenders: ${JSON.stringify(result.offenders)}`
       ).toBeLessThanOrEqual(1);
-      expect(result.bodyOverflow).toBeLessThanOrEqual(1);
+      expect(result.bodyOverflow, `body overflow=${result.bodyOverflow}px`).toBeLessThanOrEqual(1);
+      expect(result.bodyWidth, `body width=${result.bodyWidth}px maior que viewport=${result.vw}px`).toBeLessThanOrEqual(result.vw + 1);
+      expect(result.mainWidth, `main width=${result.mainWidth}px maior que viewport=${result.vw}px`).toBeLessThanOrEqual(result.vw + 1);
     });
 
     test("troca entre todas as categorias sem quebrar layout", async ({ page }) => {

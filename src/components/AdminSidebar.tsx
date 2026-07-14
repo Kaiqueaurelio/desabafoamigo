@@ -170,7 +170,7 @@ export function AdminSidebarMobile() {
   return (
     <nav
       aria-label="Navegação administrativa"
-      className="mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-2 pt-1 md:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      className="mb-4 flex w-full max-w-full gap-2 overflow-x-auto pb-2 pt-1 md:hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
     >
       {flat.map((item) => {
         const Icon = item.icon;
