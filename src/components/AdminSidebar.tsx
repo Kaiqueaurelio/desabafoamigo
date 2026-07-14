@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useSidebarToggle } from "@/lib/useSidebarToggle";
 import {
   Headphones,
   Flag,
@@ -20,7 +21,10 @@ import {
   BookOpen,
   Volume2,
   Settings,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
+
 
 const groups: {
   label: string;
