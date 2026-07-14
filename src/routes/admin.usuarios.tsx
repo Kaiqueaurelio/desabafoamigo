@@ -241,8 +241,10 @@ function UsuariosPage() {
                   })}
                 </TableBody>
               </Table>
+              </div>
             )}
           </div>
+
 
           <p className="text-[11px] text-muted-foreground">
             As patentes são aplicadas no servidor por políticas de acesso (RLS). Alterações são registradas no log de auditoria.
