@@ -169,19 +169,37 @@ function InfinityBand({ reverse = false }: { reverse?: boolean }) {
     "∞",
   ];
   const loop = [...words, ...words, ...words];
+  const trackRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    let raf = 0;
+    let last = performance.now();
+    let x = reverse ? -50 : 0;
+    const speed = 8; // % da largura por segundo
+    const tick = (now: number) => {
+      const dt = (now - last) / 1000;
+      last = now;
+      x += (reverse ? 1 : -1) * speed * dt;
+      if (!reverse && x <= -50) x += 50;
+      if (reverse && x >= 0) x -= 50;
+      el.style.transform = `translate3d(${x}%,0,0)`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [reverse]);
+
   return (
     <section aria-hidden className="relative border-y border-border/50 bg-brand-soft/40 py-6 overflow-hidden">
-      <motion.div
-        className="flex whitespace-nowrap will-change-transform"
-        animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
-        transition={{ duration: 32, ease: "linear", repeat: Infinity }}
-      >
+      <div ref={trackRef} className="flex whitespace-nowrap will-change-transform">
         {loop.map((w, i) => (
           <span key={i} className="mx-6 text-sm font-semibold uppercase tracking-widest text-primary/70">
             {w}
           </span>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }
