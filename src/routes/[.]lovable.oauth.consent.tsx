@@ -84,7 +84,8 @@ function Consent() {
   }
 
   const clientName = details?.client?.name ?? "esse aplicativo";
-  const scopes = (details?.scope ?? "").split(/\s+/).filter(Boolean);
+  const rawScope = typeof details?.scope === "string" ? details.scope : "";
+  const scopes: string[] = rawScope.split(/\s+/).filter((s: string) => s.length > 0);
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-brand-soft px-4 py-10">
