@@ -25,8 +25,12 @@ import {
   ImageIcon,
   X,
   Sparkles,
+  Pencil,
+  Save,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
 
 
 export const Route = createFileRoute("/admin/biblioteca")({
