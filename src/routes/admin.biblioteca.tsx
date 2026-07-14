@@ -48,6 +48,8 @@ type BulkItem = {
   category: string;
   description: string;
   error?: string;
+};
+
 
 type Audio = {
   id: string;
