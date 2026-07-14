@@ -460,6 +460,28 @@ function PhrasesManager() {
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function aiFill() {
+    if (!form.text.trim()) return toast.error("Escreva a frase antes.");
+    setAiLoading(true);
+    const t = toast.loading("Classificando com IA…");
+    try {
+      const r = await autofillLibraryMedia({
+        data: { kind: "phrase", phraseText: form.text },
+      });
+      setForm((f) => ({
+        ...f,
+        category: r.category || f.category,
+        author: f.author || r.author,
+      }));
+      toast.success("Categoria sugerida!", { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha na IA", { id: t });
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   async function load() {
     setLoading(true);
