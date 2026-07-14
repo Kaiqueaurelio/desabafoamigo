@@ -202,12 +202,12 @@ function AdminDashboard() {
           </section>
 
         {/* Tabs */}
-        <div className="mb-4 flex gap-2">
+        <div className="mb-4 -mx-3 flex gap-2 overflow-x-auto px-3 pb-1 sm:mx-0 sm:overflow-visible sm:px-0">
           {(["pending", "approved", "rejected"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
                 tab === t ? "bg-primary text-primary-foreground shadow" : "bg-secondary text-secondary-foreground hover:bg-muted"
               }`}
             >
@@ -215,6 +215,7 @@ function AdminDashboard() {
             </button>
           ))}
         </div>
+
 
         {/* Table */}
         <section className="rounded-2xl bg-card p-5 shadow-sm">
