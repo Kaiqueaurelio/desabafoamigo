@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { PasswordInput } from "@/components/PasswordInput";
@@ -16,13 +16,38 @@ const schema = z.object({
   password: z.string().min(6, "Mínimo de 6 caracteres").max(72),
 });
 
+// Chave e helpers para "Lembrar-me" (armazenamento local ofuscado; opt-in do usuário).
+const REMEMBER_KEY = "desabafo:auth:remember";
+type RememberPayload = { email: string; password?: string };
+function encodeRemember(v: RememberPayload): string {
+  try { return btoa(unescape(encodeURIComponent(JSON.stringify(v)))); } catch { return ""; }
+}
+function decodeRemember(raw: string | null): RememberPayload | null {
+  if (!raw) return null;
+  try { return JSON.parse(decodeURIComponent(escape(atob(raw)))) as RememberPayload; } catch { return null; }
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Carrega credenciais salvas (se houver) — apenas no cliente.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = decodeRemember(window.localStorage.getItem(REMEMBER_KEY));
+    if (saved?.email) {
+      setEmail(saved.email);
+      setMode("signin");
+      if (saved.password) setPassword(saved.password);
+      setRemember(true);
+    }
+  }, []);
+
 
   async function signInAndRoute(normalizedEmail: string, normalizedPassword: string) {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -66,14 +91,17 @@ function AuthPage() {
           const lower = error.message.toLowerCase();
           if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
             await signInAndRoute(normalizedEmail, normalizedPassword);
+            persistRemember(normalizedEmail, normalizedPassword);
             return;
           }
         }
         if (error) throw error;
       } else {
         await signInAndRoute(normalizedEmail, normalizedPassword);
+        persistRemember(normalizedEmail, normalizedPassword);
         return;
       }
+      persistRemember(normalizedEmail, normalizedPassword);
       navigate({ to: "/inicio" });
     } catch (e) {
       const raw = e instanceof Error ? e.message : "Erro";
@@ -92,6 +120,17 @@ function AuthPage() {
       }
     } finally { setLoading(false); }
   }
+
+  function persistRemember(mail: string, pwd: string) {
+    if (typeof window === "undefined") return;
+    if (remember) {
+      window.localStorage.setItem(REMEMBER_KEY, encodeRemember({ email: mail, password: pwd }));
+    } else {
+      window.localStorage.removeItem(REMEMBER_KEY);
+    }
+  }
+
+
 
 
   return (
@@ -125,7 +164,22 @@ function AuthPage() {
             <span className="mb-1 block text-xs font-medium text-muted-foreground">Senha</span>
             <PasswordInput value={password} onChange={setPassword} placeholder="••••••" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
           </label>
+          <label className="flex items-start gap-2 rounded-lg bg-brand-soft/60 p-2.5 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="mt-0.5 size-4 shrink-0 accent-[hsl(var(--primary))]"
+            />
+            <span className="min-w-0">
+              <strong className="text-foreground">Lembrar de mim neste dispositivo</strong>
+              <span className="block text-[11px] opacity-80">
+                Salva e-mail e senha localmente para agilizar o login. Não ative em dispositivos compartilhados.
+              </span>
+            </span>
+          </label>
           {err && <p className="text-sm text-destructive">{err}</p>}
+
           <button disabled={loading} type="submit" className="btn-primary w-full">
             {loading ? "Enviando..." : mode === "signup" ? "Criar conta" : "Entrar"}
           </button>
