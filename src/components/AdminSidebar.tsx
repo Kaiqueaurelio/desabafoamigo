@@ -184,10 +184,10 @@ export function AdminSidebarMobile() {
             to={item.to}
             aria-current={active ? "page" : undefined}
             title={item.label}
-            className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm font-medium leading-none transition active:scale-[0.97] ${
+            className={`interactive inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm font-medium leading-none ${
               active
                 ? "border-primary bg-primary/12 text-primary shadow-sm"
-                : "border-border bg-card text-muted-foreground hover:text-foreground"
+                : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
             }`}
           >
             <Icon className="size-4 shrink-0" />
