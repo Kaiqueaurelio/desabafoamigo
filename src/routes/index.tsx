@@ -207,14 +207,18 @@ function Hero() {
             <InfinityIcon className="size-3.5 animate-spin-slow" /> Escuta acolhedora sem fim
           </span>
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-primary sm:text-5xl md:text-6xl">
-            Sua voz merece <span className="bg-gradient-to-r from-brand-green via-brand-sky to-brand-green bg-clip-text text-transparent animate-gradient-shift" style={{ backgroundSize: "200% auto" }}>ser ouvida</span>.
+            <WordReveal text="Sua voz merece" />{" "}
+            <span className="bg-gradient-to-r from-brand-green via-brand-sky to-brand-green bg-clip-text text-transparent animate-gradient-shift" style={{ backgroundSize: "200% auto" }}>
+              <WordReveal text="ser ouvida" delay={280} />
+            </span>
+            .
           </h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground animate-fade-in" style={{ animationDelay: "700ms", animationFillMode: "backwards" }}>
             Um espaço confiável para desabafar por mensagem, com voluntários treinados em escuta
             ativa. Sem julgamento, sem exposição — seu apelido é gerado pelo app.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/auth" className="btn-primary inline-flex items-center gap-2 group">
+            <Link to="/auth" className="btn-primary btn-shine inline-flex items-center gap-2 group">
               <MessageSquareText className="size-5" />
               Começar a conversar
               <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
