@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
-import { AdminSidebar, AdminSidebarMobile } from "@/components/AdminSidebar";
+import { AdminSidebar, AdminSidebarMobile, AdminSidebarToggle } from "@/components/AdminSidebar";
 import { loadTheme, saveTheme, type Theme } from "@/lib/theme";
 import { ArrowLeft, Monitor, Moon, Sun, Check, Sparkles, Type, LayoutGrid } from "lucide-react";
 import { toast } from "sonner";
