@@ -112,31 +112,32 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             onClick={toggle}
             aria-label="Abrir menu lateral"
             title="Abrir menu"
-            className="grid size-10 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            <PanelLeftOpen className="size-4" />
+            <PanelLeftOpen aria-hidden className="size-4" />
           </button>
-          <Link to="/inicio" aria-label="Início" className="mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15 transition hover:scale-105">
+          <Link to="/inicio" aria-label="Início" className="interactive mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15">
             <Logo responsive decorative priority className="h-7 w-7" />
           </Link>
           <div className="mt-2 flex flex-col items-center gap-1">
             {patientNav.slice(0, 5).map((it) => {
               const active = pathname.startsWith(it.to);
               return (
-                <Link key={it.to} to={it.to} aria-label={it.label} title={it.label}
-                  className={`grid size-10 place-items-center rounded-xl transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
-                  <it.icon className="size-4" />
+                <Link key={it.to} to={it.to} aria-label={it.label} aria-current={active ? "page" : undefined} title={it.label}
+                  className={`interactive grid size-10 place-items-center rounded-xl ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+                  <it.icon aria-hidden className="size-4" />
                 </Link>
               );
             })}
           </div>
           <div className="mt-auto">
-            <button onClick={signOut} aria-label="Sair" title="Sair" className="grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
-              <LogOut className="size-4" />
+            <button onClick={signOut} aria-label="Sair" title="Sair" className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
+              <LogOut aria-hidden className="size-4" />
             </button>
           </div>
         </aside>
       )}
+
 
 
       <div className="flex flex-1 flex-col">
