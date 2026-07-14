@@ -1072,13 +1072,25 @@ function RowActions({
   published,
   onToggle,
   onRemove,
+  onEdit,
 }: {
   published: boolean;
   onToggle: () => void;
   onRemove: () => void;
+  onEdit?: () => void;
 }) {
   return (
     <div className="flex shrink-0 items-center gap-1">
+      {onEdit && (
+        <button
+          onClick={onEdit}
+          className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+          title="Editar"
+          aria-label="Editar"
+        >
+          <Pencil className="size-4" />
+        </button>
+      )}
       <button
         onClick={onToggle}
         className={`rounded-lg p-2 transition ${
@@ -1102,3 +1114,288 @@ function RowActions({
     </div>
   );
 }
+
+/* ---------- Edit dialogs ---------- */
+
+function EditAudioDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: Audio | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "asmr",
+    cover_url: "",
+    duration_seconds: "",
+  });
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (row) {
+      setForm({
+        title: row.title,
+        description: row.description ?? "",
+        category: row.category,
+        cover_url: row.cover_url ?? "",
+        duration_seconds: row.duration_seconds != null ? String(row.duration_seconds) : "",
+      });
+      setCoverFile(null);
+    }
+  }, [row]);
+
+  async function save() {
+    if (!row) return;
+    if (!form.title.trim()) return toast.error("Título é obrigatório.");
+    setBusy(true);
+    try {
+      let cover_url = form.cover_url.trim();
+      if (coverFile) {
+        // sobrescrever capa: remove antiga se veio do storage e faz upload
+        if (row.cover_url) await removeLibraryFile(row.cover_url).catch(() => {});
+        cover_url = await uploadLibraryFile(coverFile, "image");
+      }
+      const { error } = await supabase
+        .from("library_audios")
+        .update({
+          title: form.title.trim(),
+          description: form.description.trim() || null,
+          category: form.category,
+          cover_url: cover_url || null,
+          duration_seconds: form.duration_seconds ? Number(form.duration_seconds) : null,
+        })
+        .eq("id", row.id);
+      if (error) throw error;
+      toast.success("Áudio atualizado.");
+      onSaved();
+      onClose();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao salvar.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={!!row} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Editar áudio</DialogTitle>
+          <DialogDescription>Atualize os metadados. O arquivo de áudio permanece o mesmo.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <Field label="Título">
+            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" />
+          </Field>
+          <Field label="Descrição">
+            <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input" />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Categoria">
+              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
+                {AUDIO_CATEGORIES.map((c) => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Duração (segundos)">
+              <input type="number" min={0} value={form.duration_seconds} onChange={(e) => setForm({ ...form, duration_seconds: e.target.value })} className="input" />
+            </Field>
+          </div>
+          <Field label="Capa (opcional)" hint="Envie uma nova imagem para substituir a atual.">
+            <div className="flex items-center gap-3">
+              {(coverFile || form.cover_url) && (
+                <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                  <img
+                    alt=""
+                    className="size-full object-cover"
+                    src={coverFile ? URL.createObjectURL(coverFile) : form.cover_url}
+                  />
+                </div>
+              )}
+              <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="input" />
+              {form.cover_url && !coverFile && (
+                <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="text-xs text-destructive hover:underline">
+                  Remover
+                </button>
+              )}
+            </div>
+          </Field>
+        </div>
+        <DialogFooter>
+          <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm">Cancelar</button>
+          <button type="button" onClick={save} disabled={busy} className="btn-primary inline-flex items-center gap-2">
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Salvar
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditPhraseDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: Phrase | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState({ text: "", author: "", category: "acolhimento" });
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (row) setForm({ text: row.text, author: row.author ?? "", category: row.category });
+  }, [row]);
+
+  async function save() {
+    if (!row) return;
+    if (!form.text.trim()) return toast.error("Escreva a frase.");
+    setBusy(true);
+    const { error } = await supabase
+      .from("library_phrases")
+      .update({
+        text: form.text.trim(),
+        author: form.author.trim() || null,
+        category: form.category,
+      })
+      .eq("id", row.id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Frase atualizada.");
+    onSaved();
+    onClose();
+  }
+
+  return (
+    <Dialog open={!!row} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Editar frase</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <Field label="Frase">
+            <textarea rows={3} value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })} className="input" />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Autor (opcional)">
+              <input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} className="input" />
+            </Field>
+            <Field label="Categoria">
+              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
+                {PHRASE_CATEGORIES.map((c) => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+        </div>
+        <DialogFooter>
+          <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm">Cancelar</button>
+          <button type="button" onClick={save} disabled={busy} className="btn-primary inline-flex items-center gap-2">
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Salvar
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditImageDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: Image | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState({ title: "", caption: "", category: "acolhimento", image_url: "" });
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (row) {
+      setForm({ title: row.title, caption: row.caption ?? "", category: row.category, image_url: row.image_url });
+      setFile(null);
+    }
+  }, [row]);
+
+  async function save() {
+    if (!row) return;
+    if (!form.title.trim()) return toast.error("Título é obrigatório.");
+    setBusy(true);
+    try {
+      let image_url = form.image_url;
+      if (file) {
+        if (row.image_url) await removeLibraryFile(row.image_url).catch(() => {});
+        image_url = await uploadLibraryFile(file, "image");
+      }
+      const { error } = await supabase
+        .from("library_images")
+        .update({
+          title: form.title.trim(),
+          caption: form.caption.trim() || null,
+          category: form.category,
+          image_url,
+        })
+        .eq("id", row.id);
+      if (error) throw error;
+      toast.success("Imagem atualizada.");
+      onSaved();
+      onClose();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao salvar.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={!!row} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Editar imagem</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4">
+          {(file || form.image_url) && (
+            <div className="aspect-video w-full overflow-hidden rounded-xl bg-muted">
+              <img alt="" className="size-full object-cover" src={file ? URL.createObjectURL(file) : form.image_url} />
+            </div>
+          )}
+          <Field label="Título">
+            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" />
+          </Field>
+          <Field label="Legenda">
+            <textarea rows={2} value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} className="input" />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Categoria">
+              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
+                {IMAGE_CATEGORIES.map((c) => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Substituir imagem">
+              <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="input" />
+            </Field>
+          </div>
+        </div>
+        <DialogFooter>
+          <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm">Cancelar</button>
+          <button type="button" onClick={save} disabled={busy} className="btn-primary inline-flex items-center gap-2">
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Salvar
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
