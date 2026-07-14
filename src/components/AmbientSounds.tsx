@@ -94,6 +94,7 @@ export function AmbientSounds() {
   const [volumes, setVolumes] = useState<Record<AmbientKey, number>>({ waves: 0, rain: 0, forest: 0 });
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const mutedRef = useRef(false);
 
   useEffect(() => () => {
@@ -141,6 +142,12 @@ export function AmbientSounds() {
       (Object.keys(nodesRef.current) as AmbientKey[]).forEach(k => {
         applyGain(k, volumes[k], next);
       });
+      // Anúncio para leitores de tela — força mudança de valor para re-anunciar
+      setAnnouncement(
+        next
+          ? "Sons ambientais pausados."
+          : "Sons ambientais retomados."
+      );
       return next;
     });
   }, [volumes]);
@@ -164,6 +171,15 @@ export function AmbientSounds() {
       aria-label="Sons ambientais"
       className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
     >
+      {/* Região aria-live para anunciar pausa/retomada aos leitores de tela */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
       <div className="mb-3 flex items-center gap-2">
         <Music4 className="size-4 text-sky-300" />
         <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
