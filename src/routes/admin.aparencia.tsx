@@ -82,7 +82,6 @@ function AparenciaPage() {
             <span className="text-sm font-semibold text-primary">Aparência</span>
           </div>
           <div className="flex items-center gap-3">
-            <AdminSidebarToggle className="hidden md:inline-flex" />
             <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
               <ArrowLeft className="size-4" /> Voltar
             </Link>
@@ -92,7 +91,10 @@ function AparenciaPage() {
       </header>
 
       <div className="mx-auto max-w-6xl gap-6 px-4 py-6 md:flex">
-        <AdminSidebar />
+        <div className="hidden md:flex md:flex-col md:gap-2">
+          <AdminSidebarToggle />
+          <AdminSidebar />
+        </div>
 
         <div className="min-w-0 flex-1 space-y-6">
           <AdminSidebarMobile />
