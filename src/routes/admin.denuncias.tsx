@@ -68,7 +68,9 @@ function Denuncias() {
           ))}
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <CardListSkeleton rows={4} />
+        ) : filtered.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Nenhuma denúncia nesta categoria.</p>
         ) : (
           <ul className="space-y-3">
