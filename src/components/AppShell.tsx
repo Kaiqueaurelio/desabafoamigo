@@ -103,16 +103,19 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
         <nav className="grid grid-cols-4 border-t border-border bg-card md:hidden">
           {[
-            ...patientNav,
-            ...(isPro ? [{ to: "/pro" as const, label: "Agenda", icon: HeartHandshake }] : []),
-          ]
-            .slice(0, 4)
-            .map((it) => (
-              <Link key={it.to} to={it.to} className={`flex flex-col items-center gap-1 py-2 text-[10px] ${pathname.startsWith(it.to) ? "text-primary" : "text-muted-foreground"}`}>
-                <it.icon className="size-5" />
+            { to: "/inicio", label: "Início", icon: Home },
+            { to: "/conversar", label: "Conversar", icon: HeartHandshake },
+            { to: "/respirar", label: "Respirar", icon: Wind },
+            { to: "/apoio", label: "Apoio", icon: BookOpen },
+          ].map((it) => {
+            const active = pathname.startsWith(it.to);
+            return (
+              <Link key={it.to} to={it.to} className={`flex flex-col items-center gap-1 py-2 text-[10px] transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
+                <it.icon className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`} />
                 {it.label}
               </Link>
-            ))}
+            );
+          })}
         </nav>
       </div>
       <EmergencyButton />
