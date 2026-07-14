@@ -129,7 +129,7 @@ function Home() {
           <div className="space-y-2">
             {upcoming.map((a) => (
               <Link key={a.id} to="/consulta/$id" params={{ id: a.id }}
-                className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40 hover:shadow-sm">
+                className="interactive flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-sm">
                 <div className="min-w-0">
                   <p className="truncate font-medium text-foreground">{a.topic}</p>
                   <p className="truncate text-xs text-muted-foreground">{names[a.professional_id] ?? "Voluntário(a)"}</p>
@@ -141,6 +141,7 @@ function Home() {
               </Link>
             ))}
           </div>
+
         )}
       </section>
 
