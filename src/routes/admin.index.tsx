@@ -180,7 +180,10 @@ function AdminDashboard() {
 
       <div className="mx-auto w-full max-w-6xl overflow-x-clip px-3 py-6 sm:px-4 md:flex md:gap-6">
 
-        <AdminSidebar />
+        <div className="hidden md:flex md:flex-col md:gap-2">
+          <AdminSidebarToggle />
+          <AdminSidebar />
+        </div>
 
         <div className="min-w-0 flex-1">
           <AdminSidebarMobile />
