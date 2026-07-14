@@ -6,6 +6,7 @@ import { AdminSidebar, AdminSidebarMobile, AdminSidebarToggle } from "@/componen
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 import { ArrowLeft, Search, ShieldCheck, HeartHandshake, User as UserIcon, Trash2, Plus } from "lucide-react";
+import { TableRowsSkeleton } from "@/components/AdminSkeletons";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
