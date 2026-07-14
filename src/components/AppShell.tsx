@@ -133,10 +133,16 @@ function NavGroup({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function NavItem({ to, label, icon: Icon, active }: { to: string; label: string; icon: typeof Home; active: boolean }) {
+function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; label: string; icon: typeof Home; active: boolean; highlight?: boolean }) {
+  const base = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition";
+  const cls = active
+    ? "bg-primary/10 font-medium text-primary"
+    : highlight
+      ? "bg-gradient-to-r from-sky-500/10 to-transparent text-sky-700 hover:from-sky-500/20 dark:text-sky-300"
+      : "text-foreground hover:bg-muted";
   return (
-    <Link to={to} className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${active ? "bg-primary/10 font-medium text-primary" : "text-foreground hover:bg-muted"}`}>
-      <Icon className="size-4" /> {label}
+    <Link to={to} className={`${base} ${cls}`}>
+      <Icon className={`size-4 ${highlight && !active ? "text-sky-500" : ""}`} /> {label}
     </Link>
   );
 }
