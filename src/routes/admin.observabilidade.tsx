@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { ArrowLeft, AlertTriangle, Star, Loader2 } from "lucide-react";
+import { MetricsGridSkeleton, CardListSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/observabilidade")({
   ssr: false,
