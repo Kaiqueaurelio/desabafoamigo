@@ -16,12 +16,22 @@ export function EmergencyButton() {
   const [open, setOpen] = useState(false);
   const [plan, setPlan] = useState<Plan>(null);
   const [sharing, setSharing] = useState(false);
+  const [minimized, setMinimized] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("emergency-min") === "1";
+  });
   const loadPlan = useServerFn(getMySafetyPlan);
   const logAction = useServerFn(logEmergencyAction);
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(open, panelRef, { onEscape: () => setOpen(false) });
 
-
+  function toggleMinimized() {
+    setMinimized((m) => {
+      const next = !m;
+      try { window.localStorage.setItem("emergency-min", next ? "1" : "0"); } catch { /* ignore */ }
+      return next;
+    });
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -63,17 +73,42 @@ export function EmergencyButton() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Preciso de ajuda urgente"
-        title="Preciso de ajuda urgente"
-        className="fixed right-4 z-40 flex items-center gap-2 rounded-full bg-destructive px-3 py-3 text-sm font-semibold text-destructive-foreground shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40 bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:bottom-4 md:px-4"
-      >
-        <LifeBuoy className="size-5" aria-hidden />
-        <span className="hidden sm:inline">Preciso de ajuda urgente</span>
-        <span className="sr-only sm:hidden">Preciso de ajuda urgente</span>
-      </button>
+      {/* Botão principal — no mobile fica ao lado direito, acima da nav; pode ser minimizado */}
+      <div className="fixed right-2 z-40 flex items-center gap-1 bottom-[calc(env(safe-area-inset-bottom,0px)+4.5rem)] md:right-4 md:bottom-4">
+        {!minimized && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label="Preciso de ajuda urgente"
+            title="Preciso de ajuda urgente"
+            className="flex items-center gap-2 rounded-full bg-destructive px-3 py-2.5 text-sm font-semibold text-destructive-foreground shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40 md:px-4 md:py-3"
+          >
+            <LifeBuoy className="size-5" aria-hidden />
+            <span className="hidden sm:inline">Preciso de ajuda urgente</span>
+          </button>
+        )}
+        {minimized && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label="Preciso de ajuda urgente"
+            title="Preciso de ajuda urgente"
+            className="grid size-10 place-items-center rounded-full bg-destructive/90 text-destructive-foreground shadow-md hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40"
+          >
+            <LifeBuoy className="size-4" aria-hidden />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={toggleMinimized}
+          aria-label={minimized ? "Expandir botão de ajuda" : "Minimizar botão de ajuda"}
+          title={minimized ? "Expandir" : "Minimizar"}
+          className="grid size-6 place-items-center rounded-full border border-border bg-card text-[10px] font-bold text-muted-foreground shadow-sm hover:text-foreground md:size-7"
+        >
+          {minimized ? "+" : "−"}
+        </button>
+      </div>
+
 
 
       {open && (
