@@ -250,13 +250,57 @@
   animation: spin-slow 30s linear infinite;
 }
 
+/* ============================================================
+ * Micro-interações globais — animações suaves em toda a app.
+ * ============================================================ */
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes soft-pop {
+  0% { transform: scale(0.96); opacity: 0; }
+  60% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@utility animate-fade-in-up { animation: fade-in-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+@utility animate-soft-pop { animation: soft-pop 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+@utility hover-lift {
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s ease, border-color 0.25s ease;
+  &:hover { transform: translateY(-2px); box-shadow: var(--shadow-calm); }
+  &:active { transform: translateY(0); transition-duration: 0.1s; }
+}
+
+@utility press {
+  transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+  &:active { transform: scale(0.97); }
+}
+
+/* Transições suaves por padrão em elementos interativos comuns.
+   Escopo estreito para não conflitar com animações específicas. */
+@layer base {
+  a, button, [role="button"], summary, label[for],
+  input:not([type="range"]), select, textarea {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* Um leve "respiro" ao aparecer de novos elementos de card. */
+  .card-appear { animation: fade-in-up 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-blob, .animate-float, .animate-fade-in, .animate-pulse, .animate-bounce,
   .animate-gradient-shift, .animate-bubble-in, .animate-infinity-draw,
-  .animate-marquee, .animate-marquee-reverse, .animate-marquee-slow, .animate-spin-slow {
+  .animate-marquee, .animate-marquee-reverse, .animate-marquee-slow, .animate-spin-slow,
+  .animate-fade-in-up, .animate-soft-pop, .card-appear {
     animation: none !important;
   }
+  .hover-lift, .press {
+    transition: none !important;
+  }
 }
+
 
 /* Manual "reduce motion" preference from Aparência settings */
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
