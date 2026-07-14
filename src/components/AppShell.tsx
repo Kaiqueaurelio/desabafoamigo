@@ -163,9 +163,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             const active = pathname.startsWith(it.to);
             return (
               <Link key={it.to} to={it.to} aria-current={active ? "page" : undefined} aria-label={it.label}
-                className={`interactive flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] ${active ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                className={`interactive relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] ${active ? "nav-active-tab" : "text-muted-foreground hover:text-foreground"}`}>
                 <it.icon aria-hidden className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`} />
-                {it.label}
+                <span className={active ? "font-semibold" : undefined}>{it.label}</span>
+
               </Link>
             );
           })}
