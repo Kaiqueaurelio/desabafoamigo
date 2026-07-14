@@ -8,6 +8,9 @@ import { z } from "zod";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — Desabafo Amigo" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : "",
+  }),
   component: AuthPage,
 });
 
@@ -29,6 +32,7 @@ function decodeRemember(raw: string | null): RememberPayload | null {
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,6 +63,12 @@ function AuthPage() {
     const userId = data.user?.id;
     if (!userId) throw new Error("Não foi possível iniciar a sessão.");
 
+    // Consome o redirecionamento preservado (ex.: consentimento OAuth) antes de qualquer outro destino.
+    if (next) {
+      window.location.assign(next);
+      return;
+    }
+
     const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
@@ -83,9 +93,12 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        const emailRedirectTo = next
+          ? `${window.location.origin}${next}`
+          : `${window.location.origin}/inicio`;
         const { error } = await supabase.auth.signUp({
           email: normalizedEmail, password: normalizedPassword,
-          options: { emailRedirectTo: `${window.location.origin}/inicio` },
+          options: { emailRedirectTo },
         });
         if (error) {
           const lower = error.message.toLowerCase();
@@ -102,6 +115,10 @@ function AuthPage() {
         return;
       }
       persistRemember(normalizedEmail, normalizedPassword);
+      if (next) {
+        window.location.assign(next);
+        return;
+      }
       navigate({ to: "/inicio" });
     } catch (e) {
       const raw = e instanceof Error ? e.message : "Erro";
