@@ -855,8 +855,10 @@ function PhrasesManager() {
           </ul>
         )}
       </SectionCard>
+      <EditPhraseDialog row={editing} onClose={() => setEditing(null)} onSaved={load} />
     </div>
   );
+
 }
 
 /* ---------- Imagens ---------- */
