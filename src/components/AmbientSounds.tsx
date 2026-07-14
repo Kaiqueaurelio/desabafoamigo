@@ -213,9 +213,9 @@ export function AmbientSounds() {
               : "Ativar silenciamento — sons ambientais ativos no momento (atalho: M)"
           }
           title={muted ? "Ativar som (M)" : "Silenciar (M)"}
-          className={`ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+          className={`ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ${
             muted
-              ? "border-rose-400/40 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20"
+              ? "border-rose-400/60 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25 aria-pressed:shadow-[0_0_0_1px_rgba(244,63,94,0.35)_inset]"
               : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
           }`}
         >
