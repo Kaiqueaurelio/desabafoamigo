@@ -264,7 +264,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         </header>
 
 
-        <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
+        <main key={pathname} className="flex-1 overflow-y-auto pb-28 md:pb-6"><RouteFade>{children}</RouteFade></main>
         <nav aria-label="Navegação principal" className="grid grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
           {[
             { to: "/inicio", label: "Início", icon: Home },
