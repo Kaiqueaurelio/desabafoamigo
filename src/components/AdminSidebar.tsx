@@ -184,14 +184,15 @@ export function AdminSidebarMobile() {
             to={item.to}
             aria-current={active ? "page" : undefined}
             title={item.label}
-            className={`interactive inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm font-medium leading-none ${
+            className={`interactive inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-sm leading-none ${
               active
-                ? "border-primary bg-primary/12 text-primary shadow-sm"
-                : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                ? "border-primary bg-primary/12 font-semibold text-primary shadow-sm"
+                : "border-border bg-card font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
             }`}
           >
-            <Icon className="size-4 shrink-0" />
+            <Icon aria-hidden className={`size-4 shrink-0 ${active ? "text-primary" : ""}`} />
             <span>{item.label}</span>
+
           </Link>
         );
       })}
