@@ -80,5 +80,21 @@ export const matchQueueEntry = createServerFn({ method: "POST" })
       status: "matched", matched_volunteer_id: userId, conversation_id: conv.id,
     }).eq("id", q.id);
 
+    // Notifica o solicitante que um voluntário aceitou (match) — best-effort
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { sendPushToUser } = await import("@/lib/push.server");
+      await sendPushToUser(supabaseAdmin, q.user_id, {
+        title: "Você tem um match! 💬",
+        body: "Um(a) voluntário(a) está pronto(a) para conversar com você.",
+        url: `/consulta/${appt.id}`,
+        tag: "match-ready",
+        requireInteraction: true,
+        icon: "/icon-192.png",
+      });
+    } catch (e) {
+      console.warn("[push] match notify failed", e);
+    }
+
     return { appointmentId: appt.id, conversationId: conv.id };
   });
