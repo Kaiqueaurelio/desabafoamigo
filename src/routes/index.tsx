@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { ChatDemo } from "@/components/ChatDemo";
 import { InfinityFlow } from "@/components/Watermark";
+import { ScrollProgress, SpotlightBinder, WordReveal } from "@/components/LandingFX";
 import {
   MessageSquareText,
   CalendarClock,
