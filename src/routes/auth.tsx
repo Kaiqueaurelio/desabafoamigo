@@ -164,7 +164,22 @@ function AuthPage() {
             <span className="mb-1 block text-xs font-medium text-muted-foreground">Senha</span>
             <PasswordInput value={password} onChange={setPassword} placeholder="••••••" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
           </label>
+          <label className="flex items-start gap-2 rounded-lg bg-brand-soft/60 p-2.5 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="mt-0.5 size-4 shrink-0 accent-[hsl(var(--primary))]"
+            />
+            <span className="min-w-0">
+              <strong className="text-foreground">Lembrar de mim neste dispositivo</strong>
+              <span className="block text-[11px] opacity-80">
+                Salva e-mail e senha localmente para agilizar o login. Não ative em dispositivos compartilhados.
+              </span>
+            </span>
+          </label>
           {err && <p className="text-sm text-destructive">{err}</p>}
+
           <button disabled={loading} type="submit" className="btn-primary w-full">
             {loading ? "Enviando..." : mode === "signup" ? "Criar conta" : "Entrar"}
           </button>
