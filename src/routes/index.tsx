@@ -334,7 +334,7 @@ function Origin() {
 
 function OriginCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="group rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-calm)]">
+    <div className="group spotlight-card rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-calm)]">
       <div className="mb-3 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary transition-transform group-hover:scale-110">
         {icon}
       </div>
@@ -374,7 +374,7 @@ function Mission() {
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((it, i) => (
             <Reveal key={it.title} delay={i * 80}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
+              <div className="h-full spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
                 <div className="mb-4 grid size-11 place-items-center rounded-xl bg-brand-soft text-primary">
                   {it.icon}
                 </div>
@@ -490,7 +490,7 @@ function Testimonials() {
       <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {items.map((t, i) => (
           <Reveal key={t.name} delay={(i % 3) * 120}>
-            <figure className="h-full rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
+            <figure className="h-full spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)]">
               <Quote className="size-6 text-brand-sky" />
               <blockquote className="mt-3 text-[15px] leading-relaxed text-foreground">
                 “{t.text}”
@@ -569,7 +569,7 @@ function HowTo() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   to="/auth"
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:opacity-90"
+                  className="btn-shine inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:opacity-90"
                 >
                   Cadastre-se gratuitamente
                   <ArrowRight className="size-4" />
