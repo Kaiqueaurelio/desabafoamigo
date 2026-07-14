@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { supabase } from "@/integrations/supabase/client";
 import { avatarUrl } from "@/lib/avatar";
-import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings } from "lucide-react";
+import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings, Wind } from "lucide-react";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { RouteFade } from "@/components/RouteFade";
 import type { User } from "@supabase/supabase-js";
