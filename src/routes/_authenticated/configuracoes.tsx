@@ -52,7 +52,7 @@ function SettingsPage() {
                 exclusão da sua conta. Você acompanha o status em tempo real.
               </p>
               <Link
-                to="/privacidade"
+                to="/meus-dados"
                 className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
                 <FileLock2 className="size-4" /> Abrir meus dados e privacidade

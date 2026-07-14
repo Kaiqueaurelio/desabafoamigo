@@ -34,6 +34,7 @@ import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento
 import { Route as AdminAparenciaRouteImport } from './routes/admin.aparencia'
 import { Route as AuthenticatedTransparenciaRouteImport } from './routes/_authenticated/transparencia'
 import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
+import { Route as AuthenticatedMeusDadosRouteImport } from './routes/_authenticated/meus-dados'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedConversarRouteImport } from './routes/_authenticated/conversar'
@@ -171,6 +172,11 @@ const AuthenticatedRelaxarRoute = AuthenticatedRelaxarRouteImport.update({
   path: '/relaxar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMeusDadosRoute = AuthenticatedMeusDadosRouteImport.update({
+  id: '/meus-dados',
+  path: '/meus-dados',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
   '/inicio': typeof AuthenticatedInicioRoute
+  '/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/_authenticated/conversar': typeof AuthenticatedConversarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
+  '/_authenticated/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
   '/_authenticated/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/conversar'
     | '/diario'
     | '/inicio'
+    | '/meus-dados'
     | '/relaxar'
     | '/transparencia'
     | '/admin/aparencia'
@@ -395,6 +405,7 @@ export interface FileRouteTypes {
     | '/conversar'
     | '/diario'
     | '/inicio'
+    | '/meus-dados'
     | '/relaxar'
     | '/transparencia'
     | '/admin/aparencia'
@@ -433,6 +444,7 @@ export interface FileRouteTypes {
     | '/_authenticated/conversar'
     | '/_authenticated/diario'
     | '/_authenticated/inicio'
+    | '/_authenticated/meus-dados'
     | '/_authenticated/relaxar'
     | '/_authenticated/transparencia'
     | '/admin/aparencia'
@@ -659,6 +671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelaxarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/meus-dados': {
+      id: '/_authenticated/meus-dados'
+      path: '/meus-dados'
+      fullPath: '/meus-dados'
+      preLoaderRoute: typeof AuthenticatedMeusDadosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
       path: '/inicio'
@@ -746,6 +765,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConversarRoute: typeof AuthenticatedConversarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
+  AuthenticatedMeusDadosRoute: typeof AuthenticatedMeusDadosRoute
   AuthenticatedRelaxarRoute: typeof AuthenticatedRelaxarRoute
   AuthenticatedTransparenciaRoute: typeof AuthenticatedTransparenciaRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
@@ -762,6 +782,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConversarRoute: AuthenticatedConversarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
+  AuthenticatedMeusDadosRoute: AuthenticatedMeusDadosRoute,
   AuthenticatedRelaxarRoute: AuthenticatedRelaxarRoute,
   AuthenticatedTransparenciaRoute: AuthenticatedTransparenciaRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,

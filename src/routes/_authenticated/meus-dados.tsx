@@ -21,7 +21,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/privacidade")({
+export const Route = createFileRoute("/_authenticated/meus-dados")({
   component: PrivacyPage,
 });
 
