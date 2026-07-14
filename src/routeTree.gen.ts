@@ -34,6 +34,7 @@ import { Route as AdminAuditoriaRouteImport } from './routes/admin.auditoria'
 import { Route as AdminAtendimentoRouteImport } from './routes/admin.atendimento'
 import { Route as AdminAparenciaRouteImport } from './routes/admin.aparencia'
 import { Route as AuthenticatedTransparenciaRouteImport } from './routes/_authenticated/transparencia'
+import { Route as AuthenticatedRespirarRouteImport } from './routes/_authenticated/respirar'
 import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
 import { Route as AuthenticatedPlanoSegurancaRouteImport } from './routes/_authenticated/plano-seguranca'
 import { Route as AuthenticatedMeusDadosRouteImport } from './routes/_authenticated/meus-dados'
@@ -174,6 +175,11 @@ const AuthenticatedTransparenciaRoute =
     path: '/transparencia',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRespirarRoute = AuthenticatedRespirarRouteImport.update({
+  id: '/respirar',
+  path: '/respirar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRelaxarRoute = AuthenticatedRelaxarRouteImport.update({
   id: '/relaxar',
   path: '/relaxar',
@@ -265,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
+  '/respirar': typeof AuthenticatedRespirarRoute
   '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
@@ -305,6 +312,7 @@ export interface FileRoutesByTo {
   '/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
+  '/respirar': typeof AuthenticatedRespirarRoute
   '/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
@@ -347,6 +355,7 @@ export interface FileRoutesById {
   '/_authenticated/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/_authenticated/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
+  '/_authenticated/respirar': typeof AuthenticatedRespirarRoute
   '/_authenticated/transparencia': typeof AuthenticatedTransparenciaRoute
   '/admin/aparencia': typeof AdminAparenciaRoute
   '/admin/atendimento': typeof AdminAtendimentoRoute
@@ -389,6 +398,7 @@ export interface FileRouteTypes {
     | '/meus-dados'
     | '/plano-seguranca'
     | '/relaxar'
+    | '/respirar'
     | '/transparencia'
     | '/admin/aparencia'
     | '/admin/atendimento'
@@ -429,6 +439,7 @@ export interface FileRouteTypes {
     | '/meus-dados'
     | '/plano-seguranca'
     | '/relaxar'
+    | '/respirar'
     | '/transparencia'
     | '/admin/aparencia'
     | '/admin/atendimento'
@@ -470,6 +481,7 @@ export interface FileRouteTypes {
     | '/_authenticated/meus-dados'
     | '/_authenticated/plano-seguranca'
     | '/_authenticated/relaxar'
+    | '/_authenticated/respirar'
     | '/_authenticated/transparencia'
     | '/admin/aparencia'
     | '/admin/atendimento'
@@ -697,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTransparenciaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/respirar': {
+      id: '/_authenticated/respirar'
+      path: '/respirar'
+      fullPath: '/respirar'
+      preLoaderRoute: typeof AuthenticatedRespirarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/relaxar': {
       id: '/_authenticated/relaxar'
       path: '/relaxar'
@@ -808,6 +827,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMeusDadosRoute: typeof AuthenticatedMeusDadosRoute
   AuthenticatedPlanoSegurancaRoute: typeof AuthenticatedPlanoSegurancaRoute
   AuthenticatedRelaxarRoute: typeof AuthenticatedRelaxarRoute
+  AuthenticatedRespirarRoute: typeof AuthenticatedRespirarRoute
   AuthenticatedTransparenciaRoute: typeof AuthenticatedTransparenciaRoute
   AuthenticatedConsultaIdRoute: typeof AuthenticatedConsultaIdRoute
   AuthenticatedProFilaRoute: typeof AuthenticatedProFilaRoute
@@ -826,6 +846,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMeusDadosRoute: AuthenticatedMeusDadosRoute,
   AuthenticatedPlanoSegurancaRoute: AuthenticatedPlanoSegurancaRoute,
   AuthenticatedRelaxarRoute: AuthenticatedRelaxarRoute,
+  AuthenticatedRespirarRoute: AuthenticatedRespirarRoute,
   AuthenticatedTransparenciaRoute: AuthenticatedTransparenciaRoute,
   AuthenticatedConsultaIdRoute: AuthenticatedConsultaIdRoute,
   AuthenticatedProFilaRoute: AuthenticatedProFilaRoute,

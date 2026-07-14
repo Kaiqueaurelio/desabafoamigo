@@ -141,11 +141,30 @@ function Apoio() {
 
           {/* TÉCNICAS */}
           <TabsContent value="tecnicas" className="mt-10 focus-visible:ring-0">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <Link
+              to="/respirar"
+              className="group block rounded-3xl border border-sky-400/30 bg-gradient-to-br from-sky-500/15 via-blue-500/10 to-transparent p-6 transition hover:border-sky-400/60"
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="grid size-12 place-items-center rounded-2xl bg-sky-500/20 text-sky-300">
+                    <Wind className="size-6" />
+                  </span>
+                  <div>
+                    <p className="text-lg font-semibold text-foreground">Respiração guiada</p>
+                    <p className="text-sm text-muted-foreground">Sessões de 1, 5 ou 10 minutos com círculo que respira junto.</p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white transition group-hover:bg-sky-400">
+                  <Play className="size-4" /> Começar agora
+                </span>
+              </div>
+            </Link>
+            <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-lg font-semibold text-foreground">Precisa se acalmar agora?</p>
-                  <p className="text-sm text-muted-foreground">Comece uma respiração guiada em poucos segundos.</p>
+                  <p className="text-sm font-medium text-foreground">Só uma pausa rápida?</p>
+                  <p className="text-xs text-muted-foreground">Abre um mini-exercício 4-7-8 sem sair da tela.</p>
                 </div>
                 <BreathingButton />
               </div>
