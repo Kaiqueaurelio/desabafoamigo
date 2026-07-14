@@ -176,26 +176,25 @@ export function AdminSidebarMobile() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <div className="mb-4 flex items-center gap-2 md:hidden">
+      <div className="mb-4 flex items-center justify-between gap-2 md:hidden">
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground">
+          <CurrentIcon aria-hidden className="size-3.5 shrink-0 text-primary/70" />
+          <span className="truncate">
+            <span className="text-muted-foreground/70">Painel · </span>
+            <span className="font-medium text-foreground">{current?.label ?? "Início"}</span>
+          </span>
+        </div>
         <SheetTrigger asChild>
           <button
             type="button"
             aria-label="Abrir menu administrativo"
-            className="interactive grid size-11 shrink-0 place-items-center rounded-xl border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="interactive grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground/70 hover:bg-muted hover:text-foreground"
           >
-            <Menu aria-hidden className="size-5" />
+            <Menu aria-hidden className="size-4" />
           </button>
         </SheetTrigger>
-        <div className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-border bg-card px-3 py-2">
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-            <CurrentIcon aria-hidden className="size-4" />
-          </span>
-          <span className="flex min-w-0 flex-col leading-tight">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Você está em</span>
-            <span className="truncate text-sm font-semibold text-foreground">{current?.label ?? "Painel"}</span>
-          </span>
-        </div>
       </div>
+
 
       <SheetContent side="left" className="flex w-[85vw] max-w-sm flex-col gap-0 p-0 sm:max-w-sm">
         <SheetHeader className="border-b border-border px-5 py-4 text-left">
