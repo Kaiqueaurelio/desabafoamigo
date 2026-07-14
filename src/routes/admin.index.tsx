@@ -156,30 +156,31 @@ function AdminDashboard() {
 
   return (
     <main className="min-h-dvh bg-background">
-      <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link to="/" aria-label="Desabafa Amigo — ir para o início" className="group flex items-center gap-3 rounded-xl px-1.5 py-1 transition-all duration-300 hover:bg-brand-soft/60">
-            <span className="relative grid size-12 place-items-center rounded-2xl bg-white shadow-calm ring-2 ring-primary/40 transition-transform duration-300 group-hover:scale-105">
+      <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur safe-top">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
+          <Link to="/" aria-label="Desabafa Amigo — ir para o início" className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-1 transition-all duration-300 hover:bg-brand-soft/60 sm:gap-3 sm:px-1.5">
+            <span className="relative grid size-10 shrink-0 place-items-center rounded-2xl bg-white shadow-calm ring-2 ring-primary/40 transition-transform duration-300 group-hover:scale-105 sm:size-12">
               <span aria-hidden className="absolute -inset-0.5 rounded-2xl bg-primary/25 opacity-40 blur-md transition-opacity duration-500 group-hover:opacity-80" />
-              <Logo responsive priority decorative className="relative h-10 w-10 drop-shadow-sm" />
+              <Logo responsive priority decorative className="relative h-8 w-8 drop-shadow-sm sm:h-10 sm:w-10" />
             </span>
-            <span className="leading-tight">
-              <span className="block text-sm font-bold text-primary">Desabafa Amigo</span>
-              <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Painel administrativo</span>
+            <span className="min-w-0 leading-tight">
+              <span className="block truncate text-sm font-bold text-primary">Desabafa Amigo</span>
+              <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:block">Painel administrativo</span>
             </span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             <AdminSidebarToggle className="hidden md:inline-flex" />
-            <Link to="/inicio" className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary">Ir ao app</Link>
-            <button onClick={signOut} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground">
-              <LogOut className="size-4" /> Sair
+            <Link to="/inicio" className="hidden text-xs font-medium text-muted-foreground transition-colors hover:text-primary sm:inline">Ir ao app</Link>
+            <button onClick={signOut} aria-label="Sair" className="interactive flex items-center gap-1 rounded-md px-2 py-2 text-xs text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground">
+              <LogOut className="size-4" /> <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
 
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl gap-6 px-4 py-6 md:flex">
+      <div className="mx-auto max-w-6xl gap-6 px-3 py-6 sm:px-4 md:flex">
+
         <AdminSidebar />
 
         <div className="min-w-0 flex-1">
