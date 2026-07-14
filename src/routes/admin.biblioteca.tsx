@@ -39,6 +39,18 @@ export const Route = createFileRoute("/admin/biblioteca")({
 
 type Tab = "audios" | "frases" | "imagens";
 
+type BulkStatus = "pending" | "uploading" | "analyzing" | "saving" | "saved" | "error";
+type BulkItem = {
+  id: string;
+  file: File;
+  status: BulkStatus;
+  title: string;
+  category: string;
+  description: string;
+  error?: string;
+};
+
+
 type Audio = {
   id: string;
   title: string;
@@ -207,6 +219,78 @@ function AudiosManager() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkItems, setBulkItems] = useState<BulkItem[]>([]);
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState<string>("asmr");
+
+  function addBulkFiles(files: FileList | null) {
+    if (!files || !files.length) return;
+    const next: BulkItem[] = Array.from(files).map((f) => ({
+      id: crypto.randomUUID(),
+      file: f,
+      status: "pending",
+      title: f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "),
+      category: bulkCategory,
+      description: "",
+    }));
+    setBulkItems((prev) => [...prev, ...next]);
+  }
+
+  function updateBulk(id: string, patch: Partial<BulkItem>) {
+    setBulkItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+  }
+
+  async function runBulk(withAi: boolean) {
+    if (!bulkItems.length) return;
+    setBulkRunning(true);
+    const t = toast.loading(withAi ? "Enviando e analisando com IA…" : "Enviando arquivos…");
+    let ok = 0;
+    let fail = 0;
+    for (const item of bulkItems) {
+      if (item.status === "saved") continue;
+      try {
+        updateBulk(item.id, { status: "uploading", error: undefined });
+        const path = await uploadLibraryFile(item.file, "audio");
+        let title = item.title;
+        let category = item.category;
+        let description = item.description;
+        if (withAi) {
+          updateBulk(item.id, { status: "analyzing" });
+          try {
+            const r = await autofillLibraryMedia({
+              data: { kind: "audio", storagePath: path, filename: item.file.name },
+            });
+            title = r.title || title;
+            category = r.category || category;
+            description = r.description || description;
+          } catch {
+            /* segue com metadados manuais */
+          }
+        }
+        updateBulk(item.id, { status: "saving", title, category, description });
+        const { error } = await supabase.from("library_audios").insert({
+          title: (title || item.file.name).trim(),
+          description: description?.trim() || null,
+          category,
+          audio_url: path,
+        });
+        if (error) throw error;
+        updateBulk(item.id, { status: "saved" });
+        ok++;
+      } catch (e) {
+        fail++;
+        updateBulk(item.id, {
+          status: "error",
+          error: e instanceof Error ? e.message : "Falha",
+        });
+      }
+    }
+    setBulkRunning(false);
+    toast.success(`Concluído: ${ok} salvos${fail ? `, ${fail} com erro` : ""}.`, { id: t });
+    await load();
+  }
+
 
   async function aiFill() {
     if (!audioFile && !form.audio_url) return toast.error("Selecione o arquivo de áudio antes.");
@@ -306,8 +390,141 @@ function AudiosManager() {
         <div className="sm:flex-1 sm:max-w-sm">
           <SearchBar value={q} onChange={setQ} placeholder="Buscar áudios pelo título…" />
         </div>
-        <AddToggle open={open} onToggle={() => setOpen((o) => !o)} label="Novo áudio" />
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setBulkOpen((o) => !o)}
+            className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm font-medium text-foreground hover:bg-background/60"
+          >
+            <Upload className="size-4" />
+            {bulkOpen ? "Fechar envio em lote" : "Envio em lote"}
+          </button>
+          <AddToggle open={open} onToggle={() => setOpen((o) => !o)} label="Novo áudio" />
+        </div>
       </div>
+
+      {bulkOpen && (
+        <SectionCard>
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Envio em lote com IA</h3>
+              <p className="text-xs text-muted-foreground">
+                Selecione vários arquivos. A IA transcreve, sugere título, categoria e descrição de cada um.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-muted-foreground">Categoria padrão</label>
+              <select
+                value={bulkCategory}
+                onChange={(e) => setBulkCategory(e.target.value)}
+                className="input !py-1.5 !text-xs"
+              >
+                {AUDIO_CATEGORIES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border/60 bg-background/30 p-6 text-center transition hover:bg-background/50">
+            <Upload className="size-6 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">
+              Clique para escolher vários áudios
+            </span>
+            <span className="text-xs text-muted-foreground">mp3, m4a, wav — quantos quiser</span>
+            <input
+              type="file"
+              accept="audio/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                addBulkFiles(e.target.files);
+                e.currentTarget.value = "";
+              }}
+            />
+          </label>
+
+          {bulkItems.length > 0 && (
+            <>
+              <ul className="mt-4 space-y-2">
+                {bulkItems.map((it) => (
+                  <li
+                    key={it.id}
+                    className="flex items-center gap-3 rounded-lg border border-border/60 bg-background/40 p-3"
+                  >
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      {it.status === "saved" ? (
+                        <span className="text-lg">✓</span>
+                      ) : it.status === "error" ? (
+                        <X className="size-4 text-destructive" />
+                      ) : it.status === "pending" ? (
+                        <Music className="size-4 text-muted-foreground" />
+                      ) : (
+                        <Loader2 className="size-4 animate-spin text-primary" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">{it.title}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {it.file.name} · {(it.file.size / 1024 / 1024).toFixed(1)} MB
+                        {" · "}
+                        {it.status === "pending" && "Aguardando"}
+                        {it.status === "uploading" && "Enviando…"}
+                        {it.status === "analyzing" && "Analisando com IA…"}
+                        {it.status === "saving" && "Salvando…"}
+                        {it.status === "saved" && `Salvo · ${AUDIO_CATEGORIES.find((c) => c.id === it.category)?.label ?? it.category}`}
+                        {it.status === "error" && (it.error || "Erro")}
+                      </p>
+                    </div>
+                    {it.status !== "saved" && !bulkRunning && (
+                      <button
+                        type="button"
+                        onClick={() => setBulkItems((prev) => prev.filter((x) => x.id !== it.id))}
+                        className="rounded-md p-1 text-muted-foreground hover:bg-background/60 hover:text-foreground"
+                        aria-label="Remover da fila"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <button
+                  type="button"
+                  disabled={bulkRunning}
+                  onClick={() => setBulkItems([])}
+                  className="rounded-lg border border-border/60 px-3 py-2 text-sm text-muted-foreground hover:bg-background/40 disabled:opacity-50"
+                >
+                  Limpar fila
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkRunning || bulkItems.every((it) => it.status === "saved")}
+                  onClick={() => runBulk(false)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background/40 px-4 py-2 text-sm font-medium text-foreground hover:bg-background/60 disabled:opacity-50"
+                >
+                  {bulkRunning ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                  Enviar sem IA
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkRunning || bulkItems.every((it) => it.status === "saved")}
+                  onClick={() => runBulk(true)}
+                  className="btn-primary inline-flex items-center gap-2"
+                >
+                  {bulkRunning ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                  Enviar tudo com IA
+                </button>
+              </div>
+            </>
+          )}
+        </SectionCard>
+      )}
+
 
       {open && (
         <SectionCard>
