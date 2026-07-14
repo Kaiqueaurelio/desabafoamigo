@@ -685,6 +685,8 @@ function PhrasesManager() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [editing, setEditing] = useState<Phrase | null>(null);
+
 
   async function aiFill() {
     if (!form.text.trim()) return toast.error("Escreva a frase antes.");
