@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { ChatDemo } from "@/components/ChatDemo";
+import { PageIntro } from "@/components/PageIntro";
 import { TestimonialsCarousel } from "@/components/TestimonialsCarousel";
 import { InfinityFlow } from "@/components/Watermark";
 import { ScrollProgress, SpotlightBinder, WordReveal } from "@/components/LandingFX";
@@ -124,10 +125,16 @@ function Landing() {
   useSmoothAnchors();
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
+      <PageIntro />
       <ScrollProgress />
       <SpotlightBinder />
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
-      <div className="relative z-10">
+      <motion.div
+        className="relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+      >
         <Header />
         <main id="conteudo" tabIndex={-1}>
           <Hero />
@@ -143,7 +150,7 @@ function Landing() {
           <HowTo />
         </main>
         <Footer />
-      </div>
+      </motion.div>
     </div>
   );
 }
