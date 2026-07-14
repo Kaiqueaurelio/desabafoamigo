@@ -119,6 +119,12 @@ function Consulta() {
 
       if (!a.conversation_id) return;
 
+      // Log de acesso: se sou admin/voluntário abrindo essa conversa
+      if (a.professional_id === u.user.id) {
+        supabase.rpc("log_conversation_access", { _conversation_id: a.conversation_id }).then(() => {});
+      }
+
+
       // If I'm the volunteer, load returning-user summary
       if (a.professional_id === u.user.id) {
         const { data: sum } = await supabase.from("user_summaries")

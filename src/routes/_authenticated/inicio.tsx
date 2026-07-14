@@ -9,6 +9,8 @@ import { MoodCheckIn } from "@/components/MoodCheckIn";
 import { BreathingButton } from "@/components/BreathingExercise";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { ComfortPhrase } from "@/components/ComfortPhrase";
+import { FollowUpPrompt } from "@/components/FollowUpPrompt";
+import { VolunteerTrainingBanner } from "@/components/VolunteerTrainingBanner";
 import { loadStreak } from "@/lib/streak";
 
 
@@ -86,6 +88,13 @@ function Home() {
   return (
     <div id="conteudo" className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <OnboardingTour />
+
+      <VolunteerTrainingBanner />
+      <FollowUpPrompt />
+
+
+
+
 
       {/* Hero card */}
       <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-brand-soft/60 via-card to-card p-6 shadow-sm sm:p-8">

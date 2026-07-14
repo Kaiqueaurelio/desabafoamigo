@@ -46,10 +46,12 @@ import { Route as AuthenticatedConsultasRouteImport } from './routes/_authentica
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedApoioRouteImport } from './routes/_authenticated/apoio'
 import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
+import { Route as AuthenticatedProTreinamentoRouteImport } from './routes/_authenticated/pro.treinamento'
 import { Route as AuthenticatedProPerfilRouteImport } from './routes/_authenticated/pro.perfil'
 import { Route as AuthenticatedProMfaRouteImport } from './routes/_authenticated/pro.mfa'
 import { Route as AuthenticatedProFilaRouteImport } from './routes/_authenticated/pro.fila'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
+import { Route as ApiPublicHooksDailyMaintenanceRouteImport } from './routes/api/public/hooks/daily-maintenance'
 
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
@@ -238,6 +240,12 @@ const AuthenticatedProIndexRoute = AuthenticatedProIndexRouteImport.update({
   path: '/pro/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProTreinamentoRoute =
+  AuthenticatedProTreinamentoRouteImport.update({
+    id: '/pro/treinamento',
+    path: '/pro/treinamento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProPerfilRoute = AuthenticatedProPerfilRouteImport.update({
   id: '/pro/perfil',
   path: '/pro/perfil',
@@ -258,6 +266,12 @@ const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
   path: '/consulta/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicHooksDailyMaintenanceRoute =
+  ApiPublicHooksDailyMaintenanceRouteImport.update({
+    id: '/api/public/hooks/daily-maintenance',
+    path: '/api/public/hooks/daily-maintenance',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -299,7 +313,9 @@ export interface FileRoutesByFullPath {
   '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/mfa': typeof AuthenticatedProMfaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/pro/treinamento': typeof AuthenticatedProTreinamentoRoute
   '/pro/': typeof AuthenticatedProIndexRoute
+  '/api/public/hooks/daily-maintenance': typeof ApiPublicHooksDailyMaintenanceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -341,7 +357,9 @@ export interface FileRoutesByTo {
   '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/mfa': typeof AuthenticatedProMfaRoute
   '/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/pro/treinamento': typeof AuthenticatedProTreinamentoRoute
   '/pro': typeof AuthenticatedProIndexRoute
+  '/api/public/hooks/daily-maintenance': typeof ApiPublicHooksDailyMaintenanceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -385,7 +403,9 @@ export interface FileRoutesById {
   '/_authenticated/pro/fila': typeof AuthenticatedProFilaRoute
   '/_authenticated/pro/mfa': typeof AuthenticatedProMfaRoute
   '/_authenticated/pro/perfil': typeof AuthenticatedProPerfilRoute
+  '/_authenticated/pro/treinamento': typeof AuthenticatedProTreinamentoRoute
   '/_authenticated/pro/': typeof AuthenticatedProIndexRoute
+  '/api/public/hooks/daily-maintenance': typeof ApiPublicHooksDailyMaintenanceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -429,7 +449,9 @@ export interface FileRouteTypes {
     | '/pro/fila'
     | '/pro/mfa'
     | '/pro/perfil'
+    | '/pro/treinamento'
     | '/pro/'
+    | '/api/public/hooks/daily-maintenance'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -471,7 +493,9 @@ export interface FileRouteTypes {
     | '/pro/fila'
     | '/pro/mfa'
     | '/pro/perfil'
+    | '/pro/treinamento'
     | '/pro'
+    | '/api/public/hooks/daily-maintenance'
   id:
     | '__root__'
     | '/'
@@ -514,7 +538,9 @@ export interface FileRouteTypes {
     | '/_authenticated/pro/fila'
     | '/_authenticated/pro/mfa'
     | '/_authenticated/pro/perfil'
+    | '/_authenticated/pro/treinamento'
     | '/_authenticated/pro/'
+    | '/api/public/hooks/daily-maintenance'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -543,6 +569,7 @@ export interface RootRouteChildren {
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  ApiPublicHooksDailyMaintenanceRoute: typeof ApiPublicHooksDailyMaintenanceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -806,6 +833,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pro/treinamento': {
+      id: '/_authenticated/pro/treinamento'
+      path: '/pro/treinamento'
+      fullPath: '/pro/treinamento'
+      preLoaderRoute: typeof AuthenticatedProTreinamentoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pro/perfil': {
       id: '/_authenticated/pro/perfil'
       path: '/pro/perfil'
@@ -834,6 +868,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConsultaIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/daily-maintenance': {
+      id: '/api/public/hooks/daily-maintenance'
+      path: '/api/public/hooks/daily-maintenance'
+      fullPath: '/api/public/hooks/daily-maintenance'
+      preLoaderRoute: typeof ApiPublicHooksDailyMaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -853,6 +894,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProFilaRoute: typeof AuthenticatedProFilaRoute
   AuthenticatedProMfaRoute: typeof AuthenticatedProMfaRoute
   AuthenticatedProPerfilRoute: typeof AuthenticatedProPerfilRoute
+  AuthenticatedProTreinamentoRoute: typeof AuthenticatedProTreinamentoRoute
   AuthenticatedProIndexRoute: typeof AuthenticatedProIndexRoute
 }
 
@@ -872,6 +914,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProFilaRoute: AuthenticatedProFilaRoute,
   AuthenticatedProMfaRoute: AuthenticatedProMfaRoute,
   AuthenticatedProPerfilRoute: AuthenticatedProPerfilRoute,
+  AuthenticatedProTreinamentoRoute: AuthenticatedProTreinamentoRoute,
   AuthenticatedProIndexRoute: AuthenticatedProIndexRoute,
 }
 
@@ -904,6 +947,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsuariosRoute: AdminUsuariosRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
+  ApiPublicHooksDailyMaintenanceRoute: ApiPublicHooksDailyMaintenanceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

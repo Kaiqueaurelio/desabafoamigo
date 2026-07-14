@@ -32,6 +32,7 @@ type Volunteer = {
   rejection_reason: string | null;
   applied_at: string;
   reviewed_at: string | null;
+  training_completed_at: string | null;
 };
 
 type Tab = "pending" | "approved" | "rejected";
@@ -284,11 +285,25 @@ function AdminDashboard() {
               <Field label="Disponibilidade">{selected.availability || "—"}</Field>
               <Field label="Credenciais / formação">{selected.credentials || "—"}</Field>
               <Field label="Inscrito em">{new Date(selected.applied_at).toLocaleString()}</Field>
+              <Field label="Trilha de treinamento">
+                {selected.training_completed_at ? (
+                  <span className="inline-flex items-center gap-1 text-emerald-400">
+                    <Check className="size-3.5" /> Concluída em {new Date(selected.training_completed_at).toLocaleDateString()}
+                  </span>
+                ) : (
+                  <span className="text-amber-400">Pendente — voluntário precisa concluir</span>
+                )}
+              </Field>
               {selected.rejection_reason && <Field label="Motivo da rejeição">{selected.rejection_reason}</Field>}
             </dl>
 
             {selected.approval_status === "pending" && (
               <div className="mt-6 space-y-3">
+                {!selected.training_completed_at && (
+                  <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+                    Este voluntário ainda não concluiu a trilha de treinamento. A aprovação está bloqueada até a conclusão.
+                  </p>
+                )}
                 <textarea
                   placeholder="Motivo da rejeição (opcional)"
                   value={rejectReason}
@@ -299,8 +314,9 @@ function AdminDashboard() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => approve(selected)}
-                    disabled={busy}
-                    className="btn-primary flex flex-1 items-center justify-center gap-1"
+                    disabled={busy || !selected.training_completed_at}
+                    className="btn-primary flex flex-1 items-center justify-center gap-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selected.training_completed_at ? "Aguardando conclusão da trilha" : ""}
                   >
                     <Check className="size-4" /> Aprovar
                   </button>

@@ -160,6 +160,50 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_follow_ups: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          reply_note: string | null
+          reply_status: string
+          scheduled_for: string
+          sent_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          reply_note?: string | null
+          reply_status?: string
+          scheduled_for: string
+          sent_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          reply_note?: string | null
+          reply_status?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_follow_ups_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: true
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           appointment_id: string | null
@@ -1038,6 +1082,92 @@ export type Database = {
         }
         Relationships: []
       }
+      volunteer_training_modules: {
+        Row: {
+          active: boolean
+          content: string
+          created_at: string
+          id: string
+          min_score: number
+          quiz: Json
+          slug: string
+          sort_order: number
+          summary: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          content?: string
+          created_at?: string
+          id?: string
+          min_score?: number
+          quiz?: Json
+          slug: string
+          sort_order?: number
+          summary?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          content?: string
+          created_at?: string
+          id?: string
+          min_score?: number
+          quiz?: Json
+          slug?: string
+          sort_order?: number
+          summary?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      volunteer_training_progress: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          module_id: string
+          passed: boolean
+          quiz_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          module_id: string
+          passed?: boolean
+          quiz_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          module_id?: string
+          passed?: boolean
+          quiz_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_training_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       volunteers: {
         Row: {
           applied_at: string
@@ -1057,6 +1187,7 @@ export type Database = {
           reviewed_by: string | null
           specialty: string | null
           status: Database["public"]["Enums"]["volunteer_status"]
+          training_completed_at: string | null
           updated_at: string
           user_id: string
         }
@@ -1078,6 +1209,7 @@ export type Database = {
           reviewed_by?: string | null
           specialty?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
+          training_completed_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1099,6 +1231,7 @@ export type Database = {
           reviewed_by?: string | null
           specialty?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
+          training_completed_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1213,12 +1346,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      log_conversation_access: {
+        Args: { _conversation_id: string }
+        Returns: undefined
+      }
       purge_ended_conversations: { Args: never; Returns: undefined }
       purge_old_incidents: { Args: never; Returns: undefined }
       record_mfa_attempt: {
         Args: { _scope: string; _success: boolean }
         Returns: undefined
       }
+      run_daily_maintenance: { Args: never; Returns: Json }
+      send_pending_follow_ups: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "volunteer" | "psychologist"
