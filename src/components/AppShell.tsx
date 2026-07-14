@@ -175,13 +175,13 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
 
       <div className="flex flex-1 flex-col">
-        <header className="safe-top flex items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 md:hidden">
+        <header className="safe-top flex w-full items-center gap-2 border-b border-border bg-card px-2 py-2.5 md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <button
                 type="button"
                 aria-label="Abrir menu de navegação"
-                className="interactive grid size-11 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="interactive grid size-10 shrink-0 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <Menu aria-hidden className="size-5" />
               </button>
@@ -245,15 +245,24 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             </SheetContent>
           </Sheet>
 
-          <Link to="/inicio" aria-label="Desabafo Amigo — ir para o início" className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-            <Logo responsive decorative priority className="h-10 w-10" />
-            <span className="truncate text-base font-semibold text-primary">Desabafo</span>
+          <Link
+            to="/inicio"
+            aria-label="Desabafo Amigo — ir para o início"
+            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <Logo responsive decorative priority className="h-9 w-9 shrink-0" />
+            <span className="truncate text-sm font-semibold text-primary sm:text-base">Desabafo Amigo</span>
           </Link>
 
-          <button onClick={signOut} aria-label="Sair" className="interactive grid size-11 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
+          <button
+            onClick={signOut}
+            aria-label="Sair"
+            className="interactive grid size-10 shrink-0 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
             <LogOut aria-hidden className="size-5" />
           </button>
         </header>
+
 
         <main key={pathname} className="flex-1 overflow-y-auto"><RouteFade>{children}</RouteFade></main>
         <nav aria-label="Navegação principal" className="grid grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
