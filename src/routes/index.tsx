@@ -533,29 +533,8 @@ function Testimonials() {
         </div>
       </Reveal>
 
-      <div className="mt-14 space-y-5 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
-        {[items.slice(0, 3), items.slice(3)].map((row, ri) => (
-          <MarqueeRow key={ri} duration={ri === 0 ? 50 : 60} reverse={ri === 1}>
-            {row.map((t) => (
-              <figure
-                key={t.name}
-                className="w-[320px] shrink-0 spotlight-card rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-calm)] md:w-[380px]"
-              >
-                <Quote className="size-6 text-brand-sky" />
-                <blockquote className="mt-3 text-[15px] leading-relaxed text-foreground">
-                  “{t.text}”
-                </blockquote>
-                <figcaption className="mt-5 flex items-center gap-3 border-t border-border pt-4">
-                  <img src={avatarUrl(t.name, 80)} alt="" className="size-10 rounded-full ring-2 ring-brand-soft" loading="lazy" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </figcaption>
-              </figure>
-            ))}
-          </MarqueeRow>
-        ))}
+      <div className="group mt-14 px-2 md:px-8">
+        <TestimonialsCarousel items={items} interval={5000} />
       </div>
     </section>
   );
