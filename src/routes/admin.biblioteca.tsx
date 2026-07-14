@@ -609,6 +609,39 @@ function ImagesManager() {
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function aiFill() {
+    if (!file && !form.image_url) return toast.error("Selecione a imagem antes.");
+    setAiLoading(true);
+    const t = toast.loading("Analisando imagem com IA…");
+    try {
+      let path = form.image_url;
+      let filename = "";
+      if (file) {
+        path = await uploadLibraryFile(file, "image");
+        filename = file.name;
+        setForm((f) => ({ ...f, image_url: path }));
+        setFile(null);
+      }
+      if (/^https?:\/\//i.test(path)) throw new Error("IA só funciona com upload direto, não URL externa.");
+      const r = await autofillLibraryMedia({
+        data: { kind: "image", storagePath: path, filename },
+      });
+      setForm((f) => ({
+        ...f,
+        title: f.title || r.title,
+        caption: f.caption || r.description,
+        category: r.category || f.category,
+      }));
+      toast.success("Sugestões preenchidas!", { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha na IA", { id: t });
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
 
   async function load() {
     setLoading(true);
