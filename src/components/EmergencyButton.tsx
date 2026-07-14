@@ -67,11 +67,14 @@ export function EmergencyButton() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Preciso de ajuda urgente"
-        className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-destructive px-4 py-3 text-sm font-semibold text-destructive-foreground shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40"
+        title="Preciso de ajuda urgente"
+        className="fixed right-4 z-40 flex items-center gap-2 rounded-full bg-destructive px-3 py-3 text-sm font-semibold text-destructive-foreground shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40 bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:bottom-4 md:px-4"
       >
         <LifeBuoy className="size-5" aria-hidden />
-        <span>Preciso de ajuda urgente</span>
+        <span className="hidden sm:inline">Preciso de ajuda urgente</span>
+        <span className="sr-only sm:hidden">Preciso de ajuda urgente</span>
       </button>
+
 
       {open && (
         <div
