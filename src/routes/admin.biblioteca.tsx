@@ -10,6 +10,7 @@ import {
   PHRASE_CATEGORIES,
   IMAGE_CATEGORIES,
 } from "@/lib/library";
+import { autofillLibraryMedia } from "@/lib/libraryAutofill.functions";
 import {
   ArrowLeft,
   Loader2,
@@ -23,8 +24,10 @@ import {
   Quote,
   ImageIcon,
   X,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/admin/biblioteca")({
   ssr: false,
@@ -203,6 +206,39 @@ function AudiosManager() {
   });
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function aiFill() {
+    if (!audioFile && !form.audio_url) return toast.error("Selecione o arquivo de áudio antes.");
+    setAiLoading(true);
+    const t = toast.loading("Analisando áudio com IA…");
+    try {
+      let path = form.audio_url;
+      let filename = "";
+      if (audioFile) {
+        path = await uploadLibraryFile(audioFile, "audio");
+        filename = audioFile.name;
+        setForm((f) => ({ ...f, audio_url: path }));
+        setAudioFile(null);
+      }
+      if (/^https?:\/\//i.test(path)) throw new Error("IA só funciona com upload direto, não URL externa.");
+      const r = await autofillLibraryMedia({
+        data: { kind: "audio", storagePath: path, filename },
+      });
+      setForm((f) => ({
+        ...f,
+        title: f.title || r.title,
+        description: f.description || r.description,
+        category: r.category || f.category,
+      }));
+      toast.success("Sugestões preenchidas!", { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha na IA", { id: t });
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
 
   async function load() {
     setLoading(true);
@@ -346,12 +382,22 @@ function AudiosManager() {
                 />
               </Field>
             </div>
-            <div className="mt-5 flex justify-end">
-              <button disabled={busy} className="btn-primary inline-flex items-center gap-2">
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={aiFill}
+                disabled={aiLoading || busy}
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
+              >
+                {aiLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                Preencher com IA
+              </button>
+              <button disabled={busy || aiLoading} className="btn-primary inline-flex items-center gap-2">
                 {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
                 Salvar áudio
               </button>
             </div>
+
           </form>
         </SectionCard>
       )}
@@ -414,6 +460,28 @@ function PhrasesManager() {
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function aiFill() {
+    if (!form.text.trim()) return toast.error("Escreva a frase antes.");
+    setAiLoading(true);
+    const t = toast.loading("Classificando com IA…");
+    try {
+      const r = await autofillLibraryMedia({
+        data: { kind: "phrase", phraseText: form.text },
+      });
+      setForm((f) => ({
+        ...f,
+        category: r.category || f.category,
+        author: f.author || r.author,
+      }));
+      toast.success("Categoria sugerida!", { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha na IA", { id: t });
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   async function load() {
     setLoading(true);
@@ -502,8 +570,17 @@ function PhrasesManager() {
                 </select>
               </Field>
             </div>
-            <div className="mt-5 flex justify-end">
-              <button disabled={busy} className="btn-primary inline-flex items-center gap-2">
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={aiFill}
+                disabled={aiLoading || busy}
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
+              >
+                {aiLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                Classificar com IA
+              </button>
+              <button disabled={busy || aiLoading} className="btn-primary inline-flex items-center gap-2">
                 {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
                 Salvar frase
               </button>
@@ -563,6 +640,39 @@ function ImagesManager() {
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function aiFill() {
+    if (!file && !form.image_url) return toast.error("Selecione a imagem antes.");
+    setAiLoading(true);
+    const t = toast.loading("Analisando imagem com IA…");
+    try {
+      let path = form.image_url;
+      let filename = "";
+      if (file) {
+        path = await uploadLibraryFile(file, "image");
+        filename = file.name;
+        setForm((f) => ({ ...f, image_url: path }));
+        setFile(null);
+      }
+      if (/^https?:\/\//i.test(path)) throw new Error("IA só funciona com upload direto, não URL externa.");
+      const r = await autofillLibraryMedia({
+        data: { kind: "image", storagePath: path, filename },
+      });
+      setForm((f) => ({
+        ...f,
+        title: f.title || r.title,
+        caption: f.caption || r.description,
+        category: r.category || f.category,
+      }));
+      toast.success("Sugestões preenchidas!", { id: t });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha na IA", { id: t });
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
 
   async function load() {
     setLoading(true);
@@ -674,12 +784,22 @@ function ImagesManager() {
                 />
               </Field>
             </div>
-            <div className="mt-5 flex justify-end">
-              <button disabled={busy} className="btn-primary inline-flex items-center gap-2">
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={aiFill}
+                disabled={aiLoading || busy}
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
+              >
+                {aiLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                Preencher com IA
+              </button>
+              <button disabled={busy || aiLoading} className="btn-primary inline-flex items-center gap-2">
                 {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
                 Salvar imagem
               </button>
             </div>
+
           </form>
         </SectionCard>
       )}
