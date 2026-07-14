@@ -26,10 +26,13 @@ function Denuncias() {
   const [reports, setReports] = useState<Report[]>([]);
   const [tab, setTab] = useState<Report["status"]>("open");
   const [busy, setBusy] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   async function load() {
+    setLoading(true);
     const { data } = await supabase.from("reports").select("*").order("created_at", { ascending: false });
     setReports((data ?? []) as Report[]);
+    setLoading(false);
   }
   useEffect(() => { load(); }, []);
 
