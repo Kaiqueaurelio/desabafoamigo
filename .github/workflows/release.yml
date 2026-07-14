@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag do release (ex.: v1.2.3). Se vazio, gera v0.0.0-<sha>."
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build prod & publish GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "value=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ inputs.tag }}" ]; then
+            echo "value=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=v0.0.0-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build (production)
+        run: |
+          set -o pipefail
+          mkdir -p build-logs
+          bun run build:prod 2>&1 | tee build-logs/build-prod.log
+
+      - name: Verify dist/
+        run: |
+          if [ ! -d dist ] || [ -z "$(ls -A dist)" ]; then
+            echo "::error::dist/ está vazio — abortando release."
+            exit 1
+          fi
+
+      - name: Package artifacts
+        id: pack
+        run: |
+          TAG="${{ steps.tag.outputs.value }}"
+          mkdir -p release-assets
+          zip -qr "release-assets/desabafa-amigo-${TAG}-dist.zip" dist
+          tar -czf "release-assets/desabafa-amigo-${TAG}-dist.tar.gz" dist
+          (cd release-assets && sha256sum * > SHA256SUMS.txt)
+          ls -lh release-assets/
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.value }}"
+          NOTES="Build de produção automatizado.
+
+          - Commit: \`${GITHUB_SHA}\`
+          - Workflow: \`${GITHUB_WORKFLOW}\` (#${GITHUB_RUN_NUMBER})
+          - Conteúdo: build de \`dist/\` empacotado em ZIP e TAR.GZ + SHA256SUMS."
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/* --clobber
+          else
+            gh release create "$TAG" release-assets/* \
+              --title "Desabafa Amigo $TAG" \
+              --notes "$NOTES" \
+              --target "$GITHUB_SHA"
+          fi
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build-logs
+          path: build-logs/
+          if-no-files-found: ignore
+          retention-days: 30
