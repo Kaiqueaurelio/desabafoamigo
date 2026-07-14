@@ -124,10 +124,16 @@ function Landing() {
   useSmoothAnchors();
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
+      <PageIntro />
       <ScrollProgress />
       <SpotlightBinder />
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
-      <div className="relative z-10">
+      <motion.div
+        className="relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+      >
         <Header />
         <main id="conteudo" tabIndex={-1}>
           <Hero />
