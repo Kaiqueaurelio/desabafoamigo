@@ -3,6 +3,8 @@ import { Logo } from "@/components/Logo";
 import { ChatDemo } from "@/components/ChatDemo";
 import { InfinityFlow } from "@/components/Watermark";
 import { ScrollProgress, SpotlightBinder, WordReveal } from "@/components/LandingFX";
+import { MotionStagger, MotionItem, MagneticWrap, Parallax, MarqueeRow, useSmoothAnchors } from "@/components/LandingMotion";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import {
   MessageSquareText,
   CalendarClock,
