@@ -81,9 +81,13 @@ function AparenciaPage() {
             <Logo size={28} />
             <span className="text-sm font-semibold text-primary">Aparência</span>
           </div>
-          <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
-            <ArrowLeft className="size-4" /> Voltar
-          </Link>
+          <div className="flex items-center gap-3">
+            <AdminSidebarToggle className="hidden md:inline-flex" />
+            <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+              <ArrowLeft className="size-4" /> Voltar
+            </Link>
+          </div>
+
         </div>
       </header>
 
