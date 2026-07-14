@@ -118,6 +118,8 @@ function CountUp({ target, suffix = "", duration = 1400 }: { target: number; suf
 function Landing() {
   return (
     <div className="relative min-h-dvh overflow-hidden bg-background text-base leading-relaxed">
+      <ScrollProgress />
+      <SpotlightBinder />
       <a href="#conteudo" className="skip-link">Pular para o conteúdo</a>
       <div className="relative z-10">
         <Header />
