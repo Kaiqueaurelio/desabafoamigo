@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
+import { Route as AdminPushRouteImport } from './routes/admin.push'
 import { Route as AdminPlantaoRouteImport } from './routes/admin.plantao'
 import { Route as AdminPasskeysRouteImport } from './routes/admin.passkeys'
 import { Route as AdminPalavrasRouteImport } from './routes/admin.palavras'
@@ -110,6 +111,11 @@ const ProCadastroRoute = ProCadastroRouteImport.update({
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/admin/usuarios',
   path: '/admin/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPushRoute = AdminPushRouteImport.update({
+  id: '/admin/push',
+  path: '/admin/push',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminPlantaoRoute = AdminPlantaoRouteImport.update({
@@ -306,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/admin/palavras': typeof AdminPalavrasRoute
   '/admin/passkeys': typeof AdminPasskeysRoute
   '/admin/plantao': typeof AdminPlantaoRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -350,6 +357,7 @@ export interface FileRoutesByTo {
   '/admin/palavras': typeof AdminPalavrasRoute
   '/admin/passkeys': typeof AdminPasskeysRoute
   '/admin/plantao': typeof AdminPlantaoRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
@@ -396,6 +404,7 @@ export interface FileRoutesById {
   '/admin/palavras': typeof AdminPalavrasRoute
   '/admin/passkeys': typeof AdminPasskeysRoute
   '/admin/plantao': typeof AdminPlantaoRoute
+  '/admin/push': typeof AdminPushRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
@@ -442,6 +451,7 @@ export interface FileRouteTypes {
     | '/admin/palavras'
     | '/admin/passkeys'
     | '/admin/plantao'
+    | '/admin/push'
     | '/admin/usuarios'
     | '/pro/cadastro'
     | '/admin/'
@@ -486,6 +496,7 @@ export interface FileRouteTypes {
     | '/admin/palavras'
     | '/admin/passkeys'
     | '/admin/plantao'
+    | '/admin/push'
     | '/admin/usuarios'
     | '/pro/cadastro'
     | '/admin'
@@ -531,6 +542,7 @@ export interface FileRouteTypes {
     | '/admin/palavras'
     | '/admin/passkeys'
     | '/admin/plantao'
+    | '/admin/push'
     | '/admin/usuarios'
     | '/pro/cadastro'
     | '/admin/'
@@ -566,6 +578,7 @@ export interface RootRouteChildren {
   AdminPalavrasRoute: typeof AdminPalavrasRoute
   AdminPasskeysRoute: typeof AdminPasskeysRoute
   AdminPlantaoRoute: typeof AdminPlantaoRoute
+  AdminPushRoute: typeof AdminPushRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -656,6 +669,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/usuarios'
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AdminUsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/push': {
+      id: '/admin/push'
+      path: '/admin/push'
+      fullPath: '/admin/push'
+      preLoaderRoute: typeof AdminPushRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/plantao': {
@@ -944,6 +964,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPalavrasRoute: AdminPalavrasRoute,
   AdminPasskeysRoute: AdminPasskeysRoute,
   AdminPlantaoRoute: AdminPlantaoRoute,
+  AdminPushRoute: AdminPushRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,

@@ -27,6 +27,7 @@ import {
   PanelLeftOpen,
   ShieldCheck,
   Menu,
+  BellRing,
 } from "lucide-react";
 
 
@@ -78,6 +79,7 @@ const groups: {
     items: [
       { to: "/admin/auditoria", label: "Log de auditoria", icon: ScrollText },
       { to: "/admin/passkeys", label: "Chaves de acesso", icon: KeyRound },
+      { to: "/admin/push", label: "Diagnóstico de push", icon: BellRing },
       { to: "/admin/aparencia", label: "Aparência", icon: Palette },
     ],
   },

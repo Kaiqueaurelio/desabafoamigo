@@ -120,5 +120,10 @@ export function usePushNotifications() {
     }
   }, []);
 
-  return { status, busy, preview, enable, disable, test };
+  const resubscribe = useCallback(async () => {
+    await disable();
+    return enable();
+  }, [disable, enable]);
+
+  return { status, busy, preview, enable, disable, test, resubscribe };
 }
