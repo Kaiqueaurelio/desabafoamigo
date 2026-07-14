@@ -96,6 +96,7 @@ export function AmbientSounds() {
   const [muted, setMuted] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const mutedRef = useRef(false);
+  const announceTickRef = useRef(0);
 
   useEffect(() => () => {
     // cleanup on unmount
