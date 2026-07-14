@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { ArrowLeft, FileText } from "lucide-react";
+import { TableRowsSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/auditoria")({
   ssr: false,
@@ -63,7 +64,7 @@ function Auditoria() {
 
         <div className="overflow-x-auto rounded-2xl border border-border bg-card">
           {loading ? (
-            <p className="p-6 text-sm text-muted-foreground">Carregando…</p>
+            <TableRowsSkeleton rows={8} cols={4} />
           ) : rows.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">Nenhum evento encontrado.</p>
           ) : (

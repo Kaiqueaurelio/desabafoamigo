@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Flag } from "lucide-react";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
+import { CardListSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/denuncias")({
   ssr: false,
@@ -25,10 +26,13 @@ function Denuncias() {
   const [reports, setReports] = useState<Report[]>([]);
   const [tab, setTab] = useState<Report["status"]>("open");
   const [busy, setBusy] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   async function load() {
+    setLoading(true);
     const { data } = await supabase.from("reports").select("*").order("created_at", { ascending: false });
     setReports((data ?? []) as Report[]);
+    setLoading(false);
   }
   useEffect(() => { load(); }, []);
 
@@ -64,7 +68,9 @@ function Denuncias() {
           ))}
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <CardListSkeleton rows={4} />
+        ) : filtered.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Nenhuma denúncia nesta categoria.</p>
         ) : (
           <ul className="space-y-3">

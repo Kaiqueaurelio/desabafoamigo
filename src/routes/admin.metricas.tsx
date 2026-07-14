@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { ArrowLeft, Activity, Users, MessageCircleHeart, Clock, Star, ShieldAlert } from "lucide-react";
+import { MetricsGridSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/metricas")({
   ssr: false,
@@ -80,7 +81,7 @@ function Metricas() {
         <p className="mt-1 text-sm text-muted-foreground">Visão geral em tempo real. Dados anonimizados.</p>
 
         {loading || !s ? (
-          <p className="mt-8 text-sm text-muted-foreground">Carregando…</p>
+          <MetricsGridSkeleton count={11} />
         ) : (
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Card icon={<Users className="size-5" />} label="Usuários cadastrados" value={s.totalUsers} />
