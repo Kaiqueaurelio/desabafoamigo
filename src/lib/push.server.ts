@@ -41,9 +41,12 @@ export async function sendPushToUser(
   let failed = 0;
   const staleIds: string[] = [];
   const jsonPayload = JSON.stringify(payload);
+  const logRows: Array<Record<string, unknown>> = [];
 
   await Promise.all(
     subs.map(async (s: { id: string; endpoint: string; p256dh: string; auth: string }) => {
+      const host = safeHost(s.endpoint);
+      const tail = s.endpoint.slice(-12);
       try {
         await webpush.sendNotification(
           {
@@ -54,11 +57,35 @@ export async function sendPushToUser(
           { TTL: 3600 },
         );
         sent += 1;
+        logRows.push({
+          user_id: userId,
+          subscription_id: s.id,
+          endpoint_host: host,
+          endpoint_tail: tail,
+          status_code: 201,
+          success: true,
+          stale: false,
+          title: payload.title?.slice(0, 200) ?? null,
+          tag: payload.tag ?? null,
+        });
       } catch (err: any) {
         failed += 1;
-        const status = err?.statusCode;
-        if (status === 404 || status === 410) staleIds.push(s.id);
+        const status = err?.statusCode ?? null;
+        const isStale = status === 404 || status === 410;
+        if (isStale) staleIds.push(s.id);
         else console.warn("[push] delivery failed", status, err?.body);
+        logRows.push({
+          user_id: userId,
+          subscription_id: s.id,
+          endpoint_host: host,
+          endpoint_tail: tail,
+          status_code: status,
+          success: false,
+          stale: isStale,
+          error_body: typeof err?.body === "string" ? err.body.slice(0, 500) : (err?.message ?? "unknown").slice(0, 500),
+          title: payload.title?.slice(0, 200) ?? null,
+          tag: payload.tag ?? null,
+        });
       }
     }),
   );
@@ -70,7 +97,19 @@ export async function sendPushToUser(
       .in("id", staleIds);
   }
 
+  if (logRows.length) {
+    await supabaseAdmin.from("push_delivery_log").insert(logRows);
+  }
+
   return { sent, failed };
+}
+
+function safeHost(endpoint: string): string {
+  try {
+    return new URL(endpoint).host;
+  } catch {
+    return "unknown";
+  }
 }
 
 export async function sendPushToRole(
