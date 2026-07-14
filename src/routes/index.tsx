@@ -436,22 +436,55 @@ function Mission() {
     { icon: <Clock className="size-5" />, title: "24 horas por dia", text: "Voluntários se revezam para que você encontre acolhimento sempre que precisar." },
   ];
   return (
-    <section id="missao" className="bg-brand-soft/40 py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-brand-green">
-              Nossa missão
-            </span>
-            <h2 className="mt-3 text-3xl font-bold text-primary md:text-4xl">
-              Unindo vozes, criando acolhimento
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Tudo o que construímos existe para tornar o desabafo mais leve, mais
-              seguro e mais humano.
-            </p>
-          </div>
-        </Reveal>
+    <section id="missao" className="relative overflow-hidden bg-brand-soft/40 py-20 md:py-28">
+      {/* Aurora animada de fundo */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(circle_at_15%_20%,hsl(var(--brand-green)/0.15),transparent_50%),radial-gradient(circle_at_85%_80%,hsl(var(--brand-sky)/0.15),transparent_50%)]"
+        animate={{ opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <motion.span
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5 }}
+            className="inline-block text-xs font-semibold uppercase tracking-widest text-brand-green"
+          >
+            Nossa missão
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 0.9, 0.28, 1] }}
+            className="mt-3 bg-gradient-to-r from-primary via-brand-sky to-brand-green bg-clip-text text-3xl font-bold text-transparent md:text-4xl"
+            style={{ backgroundSize: "200% 200%" }}
+          >
+            <WordReveal text="Unindo vozes, criando acolhimento" />
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mt-4 text-muted-foreground"
+          >
+            Tudo o que construímos existe para tornar o desabafo mais leve, mais
+            seguro e mais humano.
+          </motion.p>
+          <motion.div
+            aria-hidden
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+            className="mx-auto mt-6 h-[2px] w-24 origin-center rounded-full bg-gradient-to-r from-transparent via-brand-green to-transparent"
+          />
+        </div>
+
 
         <MotionStagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.08}>
           {items.map((it) => (
