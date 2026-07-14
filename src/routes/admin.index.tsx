@@ -45,6 +45,8 @@ function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("pending");
   const [selected, setSelected] = useState<Volunteer | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const modalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(!!selected, modalRef, { onEscape: () => setSelected(null) });
   const [busy, setBusy] = useState(false);
   const [stats, setStats] = useState({ conversations: 0, appointments: 0, upcoming: 0 });
 
