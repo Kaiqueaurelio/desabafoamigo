@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "sdk_version": "0.22.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://yczvbygxizzjzqvufocy.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "desabafo-amigo-mcp",
+      "version": "0.1.0",
+      "title": "Desabafo Amigo"
+    },
+    "tools": [
+      {
+        "name": "whoami",
+        "title": "Quem sou eu",
+        "description": "Retorna o apelido anônimo e patentes (usuário/voluntário/admin) do usuário conectado no Desabafo Amigo.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_conversations",
+        "title": "Listar minhas conversas",
+        "description": "Lista as conversas do usuário conectado (como pessoa acolhida ou como voluntário), com status e datas. Respeita o controle de acesso: cada chamador só vê as próprias conversas.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "Quantidade máxima de conversas a retornar."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "active",
+                "ended",
+                "waiting"
+              ],
+              "description": "Filtrar por status. Omitir traz todas."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "log_mood",
+        "title": "Registrar humor",
+        "description": "Registra uma anotação de humor (1 a 5) no diário do usuário conectado. Opcionalmente inclui uma nota curta.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "mood": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Nível de humor de 1 (muito difícil) a 5 (muito bem)."
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Anotação opcional sobre como está se sentindo."
+            }
+          },
+          "required": [
+            "mood"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
