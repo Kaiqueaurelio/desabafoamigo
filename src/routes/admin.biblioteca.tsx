@@ -868,6 +868,8 @@ function ImagesManager() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [editing, setEditing] = useState<Image | null>(null);
+
 
   async function aiFill() {
     if (!file && !form.image_url) return toast.error("Selecione a imagem antes.");
