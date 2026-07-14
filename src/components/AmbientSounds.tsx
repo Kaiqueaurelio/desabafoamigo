@@ -94,6 +94,7 @@ export function AmbientSounds() {
   const [volumes, setVolumes] = useState<Record<AmbientKey, number>>({ waves: 0, rain: 0, forest: 0 });
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const mutedRef = useRef(false);
 
   useEffect(() => () => {
