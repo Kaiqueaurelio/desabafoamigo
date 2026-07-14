@@ -124,9 +124,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
               const active = pathname.startsWith(it.to);
               return (
                 <Link key={it.to} to={it.to} aria-label={it.label} aria-current={active ? "page" : undefined} title={it.label}
-                  className={`interactive grid size-10 place-items-center rounded-xl ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+                  className={`interactive grid size-10 place-items-center rounded-xl ${active ? "nav-active-rail" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                   <it.icon aria-hidden className="size-4" />
                 </Link>
+
               );
             })}
           </div>
