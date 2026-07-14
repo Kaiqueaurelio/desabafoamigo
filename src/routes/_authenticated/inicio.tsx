@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, Users, NotebookPen, BookOpen, Flame, Volume2 } from "lucide-react";
+import { CalendarClock, Users, NotebookPen, BookOpen, Flame, Volume2, Loader2, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { avatarUrl } from "@/lib/avatar";
 import { MoodCheckIn } from "@/components/MoodCheckIn";
 import { BreathingButton } from "@/components/BreathingExercise";
