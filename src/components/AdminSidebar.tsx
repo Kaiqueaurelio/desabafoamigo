@@ -23,7 +23,9 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
+  ShieldCheck,
 } from "lucide-react";
+
 
 
 const groups: {
