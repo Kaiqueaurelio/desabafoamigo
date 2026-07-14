@@ -175,7 +175,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 md:hidden">
+        <header className="safe-top flex items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <button
