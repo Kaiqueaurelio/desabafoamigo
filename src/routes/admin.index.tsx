@@ -202,16 +202,18 @@ function AdminDashboard() {
           </section>
 
         {/* Tabs */}
-          <div className="mb-4 flex w-full max-w-full gap-2 overflow-x-auto pb-1 sm:overflow-visible">
+          <div className="mb-4 grid w-full max-w-full grid-cols-3 gap-2 pb-1">
           {(["pending", "approved", "rejected"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`min-w-0 rounded-full px-2 py-2 text-xs font-medium transition sm:px-4 sm:text-sm ${
                 tab === t ? "bg-primary text-primary-foreground shadow" : "bg-secondary text-secondary-foreground hover:bg-muted"
               }`}
             >
-              {t === "pending" ? "Pendentes" : t === "approved" ? "Aprovados" : "Rejeitados"} ({counts[t]})
+              <span className="block truncate">
+                {t === "pending" ? "Pendentes" : t === "approved" ? "Aprovados" : "Rejeitados"} ({counts[t]})
+              </span>
             </button>
           ))}
         </div>
