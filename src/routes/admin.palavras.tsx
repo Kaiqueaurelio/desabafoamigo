@@ -117,6 +117,12 @@ function BlockedWordsPage() {
 }
 
 export const Route = createFileRoute("/admin/palavras")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { ensureAdminAal2 } = await import("@/lib/adminGuard");
+    await ensureAdminAal2();
+  },
   component: BlockedWordsPage,
   head: () => ({ meta: [{ title: "Palavras bloqueadas · Admin" }] }),
 });
+
