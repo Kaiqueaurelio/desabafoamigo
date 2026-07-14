@@ -1,7 +1,8 @@
 import { secureSignOut } from "@/lib/secureSignOut";
 import { toast } from "sonner";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { Loader2, LogOut, Check, X, Users, Clock, MessageCircleHeart, ShieldCheck } from "lucide-react";
@@ -44,6 +45,8 @@ function AdminDashboard() {
   const [tab, setTab] = useState<Tab>("pending");
   const [selected, setSelected] = useState<Volunteer | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const modalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(!!selected, modalRef, { onEscape: () => setSelected(null) });
   const [busy, setBusy] = useState(false);
   const [stats, setStats] = useState({ conversations: 0, appointments: 0, upcoming: 0 });
 
@@ -259,7 +262,7 @@ function AdminDashboard() {
       {/* Modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setSelected(null)}>
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-label="Detalhes do voluntário" className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-primary">{selected.full_name || selected.display_alias}</h3>

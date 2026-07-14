@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LifeBuoy, Phone, X, MapPin, HeartPulse, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { getMySafetyPlan, logEmergencyAction } from "@/lib/crisis.functions";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 type Plan = {
   emergency_contact_name: string | null;
@@ -17,6 +18,10 @@ export function EmergencyButton() {
   const [sharing, setSharing] = useState(false);
   const loadPlan = useServerFn(getMySafetyPlan);
   const logAction = useServerFn(logEmergencyAction);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, panelRef, { onEscape: () => setOpen(false) });
+
+
 
   useEffect(() => {
     if (!open) return;
@@ -76,7 +81,8 @@ export function EmergencyButton() {
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
           onClick={() => setOpen(false)}
         >
-          <div className="w-full max-w-md rounded-2xl bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div ref={panelRef} className="w-full max-w-md rounded-2xl bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+
             <div className="mb-4 flex items-start justify-between gap-4">
               <h2 id="emergencia-titulo" className="text-xl font-semibold text-foreground">
                 Você não está sozinho(a)

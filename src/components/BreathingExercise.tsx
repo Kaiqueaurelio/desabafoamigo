@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Wind, X } from "lucide-react";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 // Ciclo 4-7-8: inspira 4s, segura 7s, solta 8s.
 type Phase = { label: string; seconds: number; scale: number };
@@ -50,10 +51,13 @@ function BreathingModal({ onClose }: { onClose: () => void }) {
     setRemaining(PHASES[phaseIdx].seconds);
   }, [phaseIdx]);
 
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(true, panelRef, { onEscape: onClose });
+
   const phase = PHASES[phaseIdx];
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="dialog" aria-modal="true">
-      <div className="relative w-full max-w-sm rounded-3xl bg-card p-8 text-center shadow-2xl">
+      <div ref={panelRef} className="relative w-full max-w-sm rounded-3xl bg-card p-8 text-center shadow-2xl">
         <button onClick={onClose} aria-label="Fechar" className="absolute right-3 top-3 rounded-full p-2 text-muted-foreground hover:bg-muted">
           <X className="size-4" />
         </button>
