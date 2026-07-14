@@ -81,7 +81,7 @@ function Metricas() {
         <p className="mt-1 text-sm text-muted-foreground">Visão geral em tempo real. Dados anonimizados.</p>
 
         {loading || !s ? (
-          <p className="mt-8 text-sm text-muted-foreground">Carregando…</p>
+          <MetricsGridSkeleton count={11} />
         ) : (
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Card icon={<Users className="size-5" />} label="Usuários cadastrados" value={s.totalUsers} />
