@@ -75,11 +75,11 @@ function Apoio() {
   }, []);
 
   return (
-    <div className="relative min-h-full overflow-x-clip bg-gradient-to-b from-background via-background to-[#0a0f1c]">
+    <div className="relative min-h-full w-full max-w-full overflow-x-clip bg-gradient-to-b from-background via-background to-[#0a0f1c]">
       {/* Ambient glow */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-72 bg-[radial-gradient(60%_60%_at_50%_0%,theme(colors.blue.500/12),transparent_70%)]" />
 
-      <div className="relative mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-12">
+      <div className="relative mx-auto w-full max-w-5xl overflow-x-clip px-4 py-6 sm:px-6 sm:py-12">
         {/* Hero — compacto em mobile */}
         <header className="flex items-start gap-3 sm:gap-4">
           <div className="shrink-0 rounded-2xl border border-blue-500/25 bg-blue-500/10 p-2.5 shadow-[0_0_40px_-10px_theme(colors.blue.500/40)] sm:p-3">
@@ -93,14 +93,14 @@ function Apoio() {
           </div>
         </header>
 
-        <Tabs value={tab} onValueChange={setTab} className="mt-6 sm:mt-10">
-          {/* Mobile: chips em scroll horizontal com snap. Desktop: grid glass. */}
-          <div className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:snap-none sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 md:grid-cols-5">
+        <Tabs value={tab} onValueChange={setTab} className="mt-6 w-full max-w-full overflow-x-clip sm:mt-10">
+          {/* Mobile: grade fixa para não gerar rolagem lateral. Desktop: grid glass. */}
+          <div className="grid w-full max-w-full grid-cols-2 gap-2 pb-2 sm:grid-cols-3 sm:gap-4 sm:pb-0 md:grid-cols-5">
             {BLOCKS.map((b) => {
               const active = tab === b.id;
               const isEmergency = b.tone === "rose";
               const base =
-                "group relative flex snap-start shrink-0 basis-[42%] flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-200 sm:basis-auto sm:rounded-3xl sm:p-5";
+                "group relative flex min-w-0 flex-col items-start rounded-2xl border p-3.5 text-left transition-all duration-200 sm:rounded-3xl sm:p-5";
               const inactive = isEmergency
                 ? "border-rose-500/20 bg-rose-500/[0.04] hover:bg-rose-500/10"
                 : "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] sm:hover:-translate-y-0.5";
@@ -299,12 +299,12 @@ function Apoio() {
 
 function SectionHeader({ title, to, cta }: { title: string; to?: "/relaxar"; cta?: string }) {
   return (
-    <div className="mb-6 flex items-center justify-between">
-      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+    <div className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+      <h2 className="min-w-0 text-lg font-semibold text-foreground sm:text-xl">{title}</h2>
       {to && cta && (
         <Link
           to={to}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-400 transition-colors hover:text-blue-300"
+          className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-blue-400 transition-colors hover:text-blue-300"
         >
           {cta} <ArrowRight className="size-4" />
         </Link>

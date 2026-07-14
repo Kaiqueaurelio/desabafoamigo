@@ -174,8 +174,8 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
 
 
-      <div className="flex min-w-0 flex-1 flex-col overflow-x-clip">
-        <header className="safe-top flex w-full items-center gap-2 border-b border-border bg-card px-2 py-2.5 md:hidden">
+      <div className="flex min-w-0 flex-1 basis-0 flex-col overflow-x-clip">
+        <header className="safe-top grid w-full max-w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-card px-2 py-2.5 md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <button
@@ -248,7 +248,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           <Link
             to="/inicio"
             aria-label="Desabafo Amigo — ir para o início"
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="flex min-w-0 max-w-full items-center justify-center gap-2 overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Logo responsive decorative priority className="h-9 w-9 shrink-0" />
             <span className="truncate text-sm font-semibold text-primary sm:text-base">Desabafo Amigo</span>
