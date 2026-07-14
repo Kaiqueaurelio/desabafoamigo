@@ -58,13 +58,13 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
     <div className="flex min-h-dvh bg-background">
       {!collapsed && (
         <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex animate-fade-in">
-          <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40">
+          <Link to="/inicio" aria-label="Desabafo Amigo — ir para o início" className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40">
             <span className="relative grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white shadow-calm ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105">
               <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
               <Logo responsive decorative priority className="relative h-10 w-10" />
             </span>
             <div className="leading-tight flex-1">
-              <p className="text-base font-semibold text-primary">Desabafa Amigo</p>
+              <p className="text-base font-semibold text-primary">Desabafo Amigo</p>
               <p className="text-[10px] text-muted-foreground">Escuta acolhedora</p>
             </div>
             <button
@@ -134,7 +134,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
                   <Logo responsive decorative priority className="h-7 w-7" />
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>Início — Desabafa Amigo</TooltipContent>
+              <TooltipContent side="right" sideOffset={8}>Início — Desabafo Amigo</TooltipContent>
             </Tooltip>
 
             <div className="mt-2 flex flex-col items-center gap-1">
@@ -193,7 +193,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
                     <Logo responsive decorative priority className="h-9 w-9" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <SheetTitle className="text-base font-semibold text-primary">Desabafa Amigo</SheetTitle>
+                    <SheetTitle className="text-base font-semibold text-primary">Desabafo Amigo</SheetTitle>
                     <SheetDescription className="text-[11px] text-muted-foreground">Escuta acolhedora</SheetDescription>
                   </div>
                 </div>
@@ -245,9 +245,9 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             </SheetContent>
           </Sheet>
 
-          <Link to="/inicio" aria-label="Desabafa Amigo — ir para o início" className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <Link to="/inicio" aria-label="Desabafo Amigo — ir para o início" className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <Logo responsive decorative priority className="h-10 w-10" />
-            <span className="truncate text-base font-semibold text-primary">Desabafa</span>
+            <span className="truncate text-base font-semibold text-primary">Desabafo</span>
           </Link>
 
           <button onClick={signOut} aria-label="Sair" className="interactive grid size-11 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">

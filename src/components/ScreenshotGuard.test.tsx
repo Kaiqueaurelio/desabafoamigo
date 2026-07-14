@@ -89,7 +89,7 @@ describe("IdentityWatermark", () => {
     const root = container.firstElementChild as HTMLElement;
     expect(root).toHaveAttribute("aria-hidden");
     expect(root.textContent).toContain("Lua Serena");
-    expect(root.textContent).toContain("Desabafa Amigo");
+    expect(root.textContent).toContain("Desabafo Amigo");
   });
   it("inclui o hash forense da sessão quando fornecido", () => {
     const { container } = render(<IdentityWatermark label="Lua" sessionHash="ABCD1234" />);

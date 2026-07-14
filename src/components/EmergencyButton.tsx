@@ -95,7 +95,7 @@ export function EmergencyButton() {
               </button>
             </div>
             <p className="mb-4 text-sm text-muted-foreground">
-              Se você está em risco imediato, ligue para um dos serviços oficiais. O Desabafa Amigo é
+              Se você está em risco imediato, ligue para um dos serviços oficiais. O Desabafo Amigo é
               escuta voluntária e não substitui atendimento de urgência.
             </p>
 

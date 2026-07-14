@@ -158,13 +158,13 @@ function AdminDashboard() {
     <main className="min-h-dvh bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur safe-top">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
-          <Link to="/" aria-label="Desabafa Amigo — ir para o início" className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-1 transition-all duration-300 hover:bg-brand-soft/60 sm:gap-3 sm:px-1.5">
+          <Link to="/" aria-label="Desabafo Amigo — ir para o início" className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-1 transition-all duration-300 hover:bg-brand-soft/60 sm:gap-3 sm:px-1.5">
             <span className="relative grid size-10 shrink-0 place-items-center rounded-2xl bg-white shadow-calm ring-2 ring-primary/40 transition-transform duration-300 group-hover:scale-105 sm:size-12">
               <span aria-hidden className="absolute -inset-0.5 rounded-2xl bg-primary/25 opacity-40 blur-md transition-opacity duration-500 group-hover:opacity-80" />
               <Logo responsive priority decorative className="relative h-8 w-8 drop-shadow-sm sm:h-10 sm:w-10" />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-sm font-bold text-primary">Desabafa Amigo</span>
+              <span className="block truncate text-sm font-bold text-primary">Desabafo Amigo</span>
               <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:block">Painel administrativo</span>
             </span>
           </Link>

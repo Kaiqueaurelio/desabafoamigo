@@ -6,17 +6,17 @@ export const Route = createFileRoute("/sobre")({
   component: SobrePage,
   head: () => ({
     meta: [
-      { title: "Sobre — Desabafa Amigo" },
+      { title: "Sobre — Desabafo Amigo" },
       {
         name: "description",
         content:
-          "Conheça a história do Desabafa Amigo: um espaço nascido do desejo de ouvir sem julgamento e acolher quem precisa ser escutado.",
+          "Conheça a história do Desabafo Amigo: um espaço nascido do desejo de ouvir sem julgamento e acolher quem precisa ser escutado.",
       },
-      { property: "og:title", content: "Sobre — Desabafa Amigo" },
+      { property: "og:title", content: "Sobre — Desabafo Amigo" },
       {
         property: "og:description",
         content:
-          "Um projeto voluntário nascido da escuta. Saiba como e por que criamos o Desabafa Amigo.",
+          "Um projeto voluntário nascido da escuta. Saiba como e por que criamos o Desabafo Amigo.",
       },
       { property: "og:url", content: "https://desabaoamigo.lovable.app/sobre" },
     ],
@@ -34,7 +34,7 @@ function SobrePage() {
 
       <h1 className="text-4xl font-bold text-primary">Nossa história</h1>
       <p className="mt-4 text-lg leading-relaxed text-foreground/90">
-        O Desabafa Amigo nasceu de uma inquietação simples: <strong>quantas pessoas ao nosso redor
+        O Desabafo Amigo nasceu de uma inquietação simples: <strong>quantas pessoas ao nosso redor
         precisam ser ouvidas e não têm para quem ligar?</strong> Amigos que somem, famílias que julgam,
         terapias que nem todo mundo pode pagar. Ficava sempre aquela lacuna: a pessoa quer conversar,
         mas não quer expor o rosto, o nome, a vida inteira.

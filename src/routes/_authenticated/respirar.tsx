@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_authenticated/respirar")({
   component: RespirarPage,
   head: () => ({
     meta: [
-      { title: "Respiração guiada — Desabafa Amigo" },
+      { title: "Respiração guiada — Desabafo Amigo" },
       { name: "description", content: "Exercícios de respiração guiada para relaxar, meditar e aliviar a ansiedade em 1, 5 ou 10 minutos." },
     ],
   }),

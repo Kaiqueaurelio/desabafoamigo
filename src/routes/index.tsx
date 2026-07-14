@@ -28,13 +28,13 @@ import { avatarUrl } from "@/lib/avatar";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Desabafa Amigo — sua voz merece ser ouvida" },
+      { title: "Desabafo Amigo — sua voz merece ser ouvida" },
       {
         name: "description",
         content:
           "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida.",
       },
-      { property: "og:title", content: "Desabafa Amigo — sua voz merece ser ouvida" },
+      { property: "og:title", content: "Desabafo Amigo — sua voz merece ser ouvida" },
       {
         property: "og:description",
         content:
@@ -170,9 +170,9 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" aria-label="Desabafa Amigo — página inicial" className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+        <Link to="/" aria-label="Desabafo Amigo — página inicial" className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           <Logo responsive priority decorative className="h-12 w-12 drop-shadow-sm sm:h-14 sm:w-14 md:h-14 md:w-14 lg:h-16 lg:w-16" />
-          <span className="text-base font-semibold text-primary md:text-lg">Desabafa Amigo</span>
+          <span className="text-base font-semibold text-primary md:text-lg">Desabafo Amigo</span>
         </Link>
         <nav aria-label="Navegação principal" className="hidden items-center gap-6 text-sm text-foreground/80 md:flex">
           <a href="#origem" className="rounded-md hover:text-primary transition-colors">Nossa história</a>
@@ -289,7 +289,7 @@ function Origin() {
         <Reveal>
           <div className="space-y-5 text-[15px] leading-relaxed text-muted-foreground">
             <p>
-              O <strong className="text-foreground">Desabafa Amigo</strong> nasceu de uma
+              O <strong className="text-foreground">Desabafo Amigo</strong> nasceu de uma
               observação simples e ao mesmo tempo urgente: <strong className="text-foreground">muita gente
               só precisa ser ouvida</strong>. Não com pressa, não com conselhos apressados —
               apenas com presença.
@@ -605,7 +605,7 @@ function Footer() {
         <div>
           <div className="flex items-center gap-3">
             <Logo responsive decorative className="h-12 w-12 sm:h-14 sm:w-14 md:h-14 md:w-14 lg:h-16 lg:w-16" />
-            <span className="text-base font-semibold text-primary">Desabafa Amigo</span>
+            <span className="text-base font-semibold text-primary">Desabafo Amigo</span>
           </div>
           <p className="mt-3 max-w-xs text-xs text-muted-foreground">
             Um espaço de escuta acolhedora com voluntários treinados. Não oferecemos
@@ -632,13 +632,13 @@ function Footer() {
             <li><strong className="text-foreground">Polícia:</strong> 190</li>
           </ul>
           <p className="mt-3 text-xs text-muted-foreground">
-            O Desabafa Amigo não substitui atendimento de urgência.
+            O Desabafo Amigo não substitui atendimento de urgência.
           </p>
         </div>
       </div>
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-muted-foreground md:flex-row">
-          <p>© {new Date().getFullYear()} Desabafa Amigo. Feito com cuidado.</p>
+          <p>© {new Date().getFullYear()} Desabafo Amigo. Feito com cuidado.</p>
           <Link to="/admin/login" className="hover:text-primary">Admin</Link>
         </div>
       </div>

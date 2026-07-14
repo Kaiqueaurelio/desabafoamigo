@@ -7,7 +7,7 @@ import { Sparkles } from "lucide-react";
 import { z } from "zod";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Entrar — Desabafa Amigo" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Desabafo Amigo" }] }),
   component: AuthPage,
 });
 
@@ -99,7 +99,7 @@ function AuthPage() {
       <div className="w-full max-w-md rounded-3xl bg-card p-8 shadow-[var(--shadow-calm)]">
         <Link to="/" className="mb-6 flex items-center gap-2">
           <Logo size={28} />
-          <span className="text-sm font-semibold text-primary">Desabafa Amigo</span>
+          <span className="text-sm font-semibold text-primary">Desabafo Amigo</span>
         </Link>
         <h1 className="text-2xl font-bold text-primary">
           {mode === "signup" ? "Criar conta" : "Entrar"}

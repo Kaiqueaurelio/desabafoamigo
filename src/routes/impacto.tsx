@@ -7,13 +7,13 @@ export const Route = createFileRoute("/impacto")({
   component: ImpactoPage,
   head: () => ({
     meta: [
-      { title: "Impacto — Desabafa Amigo" },
+      { title: "Impacto — Desabafo Amigo" },
       {
         name: "description",
         content:
-          "Números públicos e anonimizados do Desabafa Amigo: conversas realizadas, voluntários ativos e humores compartilhados.",
+          "Números públicos e anonimizados do Desabafo Amigo: conversas realizadas, voluntários ativos e humores compartilhados.",
       },
-      { property: "og:title", content: "Impacto — Desabafa Amigo" },
+      { property: "og:title", content: "Impacto — Desabafo Amigo" },
       { property: "og:url", content: "https://desabaoamigo.lovable.app/impacto" },
     ],
     links: [{ rel: "canonical", href: "https://desabaoamigo.lovable.app/impacto" }],

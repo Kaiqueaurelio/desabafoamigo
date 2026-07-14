@@ -235,7 +235,7 @@ function Home() {
 
 
       <p className="mt-10 rounded-2xl bg-brand-soft/60 p-4 text-xs text-muted-foreground">
-        O Desabafa Amigo oferece <strong>escuta acolhedora por voluntários treinados</strong>. Não é um serviço de psicologia, psiquiatria ou medicina, e não temos vínculo com esses profissionais.
+        O Desabafo Amigo oferece <strong>escuta acolhedora por voluntários treinados</strong>. Não é um serviço de psicologia, psiquiatria ou medicina, e não temos vínculo com esses profissionais.
       </p>
 
       {/* espaço para o botão de emergência flutuante não cobrir o rodapé */}

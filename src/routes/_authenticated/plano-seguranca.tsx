@@ -152,7 +152,7 @@ function SafetyPlanPage() {
       <div className="flex items-start gap-2 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
         <Info className="mt-0.5 size-4 text-primary" />
         <p>
-          O Desabafa Amigo não substitui atendimento profissional. Em risco imediato, ligue para o
+          O Desabafo Amigo não substitui atendimento profissional. Em risco imediato, ligue para o
           <a href="tel:188" className="mx-1 font-semibold text-primary underline">CVV 188</a>
           ou <a href="tel:192" className="mx-1 font-semibold text-primary underline">SAMU 192</a>.
         </p>

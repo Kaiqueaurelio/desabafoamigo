@@ -12,7 +12,7 @@ export function Logo({
   size,
   className,
   responsive = false,
-  alt = "Desabafa Amigo — ir para a página inicial",
+  alt = "Desabafo Amigo — ir para a página inicial",
   decorative = false,
   priority = false,
 }: {
