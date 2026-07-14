@@ -60,7 +60,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         <nav className="flex-1 space-y-1 p-3">
           <NavGroup title="Meu espaço">
             {patientNav.map((it) => (
-              <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} />
+              <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} highlight={"highlight" in it && it.highlight} />
             ))}
           </NavGroup>
           {isPro && (
