@@ -21,6 +21,7 @@ import {
   Mic,
   Infinity as InfinityIcon,
   ChevronDown,
+  Plus,
   ChevronRight,
   BookOpen,
   Wind,
