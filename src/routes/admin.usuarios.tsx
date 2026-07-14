@@ -116,22 +116,22 @@ function UsuariosPage() {
   }
 
   return (
-    <main className="min-h-dvh bg-background">
+    <main className="min-h-dvh w-full max-w-full overflow-x-clip bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Logo size={28} />
-            <span className="text-sm font-semibold text-primary">Usuários e permissões</span>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <Logo size={28} className="shrink-0" />
+            <span className="truncate text-sm font-semibold text-primary">Usuários e permissões</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
-              <ArrowLeft className="size-4" /> Voltar
+          <div className="flex shrink-0 items-center gap-3">
+            <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary" aria-label="Voltar ao painel">
+              <ArrowLeft className="size-4" /> <span className="hidden sm:inline">Voltar</span>
             </Link>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl gap-6 px-4 py-6 md:flex">
+      <div className="mx-auto w-full max-w-6xl gap-6 overflow-x-clip px-3 py-6 sm:px-4 md:flex">
         <div className="hidden md:flex md:flex-col md:gap-2">
           <AdminSidebarToggle />
           <AdminSidebar />
@@ -147,11 +147,12 @@ function UsuariosPage() {
             </p>
           </div>
 
-          <section className="grid grid-cols-3 gap-3">
+          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatCard label="Contas" value={stats.total} icon={<UserIcon className="size-4 text-muted-foreground" />} />
             <StatCard label="Voluntários" value={stats.vols} icon={<HeartHandshake className="size-4 text-primary" />} />
             <StatCard label="Administradores" value={stats.admins} icon={<ShieldCheck className="size-4 text-brand-green" />} />
           </section>
+
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -164,12 +165,14 @@ function UsuariosPage() {
             />
           </div>
 
-          <div className="rounded-2xl border border-border bg-card">
+          <div className="w-full max-w-full overflow-hidden rounded-2xl border border-border bg-card">
             {loading ? (
               <p className="p-4 text-sm text-muted-foreground">Carregando…</p>
             ) : filtered.length === 0 ? (
               <p className="p-6 text-center text-sm text-muted-foreground">Nenhum usuário encontrado.</p>
             ) : (
+              <div className="w-full max-w-full overflow-x-auto">
+
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -238,8 +241,10 @@ function UsuariosPage() {
                   })}
                 </TableBody>
               </Table>
+              </div>
             )}
           </div>
+
 
           <p className="text-[11px] text-muted-foreground">
             As patentes são aplicadas no servidor por políticas de acesso (RLS). Alterações são registradas no log de auditoria.
