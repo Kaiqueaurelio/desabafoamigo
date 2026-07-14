@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
-import { AdminSidebar, AdminSidebarMobile } from "@/components/AdminSidebar";
+import { AdminSidebar, AdminSidebarMobile, AdminSidebarToggle } from "@/components/AdminSidebar";
 import { loadTheme, saveTheme, type Theme } from "@/lib/theme";
 import { ArrowLeft, Monitor, Moon, Sun, Check, Sparkles, Type, LayoutGrid } from "lucide-react";
 import { toast } from "sonner";
@@ -81,9 +81,13 @@ function AparenciaPage() {
             <Logo size={28} />
             <span className="text-sm font-semibold text-primary">Aparência</span>
           </div>
-          <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
-            <ArrowLeft className="size-4" /> Voltar
-          </Link>
+          <div className="flex items-center gap-3">
+            <AdminSidebarToggle className="hidden md:inline-flex" />
+            <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+              <ArrowLeft className="size-4" /> Voltar
+            </Link>
+          </div>
+
         </div>
       </header>
 

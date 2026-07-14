@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { Loader2, LogOut, Check, X, Users, Clock, MessageCircleHeart, ShieldCheck } from "lucide-react";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
-import { AdminSidebar, AdminSidebarMobile } from "@/components/AdminSidebar";
+import { AdminSidebar, AdminSidebarMobile, AdminSidebarToggle } from "@/components/AdminSidebar";
 
 export const Route = createFileRoute("/admin/")({
   ssr: false,
@@ -166,11 +166,13 @@ function AdminDashboard() {
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            <AdminSidebarToggle className="hidden md:inline-flex" />
             <Link to="/inicio" className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary">Ir ao app</Link>
             <button onClick={signOut} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground">
               <LogOut className="size-4" /> Sair
             </button>
           </div>
+
         </div>
       </header>
 

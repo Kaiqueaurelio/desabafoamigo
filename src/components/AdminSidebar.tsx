@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useSidebarToggle } from "@/lib/useSidebarToggle";
 import {
   Headphones,
   Flag,
@@ -20,7 +21,10 @@ import {
   BookOpen,
   Volume2,
   Settings,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
+
 
 const groups: {
   label: string;
@@ -73,11 +77,37 @@ const groups: {
 ];
 
 
+const ADMIN_SIDEBAR_KEY = "ui:adminSidebarCollapsed";
+
+export function useAdminSidebar() {
+  return useSidebarToggle(ADMIN_SIDEBAR_KEY);
+}
+
+export function AdminSidebarToggle({ className = "" }: { className?: string }) {
+  const { collapsed, toggle } = useAdminSidebar();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-pressed={!collapsed}
+      aria-label={collapsed ? "Abrir menu lateral" : "Fechar menu lateral"}
+      title={collapsed ? "Abrir menu" : "Fechar menu"}
+      className={`inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground ${className}`}
+    >
+      {collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+      <span className="hidden sm:inline">{collapsed ? "Menu" : "Ocultar"}</span>
+    </button>
+  );
+}
+
 export function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { collapsed } = useAdminSidebar();
+
+  if (collapsed) return null;
 
   return (
-    <aside className="hidden shrink-0 md:block md:w-64 lg:w-72">
+    <aside className="hidden shrink-0 md:block md:w-64 lg:w-72 animate-fade-in">
       <nav className="sticky top-[68px] flex flex-col gap-5 rounded-2xl border border-border bg-card/70 p-3 backdrop-blur">
         <div className="flex items-center gap-2 px-2 pt-1 text-xs font-medium text-muted-foreground">
           <LayoutDashboard className="size-3.5" />
@@ -125,6 +155,7 @@ export function AdminSidebar() {
     </aside>
   );
 }
+
 
 /** Compact horizontal version rendered on mobile above the content. */
 export function AdminSidebarMobile() {
