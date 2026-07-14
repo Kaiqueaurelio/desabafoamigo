@@ -1074,8 +1074,10 @@ function ImagesManager() {
           </ul>
         )}
       </SectionCard>
+      <EditImageDialog row={editing} onClose={() => setEditing(null)} onSaved={load} />
     </div>
   );
+
 }
 
 /* ---------- Row actions ---------- */
