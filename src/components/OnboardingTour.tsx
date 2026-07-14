@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Heart, Shield, MessagesSquare, Sparkles, X } from "lucide-react";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 const KEY = "desabafo:onboarded";
 
