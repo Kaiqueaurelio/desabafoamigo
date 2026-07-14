@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Waves, CloudRain, Wind as WindIcon, Music4 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Waves, CloudRain, Wind as WindIcon, Music4, Volume2, VolumeX } from "lucide-react";
 
 type AmbientKey = "waves" | "rain" | "forest";
 
@@ -93,6 +93,8 @@ export function AmbientSounds() {
   const nodesRef = useRef<Partial<Record<AmbientKey, Node>>>({});
   const [volumes, setVolumes] = useState<Record<AmbientKey, number>>({ waves: 0, rain: 0, forest: 0 });
   const [ready, setReady] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const mutedRef = useRef(false);
 
   useEffect(() => () => {
     // cleanup on unmount
@@ -116,16 +118,46 @@ export function AmbientSounds() {
     return ctx;
   }
 
-  async function handleChange(key: AmbientKey, value: number) {
-    const ctx = await ensureCtx();
+  function applyGain(key: AmbientKey, value: number, isMuted: boolean) {
+    const ctx = ctxRef.current;
     const node = nodesRef.current[key];
-    if (!node) return;
-    // volume máximo bem discreto (0.18) para manter sutileza
-    const target = (value / 100) * 0.18;
+    if (!ctx || !node) return;
+    const target = isMuted ? 0 : (value / 100) * 0.18;
     node.master.gain.cancelScheduledValues(ctx.currentTime);
-    node.master.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.25);
-    setVolumes(v => ({ ...v, [key]: value }));
+    node.master.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.15);
   }
+
+  async function handleChange(key: AmbientKey, value: number) {
+    await ensureCtx();
+    setVolumes(v => ({ ...v, [key]: value }));
+    applyGain(key, value, mutedRef.current);
+  }
+
+  const toggleMute = useCallback(() => {
+    setMuted(prev => {
+      const next = !prev;
+      mutedRef.current = next;
+      // apply to all tracks with current volumes
+      (Object.keys(nodesRef.current) as AmbientKey[]).forEach(k => {
+        applyGain(k, volumes[k], next);
+      });
+      return next;
+    });
+  }, [volumes]);
+
+  // Atalho de teclado: M para alternar mute
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "m" && e.key !== "M") return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      e.preventDefault();
+      toggleMute();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggleMute]);
 
   return (
     <section
@@ -137,14 +169,27 @@ export function AmbientSounds() {
         <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
           Sons ambientais
         </h2>
-        <span className="ml-auto text-[10px] uppercase tracking-widest text-slate-500">
-          Opcional · sutil
-        </span>
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-pressed={muted}
+          aria-label={muted ? "Ativar sons ambientais (atalho: M)" : "Silenciar sons ambientais (atalho: M)"}
+          title={muted ? "Ativar som (M)" : "Silenciar (M)"}
+          className={`ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+            muted
+              ? "border-rose-400/40 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20"
+              : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
+          }`}
+        >
+          {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+          <span>{muted ? "Mudo" : "Som"}</span>
+          <kbd className="ml-1 hidden rounded bg-black/30 px-1 text-[9px] tracking-widest text-slate-400 sm:inline">M</kbd>
+        </button>
       </div>
       <p className="mb-3 text-xs text-slate-400">
-        Combine e ajuste o volume de cada som para criar sua paisagem sonora.
+        Combine e ajuste o volume de cada som. Pressione <kbd className="rounded bg-white/10 px-1 text-[10px]">M</kbd> para pausar tudo instantaneamente.
       </p>
-      <div className="space-y-3">
+      <div className={`space-y-3 transition-opacity ${muted ? "opacity-60" : ""}`}>
         {TRACKS.map(({ key, label, Icon, color }) => (
           <div key={key} className="flex items-center gap-3">
             <div className={`grid size-8 shrink-0 place-items-center rounded-lg bg-white/5 ${color}`}>
@@ -152,7 +197,7 @@ export function AmbientSounds() {
             </div>
             <label className="flex-1 min-w-0">
               <div className="mb-1 flex items-center justify-between text-[11px] text-slate-300">
-                <span>{label}</span>
+                <span>{label}{muted && volumes[key] > 0 ? " · silenciado" : ""}</span>
                 <span className="tabular-nums text-slate-500">{volumes[key]}%</span>
               </div>
               <input
@@ -177,3 +222,4 @@ export function AmbientSounds() {
     </section>
   );
 }
+
