@@ -218,6 +218,58 @@ function MinhaFila() {
                 somente você vê sua posição e tempo estimado.
               </p>
             </div>
+
+            <div className="mt-6 border-t border-border pt-4">
+              <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="lg"
+                    className="w-full"
+                    disabled={cancelling}
+                    aria-label="Cancelar minha participação na fila"
+                  >
+                    {cancelling ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+                        Cancelando...
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="mr-2 size-4" aria-hidden />
+                        Cancelar participação
+                      </>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sair da fila agora?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Sua posição será liberada e você não será mais chamado(a) para esta conversa.
+                      Você pode voltar a qualquer momento quando precisar conversar.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={cancelling}>Continuar aguardando</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => { e.preventDefault(); handleCancel(); }}
+                      disabled={cancelling}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {cancelling ? (
+                        <>
+                          <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+                          Cancelando...
+                        </>
+                      ) : (
+                        "Sim, sair da fila"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </motion.section>
         </AnimatePresence>
       )}
