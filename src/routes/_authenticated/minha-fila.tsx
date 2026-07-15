@@ -1,11 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, Clock, Loader2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Users, Clock, Loader2, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { cancelMyQueue } from "@/lib/queue.functions";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Row = {
   in_queue: boolean;
@@ -37,6 +51,24 @@ function MinhaFila() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialAhead, setInitialAhead] = useState<number | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const cancelFn = useServerFn(cancelMyQueue);
+
+  async function handleCancel() {
+    if (!row?.queue_id) return;
+    setCancelling(true);
+    try {
+      await cancelFn({ data: { queueId: row.queue_id } });
+      toast.success("Você saiu da fila. Volte quando quiser conversar. 💛");
+      setConfirmOpen(false);
+      await load(true);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível cancelar. Tente novamente.");
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   async function load(soft = false) {
     if (soft) setRefreshing(true); else setLoading(true);
@@ -185,6 +217,58 @@ function MinhaFila() {
                 Atualiza automaticamente a cada 15 segundos. Estas informações são privadas —
                 somente você vê sua posição e tempo estimado.
               </p>
+            </div>
+
+            <div className="mt-6 border-t border-border pt-4">
+              <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="lg"
+                    className="w-full"
+                    disabled={cancelling}
+                    aria-label="Cancelar minha participação na fila"
+                  >
+                    {cancelling ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+                        Cancelando...
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="mr-2 size-4" aria-hidden />
+                        Cancelar participação
+                      </>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sair da fila agora?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Sua posição será liberada e você não será mais chamado(a) para esta conversa.
+                      Você pode voltar a qualquer momento quando precisar conversar.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={cancelling}>Continuar aguardando</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => { e.preventDefault(); handleCancel(); }}
+                      disabled={cancelling}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {cancelling ? (
+                        <>
+                          <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+                          Cancelando...
+                        </>
+                      ) : (
+                        "Sim, sair da fila"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </motion.section>
         </AnimatePresence>
