@@ -1434,6 +1434,20 @@ export type Database = {
         Args: { _conversation_id: string }
         Returns: undefined
       }
+      my_queue_position: {
+        Args: never
+        Returns: {
+          ahead_of_me: number
+          avg_service_seconds: number
+          created_at: string
+          estimated_wait_seconds: number
+          in_queue: boolean
+          queue_id: string
+          queue_position: number
+          urgency: string
+          waiting_seconds: number
+        }[]
+      }
       purge_ended_conversations: { Args: never; Returns: undefined }
       purge_old_incidents: { Args: never; Returns: undefined }
       purge_old_push_logs: { Args: never; Returns: undefined }
