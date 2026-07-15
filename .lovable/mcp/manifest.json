@@ -98,6 +98,22 @@
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
+      },
+      {
+        "name": "my_queue_position",
+        "title": "Minha posição na fila",
+        "description": "Retorna a posição do usuário conectado na fila de escuta e o tempo estimado de espera. Não expõe dados de outros usuários — apenas o próprio status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
       }
     ]
   }
