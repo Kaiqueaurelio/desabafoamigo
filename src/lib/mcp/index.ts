@@ -2,6 +2,7 @@ import { auth, defineMcp } from "@lovable.dev/mcp-js";
 import whoamiTool from "./tools/whoami";
 import listConversationsTool from "./tools/list-conversations";
 import logMoodTool from "./tools/log-mood";
+import myQueuePositionTool from "./tools/my-queue-position";
 
 // O emissor OAuth precisa apontar direto para o host Supabase; a URL do runtime
 // pode ser reescrita como proxy .lovable.cloud, o que o mcp-js rejeita.
