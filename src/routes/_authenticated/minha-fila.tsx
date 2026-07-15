@@ -51,6 +51,24 @@ function MinhaFila() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialAhead, setInitialAhead] = useState<number | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const cancelFn = useServerFn(cancelMyQueue);
+
+  async function handleCancel() {
+    if (!row?.queue_id) return;
+    setCancelling(true);
+    try {
+      await cancelFn({ data: { queueId: row.queue_id } });
+      toast.success("Você saiu da fila. Volte quando quiser conversar. 💛");
+      setConfirmOpen(false);
+      await load(true);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível cancelar. Tente novamente.");
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   async function load(soft = false) {
     if (soft) setRefreshing(true); else setLoading(true);
