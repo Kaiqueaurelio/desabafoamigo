@@ -13,10 +13,10 @@ export default defineMcp({
   title: "Desabafo Amigo",
   version: "0.1.0",
   instructions:
-    "Ferramentas para o app Desabafo Amigo. Cada chamador age como o usuário autenticado (as políticas de acesso do banco decidem o que aparece). Use `whoami` para verificar a conexão, `list_my_conversations` para ver conversas do próprio usuário e `log_mood` para registrar humor no diário.",
+    "Ferramentas para o app Desabafo Amigo. Cada chamador age como o usuário autenticado (as políticas de acesso do banco decidem o que aparece). Use `whoami` para verificar a conexão, `list_my_conversations` para ver conversas do próprio usuário, `log_mood` para registrar humor no diário e `my_queue_position` para consultar sua posição na fila e tempo estimado de espera.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [whoamiTool, listConversationsTool, logMoodTool],
+  tools: [whoamiTool, listConversationsTool, logMoodTool, myQueuePositionTool],
 });
