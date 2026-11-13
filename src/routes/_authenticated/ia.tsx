@@ -72,6 +72,7 @@ function Page() {
   const [handoffBusy, setHandoffBusy] = useState(false);
   const [handoffError, setHandoffError] = useState("");
   const end = useRef<HTMLDivElement>(null);
+  const chatScroll = useRef<HTMLDivElement>(null);
   const mediaInput = useRef<HTMLInputElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const recordingStreamRef = useRef<MediaStream | null>(null);
@@ -156,7 +157,8 @@ function Page() {
   }
 
   useEffect(() => {
-    end.current?.scrollIntoView({ behavior: "smooth" });
+    const container = chatScroll.current;
+    if (container) container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
     if (prefs?.keepAiHistory && prefs.retentionDays) localStorage.setItem(AI_HISTORY_KEY, JSON.stringify({ at: Date.now(), msgs }));
   }, [msgs, prefs]);
 
@@ -298,7 +300,7 @@ function Page() {
           {degraded && <p className="mt-2 text-xs text-muted-foreground">A IA está instável no momento, por isso recomendamos o apoio humano.</p>}
         </motion.div>)}</AnimatePresence>
 
-      <div className="min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto rounded-xl border bg-card p-3" aria-live="polite">
+      <div ref={chatScroll} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto rounded-xl border bg-card p-3" aria-live="polite">
         {msgs.map((m, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`min-w-0 max-w-[88%] break-words whitespace-pre-wrap [overflow-wrap:anywhere] rounded-2xl px-3 py-2 text-sm sm:px-4 ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</div>
@@ -321,7 +323,7 @@ function Page() {
         <Button type="button" size="icon" variant="outline" className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3 || recording} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto ou arquivo de áudio"><Paperclip className="h-4 w-4" /></Button>
         <Button type="button" size="icon" variant={recording ? "destructive" : "outline"} className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => void toggleAudioRecording()} aria-label={recording ? "Parar gravação de áudio" : "Gravar áudio"}>{recording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}</Button>
         <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={2000} placeholder="Escreva o que está sentindo…" aria-label="Mensagem"
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="w-0 min-w-0 flex-1 resize-none" />
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="w-0 min-w-0 flex-1 resize-none text-base sm:text-sm" />
         <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={busy || recording || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
       </form>
     </div>
