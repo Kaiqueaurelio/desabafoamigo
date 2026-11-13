@@ -17,7 +17,7 @@ export const Route = createFileRoute("/hackathon")({
 });
 
 const STEPS: { title: string; body: React.ReactNode }[] = [
-  { title: "1. Entrada anônima", body: <p>A pessoa entra e recebe um apelido e avatar gerados, ex.: <b>“Lua Serena 42”</b>. Nenhum nome real é exibido.</p> },
+  { title: "1. Identidade de exibição", body: <p>A experiência pode exibir um apelido, como <b>“Lua Serena 42”</b>, em vez de um nome público. Isso é pseudonimização da interface, não anonimato absoluto: a conta e os dados tratados pela infraestrutura continuam sujeitos às regras de privacidade do serviço.</p> },
   { title: "2. Configuração de privacidade", body: <ul className="list-disc pl-5"><li>Consentimento para IA: <b>ligado</b></li><li>Histórico: <b>sessão temporária</b></li><li>Retenção: <b>só esta sessão</b></li></ul> },
   { title: "3. Conversa com a IA", body: <Chat lines={[["u", "Tô me sentindo muito sozinho ultimamente."], ["a", "Sinto muito que esteja assim. Sou uma IA e estou aqui para ouvir. Quer me contar o que tem pesado mais?"], ["u", "Parece que não tem saída."]]} /> },
   { title: "4. Triagem demonstrativa", body: <div className="rounded-lg border border-primary/40 bg-primary/5 p-3">Sinal detectado: <b>atenção</b> (expressão “não tem saída”). A IA não diagnostica — apenas oferece apoio humano prioritário e mostra CVV 188 / SAMU 192. Se a IA falhar, o sistema assume cautela e oferece humano.</div> },
