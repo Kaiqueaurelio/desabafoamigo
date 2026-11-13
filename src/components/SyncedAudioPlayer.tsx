@@ -66,12 +66,12 @@ export function SyncedAudioPlayer({
 
   return (
     <div className={`mt-1 ${compact ? "" : ""}`}>
-      <div className="flex items-center gap-2 rounded-full bg-background/50 px-2 py-1">
+      <div className="flex min-w-0 items-center gap-2 rounded-full bg-background/50 px-2 py-1">
         <button
           type="button"
           onClick={toggle}
           aria-label={playing ? "Pausar" : "Reproduzir"}
-          className="grid size-7 place-items-center rounded-full bg-primary text-primary-foreground hover:opacity-90"
+          className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground hover:opacity-90"
         >
           {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
         </button>
@@ -80,7 +80,7 @@ export function SyncedAudioPlayer({
           duration={duration}
           onSeek={(t) => { const el = audioRef.current; if (el) el.currentTime = t; }}
         />
-        <span className="w-16 text-right text-[10px] tabular-nums opacity-70">
+        <span className="w-16 shrink-0 text-right text-[10px] tabular-nums opacity-70">
           {fmt(time)} / {fmt(duration)}
         </span>
       </div>
@@ -122,7 +122,7 @@ function CaptionRow({
               key={i}
               type="button"
               onClick={() => onSeek(seg.start)}
-              className={`mr-1 rounded px-1 py-0.5 text-left transition-colors ${
+              className={`mr-1 min-h-9 rounded px-2 py-2 text-left transition-colors ${
                 active
                   ? "bg-primary/80 text-primary-foreground shadow-sm"
                   : past
@@ -159,9 +159,9 @@ function ProgressBar({ time, duration, onSeek }: { time: number; duration: numbe
         if (e.key === "ArrowRight") onSeek(Math.min(duration, time + 2));
         if (e.key === "ArrowLeft") onSeek(Math.max(0, time - 2));
       }}
-      className="relative h-1.5 flex-1 cursor-pointer rounded-full bg-background/60"
+      className="relative h-9 min-w-0 flex-1 cursor-pointer rounded-full bg-background/60"
     >
-      <div className="absolute inset-y-0 left-0 rounded-full bg-primary" style={{ width: `${pct}%` }} />
+      <div className="absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary" style={{ width: `${pct}%` }} />
     </div>
   );
 }
