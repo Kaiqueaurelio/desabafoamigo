@@ -113,10 +113,10 @@ function AuthPage() {
         if (error) throw error;
       } else {
         await signInAndRoute(normalizedEmail, normalizedPassword);
-        persistRemember(normalizedEmail, normalizedPassword);
+        persistRemember(normalizedEmail);
         return;
       }
-      persistRemember(normalizedEmail, normalizedPassword);
+      persistRemember(normalizedEmail);
       if (next) {
         window.location.assign(next);
         return;
