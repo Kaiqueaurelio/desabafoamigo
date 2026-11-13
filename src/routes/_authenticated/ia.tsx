@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/ia")({
 
 type M = { role: "user" | "assistant"; content: string };
 type PendingMedia = { file: File; kind: "image" | "audio" | "video" };
-const GREETING: M = { role: "assistant", content: "Oi. Eu sou o Ella Ribeiro, uma inteligência artificial de apoio emocional — não sou psicólogo nem substituo um profissional. Posso te ouvir com atenção, ajudar a organizar o que está passando pela sua cabeça e pensar com você em próximos passos, sem julgamentos. O que está pesando mais para você hoje?" };
+const GREETING: M = { role: "assistant", content: "Oi! Meu nome é Ella Ribeiro, sou uma inteligência artificial de apoio emocional — não sou psicólogo nem substituo um profissional. Posso te ouvir com atenção, ajudar a organizar o que está passando pela sua cabeça e pensar com você em próximos passos, sem julgamentos. O que está pesando mais para você hoje?" };
 
 async function toDataUrl(file: File): Promise<string> {
   return await new Promise((resolve, reject) => {
