@@ -37,3 +37,34 @@ describe("triagem do Desabafo Amigo AI", () => {
     expect(parseAiJson('{"reply":"oi","severity":5}')?.severity).toBe(3);
   });
 });
+
+describe("sinais persistentes de risco", () => {
+  it("classifica intenção explícita em primeira pessoa como urgente mesmo se a IA minimizar", () => {
+    expect(assessRisk("não quero mais viver", 0).level).toBe("urgent");
+    expect(assessRisk("vou tirar minha vida hoje", 0).level).toBe("urgent");
+  });
+
+  it("eleva menções repetidas de ideação na conversa para urgente", () => {
+    const conversation = "Tenho pensado em suicídio.\nHoje pensei em suicídio de novo.";
+    const result = assessRisk(conversation, 1);
+    expect(result.level).toBe("urgent");
+    expect(result.offerHuman).toBe(true);
+  });
+
+  it("uma menção contextual isolada gera atenção e encaminhamento, sem presumir iminência", () => {
+    const result = assessRisk("Tenho pensado em suicídio ultimamente.", 1);
+    expect(result.level).toBe("attention");
+    expect(result.offerHuman).toBe(true);
+  });
+
+  it("não marca automaticamente uma negação explícita de intenção como ideação", () => {
+    const result = assessRisk("Não estou pensando em me matar e não tenho intenção de suicídio.", 0);
+    expect(result.level).toBe("none");
+  });
+
+  it("não ignora uma intenção imediata só porque o modelo retornou severidade zero", () => {
+    const result = assessRisk("Decidi me matar hoje.", 0);
+    expect(result.level).toBe("urgent");
+    expect(result.source).toBe("keywords");
+  });
+});
