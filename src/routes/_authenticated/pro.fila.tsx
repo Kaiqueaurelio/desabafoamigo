@@ -78,8 +78,8 @@ function Fila() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <div className="mb-6 flex items-center gap-3">
+    <div className="mx-auto w-full max-w-3xl p-3 sm:p-6">
+      <div className="mb-6 flex min-w-0 flex-wrap items-center gap-3">
         <div className="grid size-11 place-items-center rounded-xl bg-brand-soft text-primary"><Users className="size-6" /></div>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-primary">Fila de escuta</h1>
@@ -100,7 +100,7 @@ function Fila() {
         <ul className="space-y-3">
           {rows.map((r) => (
             <li key={r.id} className="rounded-2xl border border-border bg-card p-4">
-              <div className="flex items-start gap-3">
+              <div className="flex min-w-0 flex-wrap items-start gap-3">
                 <img src={avatarUrl(r.alias || r.user_id, 96)} alt="" className="size-12 shrink-0 rounded-full ring-2 ring-brand-soft" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -122,7 +122,7 @@ function Fila() {
                   {r.topic && <p className="mt-1 line-clamp-2 text-sm text-foreground/80">"{r.topic}"</p>}
                   {r.summary && <p className="mt-2 text-xs text-muted-foreground"><span className="font-medium text-foreground">Contexto anterior:</span> {r.summary}</p>}
                 </div>
-                <button onClick={() => accept(r.id)} disabled={busy === r.id} className="btn-primary shrink-0 text-sm">
+                <button onClick={() => accept(r.id)} disabled={busy === r.id} className="btn-primary shrink-0 whitespace-normal text-center text-sm">
                   {busy === r.id ? "Abrindo..." : "Atender"}
                 </button>
               </div>
