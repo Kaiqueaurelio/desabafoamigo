@@ -183,7 +183,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
               <button
                 type="button"
                 aria-label="Abrir menu de navegação"
-                className="interactive grid size-10 shrink-0 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="interactive grid size-11 shrink-0 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <Menu aria-hidden className="size-5" />
               </button>
