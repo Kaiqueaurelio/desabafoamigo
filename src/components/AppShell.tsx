@@ -40,11 +40,13 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
   const patientNav = [
     { to: "/inicio", label: "Início", icon: Home },
+    { to: "/ia", label: "Amigo IA", icon: HeartHandshake },
     { to: "/conversar", label: "Conversar agora", icon: HeartHandshake },
     { to: "/respirar", label: "Respire comigo", icon: Wind, highlight: true },
     { to: "/consultas", label: "Minhas conversas", icon: CalendarClock },
     { to: "/diario", label: "Meu diário", icon: NotebookPen },
     { to: "/apoio", label: "Apoio", icon: BookOpen },
+    { to: "/minha-privacidade", label: "Minha Privacidade", icon: Settings },
     { to: "/configuracoes", label: "Configurações", icon: Settings },
   ] as const;
 
