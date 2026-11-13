@@ -72,7 +72,7 @@ function Page() {
   const [handoffError, setHandoffError] = useState("");
   const end = useRef<HTMLDivElement>(null);
   const mediaInput = useRef<HTMLInputElement>(null);
-  const [media, setMedia] = useState<PendingMedia[]>([]);
+  const [media, setMedia] = useState<PendingMedia[]>([]);\n  const [mediaError, setMediaError] = useState("");
 
   useEffect(() => {
     const p = loadPrefs(); setPrefs(p);
@@ -136,10 +136,10 @@ function Page() {
     const files = Array.from(event.target.files ?? []); event.target.value = "";
     for (const file of files) {
       const kind = file.type.startsWith("image/") ? "image" : file.type.startsWith("audio/") ? "audio" : file.type.startsWith("video/") ? "video" : null;
-      if (!kind) { toast.error("Envie uma imagem, áudio ou vídeo."); continue; }
+      if (!kind) { setMediaError("Envie uma imagem, áudio ou vídeo."); continue; }
       const limit = kind === "image" ? 5 : kind === "audio" ? 8 : 25;
-      if (file.size > limit * 1024 * 1024) { toast.error(`O arquivo excede o limite de ${limit} MB.`); continue; }
-      setMedia((current) => current.length >= 3 ? current : [...current, { file, kind }]);
+      if (file.size > limit * 1024 * 1024) { setMediaError(`O arquivo excede o limite de ${limit} MB.`); continue; }
+      setMedia((current) => current.length >= 3 ? current : [...current, { file, kind }]);\n      setMediaError("");
     }
   }
   async function submit() {
@@ -233,7 +233,7 @@ function Page() {
         <Button size="sm" variant="ghost" asChild><Link to="/respirar"><Wind className="mr-1 h-4 w-4" />Respirar</Link></Button>
         <Button size="sm" variant="ghost" onClick={endSession}><X className="mr-1 h-4 w-4" />Encerrar conversa</Button>
       </div>
-      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
+      {mediaError && <p className="text-xs text-destructive" role="alert">{mediaError}</p>}\n      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
       <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <input ref={mediaInput} type="file" accept="image/jpeg,image/png,image/webp,audio/*,video/*" multiple className="hidden" onChange={pickMedia} />
         <Button type="button" size="icon" variant="outline" className="h-auto w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto, áudio ou vídeo"><Paperclip className="h-4 w-4" /></Button>
