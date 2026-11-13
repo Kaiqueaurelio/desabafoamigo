@@ -4,7 +4,7 @@ import type { ChangeEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone, Paperclip, Image as ImageIcon, FileAudio, FileVideo, Mic, StopCircle } from "lucide-react";
+import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone, Paperclip, Image as ImageIcon, FileAudio, FileVideo, Mic, StopCircle, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { aiChat } from "@/lib/aiChat.functions";
@@ -79,10 +79,12 @@ function Page() {
   const recordingStreamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [recording, setRecording] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
   const [media, setMedia] = useState<PendingMedia[]>([]);
   const [mediaError, setMediaError] = useState("");
 
   useEffect(() => () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
     if (recorderRef.current) {
       recorderRef.current.onstop = null;
       recorderRef.current.ondataavailable = null;
@@ -217,6 +219,31 @@ function Page() {
       setMediaError("Não foi possível acessar o microfone. Verifique a permissão do navegador.");
     }
   }
+  function toggleSpeech(message: string, index: number) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+      setMediaError("A leitura em voz alta não está disponível neste navegador.");
+      return;
+    }
+    if (speakingIndex === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = "pt-BR";
+    utterance.rate = 0.96;
+    utterance.pitch = 1.04;
+    const voices = window.speechSynthesis.getVoices();
+    const portugueseVoice = voices.find((voice) => voice.lang.toLowerCase() === "pt-br")
+      ?? voices.find((voice) => voice.lang.toLowerCase().startsWith("pt"));
+    if (portugueseVoice) utterance.voice = portugueseVoice;
+    utterance.onend = () => setSpeakingIndex((current) => current === index ? null : current);
+    utterance.onerror = () => setSpeakingIndex((current) => current === index ? null : current);
+    setSpeakingIndex(index);
+    window.speechSynthesis.speak(utterance);
+  }
+
   async function submit() {
     const t = text.trim(); if ((!t && !media.length) || busy) return;
     const selected = media;
@@ -306,8 +333,11 @@ function Page() {
 
       <div ref={chatScroll} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto rounded-xl border bg-card p-3" aria-live="polite">
         {msgs.map((m, i) => (
-          <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+          <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`flex items-end gap-1 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`min-w-0 max-w-[88%] break-words whitespace-pre-wrap [overflow-wrap:anywhere] rounded-2xl px-3 py-2 text-sm sm:px-4 ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</div>
+            {m.role === "assistant" && <Button type="button" size="icon" variant="ghost" className="h-9 w-9 shrink-0" onClick={() => toggleSpeech(m.content, i)} aria-label={speakingIndex === i ? "Parar áudio da Ella" : "Ouvir resposta da Ella"} title={speakingIndex === i ? "Parar áudio" : "Ouvir resposta"}>
+              {speakingIndex === i ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>}
           </motion.div>))}
         {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Ella Ribeiro está preparando uma resposta…</div>}
         <div ref={end} />
@@ -325,7 +355,7 @@ function Page() {
       <form className="flex min-w-0 items-end gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <input ref={mediaInput} type="file" accept="image/jpeg,image/png,image/webp,audio/*,video/*" multiple className="hidden" onChange={pickMedia} />
         <Button type="button" size="icon" variant="outline" className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3 || recording} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto ou arquivo de áudio"><Paperclip className="h-4 w-4" /></Button>
-        <Button type="button" size="icon" variant={recording ? "destructive" : "outline"} className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => void toggleAudioRecording()} aria-label={recording ? "Parar gravação de áudio" : "Gravar áudio"}>{recording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}</Button>
+        <Button type="button" size="icon" variant={recording ? "destructive" : "outline"} className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => void toggleAudioRecording()} aria-label={recording ? "Parar gravação de áudio" : "Gravar mensagem de voz para Ella"} title="Grave sua mensagem e envie para Ella transcrever">{recording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}</Button>
         <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={2000} placeholder="Escreva o que está sentindo…" aria-label="Mensagem"
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="w-0 min-w-0 flex-1 resize-none text-base sm:text-sm" />
         <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={busy || recording || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
