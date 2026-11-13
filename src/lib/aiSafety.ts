@@ -11,7 +11,7 @@ const IMMEDIATE_INTENT = [
   /\b(tenho um plano|planejei)\b.{0,55}\b(suic[ií]dio|me matar|tirar minha vida)\b/i,
 ];
 const IDEATION = [
-  /\b(quero morrer|queria morrer|quero me matar|pensando em me matar|penso em me matar|pensando em tirar minha vida|penso em tirar minha vida|tenho pensado em suicidio|nao quero (mais )?viver|queria nao acordar|ideia(s)? de suicidio)\b/i,
+  /\b(quero morrer|queria morrer|quero me matar|pensando em me matar|penso em me matar|pensei em suicidio|pensando em tirar minha vida|penso em tirar minha vida|tenho pensado em suicidio|nao quero (mais )?viver|queria nao acordar|ideia(s)? de suicidio)\b/i,
 ];
 
 /** Avalia a conversa acumulada; não substitui avaliação humana nem diagnóstico clínico. */
