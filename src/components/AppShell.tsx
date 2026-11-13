@@ -21,6 +21,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   const [alias, setAlias] = useState<string>("");
   const { collapsed, toggle } = useSidebarToggle("ui:appSidebarCollapsed");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isChatRoute = pathname === "/ia" || pathname.startsWith("/consulta/");
 
   // Fecha o drawer ao navegar (mudança de rota)
   useEffect(() => { setMobileOpen(false); }, [pathname]);
@@ -292,7 +293,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         </nav>
 
       </div>
-      <EmergencyButton />
+      {!isChatRoute && <EmergencyButton />}
       <OnboardingModal />
     </div>
   );
