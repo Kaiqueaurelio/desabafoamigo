@@ -23,11 +23,11 @@ O Desabafo Amigo é uma plataforma de apoio emocional que combina uma experiênc
 - Supabase (Auth, PostgreSQL e Realtime)
 - Vitest e Testing Library
 - Playwright para testes end-to-end e responsividade
-- Vite e PWA
+- Vite, PWA e Cloudflare Workers (hospedagem)\n- NVIDIA NIM para LLM; NVIDIA Magpie para síntese de voz
 
 ## Executar localmente
 
-Requisitos: Bun (versão usada pelo CI) e variáveis de ambiente do Supabase.
+Requisitos: Node.js 22, npm e variáveis de ambiente do Supabase e NVIDIA.
 
 ```bash
 git clone https://github.com/Kaiqueaurelio/desabafoamigo.git
@@ -36,7 +36,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-Configure as variáveis de ambiente exigidas pelo projeto no arquivo local apropriado. **Nunca coloque chaves privadas, tokens de serviço ou credenciais reais no Git.**
+Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `NVIDIA_API_KEY` e `NVIDIA_API_KEY_VOICE` no ambiente do servidor. Para desenvolvimento local, use `.env` (não versionado). **Nunca coloque chaves privadas, tokens de serviço ou credenciais reais no Git.**
 
 ## Qualidade e testes
 
@@ -76,6 +76,26 @@ A demonstração usa cenários e indicadores fictícios. Não confunda a simula�
 
 ## Links
 
-- Aplicativo: https://desabafoamigo.lovable.app
+- Aplicativo: será publicado no endereço `*.workers.dev` após configurar o Cloudflare Workers
 - Repositório: https://github.com/Kaiqueaurelio/desabafoamigo
 - Projeto Lovable: https://lovable.dev/projects/ce27e131-caf6-49a0-96ff-b49e0b0eee10
+
+
+## Deploy independente do Lovable (Cloudflare Workers)
+
+O deploy automático está em `.github/workflows/deploy-cloudflare.yml`. Configure os seguintes **GitHub Actions Secrets** no repositório:
+
+- `CLOUDFLARE_API_TOKEN` — token com permissões Workers Scripts: Edit e Account Settings: Read.
+- `CLOUDFLARE_ACCOUNT_ID` — ID da conta Cloudflare.
+- `SUPABASE_URL` — URL do projeto Supabase existente.
+- `SUPABASE_PUBLISHABLE_KEY` — chave pública/publishable do Supabase.
+- `NVIDIA_API_KEY` — chave NVIDIA NIM para chat.
+- `NVIDIA_API_KEY_VOICE` — chave NVIDIA para Magpie TTS (pode ser a mesma credencial, se autorizada pelo NVIDIA).
+
+O workflow publica as chaves como secrets do Worker (não as inclui no bundle do navegador). O Supabase continua sendo o backend de autenticação, banco, storage e realtime; ele não depende do Lovable.
+
+A conversa por voz usa reconhecimento de fala do navegador em pt-BR, NVIDIA NIM para gerar a resposta e NVIDIA Magpie Multilingual para sintetizar áudio. Isso é uma conversa por turnos, não full-duplex. A síntese usa o Function ID oficial do Magpie Multilingual. O nome de voz padrão pode ser sobrescrito por `NVIDIA_TTS_VOICE`.
+
+A transcrição de anexos de áudio enviados no chat exige um endpoint HTTP próprio do NVIDIA Riva em `NVIDIA_ASR_HTTP_URL`; o endpoint hospedado Parakeet documenta gRPC. Sem esse endpoint, o recurso informa a limitação e não envia áudio para um provedor alternativo.
+
+Depois de adicionar os GitHub Secrets, faça um push em `main` ou execute manualmente o workflow **Deploy Desabafo Amigo to Cloudflare Workers** em Actions. Configure o domínio em Workers & Pages após o primeiro deploy.
