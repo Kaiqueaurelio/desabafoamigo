@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone, Clock } from "lucide-react";
+import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { aiChat } from "@/lib/aiChat.functions";
