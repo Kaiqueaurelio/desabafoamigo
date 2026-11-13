@@ -15,9 +15,9 @@ import { EmergencyButton } from "@/components/EmergencyButton";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({ meta: [
-    { title: "Desabafo Amigo AI — Acolhimento com IA" },
+    { title: "Ella Ribeiro — Assistente de apoio emocional" },
     { name: "description", content: "Converse com uma IA acolhedora e, quando quiser, com um voluntário humano." },
-    { property: "og:title", content: "Desabafo Amigo AI" },
+    { property: "og:title", content: "Ella Ribeiro" },
     { property: "og:description", content: "Acolhimento emocional híbrido: IA + voluntários treinados." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/ia")({
 
 type M = { role: "user" | "assistant"; content: string };
 type PendingMedia = { file: File; kind: "image" | "audio" | "video" };
-const GREETING: M = { role: "assistant", content: "Oi. Eu sou o Amigo IA, uma inteligência artificial de apoio emocional — não sou psicólogo nem substituo um profissional. Posso te ouvir com atenção, ajudar a organizar o que está passando pela sua cabeça e pensar com você em próximos passos, sem julgamentos. O que está pesando mais para você hoje?" };
+const GREETING: M = { role: "assistant", content: "Oi. Eu sou o Ella Ribeiro, uma inteligência artificial de apoio emocional — não sou psicólogo nem substituo um profissional. Posso te ouvir com atenção, ajudar a organizar o que está passando pela sua cabeça e pensar com você em próximos passos, sem julgamentos. O que está pesando mais para você hoje?" };
 
 async function toDataUrl(file: File): Promise<string> {
   return await new Promise((resolve, reject) => {
@@ -144,7 +144,7 @@ function Page() {
     setHandoffBusy(true); setHandoffError("");
     try {
       const recent = msgs.filter((m) => m.role === "user").slice(-3).map((m) => m.content.trim()).filter(Boolean).join(" | ");
-      const topic = `Encaminhamento solicitado após conversa com Amigo IA. Contexto compartilhado: ${recent.slice(-360) || "Pessoa pediu acolhimento humano."}`;
+      const topic = `Encaminhamento solicitado após conversa com Ella Ribeiro. Contexto compartilhado: ${recent.slice(-360) || "Pessoa pediu acolhimento humano."}`;
       const result = await enqueue({ data: { topic: topic.slice(0, 500), urgency: risk === "urgent" ? "high" : risk === "attention" ? "medium" : "low", preferredLang: navigator.language || "pt-BR" } });
       setQueueId(result.queueId);
     } catch (error) {
@@ -263,13 +263,13 @@ function Page() {
     <div className="mx-auto flex h-full min-h-0 w-full max-w-3xl min-w-0 flex-col gap-3 overflow-hidden p-3 sm:p-5">
       <div className="flex shrink-0 items-center justify-between gap-2">
         <div className="grid min-w-0 flex-1 grid-cols-3 gap-2">
-        <ModeCard icon={Bot} label="Amigo IA" active />
+        <ModeCard icon={Bot} label="Ella Ribeiro" active />
         <ModeCard icon={HeartHandshake} label="Voluntário" to="/conversar" />
         <ModeCard icon={Stethoscope} label="Profissional" to="/apoio" />
         </div>
         <EmergencyButton inline />
       </div>
-      <p className="shrink-0 break-words rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">O Amigo IA é uma <strong>inteligência artificial de apoio emocional — não é psicólogo, não possui registro profissional e não realiza psicoterapia</strong>. Usa princípios de comunicação inspirados na Psicanálise, TCC e Terapia Cognitiva Analítica para ajudar você a refletir. Não faz diagnóstico nem substitui atendimento profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
+      <p className="shrink-0 break-words rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">O Ella Ribeiro é uma <strong>inteligência artificial de apoio emocional — não é psicólogo, não possui registro profissional e não realiza psicoterapia</strong>. Usa princípios de comunicação inspirados na Psicanálise, TCC e Terapia Cognitiva Analítica para ajudar você a refletir. Não faz diagnóstico nem substitui atendimento profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
 
       {offerHuman && !queueId && (
         <div className="min-w-0 shrink-0 break-words rounded-xl border border-primary/30 bg-primary/5 p-3">
@@ -309,7 +309,7 @@ function Page() {
           <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`min-w-0 max-w-[88%] break-words whitespace-pre-wrap [overflow-wrap:anywhere] rounded-2xl px-3 py-2 text-sm sm:px-4 ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</div>
           </motion.div>))}
-        {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Amigo IA está preparando uma resposta…</div>}
+        {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Ella Ribeiro está preparando uma resposta…</div>}
         <div ref={end} />
       </div>
 
