@@ -3,6 +3,27 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const TTS_FUNCTION_ID = process.env.NVIDIA_TTS_FUNCTION_ID || "877104f7-e885-42b9-8de8-f6e4c6303969";
 
+async function resolveBrazilianVoice(apiKey: string): Promise<string> {
+  if (process.env.NVIDIA_TTS_VOICE) return process.env.NVIDIA_TTS_VOICE;
+  const response = await fetch(`https://${TTS_FUNCTION_ID}.invocation.api.nvcf.nvidia.com/v1/audio/list_voices`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) throw new Error("Não foi possível consultar as vozes disponíveis no NVIDIA Magpie.");
+  const payload: unknown = await response.json();
+  const collect = (value: unknown): string[] => {
+    if (typeof value === "string") return [value];
+    if (Array.isArray(value)) return value.flatMap(collect);
+    if (value && typeof value === "object") return Object.values(value).flatMap(collect);
+    return [];
+  };
+  const voices = collect(payload);
+  const brazilian = voices.filter((voice) => /pt[-_]BR/i.test(voice));
+  const selected = brazilian.find((voice) => /mia|female|feminina/i.test(voice)) || brazilian[0];
+  if (!selected) throw new Error("O NVIDIA Magpie não retornou uma voz pt-BR. Configure NVIDIA_TTS_VOICE com um identificador disponível.");
+  return selected;
+}
+
 export const synthesizeEllaSpeech = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { consent: boolean; text: string }) => {
@@ -17,7 +38,7 @@ export const synthesizeEllaSpeech = createServerFn({ method: "POST" })
     const form = new FormData();
     form.append("text", data.text);
     form.append("language", "pt-BR");
-    form.append("voice", process.env.NVIDIA_TTS_VOICE || "Magpie-Multilingual.pt-BR.Mia");
+    form.append("voice", await resolveBrazilianVoice(apiKey));
     form.append("encoding", "LINEAR_PCM");
     form.append("sample_rate_hz", "44100");
     const response = await fetch(`https://${TTS_FUNCTION_ID}.invocation.api.nvcf.nvidia.com/v1/audio/synthesize`, {
