@@ -259,10 +259,10 @@ function Page() {
       {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex min-w-0 max-w-full items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
       <form className="flex min-w-0 items-end gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <input ref={mediaInput} type="file" accept="image/jpeg,image/png,image/webp,audio/*,video/*" multiple className="hidden" onChange={pickMedia} />
-        <Button type="button" size="icon" variant="outline" className="h-auto w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto, áudio ou vídeo"><Paperclip className="h-4 w-4" /></Button>
+        <Button type="button" size="icon" variant="outline" className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto, áudio ou vídeo"><Paperclip className="h-4 w-4" /></Button>
         <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={2000} placeholder="Escreva o que está sentindo…" aria-label="Mensagem"
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="w-0 min-w-0 flex-1 resize-none" />
-        <Button type="submit" size="icon" className="h-auto w-12 shrink-0" disabled={busy || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
+        <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={busy || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
       </form>
     </div>
   );
