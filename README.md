@@ -89,7 +89,7 @@ O deploy automático está em `.github/workflows/deploy-cloudflare.yml`. Configu
 - `SUPABASE_URL` — URL do projeto Supabase existente.
 - `SUPABASE_PUBLISHABLE_KEY` — chave pública/publishable do Supabase.
 - `NVIDIA_API_KEY` — chave NVIDIA NIM para chat.
-- `NVIDIA_API_KEY_VOICE` — chave NVIDIA para Magpie TTS (pode ser a mesma credencial, se autorizada pelo NVIDIA).
+- `NVIDIA_API_KEY_VOICE` — chave NVIDIA para Magpie TTS (pode ser a mesma credencial, se autorizada pela NVIDIA).\n- `NVIDIA_ASR_HTTP_URL` — opcional; endpoint HTTP de um NVIDIA Riva próprio para transcrever anexos de áudio.
 
 O workflow publica as chaves como secrets do Worker (não as inclui no bundle do navegador). O Supabase continua sendo o backend de autenticação, banco, storage e realtime; ele não depende do Lovable.
 
