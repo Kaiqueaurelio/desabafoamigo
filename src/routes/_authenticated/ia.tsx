@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/ia")({
 });
 
 type M = { role: "user" | "assistant"; content: string };
-const GREETING: M = { role: "assistant", content: "Oi, eu sou o Amigo IA — uma inteligência artificial, não uma pessoa. Estou aqui para ouvir sem julgamento. O que você gostaria de compartilhar hoje?" };
+const GREETING: M = { role: "assistant", content: "Oi. Eu sou o Amigo IA, uma inteligência artificial de apoio emocional — não sou psicólogo nem substituo um profissional. Posso te ouvir com atenção, ajudar a organizar o que está passando pela sua cabeça e pensar com você em próximos passos, sem julgamentos. O que está pesando mais para você hoje?" };
 
 function Page() {
   const send = useServerFn(aiChat);
@@ -84,7 +84,7 @@ function Page() {
         <ModeCard icon={HeartHandshake} label="Voluntário" to="/conversar" />
         <ModeCard icon={Stethoscope} label="Profissional" to="/apoio" />
       </div>
-      <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">Você está falando com uma <strong>inteligência artificial</strong>. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} Encaminhamento para profissional mostra a rede de apoio pública (não temos psicólogos na plataforma).</p>
+      <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">Este é um espaço de <strong>acolhimento emocional com inteligência artificial</strong>, não uma consulta psicológica. A IA pode ajudar você a refletir e encontrar próximos passos, mas não diagnostica nem substitui um profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
 
       <AnimatePresence>{(risk !== "none" || offerHuman) && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert"
@@ -103,7 +103,7 @@ function Page() {
           <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</div>
           </motion.div>))}
-        {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Amigo IA está escrevendo…</div>}
+        {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Amigo IA está preparando uma resposta…</div>}
         <div ref={end} />
       </div>
 
