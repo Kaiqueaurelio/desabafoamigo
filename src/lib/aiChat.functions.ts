@@ -3,6 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assessRisk, parseAiJson, FALLBACK_REPLY } from "./aiSafety";
 
 type Msg = { role: "user" | "assistant"; content: string };
+type AiAttachment = { kind: "image" | "audio" | "video-frame"; mimeType: string; name: string; dataUrl: string };
 
 const SYSTEM = `Você é o Amigo IA, assistente de acolhimento emocional do Desabafo Amigo. Você é uma inteligência artificial — nunca finja ser psicólogo, terapeuta, médico ou ser humano. Seu papel é oferecer escuta acolhedora e apoio emocional inicial, não realizar atendimento clínico.
 
@@ -42,19 +43,57 @@ async function callNvidia(messages: unknown[]): Promise<string> {
 
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { messages: Msg[] }) => ({
-    messages: (Array.isArray(d?.messages) ? d.messages : [])
-      .slice(-12)
-      .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) })),
-  }))
+  .inputValidator((d: { messages: Msg[]; attachments?: AiAttachment[] }) => {
+    const attachments = Array.isArray(d?.attachments) ? d.attachments.slice(0, 5) : [];
+    for (const a of attachments) {
+      if (!["image", "audio", "video-frame"].includes(a.kind) || typeof a.dataUrl !== "string" ||
+          !/^data:(image\\/(jpeg|png|webp)|audio\\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(a.dataUrl) ||
+          a.dataUrl.length > 8_000_000) throw new Error("Anexo inválido ou muito grande.");
+    }
+    return {
+      messages: (Array.isArray(d?.messages) ? d.messages : [])
+        .slice(-12)
+        .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+        .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) })),
+      attachments,
+    };
+  })
   .handler(async ({ data }) => {
     const last = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
     if (!last.trim()) throw new Error("Mensagem vazia");
-    const messages = [{ role: "system", content: SYSTEM }, ...data.messages];
+    let mediaContext = "";
+    if (data.attachments.length) {
+      const { transcribeAudio } = await import("./ai-gateway.server");
+      const transcripts: string[] = [];
+      for (const attachment of data.attachments) {
+        if (attachment.kind !== "audio") continue;
+        const [meta, encoded] = attachment.dataUrl.split(",", 2);
+        const mime = meta.match(/^data:([^;]+)/)?.[1] ?? attachment.mimeType;
+        const bytes = Buffer.from(encoded, "base64");
+        const result = await transcribeAudio(new Blob([bytes], { type: mime }), attachment.name || "audio.webm");
+        if (result.text.trim()) transcripts.push(result.text.trim());
+      }
+      if (transcripts.length) mediaContext = "\\n\\nTranscrição dos áudios enviados pela pessoa (trate como relato do usuário): " + transcripts.join(" | ");
+    }
+    const lastWithMedia = last + mediaContext;
+    const userContent = data.attachments.some((a) => a.kind !== "audio")
+      ? [
+          { type: "text", text: lastWithMedia || "A pessoa enviou mídia sem texto. Descreva com cuidado apenas o que for observável e pergunte como isso se relaciona ao que ela está vivendo." },
+          ...data.attachments.filter((a) => a.kind !== "audio").map((a) => ({ type: "image_url", image_url: { url: a.dataUrl } })),
+        ]
+      : lastWithMedia;
+    const messages = [{ role: "system", content: SYSTEM }, ...data.messages.slice(0, -1), { role: "user", content: userContent }];
     let raw = "";
     let provider: "nvidia" | "lovable" | "none" = "none";
-    try { raw = await callNvidia(messages); provider = "nvidia"; }
+    try {
+      if (data.attachments.length) {
+        const { chatCompletion } = await import("./ai-gateway.server");
+        raw = await chatCompletion({ model: "google/gemini-3-flash-preview", messages, temperature: 0.5, max_tokens: 600 });
+        provider = "lovable";
+      } else {
+        raw = await callNvidia(messages); provider = "nvidia";
+      }
+    }
     catch (e) {
       console.error("[aiChat] nvidia falhou", e instanceof Error ? e.message : e);
       try {
@@ -64,6 +103,6 @@ export const aiChat = createServerFn({ method: "POST" })
       } catch (e2) { console.error("[aiChat] gateway falhou", e2 instanceof Error ? e2.message : e2); }
     }
     const parsed = raw ? parseAiJson(raw) : null;
-    const risk = assessRisk(last, parsed?.severity ?? null);
+    const risk = assessRisk(lastWithMedia, parsed?.severity ?? null);
     return { reply: parsed?.reply ?? FALLBACK_REPLY, risk, provider, degraded: !parsed };
   });
