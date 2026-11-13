@@ -29,7 +29,7 @@ const GREETING: M = { role: "assistant", content: "Oi. Eu sou o Amigo IA, uma in
 async function toDataUrl(file: File): Promise<string> {
   return await new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Falha ao ler arquivo."));
+    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result.replace(/^data:[^;]+;/, `data:${file.type.split(";")[0]};`)) : reject(new Error("Falha ao ler arquivo."));
     reader.onerror = () => reject(new Error("Falha ao ler arquivo."));
     reader.readAsDataURL(file);
   });
