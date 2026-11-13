@@ -283,8 +283,8 @@ function Consulta() {
         }).then(() => {}, () => {});
       }}
     >
-    <div className="flex h-[calc(100dvh-3.5rem)] flex-col md:h-dvh">
-      <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 sm:px-4">
         <div className="flex items-center gap-3">
           <Link to={isPro ? "/pro" : "/consultas"} aria-label="Voltar" className="rounded-full p-2 text-muted-foreground hover:bg-muted">
             <ArrowLeft className="size-5" />
@@ -309,19 +309,19 @@ function Consulta() {
       )}
 
       {isPro && peerSummary && (peerSummary.summary || peerSummary.technical_details) && (
-        <div className="border-b border-border bg-brand-soft/40 px-4 py-2 text-xs text-foreground">
+        <div className="min-w-0 shrink-0 break-words border-b border-border bg-brand-soft/40 px-4 py-2 text-xs text-foreground">
           <p className="font-semibold text-primary">🌱 Retornante · {peerSummary.sessions_count} conversa(s) anterior(es)</p>
           {peerSummary.summary && <p className="mt-1">{peerSummary.summary}</p>}
           {peerSummary.technical_details && <details className="mt-1"><summary className="cursor-pointer text-muted-foreground">Detalhes técnicos</summary><pre className="mt-1 whitespace-pre-wrap font-sans text-[11px] text-muted-foreground">{peerSummary.technical_details}</pre></details>}
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden">
-        <section className="flex flex-1 flex-col">
-          <div className="relative flex-1 overflow-y-auto">
+      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
             <Watermark />
             <IdentityWatermark label={myAlias} sessionHash={me ? forensicHash : undefined} />
-            <div className="relative z-10 space-y-2 px-4 py-4">
+            <div className="relative z-10 min-w-0 space-y-2 px-3 py-4 sm:px-4">
             {messages.length === 0 && (
               <p className="mx-auto max-w-md rounded-2xl bg-brand-soft px-4 py-3 text-center text-sm text-muted-foreground">
                 Você está em um espaço seguro de escuta acolhedora. Escreva no seu tempo.
@@ -344,7 +344,7 @@ function Consulta() {
               langsAvailable.forEach((l) => { if (isCaptionVisible(m.id, l)) visibleLangs.add(l); });
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[78%] rounded-2xl px-4 py-2 text-sm ${mine ? "bg-chat-user text-chat-user-foreground rounded-br-sm" : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"}`}>
+                  <div className={`min-w-0 max-w-[88%] break-words [overflow-wrap:anywhere] rounded-2xl px-3 py-2 text-sm sm:px-4 ${mine ? "bg-chat-user text-chat-user-foreground rounded-br-sm" : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"}`}>
                     {m.content && <p className="whitespace-pre-wrap break-words">{m.content}</p>}
                     {att && !isAudioAtt && <AttachmentView att={att} url={urls[att.id]} />}
                     {isAudioAtt && urls[att.id] && (
@@ -435,8 +435,8 @@ function Consulta() {
           </div>
 
           {appt.status !== "completed" && appt.status !== "cancelled" ? (
-            <form onSubmit={(e) => { e.preventDefault(); send(); }} className="border-t border-border bg-card px-3 py-3">
-              <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+            <form onSubmit={(e) => { e.preventDefault(); send(); }} className="shrink-0 border-t border-border bg-card px-2 py-3 sm:px-3">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
                 <div className="flex items-center gap-2">
                   {isPro && <QuickTemplates onPick={(t) => setDraft((d) => (d ? d + " " : "") + t)} />}
                   <span className="hidden text-[10px] text-muted-foreground/80 sm:inline">
@@ -456,7 +456,7 @@ function Consulta() {
                 </div>
               )}
 
-              <div className="flex items-end gap-2">
+              <div className="flex min-w-0 items-end gap-1.5 sm:gap-2">
                 <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*,video/*" />
                 <button type="button" onClick={() => fileRef.current?.click()} aria-label="Anexar" className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground hover:bg-muted">
                   <Paperclip className="size-5" />
@@ -469,7 +469,7 @@ function Consulta() {
                   onBlur={() => notifyTyping(false)}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); notifyTyping(false); send(); } }}
                   rows={1} maxLength={2000} placeholder="Escreva sua mensagem..."
-                  className="max-h-40 min-h-11 flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-primary" />
+                  className="max-h-40 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-primary" />
                 <button type="submit" disabled={!draft.trim() || sending} aria-label="Enviar"
                   className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50">
                   <Send className="size-5" />
@@ -510,9 +510,9 @@ function Consulta() {
 }
 
 function AttachmentView({ att, url }: { att: Attachment; url?: string }) {
-  if (att.kind === "image") return url ? <a href={url} target="_blank" rel="noreferrer"><img src={url} alt={att.original_name ?? ""} className="mt-1 max-h-64 rounded-lg" /></a> : <span>Carregando...</span>;
-  if (att.kind === "video") return url ? <video controls src={url} className="mt-1 max-h-64 rounded-lg" /> : <span>Carregando...</span>;
-  if (att.kind === "audio") return url ? <audio controls src={url} className="mt-1 max-w-[240px]" /> : <span>Carregando...</span>;
+  if (att.kind === "image") return url ? <a href={url} target="_blank" rel="noreferrer"><img src={url} alt={att.original_name ?? ""} className="mt-1 block h-auto max-h-64 max-w-full rounded-lg object-contain" /></a> : <span>Carregando...</span>;
+  if (att.kind === "video") return url ? <video controls src={url} className="mt-1 block h-auto max-h-64 max-w-full rounded-lg" /> : <span>Carregando...</span>;
+  if (att.kind === "audio") return url ? <audio controls src={url} className="mt-1 block w-full max-w-full" /> : <span>Carregando...</span>;
   const Icon = att.kind === "pdf" ? FileText : att.mime_type.startsWith("image/") ? ImageIcon : Music;
   return (
     <a href={url} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-2 rounded-lg bg-background/40 px-3 py-2 text-xs">
