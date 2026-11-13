@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { detectRisk } from "./riskWords";
 
 export type Segment = { start: number; end: number; text: string };
 
@@ -10,27 +11,36 @@ export const classifyRisk = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const text = (data.text ?? "").slice(0, 2000).trim();
     if (!text) return { severity: 0, reason: "", suggestion: "" };
-    const { chatCompletion } = await import("./ai-gateway.server");
-    const raw = await chatCompletion({
-      model: "google/gemini-3-flash-preview",
-      messages: [
-        {
-          role: "system",
-          content: `Você é um classificador de risco emocional para mensagens em português. Retorne APENAS JSON: {"severity": 0-3, "reason": "curta", "suggestion": "resposta acolhedora curta ao usuário se severity>=2"}. Níveis: 0 = sem risco, 1 = sofrimento leve, 2 = sofrimento grave (menções indiretas de morte, desesperança forte), 3 = risco iminente (ideação/plano suicida, autolesão iminente). Seja conservador — na dúvida entre 1 e 2, escolha 2.`,
-        },
-        { role: "user", content: text },
-      ],
-      response_format: { type: "json_object" },
-    });
+
+    const localRisk = detectRisk(text);
     try {
-      const j = JSON.parse(raw) as { severity?: number; reason?: string; suggestion?: string };
+      const { chatCompletion } = await import("./ai-gateway.server");
+      const raw = await chatCompletion({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          {
+            role: "system",
+            content: `Você é um classificador de risco emocional para mensagens em português. Retorne APENAS JSON: {"severity": 0-3, "reason": "curta", "suggestion": "resposta acolhedora curta ao usuário se severity>=2"}. Níveis: 0 = sem risco, 1 = sofrimento leve, 2 = sofrimento grave (menções indiretas de morte, desesperança forte), 3 = risco iminente (ideação/plano suicida, autolesão iminente). Seja conservador — na dúvida entre 1 e 2, escolha 2.`,
+          },
+          { role: "user", content: text },
+        ],
+        response_format: { type: "json_object" },
+      });
+      const j = JSON.parse(raw) as { severity?: unknown; reason?: unknown; suggestion?: unknown };
+      const severity = Number(j.severity);
+      if (!Number.isFinite(severity) || severity < 0 || severity > 3) throw new Error("Resposta de risco inválida");
       return {
-        severity: Math.max(0, Math.min(3, Number(j.severity ?? 0))),
-        reason: (j.reason ?? "").slice(0, 200),
-        suggestion: (j.suggestion ?? "").slice(0, 500),
+        severity: Math.max(localRisk ? 2 : 0, Math.min(3, Math.round(severity))),
+        reason: typeof j.reason === "string" ? j.reason.slice(0, 200) : "",
+        suggestion: typeof j.suggestion === "string" ? j.suggestion.slice(0, 500) : "",
       };
-    } catch {
-      return { severity: 0, reason: "", suggestion: "" };
+    } catch (error) {
+      console.error("[classifyRisk] avaliação indisponível; aplicando contingência segura", error);
+      return {
+        severity: localRisk ? 3 : 2,
+        reason: "Avaliação automática indisponível; encaminhar para acolhimento humano.",
+        suggestion: "Não estou conseguindo avaliar isso com segurança agora. Posso te conectar a uma pessoa voluntária para conversar?",
+      };
     }
   });
 
@@ -113,37 +123,58 @@ export const suggestReplies = createServerFn({ method: "POST" })
 type TriageTurn = { role: "user" | "assistant"; content: string };
 export const triageStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { history: TriageTurn[] }) => d)
+  .inputValidator((d: { history: TriageTurn[] }) => ({
+    history: (Array.isArray(d?.history) ? d.history : [])
+      .slice(-10)
+      .filter((h) => (h.role === "user" || h.role === "assistant") && typeof h.content === "string")
+      .map((h) => ({ role: h.role, content: h.content.slice(0, 1000) })),
+  }))
   .handler(async ({ data }) => {
-    const history = Array.isArray(data.history) ? data.history.slice(-10) : [];
-    const { chatCompletion } = await import("./ai-gateway.server");
-    const raw = await chatCompletion({
-      model: "google/gemini-3-flash-preview",
-      messages: [
-        {
-          role: "system",
-          content: `Você é um assistente de triagem acolhedora do Desabafo Amigo. Objetivo: em NO MÁXIMO 4 turnos, entender o que a pessoa gostaria de conversar e o nível de urgência, para preparar a fila.
+    const history = data.history;
+    const userText = history.filter((h) => h.role === "user").map((h) => h.content).join("\\n");
+    const localRisk = detectRisk(userText);
+    const safeFallback = {
+      reply: localRisk
+        ? "Quero levar o que você contou a sério. Vou priorizar o contato com uma pessoa voluntária. Se houver perigo imediato, procure alguém de confiança que esteja perto e ligue 192 (SAMU). O CVV atende gratuitamente pelo 188."
+        : "Estou com uma dificuldade técnica para concluir a triagem. Para não deixar você sem apoio, podemos seguir para o acolhimento humano.",
+      done: true,
+      topic: localRisk
+        ? "A pessoa demonstrou sofrimento intenso e precisa de acolhimento humano prioritário."
+        : "A triagem automática ficou indisponível; oferecer acolhimento humano.",
+      urgency: localRisk ? "high" as const : "medium" as const,
+    };
+
+    try {
+      const { chatCompletion } = await import("./ai-gateway.server");
+      const raw = await chatCompletion({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          {
+            role: "system",
+            content: `Você é um assistente de triagem acolhedora do Desabafo Amigo. Objetivo: em NO MÁXIMO 4 turnos, entender o que a pessoa gostaria de conversar e o nível de urgência, para preparar a fila.
 Regras:
 - Tom quente, curto, sem clichês, sem dar diagnóstico ou conselho clínico.
 - Uma pergunta por vez. Nunca peça dados pessoais (nome, cidade, telefone, e-mail).
-- Se detectar risco alto (ideação suicida, autolesão iminente), NÃO faça mais perguntas: peça permissão para conectar já e sugira o CVV 188.
+- Se detectar risco alto (ideação suicida, autolesão iminente), NÃO faça mais perguntas: peça permissão para conectar já e sugira o CVV 188 e SAMU 192.
 - Ao decidir que já entendeu, defina done=true e escreva um "topic" resumido (máx 200 caracteres, 1ª pessoa) que aparecerá na fila para o(a) voluntário(a).
 Responda SEMPRE JSON: {"reply":"...","done":boolean,"topic":"...opcional...","urgency":"low|medium|high"}.`,
-        },
-        ...history.map((h) => ({ role: h.role, content: h.content })),
-      ],
-      response_format: { type: "json_object" },
-    });
-    try {
-      const j = JSON.parse(raw) as { reply?: string; done?: boolean; topic?: string; urgency?: string };
+          },
+          ...history.map((h) => ({ role: h.role, content: h.content })),
+        ],
+        response_format: { type: "json_object" },
+      });
+      const j = JSON.parse(raw) as { reply?: unknown; done?: unknown; topic?: unknown; urgency?: unknown };
+      if (typeof j.reply !== "string" || !j.reply.trim()) throw new Error("Resposta de triagem inválida");
+      const urgency = j.urgency === "high" || j.urgency === "medium" ? j.urgency : "low";
       return {
-        reply: (j.reply ?? "").slice(0, 600),
-        done: Boolean(j.done),
-        topic: (j.topic ?? "").slice(0, 200),
-        urgency: (j.urgency === "high" || j.urgency === "medium" ? j.urgency : "low") as "low" | "medium" | "high",
+        reply: j.reply.slice(0, 600),
+        done: Boolean(j.done) || localRisk,
+        topic: (typeof j.topic === "string" ? j.topic : safeFallback.topic).slice(0, 200),
+        urgency: localRisk ? "high" as const : urgency,
       };
-    } catch {
-      return { reply: "Pode me contar um pouquinho mais sobre o que está sentindo?", done: false, topic: "", urgency: "low" as const };
+    } catch (error) {
+      console.error("[triageStep] triagem indisponível; encaminhando para acolhimento humano", error);
+      return safeFallback;
     }
   });
 
