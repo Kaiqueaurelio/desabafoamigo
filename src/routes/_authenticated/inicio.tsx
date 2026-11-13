@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, Users, NotebookPen, BookOpen, Flame, Volume2, Loader2, ChevronDown } from "lucide-react";
+import { CalendarClock, Users, NotebookPen, BookOpen, Flame, Volume2, Loader2, ChevronDown, Bot, HeartHandshake, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { avatarUrl } from "@/lib/avatar";
@@ -134,6 +134,35 @@ function Home() {
         </div>
       </section>
 
+      <section className="mt-6" aria-labelledby="choose-conversation">
+        <div className="mb-3">
+          <h2 id="choose-conversation" className="text-lg font-bold text-primary sm:text-xl">Como você gostaria de conversar?</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Escolha o tipo de acolhimento que combina com seu momento.</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link to="/ia" className="group interactive relative overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-br from-brand-soft via-card to-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md sm:p-6">
+            <div aria-hidden className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full bg-brand-sky/20 blur-2xl transition group-hover:scale-125" />
+            <div className="relative flex items-start justify-between gap-3">
+              <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary"><Bot className="size-6" /></span>
+              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">IA</span>
+            </div>
+            <h3 className="relative mt-4 text-base font-bold text-foreground">Conversar com o Amigo IA</h3>
+            <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">Desabafe com uma inteligência artificial de apoio, no seu ritmo.</p>
+            <span className="relative mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary">Começar conversa <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" /></span>
+          </Link>
+          <Link to="/conversar" className="group interactive relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md sm:p-6">
+            <div aria-hidden className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full bg-brand-green/15 blur-2xl transition group-hover:scale-125" />
+            <div className="relative flex items-start justify-between gap-3">
+              <span className="grid size-12 place-items-center rounded-2xl bg-brand-soft text-primary"><HeartHandshake className="size-6" /></span>
+              <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">Humano</span>
+            </div>
+            <h3 className="relative mt-4 text-base font-bold text-foreground">Conversar com voluntário</h3>
+            <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">Peça para conversar com uma pessoa treinada em escuta acolhedora.</p>
+            <span className="relative mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary">Encontrar acolhimento <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" /></span>
+          </Link>
+        </div>
+      </section>
+
       {/* Wellbeing band */}
       <section className="mt-6 grid gap-4 md:grid-cols-2">
         {me && <MoodCheckIn userId={me} />}
@@ -147,10 +176,10 @@ function Home() {
       {/* Quick actions */}
       <section className="mt-8">
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Atalhos rápidos</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Explore seu espaço</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <QuickCard to="/conversar" icon={<Users className="size-5" />} title="Conversar agora" desc="Fila rápida com voluntário(a)" tone="primary" />
+          <QuickCard to="/ia" icon={<Bot className="size-5" />} title="Amigo IA" desc="Converse com a inteligência artificial" tone="primary" />
           <QuickCard to="/consultas" icon={<CalendarClock className="size-5" />} title="Minhas conversas" desc="Histórico" />
           <QuickCard to="/diario" icon={<NotebookPen className="size-5" />} title="Meu diário" desc="Registre como se sente" />
           <QuickCard to="/relaxar" icon={<Volume2 className="size-5" />} title="Relaxar" desc="Áudios, frases e imagens" />
