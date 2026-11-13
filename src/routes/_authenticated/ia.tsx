@@ -4,7 +4,7 @@ import type { ChangeEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone, Paperclip, Image as ImageIcon, FileAudio, FileVideo } from "lucide-react";
+import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone, Paperclip, Image as ImageIcon, FileAudio, FileVideo, Mic, StopCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { aiChat } from "@/lib/aiChat.functions";
@@ -73,8 +73,17 @@ function Page() {
   const [handoffError, setHandoffError] = useState("");
   const end = useRef<HTMLDivElement>(null);
   const mediaInput = useRef<HTMLInputElement>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const recordingStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [recording, setRecording] = useState(false);
   const [media, setMedia] = useState<PendingMedia[]>([]);
   const [mediaError, setMediaError] = useState("");
+
+  useEffect(() => () => {
+    recorderRef.current?.stop();
+    recordingStreamRef.current?.getTracks().forEach((track) => track.stop());
+  }, []);
 
   useEffect(() => {
     const p = loadPrefs(); setPrefs(p);
@@ -147,8 +156,7 @@ function Page() {
     if (prefs?.keepAiHistory && prefs.retentionDays) localStorage.setItem(AI_HISTORY_KEY, JSON.stringify({ at: Date.now(), msgs }));
   }, [msgs, prefs]);
 
-  function pickMedia(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []); event.target.value = "";
+  function addMediaFiles(files: File[]) {
     for (const file of files) {
       const kind = file.type.startsWith("image/") ? "image" : file.type.startsWith("audio/") ? "audio" : file.type.startsWith("video/") ? "video" : null;
       if (!kind) { setMediaError("Envie uma imagem, áudio ou vídeo."); continue; }
@@ -156,6 +164,50 @@ function Page() {
       if (file.size > limit * 1024 * 1024) { setMediaError(`O arquivo excede o limite de ${limit} MB.`); continue; }
       setMedia((current) => current.length >= 3 ? current : [...current, { file, kind }]);
       setMediaError("");
+    }
+  }
+
+  function pickMedia(event: ChangeEvent<HTMLInputElement>) {
+    addMediaFiles(Array.from(event.target.files ?? []));
+    event.target.value = "";
+  }
+
+  async function toggleAudioRecording() {
+    if (recording) {
+      recorderRef.current?.stop();
+      setRecording(false);
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setMediaError("A gravação de áudio não está disponível neste navegador. Você pode anexar um arquivo de áudio.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordingStreamRef.current = stream;
+      audioChunksRef.current = [];
+      const mimeType = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm"].find((type) => MediaRecorder.isTypeSupported(type));
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      recorder.ondataavailable = (event) => { if (event.data.size) audioChunksRef.current.push(event.data); };
+      recorder.onerror = () => setMediaError("Não foi possível gravar o áudio. Tente anexar um arquivo.");
+      recorder.onstop = () => {
+        stream.getTracks().forEach((track) => track.stop());
+        recordingStreamRef.current = null;
+        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        if (blob.size) {
+          const extension = blob.type.includes("mp4") ? "m4a" : "webm";
+          addMediaFiles([new File([blob], `gravacao-${Date.now()}.${extension}`, { type: blob.type })]);
+        }
+        recorderRef.current = null;
+      };
+      recorder.start();
+      recorderRef.current = recorder;
+      setRecording(true);
+      setMediaError("");
+    } catch {
+      recordingStreamRef.current?.getTracks().forEach((track) => track.stop());
+      recordingStreamRef.current = null;
+      setMediaError("Não foi possível acessar o microfone. Verifique a permissão do navegador.");
     }
   }
   async function submit() {
@@ -256,13 +308,17 @@ function Page() {
         <Button size="sm" variant="ghost" onClick={endSession}><X className="mr-1 h-4 w-4" />Encerrar conversa</Button>
       </div>
       {mediaError && <p className="text-xs text-destructive" role="alert">{mediaError}</p>}
-      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex min-w-0 max-w-full items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
+      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => {
+        const MediaIcon = item.kind === "image" ? ImageIcon : item.kind === "audio" ? FileAudio : FileVideo;
+        return <div key={`${item.file.name}-${index}`} className="flex min-w-0 max-w-full items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><MediaIcon className="h-4 w-4 shrink-0 text-muted-foreground" /><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>;
+      })}</div>}
       <form className="flex min-w-0 items-end gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <input ref={mediaInput} type="file" accept="image/jpeg,image/png,image/webp,audio/*,video/*" multiple className="hidden" onChange={pickMedia} />
-        <Button type="button" size="icon" variant="outline" className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto, áudio ou vídeo"><Paperclip className="h-4 w-4" /></Button>
+        <Button type="button" size="icon" variant="outline" className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3 || recording} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto ou arquivo de áudio"><Paperclip className="h-4 w-4" /></Button>
+        <Button type="button" size="icon" variant={recording ? "destructive" : "outline"} className="h-11 w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => void toggleAudioRecording()} aria-label={recording ? "Parar gravação de áudio" : "Gravar áudio"}>{recording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}</Button>
         <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={2000} placeholder="Escreva o que está sentindo…" aria-label="Mensagem"
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="w-0 min-w-0 flex-1 resize-none" />
-        <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={busy || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
+        <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={busy || recording || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
       </form>
     </div>
   );
