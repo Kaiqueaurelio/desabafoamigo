@@ -20,14 +20,14 @@ export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
 }
 
 /** Lê a resposta JSON do modelo de forma defensiva. */
-export function parseAiJson(raw: string): { reply: string; severity: number } | null {
+export function parseAiJson(raw: string): { reply: string; severity: number; memorySummary: string | null } | null {
   try {
     const m = raw.match(/\{[\s\S]*\}/);
     if (!m) return null;
-    const j = JSON.parse(m[0]) as { reply?: unknown; severity?: unknown };
+    const j = JSON.parse(m[0]) as { reply?: unknown; severity?: unknown; memorySummary?: unknown };
     const sev = Number(j.severity);
     if (typeof j.reply !== "string" || !j.reply.trim() || !Number.isFinite(sev)) return null;
-    return { reply: j.reply.trim().slice(0, 2000), severity: Math.max(0, Math.min(3, Math.round(sev))) };
+    return { reply: j.reply.trim().slice(0, 2000), severity: Math.max(0, Math.min(3, Math.round(sev))), memorySummary: typeof j.memorySummary === "string" && j.memorySummary.trim() ? j.memorySummary.trim().slice(0, 1500) : null };
   } catch { return null; }
 }
 
