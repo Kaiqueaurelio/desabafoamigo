@@ -103,25 +103,6 @@ function Reveal({
   );
 }
 
-/** Counter que anima de 0 até `target` quando entra em vista. */
-function CountUp({ target, suffix = "", duration = 1400 }: { target: number; suffix?: string; duration?: number }) {
-  const { ref, visible } = useReveal<HTMLSpanElement>();
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (!visible) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { setN(target); return; }
-    const start = performance.now();
-    let raf = 0;
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / duration);
-      setN(Math.round(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [visible, target, duration]);
-  return <span ref={ref}>{n.toLocaleString("pt-BR")}{suffix}</span>;
-}
 
 function Landing() {
   useSmoothAnchors();
@@ -384,59 +365,6 @@ function Hero() {
 }
 
 
-
-function Impact() {
-  const stats = [
-    { n: 1284, s: "+", label: "Conversas acolhidas" },
-    { n: 320, s: "+", label: "Voluntários treinados" },
-    { n: 97, s: "%", label: "Se sentiram ouvidos" },
-    { n: 24, s: "/7", label: "Sempre disponível" },
-  ];
-  return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.7, ease: [0.22, 0.9, 0.28, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-border bg-card/60 p-6 backdrop-blur"
-      >
-        {/* Aurora shimmer atrás dos números */}
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute -inset-1 -z-0 bg-[radial-gradient(circle_at_20%_30%,hsl(var(--brand-green)/0.18),transparent_45%),radial-gradient(circle_at_80%_70%,hsl(var(--brand-sky)/0.18),transparent_45%)]"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <MotionStagger className="relative grid gap-4 sm:grid-cols-2 md:grid-cols-4" stagger={0.15} delayChildren={0.1}>
-          {stats.map((s, i) => (
-            <MotionItem key={i} className="group text-center" y={20}>
-              <motion.p
-                whileHover={{ scale: 1.08 }}
-                transition={{ type: "spring", stiffness: 260, damping: 14 }}
-                className="bg-gradient-to-br from-brand-green to-brand-sky bg-clip-text text-4xl font-bold text-transparent md:text-5xl"
-                style={{ backgroundSize: "200% 200%" }}
-              >
-                <CountUp target={s.n} suffix={s.s} />
-              </motion.p>
-              <motion.span
-                aria-hidden
-                className="mx-auto mt-2 block h-[2px] w-8 rounded-full bg-gradient-to-r from-brand-green to-brand-sky"
-                initial={{ scaleX: 0 }}
-                whileInView={{ scaleX: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 + i * 0.15, duration: 0.6, ease: "easeOut" }}
-              />
-              <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground transition-colors group-hover:text-foreground">
-                {s.label}
-              </p>
-            </MotionItem>
-          ))}
-        </MotionStagger>
-      </motion.div>
-    </section>
-  );
-}
 
 function Origin() {
   return (
