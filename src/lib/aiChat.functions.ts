@@ -121,23 +121,13 @@ export const aiChat = createServerFn({ method: "POST" })
     const memoryMessage = savedMemory ? { role: "system", content: "Contexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: " + savedMemory } : null;
     const messages = [{ role: "system", content: SYSTEM }, ...(memoryMessage ? [memoryMessage] : []), ...data.messages.slice(0, -1), { role: "user", content: userContent }];
     let raw = "";
-    let provider: "nvidia" | "lovable" | "none" = "none";
+    let provider: "nvidia" | "none" = "none";
     try {
-      if (data.attachments.length) {
-        const { chatCompletion } = await import("./ai-gateway.server");
-        raw = await chatCompletion({ model: "google/gemini-3-flash-preview", messages, temperature: 0.35, max_tokens: 480 });
-        provider = "lovable";
-      } else {
-        raw = await callNvidia(messages); provider = "nvidia";
-      }
-    }
-    catch (e) {
-      console.error("[aiChat] nvidia falhou", e instanceof Error ? e.message : e);
-      try {
-        const { chatCompletion } = await import("./ai-gateway.server");
-        raw = await chatCompletion({ model: "google/gemini-3-flash-preview", messages, temperature: 0.35, max_tokens: 480 });
-        provider = "lovable";
-      } catch (e2) { console.error("[aiChat] gateway falhou", e2 instanceof Error ? e2.message : e2); }
+      const { chatCompletion } = await import("./ai-gateway.server");
+      raw = await chatCompletion({ messages, temperature: 0.35, top_p: 0.85, max_tokens: 480 });
+      provider = "nvidia";
+    } catch (error) {
+      console.error("[aiChat] NVIDIA NIM indisponível", error instanceof Error ? error.message : error);
     }
     const parsed = raw ? parseAiJson(raw) : null;
     const riskContext = data.messages.filter((message) => message.role === "user").map((message) => message.content).join("\n") + (mediaContext ? "\n" + mediaContext : "");
