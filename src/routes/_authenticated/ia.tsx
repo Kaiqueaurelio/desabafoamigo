@@ -11,6 +11,7 @@ import { aiChat } from "@/lib/aiChat.functions";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
 import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs";
 import { assessRisk, type RiskLevel } from "@/lib/aiSafety";
+import { EmergencyButton } from "@/components/EmergencyButton";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({ meta: [
@@ -260,10 +261,13 @@ function Page() {
 
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-3xl min-w-0 flex-col gap-3 overflow-hidden p-3 sm:p-5">
-      <div className="grid shrink-0 grid-cols-3 gap-2">
+      <div className="flex shrink-0 items-center justify-between gap-2">
+        <div className="grid min-w-0 flex-1 grid-cols-3 gap-2">
         <ModeCard icon={Bot} label="Amigo IA" active />
         <ModeCard icon={HeartHandshake} label="Voluntário" to="/conversar" />
         <ModeCard icon={Stethoscope} label="Profissional" to="/apoio" />
+        </div>
+        <EmergencyButton inline />
       </div>
       <p className="shrink-0 break-words rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">O Amigo IA é uma <strong>inteligência artificial de apoio emocional — não é psicólogo, não possui registro profissional e não realiza psicoterapia</strong>. Usa princípios de comunicação inspirados na Psicanálise, TCC e Terapia Cognitiva Analítica para ajudar você a refletir. Não faz diagnóstico nem substitui atendimento profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
 
