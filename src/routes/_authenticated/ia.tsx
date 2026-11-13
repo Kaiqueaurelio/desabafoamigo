@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { aiChat } from "@/lib/aiChat.functions";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
 import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs";
-import type { RiskLevel } from "@/lib/aiSafety";
+import { assessRisk, type RiskLevel } from "@/lib/aiSafety";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({ meta: [
@@ -163,6 +163,9 @@ function Page() {
     const selected = media;
     const labels = selected.map((item) => `[Anexo: ${item.file.name}]`).join(" ");
     const next = [...msgs, { role: "user" as const, content: [t, labels].filter(Boolean).join("\n") }];
+    const localRisk = assessRisk(next.filter((message) => message.role === "user").map((message) => message.content).join("\n"), 0);
+    if (localRisk.level !== "none") setRisk((current) => current === "urgent" ? current : localRisk.level);
+    if (localRisk.offerHuman) setOfferHuman(true);
     setMsgs(next); setText(""); setMedia([]); setBusy(true);
     try {
       const attachments: { kind: "image" | "audio" | "video-frame"; mimeType: string; name: string; dataUrl: string }[] = [];
@@ -182,7 +185,7 @@ function Page() {
       if (r.risk.offerHuman) setOfferHuman(true);
     } catch (error) {
       setMsgs([...next, { role: "assistant", content: error instanceof Error ? error.message : "Não consegui processar sua mensagem agora. Você pode tentar novamente ou falar com um voluntário." }]);
-      setDegraded(true); setOfferHuman(true); setRisk((current) => current === "none" ? "attention" : current);
+      setDegraded(true); setOfferHuman(true); setRisk((current) => current === "urgent" ? current : localRisk.level !== "none" ? localRisk.level : "attention");
     } finally { setBusy(false); }
   }
   function endSession() { setMsgs([GREETING]); setRisk("none"); setOfferHuman(false); setMedia([]); localStorage.removeItem(AI_HISTORY_KEY); }
