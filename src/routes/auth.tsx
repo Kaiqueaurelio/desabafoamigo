@@ -46,6 +46,8 @@ function AuthPage() {
     if (typeof window === "undefined") return;
     const saved = decodeRemember(window.localStorage.getItem(REMEMBER_KEY));
     if (saved?.email) {
+      // Remove any legacy stored password from older app versions.
+      window.localStorage.setItem(REMEMBER_KEY, encodeRemember({ email: saved.email }));
       setEmail(saved.email);
       setMode("signin");
       setRemember(true);
