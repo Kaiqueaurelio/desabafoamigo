@@ -229,7 +229,7 @@ function AdminDashboard() {
               Nenhum voluntário nesta categoria.
             </p>
           ) : (
-            <div className="w-full max-w-full overflow-x-auto">
+            <div role="region" aria-label="Tabela de inscrições. Deslize horizontalmente para ver todas as colunas." tabIndex={0} className="w-full max-w-full touch-pan-x overscroll-x-contain overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <table className="min-w-[720px] text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
