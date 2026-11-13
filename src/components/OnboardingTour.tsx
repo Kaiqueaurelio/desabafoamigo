@@ -6,7 +6,7 @@ const KEY = "desabafo:onboarded";
 
 const STEPS = [
   { icon: Heart, title: "Bem-vindo(a) ao Desabafo Amigo", body: "Um espaço acolhedor para você conversar por mensagem com voluntários treinados em escuta." },
-  { icon: Shield, title: "Sua identidade fica protegida", body: "Geramos um apelido e um avatar para você. Ninguém precisa saber quem é a pessoa por trás." },
+  { icon: Shield, title: "Sua identidade fica protegida", body: "Usamos um apelido e um avatar no perfil para evitar expor seu nome. Isso ajuda na privacidade, mas não garante anonimato: evite compartilhar dados que identifiquem você." },
   { icon: MessagesSquare, title: "Comece quando quiser", body: "Toque em 'Conversar agora' para entrar na fila. Se preferir, use nosso assistente de triagem." },
   { icon: Sparkles, title: "Você também tem apoio próprio", body: "Diário emocional, exercícios de respiração e biblioteca de apoio estão em Início." },
 ];
