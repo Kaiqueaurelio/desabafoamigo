@@ -228,11 +228,13 @@ function Page() {
       <AnimatePresence>{(risk !== "none" || offerHuman) && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert"
           className={`rounded-lg border p-3 text-sm ${risk === "urgent" ? "border-destructive bg-destructive/10" : "border-primary/40 bg-primary/5"}`}>
-          <p className="flex items-center gap-2 font-medium"><ShieldAlert className="h-4 w-4" />{risk === "urgent" ? "Percebi que você pode estar passando por algo muito difícil." : "Uma pessoa pode te acompanhar melhor agora."}</p>
+          <p className="flex items-center gap-2 font-medium"><ShieldAlert className="h-4 w-4" />{risk === "urgent" ? "Sua segurança vem primeiro. Não fique sozinho(a) agora." : "Uma pessoa pode te acompanhar melhor agora."}</p>
+          <p className="mt-2 text-sm">Se você pensa em agir agora, já começou a se machucar ou tomou alguma substância, ligue para o SAMU 192 imediatamente. Se houver perigo imediato ou violência, ligue 190. O CVV 188 oferece apoio emocional gratuito, 24 horas. Peça também a alguém de confiança para ficar com você presencialmente.</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <Button size="sm" asChild><Link to="/conversar">Falar com voluntário (prioritário)</Link></Button>
             <Button size="sm" variant="outline" asChild><a href="tel:188"><Phone className="mr-1 h-4 w-4" />CVV 188</a></Button>
             <Button size="sm" variant="outline" asChild><a href="tel:192">SAMU 192</a></Button>
+            {risk === "urgent" && <Button size="sm" variant="outline" asChild><a href="tel:190">Polícia 190</a></Button>}
           </div>
           {degraded && <p className="mt-2 text-xs text-muted-foreground">A IA está instável no momento, por isso recomendamos o apoio humano.</p>}
         </motion.div>)}</AnimatePresence>
