@@ -1,6 +1,6 @@
-export type PrivacyPrefs = { aiConsent: boolean; keepAiHistory: boolean; retentionDays: 0 | 7 | 30 };
+export type PrivacyPrefs = { aiConsent: boolean; keepAiHistory: boolean; rememberAiContext: boolean; retentionDays: 0 | 7 | 30 };
 const KEY = "da_privacy_prefs";
-export const DEFAULT_PREFS: PrivacyPrefs = { aiConsent: false, keepAiHistory: false, retentionDays: 0 };
+export const DEFAULT_PREFS: PrivacyPrefs = { aiConsent: false, keepAiHistory: false, rememberAiContext: false, retentionDays: 0 };
 export function loadPrefs(): PrivacyPrefs {
   try { return { ...DEFAULT_PREFS, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return DEFAULT_PREFS; }
 }
