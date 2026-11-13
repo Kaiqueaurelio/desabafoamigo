@@ -88,7 +88,7 @@ export function EllaVoiceMode({ open, onOpenChange, consent, messages, onTranscr
               transcriptRef.current += "\n" + transcript;
               setLastText(transcript);
               onTranscript({ role: "user", content: transcript });
-              const risk = assessRisk(transcriptRef.current, null);
+              const risk = assessRisk(transcriptRef.current, 0);
               if (risk.level !== "none") onRisk(risk.level);
             }
           }
