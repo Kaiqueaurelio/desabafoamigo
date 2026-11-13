@@ -41,6 +41,7 @@ jobs:
           NVIDIA_API_KEY_VOICE: ${{ secrets.NVIDIA_API_KEY_VOICE }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          NVIDIA_ASR_HTTP_URL: ${{ secrets.NVIDIA_ASR_HTTP_URL }}
         run: |
           set -euo pipefail
           put_secret() {
@@ -56,6 +57,7 @@ jobs:
           put_secret NVIDIA_API_KEY_VOICE "$NVIDIA_API_KEY_VOICE"
           put_secret SUPABASE_URL "$SUPABASE_URL"
           put_secret SUPABASE_PUBLISHABLE_KEY "$SUPABASE_PUBLISHABLE_KEY"
+          if [ -n "${NVIDIA_ASR_HTTP_URL:-}" ]; then put_secret NVIDIA_ASR_HTTP_URL "$NVIDIA_ASR_HTTP_URL"; fi
 
       - name: Deploy Worker
         run: npx wrangler deploy
