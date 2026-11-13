@@ -285,16 +285,16 @@ function Consulta() {
     >
     <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
       <header className="flex shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-3 py-3 sm:px-4">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <Link to={isPro ? "/pro" : "/consultas"} aria-label="Voltar" className="rounded-full p-2 text-muted-foreground hover:bg-muted">
             <ArrowLeft className="size-5" />
           </Link>
-          <div>
-            <p className="text-sm font-semibold text-foreground">{peer}</p>
-            <p className="text-[11px] text-muted-foreground">{appt.topic} · {new Date(appt.scheduled_at).toLocaleString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-foreground">{peer}</p>
+            <p className="max-w-full truncate text-[11px] text-muted-foreground" title={appt.topic}>{appt.topic} · {new Date(appt.scheduled_at).toLocaleString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           {!isPro && <ReportButton appointmentId={appt.id} reportedUserId={appt.professional_id} />}
           {appt.status !== "completed" && appt.status !== "cancelled" && (
             <button onClick={finish} className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium hover:bg-muted">
@@ -345,7 +345,7 @@ function Consulta() {
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                   <div className={`min-w-0 max-w-[88%] break-words [overflow-wrap:anywhere] rounded-2xl px-3 py-2 text-sm sm:px-4 ${mine ? "bg-chat-user text-chat-user-foreground rounded-br-sm" : "bg-chat-peer text-chat-peer-foreground rounded-bl-sm"}`}>
-                    {m.content && <p className="whitespace-pre-wrap break-words">{m.content}</p>}
+                    {m.content && <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{m.content}</p>}
                     {att && !isAudioAtt && <AttachmentView att={att} url={urls[att.id]} />}
                     {isAudioAtt && urls[att.id] && (
                       <SyncedAudioPlayer
@@ -443,8 +443,8 @@ function Consulta() {
                     Dica: <kbd className="rounded border border-border bg-background px-1">Ctrl</kbd>+<kbd className="rounded border border-border bg-background px-1">H</kbd> ativa a cortina de privacidade
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Languages className="size-3.5" aria-hidden /> Idioma p/ tradução:
+                <div className="flex min-w-0 flex-wrap items-center gap-1">
+                  <Languages className="size-3.5 shrink-0" aria-hidden /> <span>Idioma p/ tradução:</span>
                   <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="max-w-full rounded border border-border bg-background px-1 py-0.5 text-[11px]">
                     {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
                   </select>
