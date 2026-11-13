@@ -73,7 +73,8 @@ function Page() {
   const [handoffError, setHandoffError] = useState("");
   const end = useRef<HTMLDivElement>(null);
   const mediaInput = useRef<HTMLInputElement>(null);
-  const [media, setMedia] = useState<PendingMedia[]>([]);\n  const [mediaError, setMediaError] = useState("");
+  const [media, setMedia] = useState<PendingMedia[]>([]);
+  const [mediaError, setMediaError] = useState("");
 
   useEffect(() => {
     const p = loadPrefs(); setPrefs(p);
@@ -153,7 +154,8 @@ function Page() {
       if (!kind) { setMediaError("Envie uma imagem, áudio ou vídeo."); continue; }
       const limit = kind === "image" ? 5 : kind === "audio" ? 8 : 25;
       if (file.size > limit * 1024 * 1024) { setMediaError(`O arquivo excede o limite de ${limit} MB.`); continue; }
-      setMedia((current) => current.length >= 3 ? current : [...current, { file, kind }]);\n      setMediaError("");
+      setMedia((current) => current.length >= 3 ? current : [...current, { file, kind }]);
+      setMediaError("");
     }
   }
   async function submit() {
@@ -172,7 +174,8 @@ function Page() {
           attachments.push({ kind: item.kind, mimeType: item.file.type, name: item.file.name, dataUrl: await toDataUrl(item.file) });
         }
       }
-      const r = await send({ data: { messages: next.slice(1), attachments } });
+      if (attachments.length > 5) throw new Error("Envie no máximo cinco imagens ou quadros de vídeo por mensagem.");
+      const r = await send({ data: { consent: prefs?.aiConsent === true, messages: next.slice(1), attachments } });
       setMsgs([...next, { role: "assistant", content: r.reply }]);
       setDegraded(r.degraded);
       if (r.risk.level !== "none") setRisk((cur) => (cur === "urgent" ? cur : r.risk.level));
