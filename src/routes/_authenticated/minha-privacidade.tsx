@@ -47,6 +47,8 @@ function Page() {
 
       <Card><CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Lock className="h-5 w-5" />Como seus dados são protegidos</CardTitle></CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
+          <p>• O Amigo IA é uma inteligência artificial de apoio emocional, não é psicólogo, não possui registro profissional e não realiza psicoterapia. Não oferece diagnóstico nem substitui acompanhamento psicológico ou médico.</p>
+          <p>• As respostas podem usar princípios gerais de comunicação inspirados na Psicanálise, na Terapia Cognitivo-Comportamental (TCC) e na Terapia Cognitiva Analítica (TCA). Essas referências não significam que você esteja recebendo uma sessão ou tratamento dessas abordagens.</p>
           <p>• Mensagens e anexos enviados à IA são processados por um provedor externo de inteligência artificial (NVIDIA ou Lovable AI), conforme a disponibilidade. Evite incluir senhas, documentos, endereços ou dados que identifiquem você ou outras pessoas.</p>
           <p>• Quando ativado, o histórico da IA é guardado no armazenamento local deste navegador/aparelho. Essa preferência não controla os registros técnicos ou a retenção dos provedores externos.</p>
           <p>• Dados da conta e conversas humanas são armazenados na infraestrutura Supabase. O acesso depende das permissões e políticas de segurança configuradas no serviço; não prometemos anonimato absoluto nem criptografia ponta a ponta.</p>
