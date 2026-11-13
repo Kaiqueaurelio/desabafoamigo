@@ -132,7 +132,7 @@ export const aiChat = createServerFn({ method: "POST" })
       } catch (e2) { console.error("[aiChat] gateway falhou", e2 instanceof Error ? e2.message : e2); }
     }
     const parsed = raw ? parseAiJson(raw) : null;
-    const riskContext = data.messages.filter((message) => message.role === "user").map((message) => message.content).join("\\n") + (mediaContext ? "\\n" + mediaContext : "");
+    const riskContext = data.messages.filter((message) => message.role === "user").map((message) => message.content).join("\n") + (mediaContext ? "\n" + mediaContext : "");
     const risk = assessRisk(riskContext, parsed?.severity ?? null);
     if (data.rememberContext && parsed?.memorySummary) {
       const expiresAt = new Date(Date.now() + data.retentionDays * 86400000).toISOString();
