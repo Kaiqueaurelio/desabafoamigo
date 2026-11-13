@@ -64,9 +64,9 @@ function Instant() {
   }
 
   return (
-    <div className="mx-auto max-w-xl p-6">
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <div className="mb-4 flex items-center gap-3">
+    <div className="mx-auto w-full max-w-xl p-3 sm:p-6">
+      <div className="min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-6">
+        <div className="mb-4 flex min-w-0 items-center gap-3">
           <div className="grid size-11 place-items-center rounded-xl bg-brand-soft text-primary"><HeartHandshake className="size-6" /></div>
           <div>
             <h1 className="text-xl font-bold text-primary">Conversar agora</h1>
@@ -112,13 +112,13 @@ function Instant() {
               <label className="text-xs font-medium text-muted-foreground">O que gostaria de conversar? (opcional)</label>
               <textarea value={topic} onChange={(e) => setTopic(e.target.value)} rows={4} maxLength={500}
                 placeholder="Ex: estou ansioso, não consigo dormir..."
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                className="mt-1 w-full min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
               {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={() => setMode("choose")} className="rounded-full px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
                   Voltar
                 </button>
-                <button onClick={() => void start()} disabled={busy} className="btn-primary flex-1">
+                <button onClick={() => void start()} disabled={busy} className="btn-primary min-w-0 flex-1 whitespace-normal text-center">
                   {busy ? "Entrando na fila..." : "Entrar na fila e começar"}
                 </button>
               </div>
