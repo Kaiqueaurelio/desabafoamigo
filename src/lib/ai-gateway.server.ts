@@ -42,20 +42,41 @@ export type TranscriptionResult = { text: string; segments: TranscriptSegment[] 
  * documents gRPC for the hosted endpoint, so this does not guess an HTTP URL.
  */
 export async function transcribeAudio(file: Blob, filename: string): Promise<TranscriptionResult> {
-  const endpoint = process.env.NVIDIA_ASR_HTTP_URL;
-  if (!endpoint) {
-    throw new Error("A transcrição de anexos de áudio exige um endpoint HTTP do NVIDIA Riva configurado em NVIDIA_ASR_HTTP_URL. A conversa por voz usa reconhecimento de fala do navegador.");
+  const apiKey = process.env.NVIDIA_API_KEY_ASR || process.env.NVIDIA_API_KEY;
+  if (!apiKey) {
+    throw new Error("Configure NVIDIA_API_KEY_ASR no servidor para ativar a transcrição NVIDIA.");
   }
+
+  const selfHostedEndpoint = process.env.NVIDIA_ASR_HTTP_URL;
+  const functionId = process.env.NVIDIA_ASR_FUNCTION_ID;
+  const endpoint = selfHostedEndpoint || (functionId
+    ? `https://${functionId}.invocation.api.nvcf.nvidia.com/v1/audio/transcriptions`
+    : "");
+
+  if (!endpoint) {
+    throw new Error("Configure NVIDIA_ASR_FUNCTION_ID com o identificador do modelo ASR habilitado na NVIDIA. A conversa por voz continua disponível com o reconhecimento do navegador.");
+  }
+
   const form = new FormData();
   form.append("file", file, filename);
-  form.append("language", "pt-BR");
+  form.append("language", process.env.NVIDIA_ASR_LANGUAGE || "pt-BR");
+  form.append("response_format", "json");
+
   const response = await fetch(endpoint, {
     method: "POST",
-    headers: { Authorization: `Bearer ${nvidiaKey()}` },
+    headers: { Authorization: `Bearer ${apiKey}` },
     body: form,
     signal: AbortSignal.timeout(60000),
   });
-  if (!response.ok) throw new Error(`Falha na transcrição NVIDIA (HTTP ${response.status}).`);
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 300);
+    console.error("[NVIDIA ASR] transcription failed", response.status, detail);
+    throw new Error(response.status === 401
+      ? "A credencial NVIDIA de transcrição não foi aceita."
+      : response.status === 429
+        ? "O serviço NVIDIA de transcrição está ocupado. Tente novamente."
+        : `Falha na transcrição NVIDIA (HTTP ${response.status}).`);
+  }
   const data = await response.json() as { text?: string; segments?: { start: number; end: number; text: string }[] };
   return { text: data.text ?? "", segments: (data.segments ?? []).map((s) => ({ start: s.start, end: s.end, text: s.text })) };
 }
