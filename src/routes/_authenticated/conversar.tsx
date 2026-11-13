@@ -70,7 +70,7 @@ function Instant() {
           <div className="grid size-11 place-items-center rounded-xl bg-brand-soft text-primary"><HeartHandshake className="size-6" /></div>
           <div>
             <h1 className="text-xl font-bold text-primary">Conversar agora</h1>
-            <p className="text-xs text-muted-foreground">Você será conectado(a) a um(a) voluntário(a) disponível.</p>
+            <p className="break-words text-xs text-muted-foreground">Você será conectado(a) a um(a) voluntário(a) disponível.</p>
           </div>
         </div>
 
