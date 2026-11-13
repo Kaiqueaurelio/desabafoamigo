@@ -16,6 +16,18 @@ describe("triagem do Desabafo Amigo AI", () => {
   it("ambiguidade com severidade 2 oferece humano", () => {
     expect(assessRisk("não vejo saída", 2).offerHuman).toBe(true);
   });
+  it("falha da IA com sinal local de risco nunca reduz a classificação", () => {
+    const r = assessRisk("não quero mais viver", null);
+    expect(r.level).toBe("urgent");
+    expect(r.offerHuman).toBe(true);
+    expect(r.source).toBe("keywords");
+  });
+  it("severidade inválida não é tratada como ausência de risco", () => {
+    const r = assessRisk("estou perdido e sem saída", Number.NaN);
+    expect(r.level).toBe("attention");
+    expect(r.offerHuman).toBe(true);
+    expect(r.source).toBe("fallback");
+  });
   it("conversa tranquila não exige humano", () => {
     expect(assessRisk("hoje foi um dia ok", 0).level).toBe("none");
   });
