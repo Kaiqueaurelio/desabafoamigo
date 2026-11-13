@@ -5,20 +5,20 @@ export type RiskLevel = "none" | "attention" | "urgent";
 export type RiskAssessment = { level: RiskLevel; offerHuman: boolean; source: "ai" | "keywords" | "fallback" };
 
 const IMMEDIATE_INTENT = [
-  /\\b(vou|irei|pretendo|decidi|estou prestes a)\\b.{0,55}\\b(me matar|tirar minha vida|me suicidar|acabar com minha vida)\\b/i,
-  /\\b(j[aá] comecei|j[aá] tomei|acabei de tomar|estou me ferindo|estou me machucando)\\b/i,
-  /\\b(tenho um plano|planejei)\\b.{0,55}\\b(suic[ií]dio|me matar|tirar minha vida)\\b/i,
+  /\b(vou|irei|pretendo|decidi|estou prestes a)\b.{0,55}\b(me matar|tirar minha vida|me suicidar|acabar com minha vida)\b/i,
+  /\b(j[aá] comecei|j[aá] tomei|acabei de tomar|estou me ferindo|estou me machucando)\b/i,
+  /\b(tenho um plano|planejei)\b.{0,55}\b(suic[ií]dio|me matar|tirar minha vida)\b/i,
 ];
 const IDEATION = [
-  /\\b(quero morrer|queria morrer|quero me matar|pensando em me matar|penso em me matar|pensando em tirar minha vida|penso em tirar minha vida|n[aã]o quero (mais )?viver|queria n[aã]o acordar|ideia(s)? de suic[ií]dio)\\b/i,
-  /\\b(suic[ií]dio|suicida)\\b/i,
+  /\b(quero morrer|queria morrer|quero me matar|pensando em me matar|penso em me matar|pensando em tirar minha vida|penso em tirar minha vida|n[aã]o quero (mais )?viver|queria n[aã]o acordar|ideia(s)? de suic[ií]dio)\b/i,
+  /\b(suic[ií]dio|suicida)\b/i,
 ];
 
 /** Avalia a conversa acumulada; não substitui avaliação humana nem diagnóstico clínico. */
 export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
-  const normalized = text.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+  const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const immediate = IMMEDIATE_INTENT.some((pattern) => pattern.test(normalized));
-  const ideationMentions = normalized.split(/\\n+/).filter((line) => IDEATION.some((pattern) => pattern.test(line))).length;
+  const ideationMentions = normalized.split(/\n+/).filter((line) => IDEATION.some((pattern) => pattern.test(line))).length;
   const repeatedIdeation = ideationMentions >= 2;
   const anyIdeation = ideationMentions >= 1;
   const kwAny = detectRisk(text);
