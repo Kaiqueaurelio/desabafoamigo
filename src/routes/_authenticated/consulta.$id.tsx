@@ -218,20 +218,28 @@ function Consulta() {
   async function toggleRecord() {
     if (recording) { mediaRef.current?.stop(); setRecording(false); return; }
     try {
+      if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+        toast.error("A gravação não está disponível neste navegador. Você pode anexar um áudio.");
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const rec = new MediaRecorder(stream);
+      const mimeType = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm"].find((type) => MediaRecorder.isTypeSupported(type));
+      const rec = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunksRef.current = [];
-      rec.ondataavailable = (e) => chunksRef.current.push(e.data);
+      rec.ondataavailable = (e) => { if (e.data.size) chunksRef.current.push(e.data); };
+      rec.onerror = () => toast.error("Falha ao gravar áudio. Tente novamente.");
       rec.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        const file = new File([blob], `audio-${Date.now()}.webm`, { type: "audio/webm" });
+        const blob = new Blob(chunksRef.current, { type: rec.mimeType || "audio/webm" });
+        if (!blob.size) return;
+        const extension = blob.type.includes("mp4") ? "m4a" : "webm";
+        const file = new File([blob], `audio-${Date.now()}.${extension}`, { type: blob.type });
         try { await uploadFile(file); } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
       };
       rec.start();
       mediaRef.current = rec;
       setRecording(true);
-    } catch { toast.error("Não foi possível acessar o microfone."); }
+    } catch { toast.error("Não foi possível acessar o microfone. Verifique a permissão do navegador."); }
   }
 
   async function finish() {
@@ -456,9 +464,9 @@ function Consulta() {
                 </div>
               )}
 
-              <div className="flex min-w-0 items-end gap-1.5 sm:gap-2">
+              <div className="flex min-w-0 items-end gap-1.5 sm:gap-2" aria-label="Enviar mensagem, imagem ou áudio">
                 <input type="file" ref={fileRef} onChange={onPickFile} className="hidden" accept="application/pdf,image/*,audio/*,video/*" />
-                <button type="button" onClick={() => fileRef.current?.click()} aria-label="Anexar" className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground hover:bg-muted">
+                <button type="button" onClick={() => fileRef.current?.click()} aria-label="Anexar imagem, áudio, vídeo ou PDF" className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground hover:bg-muted">
                   <Paperclip className="size-5" />
                 </button>
                 <button type="button" onClick={toggleRecord} aria-label="Áudio" className={`grid size-11 shrink-0 place-items-center rounded-full ${recording ? "bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground hover:bg-muted"}`}>
