@@ -100,7 +100,20 @@ function Page() {
         }
       }).subscribe();
     const refresh = async () => {
-      const { data } = await supabase.from("queue").select("id").eq("status", "waiting").order("created_at");
+      const { data: current } = await supabase.from("queue")
+        .select("status, conversation_id").eq("id", queueId).maybeSingle();
+      if (!active || !current) return;
+      if (current.status === "matched" && current.conversation_id) {
+        const { data: conv } = await supabase.from("conversations")
+          .select("appointment_id").eq("id", current.conversation_id).maybeSingle();
+        if (active && conv?.appointment_id) window.location.assign(`/consulta/${conv.appointment_id}`);
+        return;
+      }
+      if (current.status === "cancelled") {
+        setQueueId(null); setQueuePosition(null); return;
+      }
+      const { data } = await supabase.from("queue").select("id")
+        .eq("status", "waiting").order("created_at");
       if (!active) return;
       const index = (data ?? []).findIndex((item) => item.id === queueId);
       setQueuePosition(index >= 0 ? index + 1 : null);
