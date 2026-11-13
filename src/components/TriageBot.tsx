@@ -59,8 +59,8 @@ export function TriageBot({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center gap-2">
+    <div className="min-w-0 rounded-2xl border border-border bg-card p-3 sm:p-4">
+      <div className="mb-3 flex min-w-0 items-start gap-2">
         <div className="grid size-9 place-items-center rounded-xl bg-brand-soft text-primary">
           <Sparkles className="size-5" />
         </div>
@@ -84,11 +84,11 @@ export function TriageBot({
         </div>
       )}
 
-      <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl bg-background/60 p-3">
+      <div className="max-h-64 min-w-0 space-y-2 overflow-x-hidden overflow-y-auto rounded-xl bg-background/60 p-3">
         {history.map((t, i) => (
           <div key={i} className={t.role === "user" ? "text-right" : "text-left"}>
             <span
-              className={`inline-block max-w-[85%] rounded-2xl px-3 py-1.5 text-sm ${
+              className={`inline-block min-w-0 max-w-[90%] break-words [overflow-wrap:anywhere] rounded-2xl px-3 py-1.5 text-sm ${
                 t.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
               }`}
             >
@@ -123,7 +123,7 @@ export function TriageBot({
             e.preventDefault();
             void send();
           }}
-          className="mt-3 flex items-end gap-2"
+          className="mt-3 flex min-w-0 items-end gap-2"
         >
           <textarea
             value={draft}
@@ -137,12 +137,12 @@ export function TriageBot({
             rows={1}
             maxLength={500}
             placeholder="Escreva sua resposta…"
-            className="max-h-32 min-h-10 flex-1 resize-none rounded-2xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-2xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
           />
           <button
             type="submit"
             disabled={!draft.trim() || busy}
-            className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50"
+            className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50"
             aria-label="Enviar"
           >
             <Send className="size-4" />
