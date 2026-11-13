@@ -28,6 +28,8 @@ import {
   BookOpen,
   Wind,
   Compass,
+  Menu,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { avatarUrl } from "@/lib/avatar";
@@ -139,7 +141,6 @@ function Landing() {
         <main id="conteudo" tabIndex={-1}>
           <Hero />
           <InfinityBand />
-          <Impact />
           <Origin />
           <InfinityBand reverse />
           <Mission />
@@ -235,23 +236,53 @@ function InfinityBand({ reverse = false }: { reverse?: boolean }) {
 }
 
 function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const links = [
+    { href: "#origem", label: "Nossa história" },
+    { href: "#missao", label: "Como ajudamos" },
+    { href: "#jornada", label: "Sua jornada" },
+    { href: "#depoimentos", label: "Depoimentos" },
+    { href: "#faq", label: "Dúvidas" },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" aria-label="Desabafo Amigo — página inicial" className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          <Logo responsive priority decorative className="h-12 w-12 drop-shadow-sm sm:h-14 sm:w-14 md:h-14 md:w-14 lg:h-16 lg:w-16" />
-          <span className="text-base font-semibold text-primary md:text-lg">Desabafo Amigo</span>
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur-xl">
+      <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
+        <Link to="/" aria-label="Desabafo Amigo — página inicial" className="flex min-w-0 items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Logo responsive priority decorative className="h-10 w-10 shrink-0 sm:h-12 sm:w-12" />
+          <span className="truncate text-sm font-bold text-primary sm:text-base">Desabafo Amigo</span>
         </Link>
-        <nav aria-label="Navegação principal" className="hidden items-center gap-6 text-sm text-foreground/80 md:flex">
-          <a href="#origem" className="rounded-md hover:text-primary transition-colors">Nossa história</a>
-          <a href="#missao" className="rounded-md hover:text-primary transition-colors">Como ajudamos</a>
-          <a href="#jornada" className="rounded-md hover:text-primary transition-colors">Sua jornada</a>
-          <a href="#depoimentos" className="rounded-md hover:text-primary transition-colors">Depoimentos</a>
-          <a href="#faq" className="rounded-md hover:text-primary transition-colors">Dúvidas</a>
-          <Link to="/pro/cadastro" className="rounded-md hover:text-primary transition-colors">Ser voluntário(a)</Link>
+        <nav aria-label="Navegação principal" className="hidden items-center gap-5 text-sm text-foreground/80 lg:flex">
+          {links.map((item) => <a key={item.href} href={item.href} className="rounded-md transition-colors hover:text-primary">{item.label}</a>)}
+          <Link to="/pro/cadastro" className="rounded-md transition-colors hover:text-primary">Ser voluntário(a)</Link>
         </nav>
-        <Link to="/auth" className="btn-primary !py-2 !px-4 text-sm">Entrar</Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link to="/inicio" className="btn-primary !min-h-10 !px-3 !py-2 text-xs sm:!px-4 sm:text-sm">Começar grátis</Link>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuOpen}
+            aria-controls="landing-mobile-menu"
+            className="interactive grid size-10 place-items-center rounded-xl border border-border bg-card text-primary lg:hidden"
+          >
+            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
       </div>
+      {menuOpen && (
+        <nav id="landing-mobile-menu" aria-label="Navegação móvel" className="border-t border-border bg-card px-4 py-3 shadow-lg lg:hidden">
+          <div className="mx-auto grid max-w-6xl gap-1">
+            {links.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-foreground transition-colors hover:bg-brand-soft">
+                {item.label}
+              </a>
+            ))}
+            <Link to="/pro/cadastro" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-foreground hover:bg-brand-soft">Quero ser voluntário(a)</Link>
+            <Link to="/auth" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-muted">Já tenho uma conta</Link>
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
@@ -273,7 +304,7 @@ function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-brand-soft/60 via-background/70 to-background" />
       </div>
 
-      <motion.div style={{ scale: heroScale, opacity: heroOpacity }} className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
+      <motion.div style={{ scale: heroScale, opacity: heroOpacity }} className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:gap-12 sm:px-6 sm:py-16 md:grid-cols-2 md:py-24">
         <div className="flex flex-col justify-center">
           <motion.span
             initial={{ opacity: 0, y: 10 }}
@@ -283,7 +314,7 @@ function Hero() {
           >
             <InfinityIcon className="size-3.5 animate-spin-slow" /> Escuta acolhedora sem fim
           </motion.span>
-          <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-primary sm:text-5xl md:text-6xl">
+          <h1 className="text-4xl font-bold leading-[1.08] tracking-tight text-primary sm:text-5xl md:text-6xl">
             <WordReveal text="Sua voz merece" />{" "}
             <span className="bg-gradient-to-r from-brand-green via-brand-sky to-brand-green bg-clip-text text-transparent animate-gradient-shift" style={{ backgroundSize: "200% auto" }}>
               <WordReveal text="ser ouvida" delay={280} />
@@ -309,7 +340,7 @@ function Hero() {
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 300, damping: 18 }}>
                 <Link to="/inicio" className="btn-primary btn-shine inline-flex items-center gap-2 group">
                   <MessageSquareText className="size-5" />
-                  Começar sem cadastro
+                  Começar agora
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </motion.div>
@@ -644,12 +675,12 @@ function Testimonials() {
 
 function FAQ() {
   const items = [
-    { q: "Preciso me identificar?", a: "Não. Você recebe um apelido e avatar gerados pelo app. Só o e-mail é pedido para poder voltar à sua conta." },
-    { q: "O voluntário sabe quem eu sou?", a: "Não. Ele também só enxerga seu apelido. A conversa é entre duas identidades geradas pelo app." },
-    { q: "Isso substitui terapia ou atendimento médico?", a: "Não. Somos escuta acolhedora. Se você precisa de atendimento clínico, procure um profissional de saúde. Em emergência, ligue 188 (CVV) ou 192 (SAMU)." },
+    { q: "Preciso criar uma conta?", a: "Você pode começar com uma sessão de convidado, quando o acesso anônimo estiver habilitado. Para manter seu acesso em outros dispositivos, crie uma conta." },
+    { q: "Minha conversa é totalmente anônima?", a: "O app usa um apelido de exibição, mas isso não garante anonimato absoluto. Evite compartilhar nome completo, endereço, telefone ou outros dados que identifiquem você." },
+    { q: "Isso substitui terapia ou atendimento médico?", a: "Não. O Desabafo Amigo oferece apoio e escuta acolhedora, não atendimento clínico. Em emergência médica, ligue 192 (SAMU). Para apoio emocional, o CVV atende pelo 188." },
     { q: "Como faço para ser voluntário(a)?", a: "Você se cadastra, passa por revisão da equipe e — depois de aprovado(a) — recebe acesso à área de atendimento." },
-    { q: "Meus dados são vendidos?", a: "Nunca. Não vendemos, não compartilhamos e usamos criptografia em trânsito. Conversas ficam disponíveis apenas para você e o(a) voluntário(a)." },
-    { q: "Posso apagar minha conta?", a: "Sim, a qualquer momento. Peça pelo suporte e removemos seus dados." },
+    { q: "Como meus dados são tratados?", a: "Consulte nossa Política de Privacidade para entender quais informações são usadas, como são armazenadas e quais são seus direitos." },
+    { q: "Posso apagar meus dados?", a: "Você pode consultar as opções e orientações disponíveis na área Minha Privacidade ou na Política de Privacidade." },
   ];
   return (
     <section id="faq" className="bg-brand-soft/40 py-20 md:py-28">
@@ -720,7 +751,7 @@ function HowTo() {
                       to="/auth"
                       className="btn-shine inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:opacity-90"
                     >
-                      Cadastre-se gratuitamente
+                      Começar sem cadastro
                       <ArrowRight className="size-4" />
                     </Link>
                   </motion.div>
