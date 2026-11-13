@@ -201,16 +201,16 @@ function Page() {
   );
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-8rem)] w-full max-w-3xl flex-col gap-3 p-3 sm:p-5">
-      <div className="grid grid-cols-3 gap-2">
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-3xl min-w-0 flex-col gap-3 overflow-hidden p-3 sm:p-5">
+      <div className="grid shrink-0 grid-cols-3 gap-2">
         <ModeCard icon={Bot} label="Amigo IA" active />
         <ModeCard icon={HeartHandshake} label="Voluntário" to="/conversar" />
         <ModeCard icon={Stethoscope} label="Profissional" to="/apoio" />
       </div>
-      <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">O Amigo IA é uma <strong>inteligência artificial de apoio emocional — não é psicólogo, não possui registro profissional e não realiza psicoterapia</strong>. Usa princípios de comunicação inspirados na Psicanálise, TCC e Terapia Cognitiva Analítica para ajudar você a refletir. Não faz diagnóstico nem substitui atendimento profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
+      <p className="shrink-0 break-words rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">O Amigo IA é uma <strong>inteligência artificial de apoio emocional — não é psicólogo, não possui registro profissional e não realiza psicoterapia</strong>. Usa princípios de comunicação inspirados na Psicanálise, TCC e Terapia Cognitiva Analítica para ajudar você a refletir. Não faz diagnóstico nem substitui atendimento profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
 
       {offerHuman && !queueId && (
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
+        <div className="min-w-0 shrink-0 break-words rounded-xl border border-primary/30 bg-primary/5 p-3">
           <p className="text-sm font-medium text-foreground">Acho que conversar com uma pessoa pode ajudar neste momento.</p>
           <p className="mt-1 text-xs text-muted-foreground">Posso avisar os voluntários e colocar você na fila. Compartilharei apenas um breve contexto das últimas mensagens para ajudar no acolhimento.</p>
           <Button className="mt-3" size="sm" onClick={() => void transferToVolunteer()} disabled={handoffBusy}>
@@ -221,7 +221,7 @@ function Page() {
         </div>
       )}
       {queueId && (
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4" role="status" aria-live="polite">
+        <div className="min-w-0 shrink-0 break-words rounded-xl border border-primary/30 bg-primary/5 p-4" role="status" aria-live="polite">
           <p className="flex items-center gap-2 text-sm font-semibold"><HeartHandshake className="h-4 w-4" /> Você está sendo encaminhado(a) para um voluntário.</p>
           <p className="mt-1 text-xs text-muted-foreground">{queuePosition ? `Sua posição na fila é ${queuePosition}.` : "Os voluntários foram avisados. Assim que alguém aceitar, a conversa será aberta automaticamente."}</p>
           <Button className="mt-3" size="sm" variant="outline" onClick={() => void leaveVolunteerQueue()}>Cancelar encaminhamento</Button>
@@ -230,7 +230,7 @@ function Page() {
 
       <AnimatePresence>{(risk !== "none" || offerHuman) && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert"
-          className={`rounded-lg border p-3 text-sm ${risk === "urgent" ? "border-destructive bg-destructive/10" : "border-primary/40 bg-primary/5"}`}>
+          className={`min-w-0 shrink-0 break-words rounded-lg border p-3 text-sm ${risk === "urgent" ? "border-destructive bg-destructive/10" : "border-primary/40 bg-primary/5"}`}>
           <p className="flex items-center gap-2 font-medium"><ShieldAlert className="h-4 w-4" />{risk === "urgent" ? "Sua segurança vem primeiro. Não fique sozinho(a) agora." : "Uma pessoa pode te acompanhar melhor agora."}</p>
           <p className="mt-2 text-sm">Se você pensa em agir agora, já começou a se machucar ou tomou alguma substância, ligue para o SAMU 192 imediatamente. Se houver perigo imediato ou violência, ligue 190. O CVV 188 oferece apoio emocional gratuito, 24 horas. Peça também a alguém de confiança para ficar com você presencialmente.</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -242,10 +242,10 @@ function Page() {
           {degraded && <p className="mt-2 text-xs text-muted-foreground">A IA está instável no momento, por isso recomendamos o apoio humano.</p>}
         </motion.div>)}</AnimatePresence>
 
-      <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border bg-card p-3" aria-live="polite">
+      <div className="min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto rounded-xl border bg-card p-3" aria-live="polite">
         {msgs.map((m, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</div>
+            <div className={`min-w-0 max-w-[88%] break-words whitespace-pre-wrap [overflow-wrap:anywhere] rounded-2xl px-3 py-2 text-sm sm:px-4 ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</div>
           </motion.div>))}
         {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Amigo IA está preparando uma resposta…</div>}
         <div ref={end} />
@@ -256,12 +256,12 @@ function Page() {
         <Button size="sm" variant="ghost" onClick={endSession}><X className="mr-1 h-4 w-4" />Encerrar conversa</Button>
       </div>
       {mediaError && <p className="text-xs text-destructive" role="alert">{mediaError}</p>}
-      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
-      <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
+      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex min-w-0 max-w-full items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
+      <form className="flex min-w-0 items-end gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <input ref={mediaInput} type="file" accept="image/jpeg,image/png,image/webp,audio/*,video/*" multiple className="hidden" onChange={pickMedia} />
         <Button type="button" size="icon" variant="outline" className="h-auto w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto, áudio ou vídeo"><Paperclip className="h-4 w-4" /></Button>
         <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={2000} placeholder="Escreva o que está sentindo…" aria-label="Mensagem"
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="resize-none" />
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="w-0 min-w-0 flex-1 resize-none" />
         <Button type="submit" size="icon" className="h-auto w-12 shrink-0" disabled={busy || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
       </form>
     </div>
@@ -269,6 +269,6 @@ function Page() {
 }
 
 function ModeCard({ icon: Icon, label, active, to }: { icon: typeof Bot; label: string; active?: boolean; to?: "/conversar" | "/apoio" }) {
-  const cls = `flex flex-col items-center gap-1 rounded-lg border p-2 text-xs font-medium transition ${active ? "border-primary bg-primary/10 text-primary" : "hover:bg-muted"}`;
+  const cls = `flex min-w-0 flex-col items-center gap-1 rounded-lg border p-2 text-center text-xs font-medium transition ${active ? "border-primary bg-primary/10 text-primary" : "hover:bg-muted"}`;
   return to ? <Link to={to} className={cls}><Icon className="h-5 w-5" />{label}</Link> : <div className={cls} aria-current="page"><Icon className="h-5 w-5" />{label}</div>;
 }
