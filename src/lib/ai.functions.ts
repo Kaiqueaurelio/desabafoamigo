@@ -131,7 +131,7 @@ export const triageStep = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     const history = data.history;
-    const userText = history.filter((h) => h.role === "user").map((h) => h.content).join("\\n");
+    const userText = history.filter((h) => h.role === "user").map((h) => h.content).join("\n");
     const localRisk = detectRisk(userText);
     const safeFallback = {
       reply: localRisk
