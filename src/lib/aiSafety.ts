@@ -10,15 +10,14 @@ const IMMEDIATE_INTENT = [
   /\b(tenho um plano|planejei)\b.{0,55}\b(suic[ií]dio|me matar|tirar minha vida)\b/i,
 ];
 const IDEATION = [
-  /\b(quero morrer|queria morrer|quero me matar|pensando em me matar|penso em me matar|pensando em tirar minha vida|penso em tirar minha vida|n[aã]o quero (mais )?viver|queria n[aã]o acordar|ideia(s)? de suic[ií]dio)\b/i,
-  /\b(suic[ií]dio|suicida)\b/i,
+  /\b(quero morrer|queria morrer|quero me matar|pensando em me matar|penso em me matar|pensando em tirar minha vida|penso em tirar minha vida|tenho pensado em suicidio|nao quero (mais )?viver|queria nao acordar|ideia(s)? de suicidio)\b/i,
 ];
 
 /** Avalia a conversa acumulada; não substitui avaliação humana nem diagnóstico clínico. */
 export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
   const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const immediate = IMMEDIATE_INTENT.some((pattern) => pattern.test(normalized));
-  const ideationMentions = normalized.split(/\n+/).filter((line) => IDEATION.some((pattern) => pattern.test(line))).length;
+  const ideationMentions = normalized.split(/\n+/).filter((line) => !/\b(nao estou pensando em|nao pretendo|nao tenho intencao de)\b.{0,35}\b(me matar|tirar minha vida|suicidio)\b/i.test(line) && IDEATION.some((pattern) => pattern.test(line))).length;
   const repeatedIdeation = ideationMentions >= 2;
   const anyIdeation = ideationMentions >= 1;
   const kwAny = detectRisk(text);
