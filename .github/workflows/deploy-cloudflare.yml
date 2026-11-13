@@ -1,8 +1,8 @@
 name: Deploy Desabafo Amigo to Cloudflare Workers
 
+# This project is published on Lovable hosting. Keep Cloudflare deployment manual
+# until the required Cloudflare and runtime secrets are configured in GitHub.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
