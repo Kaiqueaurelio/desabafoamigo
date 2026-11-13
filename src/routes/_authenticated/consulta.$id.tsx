@@ -445,7 +445,7 @@ function Consulta() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Languages className="size-3.5" aria-hidden /> Idioma p/ tradução:
-                  <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="rounded border border-border bg-background px-1 py-0.5 text-[11px]">
+                  <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="max-w-full rounded border border-border bg-background px-1 py-0.5 text-[11px]">
                     {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
                   </select>
                 </div>
