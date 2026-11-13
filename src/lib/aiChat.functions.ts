@@ -14,6 +14,13 @@ Use conhecimentos gerais e técnicas de comunicação inspirados em três aborda
 - TERAPIA COGNITIVA ANALÍTICA (TCA): ajude a notar ciclos repetitivos de relação e comportamento, incluindo o que costuma acontecer, como a pessoa reage e quais consequências surgem. Explore esses ciclos como possibilidades colaborativas, sem diagnosticar, rotular padrões como fatos ou atribuir culpa. Convide a imaginar respostas alternativas mais seguras e alinhadas ao que importa para a pessoa.
 Integre os referenciais com bom senso. Não diga que está aplicando uma terapia, não conduza tratamento e não prometa resultados clínicos.
 
+CONDUÇÃO CONTEXTUAL E CONTINUIDADE:
+- Leia as mensagens recentes como uma única conversa, identificando o assunto principal, o que mudou desde a última resposta, emoções mencionadas, fatos concretos e perguntas que ficaram em aberto.
+- Responda dando continuidade ao ponto em que a pessoa parou. Retome um detalhe específico quando isso demonstrar compreensão; não recomece a conversa nem repita a apresentação.
+- Não faça a mesma pergunta novamente se a pessoa já respondeu. Não contradiga informações anteriores; se houver ambiguidade ou mudança de versão, peça esclarecimento com delicadeza.
+- Diferencie fatos relatados, sentimentos, interpretações e hipóteses. Não invente detalhes nem diga que se lembra de algo que não esteja no histórico enviado ou na memória consentida.
+- Se a pessoa mudar de assunto, acompanhe a mudança sem perder sinais de risco relevantes já presentes no contexto recente.
+
 MÉTODO DE CONVERSA:
 1. ESCUTAR: entenda o que a pessoa está contando antes de aconselhar. Retome um detalhe concreto para mostrar compreensão, sem parafrasear tudo.
 2. ACOLHER: reconheça a emoção possível sem presumir, minimizar, julgar ou concordar automaticamente com conclusões prejudiciais.
@@ -47,7 +54,7 @@ async function callNvidia(messages: unknown[]): Promise<string> {
   const r = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${k}` },
-    body: JSON.stringify({ model: "meta/llama-3.1-70b-instruct", messages, temperature: 0.6, max_tokens: 500 }),
+    body: JSON.stringify({ model: "meta/llama-3.1-8b-instruct", messages, temperature: 0.35, top_p: 0.85, max_tokens: 420, stream: false, signal: AbortSignal.timeout(18000) }),
   });
   if (!r.ok) throw new Error(`nvidia ${r.status}`);
   const j = (await r.json()) as { choices?: { message?: { content?: string } }[] };
@@ -68,9 +75,9 @@ export const aiChat = createServerFn({ method: "POST" })
     }
     return {
       messages: (Array.isArray(d?.messages) ? d.messages : [])
-        .slice(-12)
+        .slice(-16)
         .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-        .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) })),
+        .map((m) => ({ role: m.role, content: m.content.slice(0, 1800) })),
       attachments,
       rememberContext: d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
       retentionDays: d?.retentionDays === 30 ? 30 : 7,
@@ -117,7 +124,7 @@ export const aiChat = createServerFn({ method: "POST" })
     try {
       if (data.attachments.length) {
         const { chatCompletion } = await import("./ai-gateway.server");
-        raw = await chatCompletion({ model: "google/gemini-3-flash-preview", messages, temperature: 0.5, max_tokens: 600 });
+        raw = await chatCompletion({ model: "google/gemini-3-flash-preview", messages, temperature: 0.35, max_tokens: 480 });
         provider = "lovable";
       } else {
         raw = await callNvidia(messages); provider = "nvidia";
@@ -127,7 +134,7 @@ export const aiChat = createServerFn({ method: "POST" })
       console.error("[aiChat] nvidia falhou", e instanceof Error ? e.message : e);
       try {
         const { chatCompletion } = await import("./ai-gateway.server");
-        raw = await chatCompletion({ model: "google/gemini-3-flash-preview", messages });
+        raw = await chatCompletion({ model: "google/gemini-3-flash-preview", messages, temperature: 0.35, max_tokens: 480 });
         provider = "lovable";
       } catch (e2) { console.error("[aiChat] gateway falhou", e2 instanceof Error ? e2.message : e2); }
     }
