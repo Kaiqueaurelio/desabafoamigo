@@ -1,426 +1,81 @@
-# desabafo amigo
+# Desabafo Amigo
 
-Segue um prompt completo para gerar esse aplicativo em plataformas como Lovable, Bolt, Firebase Studio ou outras ferramentas de IA.
+**Acolhimento emocional com tecnologia e conexão humana.**
 
+O Desabafo Amigo é uma plataforma de apoio emocional que combina uma experiência conversacional com IA, encaminhamento para voluntários e recursos de orientação em situações de crise. O objetivo é reduzir a barreira para pedir ajuda e facilitar a conexão com uma pessoa disponível para ouvir.
 
+> O produto é uma ferramenta de apoio. Não é serviço de emergência, não substitui psicoterapia, avaliação clínica ou atendimento médico.
 
-Prompt – Desabafa Amigo
+## O que existe no produto
 
-Você é um desenvolvedor Full Stack especialista em aplicações de alto nível, segurança digital, criptografia e experiência do usuário.
+- **Amigo IA:** conversa de apoio emocional com limites explícitos, consentimento para processamento por IA e opção de não manter memória entre sessões.
+- **Encaminhamento humano:** fila de espera, triagem inicial e chat entre pessoa atendida e voluntário.
+- **Sinais de segurança:** regras locais e avaliação do modelo observam sinais de risco; a interface orienta a procurar serviços humanos e oficiais. Isso não é diagnóstico nem detector clínico validado.
+- **Recursos de cuidado:** check-in de humor, exercícios de respiração, diário e conteúdos de apoio.
+- **Área de voluntariado:** fila de solicitações e ferramentas para conduzir conversas.
+- **Administração:** indicadores operacionais, gestão e trilhas de auditoria conforme permissões.
+- **Privacidade:** controles para consentimento, histórico local e memória opcional; informações sobre tratamento de dados disponíveis na área de privacidade.
 
-Crie um aplicativo moderno chamado Desabafa Amigo, cujo objetivo é oferecer um espaço seguro, gratuito e totalmente anônimo para que qualquer pessoa possa conversar quando estiver passando por momentos difíceis.
+## Tecnologias
 
-Objetivo
+- React 19, TypeScript e Tailwind CSS
+- TanStack Start / TanStack Router
+- Supabase (Auth, PostgreSQL e Realtime)
+- Vitest e Testing Library
+- Playwright para testes end-to-end e responsividade
+- Vite e PWA
 
-O aplicativo deve conectar usuários anonimamente com voluntários e psicólogos cadastrados.
+## Executar localmente
 
-Nenhuma das duas partes conhece a identidade da outra.
+Requisitos: Bun (versão usada pelo CI) e variáveis de ambiente do Supabase.
 
-O foco é:
-
-anonimato;
-
-segurança;
-
-acolhimento;
-
-simplicidade;
-
-rapidez.
-
-Não é uma rede social.
-
-Não possui curtidas.
-
-Não possui seguidores.
-
-Não possui perfil público.
-
-É apenas um lugar seguro para conversar.
-
-
-
-Design
-
-Interface extremamente limpa.
-
-Estilo semelhante ao WhatsApp + Telegram + Notion.
-
-Paleta de cores:
-
-azul escuro
-
-azul claro
-
-branco
-
-pequenos detalhes em verde
-
-Transmitir calma.
-
-Nada chamativo.
-
-Animações suaves.
-
-
-
-Tela Inicial
-
-Mostrar apenas:
-
-Logo
-
-Nome:
-
-Desabafa Amigo
-
-Texto:
-
-“Você não precisa enfrentar tudo sozinho.”
-
-Botão grande:
-
-Começar Conversa
-
-A pessoa entra imediatamente.
-
-Sem cadastro obrigatório.
-
-Sem login.
-
-Sem pedir nome.
-
-Sem pedir e-mail.
-
-Sem pedir telefone.
-
-
-
-Identidade do usuário
-
-Ao entrar, o sistema gera automaticamente:
-
-um apelido aleatório
-
-Exemplos:
-
-Lua Serena
-
-Nuvem Azul
-
-Andarilho
-
-Estrela 82
-
-Montanha Verde
-
-Esse apelido existe apenas durante aquela conversa.
-
-Depois desaparece.
-
-
-
-Chat
-
-Obrigatório.
-
-O aplicativo inteiro gira em torno do chat.
-
-O usuário entra automaticamente em uma fila.
-
-Assim que houver um voluntário disponível, inicia a conversa.
-
-A conversa deve parecer um aplicativo moderno de mensagens.
-
-Enviar:
-
-texto
-
-emoji
-
-imagem (opcional)
-
-áudio (opcional)
-
-mensagem de voz
-
-
-
-Segurança
-
-Todo o chat deve utilizar criptografia ponta a ponta.
-
-As mensagens devem se autodestruir.
-
-Depois que a conversa terminar:
-
-todo o histórico deve ser apagado automaticamente.
-
-Nenhuma mensagem permanece salva.
-
-Nenhum administrador pode ler conversas encerradas.
-
-Não armazenar conteúdo das mensagens.
-
-Guardar apenas métricas anônimas, como:
-
-tempo médio de conversa
-
-quantidade de atendimentos
-
-horário de pico
-
-Nunca armazenar nomes.
-
-Nunca armazenar IP em formato identificável.
-
-Nunca armazenar localização precisa.
-
-
-
-Sistema de filas
-
-Usuário entra.
-
-Fica aguardando.
-
-Tela:
-
-“Estamos procurando alguém disponível para conversar com você.”
-
-Assim que um voluntário aceitar:
-
-o chat abre automaticamente.
-
-
-
-Área do voluntário
-
-Sistema separado.
-
-Login obrigatório.
-
-Somente voluntários aprovados podem acessar.
-
-Cada voluntário possui status:
-
-Disponível
-
-Ocupado
-
-Offline
-
-Quando disponível:
-
-recebe solicitação.
-
-Pode aceitar ou recusar.
-
-
-
-Psicólogos
-
-Existe uma categoria especial:
-
-Psicólogos voluntários.
-
-Quando houver psicólogo online, o sistema pode direcionar automaticamente usuários para eles.
-
-Os psicólogos aparecem apenas como:
-
-Psicólogo Voluntário
-
-Nunca mostrar:
-
-nome completo
-
-telefone
-
-redes sociais
-
-
-
-Encerramento da conversa
-
-Quando terminar:
-
-Mostrar:
-
-“Esperamos que esta conversa tenha ajudado você.”
-
-Botões:
-
-Conversar novamente
-
-Encerrar
-
-Ao encerrar:
-
-Todo histórico desaparece.
-
-
-
-Recursos extras
-
-Modo escuro.
-
-Modo claro.
-
-Notificações.
-
-Indicador de digitando…
-
-Mensagens entregues.
-
-Mensagens lidas.
-
-
-
-Segurança adicional
-
-Implementar:
-
-Rate Limit
-
-Proteção contra spam
-
-Proteção contra bots
-
-Criptografia AES-256 para dados armazenados e TLS para comunicação.
-
-Proteção contra ataques comuns.
-
-Logs apenas técnicos.
-
-Sem conteúdo das mensagens.
-
-
-
-Casos de crise
-
-Adicionar um botão sempre visível:
-
-Preciso de ajuda urgente
-
-Ao tocar nele:
-
-mostrar imediatamente os contatos oficiais de emergência do país do usuário (como o serviço de prevenção ao suicídio e serviços de emergência), além de orientar que, em situações de risco imediato, procure ajuda presencial ou ligue para a emergência local.
-
-O aplicativo não substitui atendimento médico ou psicológico de urgência.
-
-
-
-Tecnologias
-
-Frontend:
-
-React
-
-TypeScript
-
-Tailwind CSS
-
-Backend:
-
-Node.js
-
-Firebase
-
-Firestore
-
-Cloud Functions
-
-Firebase Authentication (apenas para voluntários)
-
-Realtime Database ou Firestore para mensagens em tempo real.
-
-
-
-Banco de dados
-
-Criar toda a estrutura automaticamente.
-
-Collections:
-
-volunteers
-
-psychologists
-
-queue
-
-conversations
-
-anonymous_users
-
-metrics
-
-notifications
-
-reports
-
-
-
-Administração
-
-Painel administrativo protegido.
-
-Mostrar:
-
-Quantidade de atendimentos
-
-Tempo médio
-
-Voluntários online
-
-Psicólogos online
-
-Fila
-
-Relatórios
-
-Nunca permitir visualizar mensagens privadas.
-
-
-
-Acessibilidade
-
-Fonte grande.
-
-Alto contraste.
-
-Compatível com leitores de tela.
-
-Navegação simples.
-
-Responsivo.
-
-Funcionar perfeitamente em Android, iPhone e navegadores.
-
-
-
-Objetivo final
-
-Criar uma plataforma extremamente segura, acolhedora e anônima, onde qualquer pessoa possa conversar sem revelar sua identidade. O sistema deve priorizar a privacidade dos usuários, oferecer atendimento humano por voluntários e psicólogos cadastrados e manter uma experiência simples, rápida e confiável, sempre deixando claro que, em situações de emergência ou risco iminente, o aplicativo orienta o usuário a procurar os serviços oficiais de emergência e não substitui atendimento profissional de urgência.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://desabafoamigo.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/ce27e131-caf6-49a0-96ff-b49e0b0eee10).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```bash
+git clone https://github.com/Kaiqueaurelio/desabafoamigo.git
+cd desabafoamigo
+bun install --frozen-lockfile
+bun run dev
 ```
+
+Configure as variáveis de ambiente exigidas pelo projeto no arquivo local apropriado. **Nunca coloque chaves privadas, tokens de serviço ou credenciais reais no Git.**
+
+## Qualidade e testes
+
+```bash
+bun run lint
+bun run test
+bun run build:dev
+bun run build:prod
+bun run test:e2e
+```
+
+Para testar rotas autenticadas no Playwright, configure `E2E_AUTH_STORAGE_STATE` com um arquivo de sessão de teste. Para testar uma conversa humana específica, configure também `E2E_TEST_APPOINTMENT_ID`. Use somente contas e dados fictícios preparados para teste.
+
+## Demonstração do Hackathon
+
+- Rota pública: `/hackathon`
+- Roteiro, fala de 3 minutos, perguntas da banca e checklist: [docs/HACKATHON_PLAYBOOK.md](docs/HACKATHON_PLAYBOOK.md)
+
+A demonstração usa cenários e indicadores fictícios. Não confunda a simulação com dados de produção, atendimentos reais ou resultados clínicos.
+
+## Segurança, privacidade e limites conhecidos
+
+- Não prometa anonimato absoluto, criptografia ponta a ponta ou confidencialidade absoluta. A infraestrutura, as permissões, os provedores externos e as configurações de produção influenciam o tratamento dos dados.
+- Mensagens enviadas à IA podem ser processadas por provedores externos de IA. A pessoa deve receber informação clara e consentir antes do processamento.
+- A memória entre sessões é opcional e separada do histórico local. A migração SQL correspondente precisa estar aplicada no Supabase para que a persistência funcione.
+- Os sinais de risco são mecanismos de apoio à decisão e encaminhamento, sujeitos a falsos positivos e falsos negativos. Não substituem avaliação humana treinada nem protocolo clínico.
+- Em risco imediato no Brasil: SAMU 192 para emergência médica; Polícia 190 em perigo imediato/violência; CVV 188 para apoio emocional 24h. Bombeiros 193 quando houver necessidade de resgate.
+- Antes de uso público em escala, revisar LGPD, termos, políticas RLS, armazenamento de anexos, retenção, resposta a incidentes e protocolo de proteção com profissionais qualificados.
+
+## Princípios de produto
+
+1. Acolher sem julgar.
+2. Oferecer escolha e consentimento.
+3. Facilitar a passagem para apoio humano.
+4. Tratar sinais de crise com prudência e encaminhamento claro.
+5. Ser transparente sobre o que a tecnologia faz — e o que não faz.
+
+## Links
+
+- Aplicativo: https://desabafoamigo.lovable.app
+- Repositório: https://github.com/Kaiqueaurelio/desabafoamigo
+- Projeto Lovable: https://lovable.dev/projects/ce27e131-caf6-49a0-96ff-b49e0b0eee10
