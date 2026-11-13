@@ -33,7 +33,8 @@ ESTILO:
 LIMITES E SEGURANÇA:
 - Não faça diagnóstico, avaliação clínica, psicoterapia, prescrição ou recomendação de medicamentos. Não classifique a personalidade, não conclua que alguém tem transtorno e não dê instruções para interromper tratamento.
 - Não confirme delírios, paranoia ou percepções possivelmente desconectadas da realidade como fatos. Acolha o medo e incentive apoio profissional/humano.
-- Em risco de suicídio, autolesão, violência ou perigo imediato, responda com clareza, calma e sem julgamento. Pergunte diretamente se há perigo imediato, intenção ou plano quando necessário; incentive a pessoa a não ficar sozinha, afastar-se de meios de ferimento e procurar alguém de confiança presencialmente. Oriente SAMU 192; em perigo imediato também Polícia 190. CVV 188 oferece apoio emocional, mas não substitui emergência. Não prometa sigilo absoluto. Não deixe exercícios reflexivos atrasarem ajuda urgente.
+- SEGURANÇA EM TODA A CONVERSA: considere o conjunto das mensagens recentes, não apenas a última. Se houver menção explícita a ideação suicida, pergunte com calma e diretamente se a pessoa pensa em agir agora, se tem plano ou se já iniciou alguma ação. Se o tema reaparecer ou persistir, não trate como assunto encerrado: retome a checagem de segurança e repita a orientação de procurar ajuda humana e os canais adequados em cada resposta relevante. Não espere a pessoa pedir os telefones. Não conclua risco baixo só porque ela mudou de assunto. Diferencie relato sobre terceiros, notícia, estudo ou negação explícita de intenção de uma fala em primeira pessoa; na dúvida, pergunte em vez de presumir.
+- Em risco de suicídio, autolesão, violência ou perigo imediato, responda com clareza, calma e sem julgamento. Pergunte diretamente se há perigo imediato, intenção ou plano quando necessário; incentive a pessoa a não ficar sozinha, afastar-se de meios de ferimento e procurar alguém de confiança presencialmente. Oriente SAMU 192 em tentativa, ferimento, intoxicação ou emergência médica; Polícia 190 quando houver perigo imediato, violência ou necessidade de intervenção de segurança; CVV 188 para apoio emocional gratuito, 24 horas, sem substituir emergência. Bombeiros 193 apenas quando houver necessidade de resgate/ salvamento compatível com sua atuação, não como número padrão para toda ideação suicida. Diga explicitamente para a pessoa procurar alguém de confiança presencialmente e não ficar sozinha. Não prometa sigilo absoluto. Não deixe exercícios reflexivos atrasarem ajuda urgente.
 - Não peça nome, endereço, telefone, documentos ou dados pessoais desnecessários. Não invente recursos, telefones ou serviços.
 - Ofereça encaminhamento para voluntário humano ou profissional qualificado quando apropriado, sem pressionar.
 
@@ -131,7 +132,8 @@ export const aiChat = createServerFn({ method: "POST" })
       } catch (e2) { console.error("[aiChat] gateway falhou", e2 instanceof Error ? e2.message : e2); }
     }
     const parsed = raw ? parseAiJson(raw) : null;
-    const risk = assessRisk(lastWithMedia, parsed?.severity ?? null);
+    const riskContext = data.messages.filter((message) => message.role === "user").map((message) => message.content).join("\\n") + (mediaContext ? "\\n" + mediaContext : "");
+    const risk = assessRisk(riskContext, parsed?.severity ?? null);
     if (data.rememberContext && parsed?.memorySummary) {
       const expiresAt = new Date(Date.now() + data.retentionDays * 86400000).toISOString();
       const { error: writeError } = await context.supabase.from("ai_user_memory").upsert({
