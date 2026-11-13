@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -137,6 +139,7 @@ jobs:
       - name: Generate release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.tag.outputs.value }}
         run: |
           PREV=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || true)
           {
@@ -152,7 +155,7 @@ jobs:
               git log "${PREV}..HEAD" --pretty=format:'- %s (%h) — %an' --no-merges
               echo ""
               echo ""
-              echo "**Diff completo:** ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV}...v${DATE}-${SHORT}"
+              echo "**Diff completo:** ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV}...${RELEASE_TAG}"
             else
               echo "_Primeiro release automático — exibindo os últimos 50 commits._"
               echo ""
@@ -161,7 +164,7 @@ jobs:
           } > RELEASE_NOTES.md
       - name: Package dist/
         run: |
-          TAG="v${{ github.run_id }}"
+          TAG="${{ steps.tag.outputs.value }}"
           mkdir -p release-assets
           zip -qr "release-assets/desabafa-amigo-${TAG}-dist.zip" dist
           tar -czf "release-assets/desabafa-amigo-${TAG}-dist.tar.gz" dist
