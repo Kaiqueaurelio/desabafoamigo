@@ -57,9 +57,9 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   ] as const;
 
   return (
-    <div className="flex min-h-dvh w-full max-w-full overflow-x-clip bg-background">
+    <div className="flex h-dvh min-h-0 w-full max-w-full overflow-hidden bg-background">
       {!collapsed && (
-        <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex animate-fade-in">
+        <aside className="hidden h-full min-h-0 w-64 shrink-0 flex-col border-r border-border bg-card md:flex animate-fade-in">
           <Link to="/inicio" aria-label="Desabafo Amigo — ir para o início" className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40">
             <span className="relative grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white shadow-calm ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105">
               <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
@@ -79,7 +79,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
               <PanelLeftClose className="size-4" />
             </button>
           </Link>
-          <nav className="flex-1 space-y-1 p-3">
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
             <NavGroup title="Meu espaço">
               {patientNav.map((it) => (
                 <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} highlight={"highlight" in it && it.highlight} />
@@ -115,7 +115,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
       {collapsed && (
         <TooltipProvider delayDuration={150} skipDelayDuration={0}>
-          <aside className="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-3 md:flex animate-fade-in">
+          <aside className="hidden h-full min-h-0 w-14 shrink-0 flex-col items-center gap-1 border-r border-border bg-card py-3 md:flex animate-fade-in">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -176,8 +176,8 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
 
 
-      <div className="flex min-w-0 flex-1 basis-0 flex-col overflow-x-clip">
-        <header className="safe-top grid w-full max-w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-card px-2 py-2.5 md:hidden">
+      <div className="flex h-full min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden">
+        <header className="safe-top grid w-full max-w-full shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-card px-2 py-2.5 md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <button
@@ -268,11 +268,11 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
         <main
           key={pathname}
-          className="min-w-0 flex-1 overflow-x-clip overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+7rem)] md:pb-6"
+          className="min-h-0 min-w-0 flex-1 overflow-x-clip overflow-y-auto pb-4 md:pb-6"
         >
           <RouteFade>{children}</RouteFade>
         </main>
-        <nav aria-label="Navegação principal" className="grid grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
+        <nav aria-label="Navegação principal" className="grid shrink-0 grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
           {[
             { to: "/inicio", label: "Início", icon: Home },
             { to: "/conversar", label: "Conversar", icon: HeartHandshake },
