@@ -146,7 +146,7 @@ function Page() {
     const t = text.trim(); if ((!t && !media.length) || busy) return;
     const selected = media;
     const labels = selected.map((item) => `[Anexo: ${item.file.name}]`).join(" ");
-    const next = [...msgs, { role: "user" as const, content: [t, labels].filter(Boolean).join("\\n") }];
+    const next = [...msgs, { role: "user" as const, content: [t, labels].filter(Boolean).join("\n") }];
     setMsgs(next); setText(""); setMedia([]); setBusy(true);
     try {
       const attachments: { kind: "image" | "audio" | "video-frame"; mimeType: string; name: string; dataUrl: string }[] = [];
@@ -233,7 +233,8 @@ function Page() {
         <Button size="sm" variant="ghost" asChild><Link to="/respirar"><Wind className="mr-1 h-4 w-4" />Respirar</Link></Button>
         <Button size="sm" variant="ghost" onClick={endSession}><X className="mr-1 h-4 w-4" />Encerrar conversa</Button>
       </div>
-      {mediaError && <p className="text-xs text-destructive" role="alert">{mediaError}</p>}\n      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
+      {mediaError && <p className="text-xs text-destructive" role="alert">{mediaError}</p>}
+      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
       <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
         <input ref={mediaInput} type="file" accept="image/jpeg,image/png,image/webp,audio/*,video/*" multiple className="hidden" onChange={pickMedia} />
         <Button type="button" size="icon" variant="outline" className="h-auto w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto, áudio ou vídeo"><Paperclip className="h-4 w-4" /></Button>
