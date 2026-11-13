@@ -45,6 +45,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
           NVIDIA_ASR_HTTP_URL: ${{ secrets.NVIDIA_ASR_HTTP_URL }}
+          NVIDIA_API_KEY_ASR: ${{ secrets.NVIDIA_API_KEY_ASR }}
+          NVIDIA_ASR_FUNCTION_ID: ${{ secrets.NVIDIA_ASR_FUNCTION_ID }}
+          NVIDIA_ASR_LANGUAGE: ${{ vars.NVIDIA_ASR_LANGUAGE }}
         run: |
           set -euo pipefail
           put_secret() {
@@ -61,6 +64,9 @@ jobs:
           put_secret SUPABASE_URL "$SUPABASE_URL"
           put_secret SUPABASE_PUBLISHABLE_KEY "$SUPABASE_PUBLISHABLE_KEY"
           if [ -n "${NVIDIA_ASR_HTTP_URL:-}" ]; then bunx wrangler secret put NVIDIA_ASR_HTTP_URL --name desabafo-amigo <<< "$NVIDIA_ASR_HTTP_URL"; fi
+          if [ -n "${NVIDIA_API_KEY_ASR:-}" ]; then bunx wrangler secret put NVIDIA_API_KEY_ASR --name desabafo-amigo <<< "$NVIDIA_API_KEY_ASR"; fi
+          if [ -n "${NVIDIA_ASR_FUNCTION_ID:-}" ]; then bunx wrangler secret put NVIDIA_ASR_FUNCTION_ID --name desabafo-amigo <<< "$NVIDIA_ASR_FUNCTION_ID"; fi
+          if [ -n "${NVIDIA_ASR_LANGUAGE:-}" ]; then bunx wrangler secret put NVIDIA_ASR_LANGUAGE --name desabafo-amigo <<< "$NVIDIA_ASR_LANGUAGE"; fi
 
       - name: Deploy Worker
         run: bunx wrangler deploy
