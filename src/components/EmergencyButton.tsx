@@ -12,7 +12,7 @@ type Plan = {
   share_location_with_contact: boolean;
 } | null;
 
-export function EmergencyButton() {
+export function EmergencyButton({ inline = false }: { inline?: boolean }) {
   const [open, setOpen] = useState(false);
   const [plan, setPlan] = useState<Plan>(null);
   const [sharing, setSharing] = useState(false);
@@ -64,16 +64,18 @@ export function EmergencyButton() {
   return (
     <>
       {/* Atalho único de emergência: sempre visível e abre diretamente os recursos de ajuda. */}
-      <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] right-4 z-40 md:bottom-24 md:right-6">
+      <div className={inline ? "shrink-0" : "fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] right-4 z-40 md:bottom-24 md:right-6"}>
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Você não está sozinho. Abrir ajuda e contatos de emergência"
           title="Você não está sozinho — ajuda e emergência"
-          className="grid size-16 place-items-center rounded-full bg-destructive text-destructive-foreground shadow-xl ring-4 ring-destructive/15 transition hover:scale-105 hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40 active:scale-95"
+          className={inline
+            ? "inline-flex min-h-10 items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive transition hover:bg-destructive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+            : "grid size-16 place-items-center rounded-full bg-destructive text-destructive-foreground shadow-xl ring-4 ring-destructive/15 transition hover:scale-105 hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40 active:scale-95"}
         >
-          <LifeBuoy className="size-8" aria-hidden />
-          <span className="sr-only">Você não está sozinho. Abrir contatos de emergência</span>
+          <LifeBuoy className={inline ? "size-4" : "size-8"} aria-hidden />
+          {inline ? "Ajuda agora" : <span className="sr-only">Você não está sozinho. Abrir contatos de emergência</span>}
         </button>
       </div>
 
