@@ -47,9 +47,9 @@ function Page() {
 
       <Card><CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Lock className="h-5 w-5" />Como seus dados são protegidos</CardTitle></CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>• Conversas com voluntários ficam no nosso banco com criptografia em trânsito e em repouso, e só você e o voluntário da conversa podem lê-las.</p>
-          <p>• Administradores não têm leitura livre das conversas; o painel de gestão mostra só números agregados.</p>
-          <p>• Usamos um apelido e avatar gerados. Ainda assim, dados técnicos (como endereço IP) passam pela infraestrutura, por isso não prometemos anonimato absoluto.</p>
+          <p>• Mensagens e anexos enviados à IA são processados por um provedor externo de inteligência artificial (NVIDIA ou Lovable AI), conforme a disponibilidade. Evite incluir senhas, documentos, endereços ou dados que identifiquem você ou outras pessoas.</p>
+          <p>• Quando ativado, o histórico da IA é guardado no armazenamento local deste navegador/aparelho. Essa preferência não controla os registros técnicos ou a retenção dos provedores externos.</p>
+          <p>• Dados da conta e conversas humanas são armazenados na infraestrutura Supabase. O acesso depende das permissões e políticas de segurança configuradas no serviço; não prometemos anonimato absoluto nem criptografia ponta a ponta.</p>
           <p className="flex items-center gap-1"><Clock className="h-4 w-4" />Para excluir conversas com voluntários ou toda a conta, use <Link to="/meus-dados" className="font-medium text-primary underline">Meus dados</Link>.</p>
         </CardContent></Card>
     </div>
