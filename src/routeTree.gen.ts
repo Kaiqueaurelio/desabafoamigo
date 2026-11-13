@@ -16,6 +16,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ImpactoRouteImport } from './routes/impacto'
+import { Route as HackathonRouteImport } from './routes/hackathon'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -30,6 +31,7 @@ import { Route as AdminObservabilidadeRouteImport } from './routes/admin.observa
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
 import { Route as AdminMetricasRouteImport } from './routes/admin.metricas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminInteligenciaRouteImport } from './routes/admin.inteligencia'
 import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
 import { Route as AdminBibliotecaRouteImport } from './routes/admin.biblioteca'
@@ -95,6 +97,11 @@ const McpRoute = McpRouteImport.update({
 const ImpactoRoute = ImpactoRouteImport.update({
   id: '/impacto',
   path: '/impacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HackathonRoute = HackathonRouteImport.update({
+  id: '/hackathon',
+  path: '/hackathon',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -164,6 +171,11 @@ const AdminMetricasRoute = AdminMetricasRouteImport.update({
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminInteligenciaRoute = AdminInteligenciaRouteImport.update({
+  id: '/admin/inteligencia',
+  path: '/admin/inteligencia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIncidentesRoute = AdminIncidentesRouteImport.update({
@@ -334,6 +346,7 @@ const ApiPublicHooksDailyMaintenanceRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/hackathon': typeof HackathonRoute
   '/impacto': typeof ImpactoRoute
   '/mcp': typeof McpRoute
   '/offline': typeof OfflineRoute
@@ -363,6 +376,7 @@ export interface FileRoutesByFullPath {
   '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
+  '/admin/inteligencia': typeof AdminInteligenciaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -387,6 +401,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/hackathon': typeof HackathonRoute
   '/impacto': typeof ImpactoRoute
   '/mcp': typeof McpRoute
   '/offline': typeof OfflineRoute
@@ -416,6 +431,7 @@ export interface FileRoutesByTo {
   '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
+  '/admin/inteligencia': typeof AdminInteligenciaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -442,6 +458,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/hackathon': typeof HackathonRoute
   '/impacto': typeof ImpactoRoute
   '/mcp': typeof McpRoute
   '/offline': typeof OfflineRoute
@@ -471,6 +488,7 @@ export interface FileRoutesById {
   '/admin/biblioteca': typeof AdminBibliotecaRoute
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
+  '/admin/inteligencia': typeof AdminInteligenciaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -497,6 +515,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/hackathon'
     | '/impacto'
     | '/mcp'
     | '/offline'
@@ -526,6 +545,7 @@ export interface FileRouteTypes {
     | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
+    | '/admin/inteligencia'
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
@@ -550,6 +570,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/hackathon'
     | '/impacto'
     | '/mcp'
     | '/offline'
@@ -579,6 +600,7 @@ export interface FileRouteTypes {
     | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
+    | '/admin/inteligencia'
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
@@ -604,6 +626,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/hackathon'
     | '/impacto'
     | '/mcp'
     | '/offline'
@@ -633,6 +656,7 @@ export interface FileRouteTypes {
     | '/admin/biblioteca'
     | '/admin/denuncias'
     | '/admin/incidentes'
+    | '/admin/inteligencia'
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
@@ -659,6 +683,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  HackathonRoute: typeof HackathonRoute
   ImpactoRoute: typeof ImpactoRoute
   McpRoute: typeof McpRoute
   OfflineRoute: typeof OfflineRoute
@@ -674,6 +699,7 @@ export interface RootRouteChildren {
   AdminBibliotecaRoute: typeof AdminBibliotecaRoute
   AdminDenunciasRoute: typeof AdminDenunciasRoute
   AdminIncidentesRoute: typeof AdminIncidentesRoute
+  AdminInteligenciaRoute: typeof AdminInteligenciaRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMetricasRoute: typeof AdminMetricasRoute
   AdminMfaRoute: typeof AdminMfaRoute
@@ -739,6 +765,13 @@ declare module '@tanstack/react-router' {
       path: '/impacto'
       fullPath: '/impacto'
       preLoaderRoute: typeof ImpactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hackathon': {
+      id: '/hackathon'
+      path: '/hackathon'
+      fullPath: '/hackathon'
+      preLoaderRoute: typeof HackathonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -837,6 +870,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/inteligencia': {
+      id: '/admin/inteligencia'
+      path: '/admin/inteligencia'
+      fullPath: '/admin/inteligencia'
+      preLoaderRoute: typeof AdminInteligenciaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/incidentes': {
@@ -1112,6 +1152,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  HackathonRoute: HackathonRoute,
   ImpactoRoute: ImpactoRoute,
   McpRoute: McpRoute,
   OfflineRoute: OfflineRoute,
@@ -1128,6 +1169,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminBibliotecaRoute: AdminBibliotecaRoute,
   AdminDenunciasRoute: AdminDenunciasRoute,
   AdminIncidentesRoute: AdminIncidentesRoute,
+  AdminInteligenciaRoute: AdminInteligenciaRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMetricasRoute: AdminMetricasRoute,
   AdminMfaRoute: AdminMfaRoute,
