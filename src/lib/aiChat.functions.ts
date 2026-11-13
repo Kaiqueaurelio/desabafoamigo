@@ -47,8 +47,8 @@ export const aiChat = createServerFn({ method: "POST" })
     const attachments = Array.isArray(d?.attachments) ? d.attachments.slice(0, 5) : [];
     for (const a of attachments) {
       if (!["image", "audio", "video-frame"].includes(a.kind) || typeof a.dataUrl !== "string" ||
-          !/^data:(image\\/(jpeg|png|webp)|audio\\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(a.dataUrl) ||
-          a.dataUrl.length > 8_000_000) throw new Error("Anexo inválido ou muito grande.");
+          !/^data:(image\/(jpeg|png|webp)|audio\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(a.dataUrl) ||
+          a.dataUrl.length > 12_000_000) throw new Error("Anexo inválido ou muito grande.");
     }
     return {
       messages: (Array.isArray(d?.messages) ? d.messages : [])
