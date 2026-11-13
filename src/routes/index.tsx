@@ -336,9 +336,9 @@ function Hero() {
 
           <MotionStagger className="mt-10 grid max-w-md grid-cols-3 gap-4 text-center">
             {[
-              { k: "100%", v: "Anônimo" },
-              { k: "24/7", v: "Disponível" },
-              { k: "0R$", v: "Sempre gratuito" },
+              { k: "No seu tempo", v: "Sem pressão" },
+              { k: "Acolhimento", v: "Com respeito" },
+              { k: "Gratuito", v: "Para começar" },
             ].map((s) => (
               <MotionItem key={s.v} className="rounded-2xl border border-border/60 bg-card/60 p-3 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-calm)]">
                 <dt className="text-xl font-bold text-primary">{s.k}</dt>
@@ -412,7 +412,7 @@ function Origin() {
             { icon: <Ear className="size-5" />, title: "Escuta sem pressa", text: "Sem cronômetro, sem roteiro. Conversa no seu tempo." },
             { icon: <Shield className="size-5" />, title: "Identidade protegida", text: "Você recebe um apelido e avatar gerados pelo app." },
             { icon: <Users className="size-5" />, title: "Voluntários treinados", text: "Pessoas capacitadas em acolhimento, verificadas pela equipe." },
-            { icon: <HeartHandshake className="size-5" />, title: "Sempre gratuito", text: "Nasceu para ajudar. Nunca vai custar nada para desabafar." },
+            { icon: <HeartHandshake className="size-5" />, title: "Acesso gratuito", text: "Comece a explorar o espaço de acolhimento sem custo para iniciar." },
           ].map((c) => (
             <MotionItem key={c.title}>
               <OriginCard icon={c.icon} title={c.title} text={c.text} />
