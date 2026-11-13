@@ -175,7 +175,7 @@ function Page() {
         }
       }
       if (attachments.length > 5) throw new Error("Envie no máximo cinco imagens ou quadros de vídeo por mensagem.");
-      const r = await send({ data: { consent: prefs?.aiConsent === true, messages: next.slice(1), attachments } });
+      const r = await send({ data: { consent: prefs?.aiConsent === true, rememberContext: prefs?.rememberAiContext === true, retentionDays: prefs?.retentionDays ?? 0, messages: next.slice(1), attachments } });
       setMsgs([...next, { role: "assistant", content: r.reply }]);
       setDegraded(r.degraded);
       if (r.risk.level !== "none") setRisk((cur) => (cur === "urgent" ? cur : r.risk.level));
