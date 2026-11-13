@@ -137,7 +137,7 @@ export function TriageBot({
             rows={1}
             maxLength={500}
             placeholder="Escreva sua resposta…"
-            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-2xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-2xl border border-border bg-background px-3 py-2 text-base sm:text-sm outline-none focus:border-primary"
           />
           <button
             type="submit"
