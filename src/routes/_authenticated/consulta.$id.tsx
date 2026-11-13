@@ -66,6 +66,7 @@ function Consulta() {
   const mediaRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messageScrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [askRating, setAskRating] = useState(false);
   const [askNps, setAskNps] = useState(false);
@@ -156,7 +157,10 @@ function Consulta() {
     return () => { cancelled = true; if (mChan) supabase.removeChannel(mChan); };
   }, [id]);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length]);
+  useEffect(() => {
+    const container = messageScrollRef.current;
+    if (container) container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+  }, [messages.length]);
 
   useEffect(() => {
     if (!me) return;
@@ -326,7 +330,7 @@ function Consulta() {
 
       <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
         <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <div className="relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+          <div ref={messageScrollRef} className="relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
             <Watermark />
             <IdentityWatermark label={myAlias} sessionHash={me ? forensicHash : undefined} />
             <div className="relative z-10 min-w-0 space-y-2 px-3 py-4 sm:px-4">
@@ -453,7 +457,7 @@ function Consulta() {
                 </div>
                 <div className="flex min-w-0 flex-wrap items-center gap-1">
                   <Languages className="size-3.5 shrink-0" aria-hidden /> <span>Idioma p/ tradução:</span>
-                  <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="max-w-full rounded border border-border bg-background px-1 py-0.5 text-[11px]">
+                  <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="max-w-full rounded border border-border bg-background px-1 py-0.5 text-base sm:text-[11px]">
                     {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
                   </select>
                 </div>
@@ -477,7 +481,7 @@ function Consulta() {
                   onBlur={() => notifyTyping(false)}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); notifyTyping(false); send(); } }}
                   rows={1} maxLength={2000} placeholder="Escreva sua mensagem..."
-                  className="max-h-40 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-primary" />
+                  className="max-h-40 min-h-11 min-w-0 flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-2 text-base sm:text-sm outline-none focus:border-primary" />
                 <button type="submit" disabled={!draft.trim() || sending} aria-label="Enviar"
                   className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50">
                   <Send className="size-5" />
