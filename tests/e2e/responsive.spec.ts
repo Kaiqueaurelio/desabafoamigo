@@ -172,6 +172,13 @@ for (const viewport of AUTH_VIEWPORTS) {
         }
         if (route.path === "/conversar") {
           await expect(page.getByRole("heading", { name: "Conversar agora" })).toBeVisible();
+          await page.getByRole("button", { name: "Escrever eu mesmo(a)" }).click();
+          await expect(page.locator("textarea")).toBeVisible();
+          const startButton = page.getByRole("button", { name: "Entrar na fila e começar" });
+          await expect(startButton).toBeVisible();
+          const buttonBounds = await startButton.boundingBox();
+          expect(buttonBounds?.x ?? -1).toBeGreaterThanOrEqual(0);
+          expect((buttonBounds?.x ?? 0) + (buttonBounds?.width ?? 0)).toBeLessThanOrEqual(viewport.width + 1);
         }
       });
     }
@@ -189,7 +196,8 @@ for (const viewport of AUTH_VIEWPORTS) {
     }
   });
 }
-\ntest.describe("smoke visual — landing", () => {
+
+test.describe("smoke visual — landing", () => {
   test("landing renderiza herói e CTA em mobile", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto("/", { waitUntil: "domcontentloaded" });
