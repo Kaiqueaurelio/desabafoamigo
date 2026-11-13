@@ -17,11 +17,12 @@ const IDEATION = [
 /** Avalia a conversa acumulada; não substitui avaliação humana nem diagnóstico clínico. */
 export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
   const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const immediate = IMMEDIATE_INTENT.some((pattern) => pattern.test(normalized));
-  const ideationMentions = normalized.split(/\n+/).filter((line) => !/\b(nao estou pensando em|nao pretendo|nao tenho intencao de)\b.{0,35}\b(me matar|tirar minha vida|suicidio)\b/i.test(line) && IDEATION.some((pattern) => pattern.test(line))).length;
+  const lines = normalized.split(/\n+/);
+  const explicitNegation = lines.some((line) => /\b(nao estou pensando em|nao pretendo|nao tenho intencao de|nao quero morrer|nao quero me matar)\b/i.test(line));
+  const immediate = lines.some((line) => !/\b(nao quero morrer|nao quero me matar|nao pretendo|nao tenho intencao de)\b/i.test(line) && IMMEDIATE_INTENT.some((pattern) => pattern.test(line)));
+  const ideationMentions = lines.filter((line) => !/\b(nao estou pensando em|nao pretendo|nao tenho intencao de|nao quero morrer|nao quero me matar)\b.{0,50}\b(me matar|tirar minha vida|suicidio|morrer)\b/i.test(line) && IDEATION.some((pattern) => pattern.test(line))).length;
   const repeatedIdeation = ideationMentions >= 2;
   const anyIdeation = ideationMentions >= 1;
-  const explicitNegation = normalized.split(/\n+/).some((line) => /\b(nao estou pensando em|nao pretendo|nao tenho intencao de)\b.{0,50}\b(me matar|tirar minha vida|suicidio)\b/i.test(line));
   const kwAny = !explicitNegation && detectRisk(text);
   if (immediate || repeatedIdeation) return { level: "urgent", offerHuman: true, source: "keywords" };
   const sev = typeof aiSeverity === "number" && Number.isFinite(aiSeverity) ? aiSeverity : null;
