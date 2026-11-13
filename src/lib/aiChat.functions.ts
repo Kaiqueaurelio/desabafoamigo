@@ -48,20 +48,6 @@ LIMITES E SEGURANÇA:
 FORMATO:
 Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary":"resumo seguro e curto ou string vazia"}. severity: 0 sem sinal identificado; 1 sofrimento leve/moderado; 2 sofrimento intenso ou possível risco; 3 risco iminente ou perigo imediato. Na dúvida relevante, escolha o nível maior. Não inclua markdown nem texto fora do JSON.`;
 
-async function callNvidia(messages: unknown[]): Promise<string> {
-  const k = process.env.NVIDIA_API_KEY;
-  if (!k) throw new Error("no nvidia");
-  const r = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${k}` },
-    body: JSON.stringify({ model: "meta/llama-3.1-8b-instruct", messages, temperature: 0.35, top_p: 0.85, max_tokens: 420, stream: false }),
-    signal: AbortSignal.timeout(18000),
-  });
-  if (!r.ok) throw new Error(`nvidia ${r.status}`);
-  const j = (await r.json()) as { choices?: { message?: { content?: string } }[] };
-  return j.choices?.[0]?.message?.content ?? "";
-}
-
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { consent?: boolean; rememberContext?: boolean; retentionDays?: number; messages: Msg[]; attachments?: AiAttachment[] }) => {
