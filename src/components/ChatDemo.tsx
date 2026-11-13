@@ -4,11 +4,11 @@ import { avatarUrl } from "@/lib/avatar";
 type Msg = { side: "me" | "peer"; text: string; delay: number };
 
 const SCRIPT: Msg[] = [
-  { side: "peer", text: "Oi! Como você está se sentindo hoje?", delay: 900 },
+  { side: "peer", text: "Oi! Eu sou o Amigo IA. Como você está se sentindo hoje?", delay: 900 },
   { side: "me", text: "Um pouco ansiosa com o trabalho…", delay: 1500 },
-  { side: "peer", text: "Estou aqui pra te ouvir. Me conta com calma. 💙", delay: 1600 },
+  { side: "peer", text: "Estou aqui para te ouvir e ajudar a organizar o que está passando pela sua cabeça. 💙", delay: 1600 },
   { side: "me", text: "Obrigada, isso já me acalma um pouco.", delay: 1500 },
-  { side: "peer", text: "Você não está sozinha nessa. Respira comigo. 🌿", delay: 1800 },
+  { side: "peer", text: "Vamos com calma. Quer me contar um pouco mais? 🌿", delay: 1800 },
 ];
 
 export function ChatDemo() {
@@ -54,7 +54,7 @@ export function ChatDemo() {
       <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-[var(--shadow-calm)] animate-float">
         <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
           <img
-            src={avatarUrl("Sereno Rio 428", 96)}
+            src={avatarUrl("Amigo IA", 96)}
             alt=""
             className="size-11 rounded-full ring-2 ring-brand-soft"
           />
@@ -62,11 +62,11 @@ export function ChatDemo() {
             <p className="text-sm font-semibold text-foreground">Sereno Rio 428</p>
             <p className="flex items-center gap-1.5 text-[11px] text-brand-green">
               <span className="inline-block size-1.5 rounded-full bg-brand-green animate-pulse" />
-              Online agora · Voluntário(a) treinado(a)
+              Inteligência artificial · Assistente de apoio
             </p>
           </div>
           <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-medium text-primary">
-            demo ao vivo
+            demonstração
           </span>
         </div>
         <div className="flex min-h-[240px] flex-col justify-end space-y-2">
