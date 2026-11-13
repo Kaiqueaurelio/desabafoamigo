@@ -83,10 +83,10 @@ export function EmergencyButton() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="emergencia-titulo"
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto overscroll-contain bg-black/50 p-3 sm:items-center sm:p-4"
           onClick={() => setOpen(false)}
         >
-          <div ref={panelRef} className="w-full max-w-md rounded-2xl bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div ref={panelRef} className="my-auto max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl bg-card p-4 shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:p-6" onClick={(e) => e.stopPropagation()}>
 
             <div className="mb-4 flex items-start justify-between gap-4">
               <h2 id="emergencia-titulo" className="text-xl font-semibold text-foreground">
