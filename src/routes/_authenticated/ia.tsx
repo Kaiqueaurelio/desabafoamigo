@@ -81,7 +81,11 @@ function Page() {
   const [mediaError, setMediaError] = useState("");
 
   useEffect(() => () => {
-    recorderRef.current?.stop();
+    if (recorderRef.current) {
+      recorderRef.current.onstop = null;
+      recorderRef.current.ondataavailable = null;
+      if (recorderRef.current.state !== "inactive") recorderRef.current.stop();
+    }
     recordingStreamRef.current?.getTracks().forEach((track) => track.stop());
   }, []);
 
