@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
-import { Loader2, HeartHandshake, X, Clock, Sparkles, Pencil } from "lucide-react";
+import { Loader2, HeartHandshake, X, Sparkles, Pencil } from "lucide-react";
 import { BreathingButton } from "@/components/BreathingExercise";
 import { TriageBot } from "@/components/TriageBot";
 
@@ -37,12 +37,36 @@ function Instant() {
           }
         }).subscribe();
     channelRef.current = ch;
-    const t = setInterval(async () => {
-      const { data } = await supabase.from("queue").select("id").eq("status", "waiting")
-        .lte("created_at", new Date().toISOString()).order("created_at");
-      const idx = (data ?? []).findIndex((r) => r.id === queueId);
-      setPosition(idx >= 0 ? idx + 1 : null);
-    }, 4000);
+    let checking = false;
+    const refreshQueue = async () => {
+      if (checking) return;
+      checking = true;
+      try {
+        const { data: current, error } = await supabase.from("queue")
+          .select("status, conversation_id").eq("id", queueId).maybeSingle();
+        if (error || !current) return;
+        if (current.status === "matched" && current.conversation_id) {
+          const { data: conv } = await supabase.from("conversations")
+            .select("appointment_id").eq("id", current.conversation_id).maybeSingle();
+          if (conv?.appointment_id) navigate({ to: "/consulta/$id", params: { id: conv.appointment_id } });
+          return;
+        }
+        if (current.status === "cancelled") {
+          setQueueId(null);
+          setPosition(null);
+          setErr("A entrada na fila foi cancelada. Você pode tentar novamente.");
+          return;
+        }
+        const { data } = await supabase.from("queue").select("id").eq("status", "waiting")
+          .lte("created_at", new Date().toISOString()).order("created_at");
+        const idx = (data ?? []).findIndex((r) => r.id === queueId);
+        setPosition(idx >= 0 ? idx + 1 : null);
+      } finally {
+        checking = false;
+      }
+    };
+    void refreshQueue();
+    const t = setInterval(() => void refreshQueue(), 5000);
     return () => { if (channelRef.current) supabase.removeChannel(channelRef.current); clearInterval(t); };
   }, [queueId, navigate]);
 
@@ -59,8 +83,13 @@ function Instant() {
 
   async function stop() {
     if (!queueId) return;
-    await cancel({ data: { queueId } });
-    setQueueId(null); setPosition(null);
+    setErr("");
+    try {
+      await cancel({ data: { queueId } });
+      setQueueId(null); setPosition(null);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Não foi possível sair da fila agora. Tente novamente.");
+    }
   }
 
   return (
@@ -112,7 +141,7 @@ function Instant() {
               <label className="text-xs font-medium text-muted-foreground">O que gostaria de conversar? (opcional)</label>
               <textarea value={topic} onChange={(e) => setTopic(e.target.value)} rows={4} maxLength={500}
                 placeholder="Ex: estou ansioso, não consigo dormir..."
-                className="mt-1 w-full min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                className="mt-1 w-full min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-base sm:text-sm outline-none focus:border-primary" />
               {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
               <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={() => setMode("choose")} className="rounded-full px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
@@ -129,14 +158,8 @@ function Instant() {
             <Loader2 className="mx-auto size-8 animate-spin text-primary" aria-hidden />
             <p className="mt-4 text-lg font-semibold text-foreground">Aguardando um(a) voluntário(a)…</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {position ? `Você é o ${position}º na fila.` : "Você está na fila."}
+              {position ? `Você é o ${position}º na fila.` : "Sua posição está sendo atualizada."}
             </p>
-            {position !== null && (
-              <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-soft px-3 py-1 text-xs text-primary">
-                <Clock className="size-3" aria-hidden />
-                Tempo estimado: ~{Math.max(1, position * 2)}–{position * 4} min
-              </p>
-            )}
             <p className="mt-2 text-xs text-muted-foreground">Assim que alguém aceitar, a conversa abre automaticamente.</p>
 
             <div className="mx-auto mt-6 max-w-sm rounded-2xl border border-border bg-background/60 p-4 text-left">
@@ -147,7 +170,7 @@ function Instant() {
               <div className="mt-3"><BreathingButton /></div>
             </div>
 
-            <button onClick={stop} className="mt-6 inline-flex items-center gap-1 rounded-full bg-secondary px-4 py-2 text-sm hover:bg-muted">
+            <button onClick={stop} className="mt-6 inline-flex min-h-11 items-center gap-1 rounded-full bg-secondary px-4 py-2 text-sm hover:bg-muted">
               <X className="size-4" aria-hidden /> Sair da fila
             </button>
           </div>
