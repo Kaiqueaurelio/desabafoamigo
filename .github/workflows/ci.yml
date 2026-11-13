@@ -6,13 +6,16 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-dev:
-    name: Build (development)
+    name: Lint, test and build (development)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,16 +24,17 @@ jobs:
           bun-version: latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      - name: Lint
-        run: bun run lint 2>&1 | tee -a build-logs/lint.log
-        continue-on-error: true
-      - name: Test
-        run: bun run test 2>&1 | tee -a build-logs/test.log
-        continue-on-error: true
       - name: Prepare log dir
         run: mkdir -p build-logs
+      - name: Lint
+        run: |
+          set -o pipefail
+          bun run lint 2>&1 | tee build-logs/lint.log
+      - name: Test
+        run: |
+          set -o pipefail
+          bun run test 2>&1 | tee build-logs/test.log
       - name: Build (development)
-        id: build_dev
         run: |
           set -o pipefail
           bun run build:dev 2>&1 | tee build-logs/build-dev.log
@@ -43,7 +47,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: Upload dev dist
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: build-dev-dist
@@ -55,7 +59,6 @@ jobs:
     name: Build (production)
     runs-on: ubuntu-latest
     needs: build-dev
-    if: always()
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -66,7 +69,6 @@ jobs:
       - name: Prepare log dir
         run: mkdir -p build-logs
       - name: Build (production)
-        id: build_prod
         run: |
           set -o pipefail
           bun run build:prod 2>&1 | tee build-logs/build-prod.log
@@ -79,7 +81,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: Upload prod dist
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: build-prod-dist
@@ -98,20 +100,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Download prod dist
         uses: actions/download-artifact@v4
         with:
           name: build-prod-dist
           path: dist
-
       - name: Verify dist/
         run: |
           if [ ! -d dist ] || [ -z "$(ls -A dist)" ]; then
             echo "::error::dist/ vazio — build:prod não produziu artefatos, abortando release."
             exit 1
           fi
-
       - name: Compute release tag
         id: tag
         run: |
@@ -119,17 +118,13 @@ jobs:
           SHORT=${GITHUB_SHA::7}
           BASE="v${DATE}"
           TAG="${BASE}-${SHORT}"
-          # Se por algum motivo já existir, adiciona sufixo -N
           N=1
           while git rev-parse "refs/tags/${TAG}" >/dev/null 2>&1; do
             TAG="${BASE}-${SHORT}-${N}"
             N=$((N+1))
           done
           echo "value=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "base=${BASE}" >> "$GITHUB_OUTPUT"
-
       - name: Generate release notes
-        id: notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -147,30 +142,23 @@ jobs:
               git log "${PREV}..HEAD" --pretty=format:'- %s (%h) — %an' --no-merges
               echo ""
               echo ""
-              echo "**Diff completo:** ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV}...${{ steps.tag.outputs.value }}"
+              echo "**Diff completo:** ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV}...v${DATE}-${SHORT}"
             else
               echo "_Primeiro release automático — exibindo os últimos 50 commits._"
               echo ""
               git log -n 50 --pretty=format:'- %s (%h) — %an' --no-merges
             fi
           } > RELEASE_NOTES.md
-          echo "path=RELEASE_NOTES.md" >> "$GITHUB_OUTPUT"
-
       - name: Package dist/
         run: |
-          TAG="${{ steps.tag.outputs.value }}"
+          TAG="v${{ github.run_id }}"
           mkdir -p release-assets
           zip -qr "release-assets/desabafa-amigo-${TAG}-dist.zip" dist
           tar -czf "release-assets/desabafa-amigo-${TAG}-dist.tar.gz" dist
           (cd release-assets && sha256sum * > SHA256SUMS.txt)
-
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="${{ steps.tag.outputs.value }}"
-          gh release create "$TAG" release-assets/* \
-            --title "Desabafa Amigo ${TAG}" \
-            --notes-file RELEASE_NOTES.md \
-            --target "$GITHUB_SHA"
-
+          TAG="v${{ github.run_id }}"
+          gh release create "$TAG" release-assets/* --title "Desabafo Amigo ${TAG}" --notes-file RELEASE_NOTES.md --target "$GITHUB_SHA"
