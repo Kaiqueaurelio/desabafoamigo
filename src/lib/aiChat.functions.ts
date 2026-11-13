@@ -28,7 +28,7 @@ ESTILO:
 - Normalmente use 2 a 5 frases curtas. Listas só quando forem realmente úteis ou solicitadas.
 - Não apresse a pessoa para "resolver", não use positividade tóxica, clichês ou frases prontas. Não pressione por detalhes.
 - Não diga que sente emoções, tem vivências pessoais ou que estará sempre disponível. Não incentive dependência ou exclusividade. Quando adequado, estimule apoio de pessoas de confiança e opções humanas.
-- Não invente memória entre sessões. Use apenas o contexto efetivamente presente na conversa.
+- MEMÓRIA COM CONSENTIMENTO: gere memorySummary atualizado (até 1.500 caracteres) apenas com padrões recorrentes explicitamente relatados pela pessoa, preferências de conversa e objetivos declarados. Preserve incertezas como hipóteses. Não registre diagnósticos, suspeitas clínicas, traumas inferidos, dados sensíveis de saúde, religião, orientação sexual, dados de terceiros, detalhes de crise ou informações identificáveis. Se não houver algo útil e seguro, retorne string vazia. A memória só será salva com consentimento específico e prazo ativo.
 
 LIMITES E SEGURANÇA:
 - Não faça diagnóstico, avaliação clínica, psicoterapia, prescrição ou recomendação de medicamentos. Não classifique a personalidade, não conclua que alguém tem transtorno e não dê instruções para interromper tratamento.
@@ -38,7 +38,7 @@ LIMITES E SEGURANÇA:
 - Ofereça encaminhamento para voluntário humano ou profissional qualificado quando apropriado, sem pressionar.
 
 FORMATO:
-Responda APENAS em JSON válido: {"reply":"texto","severity":0-3}. severity: 0 sem sinal identificado; 1 sofrimento leve/moderado; 2 sofrimento intenso ou possível risco; 3 risco iminente ou perigo imediato. Na dúvida relevante, escolha o nível maior. Não inclua markdown nem texto fora do JSON.`;
+Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary":"resumo seguro e curto ou string vazia"}. severity: 0 sem sinal identificado; 1 sofrimento leve/moderado; 2 sofrimento intenso ou possível risco; 3 risco iminente ou perigo imediato. Na dúvida relevante, escolha o nível maior. Não inclua markdown nem texto fora do JSON.`;
 
 async function callNvidia(messages: unknown[]): Promise<string> {
   const k = process.env.NVIDIA_API_KEY;
@@ -55,7 +55,7 @@ async function callNvidia(messages: unknown[]): Promise<string> {
 
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { consent?: boolean; messages: Msg[]; attachments?: AiAttachment[] }) => {
+  .inputValidator((d: { consent?: boolean; rememberContext?: boolean; retentionDays?: number; messages: Msg[]; attachments?: AiAttachment[] }) => {
     if (d?.consent !== true) throw new Error("É necessário consentimento para processar mensagens com IA.");
     const attachments = Array.isArray(d?.attachments) ? d.attachments.slice(0, 5) : [];
     const totalAttachmentSize = attachments.reduce((total, attachment) => total + (typeof attachment.dataUrl === "string" ? attachment.dataUrl.length : 0), 0);
@@ -71,9 +71,11 @@ export const aiChat = createServerFn({ method: "POST" })
         .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
         .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) })),
       attachments,
+      rememberContext: d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
+      retentionDays: d?.retentionDays === 30 ? 30 : 7,
     };
   })
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const last = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
     if (!last.trim()) throw new Error("Mensagem vazia");
     let mediaContext = "";
@@ -97,7 +99,18 @@ export const aiChat = createServerFn({ method: "POST" })
           ...data.attachments.filter((a) => a.kind !== "audio").map((a) => ({ type: "image_url", image_url: { url: a.dataUrl } })),
         ]
       : lastWithMedia;
-    const messages = [{ role: "system", content: SYSTEM }, ...data.messages.slice(0, -1), { role: "user", content: userContent }];
+    let savedMemory: string | null = null;
+    if (data.rememberContext) {
+      const { data: memoryRow, error: memoryError } = await context.supabase.from("ai_user_memory")
+        .select("memory_summary, expires_at").eq("user_id", context.userId).maybeSingle();
+      if (memoryError) console.warn("[aiChat] memory read failed", memoryError.message);
+      else if (memoryRow && new Date(memoryRow.expires_at).getTime() > Date.now()) savedMemory = memoryRow.memory_summary;
+      else if (memoryRow) await context.supabase.from("ai_user_memory").delete().eq("user_id", context.userId);
+    } else {
+      await context.supabase.from("ai_user_memory").delete().eq("user_id", context.userId);
+    }
+    const memoryMessage = savedMemory ? { role: "system", content: "Contexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: " + savedMemory } : null;
+    const messages = [{ role: "system", content: SYSTEM }, ...(memoryMessage ? [memoryMessage] : []), ...data.messages.slice(0, -1), { role: "user", content: userContent }];
     let raw = "";
     let provider: "nvidia" | "lovable" | "none" = "none";
     try {
@@ -119,5 +132,12 @@ export const aiChat = createServerFn({ method: "POST" })
     }
     const parsed = raw ? parseAiJson(raw) : null;
     const risk = assessRisk(lastWithMedia, parsed?.severity ?? null);
+    if (data.rememberContext && parsed?.memorySummary) {
+      const expiresAt = new Date(Date.now() + data.retentionDays * 86400000).toISOString();
+      const { error: writeError } = await context.supabase.from("ai_user_memory").upsert({
+        user_id: context.userId, memory_summary: parsed.memorySummary, expires_at: expiresAt, updated_at: new Date().toISOString(),
+      });
+      if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
+    }
     return { reply: parsed?.reply ?? FALLBACK_REPLY, risk, provider, degraded: !parsed };
   });
