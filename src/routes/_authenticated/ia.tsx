@@ -12,6 +12,7 @@ import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
 import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs";
 import { assessRisk, type RiskLevel } from "@/lib/aiSafety";
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { EllaVoiceMode } from "@/components/EllaVoiceMode";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({ meta: [
@@ -65,6 +66,7 @@ function Page() {
   const [msgs, setMsgs] = useState<M[]>([GREETING]);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
   const [risk, setRisk] = useState<RiskLevel>("none");
   const [offerHuman, setOfferHuman] = useState(false);
   const [degraded, setDegraded] = useState(false);
@@ -294,6 +296,7 @@ function Page() {
         <ModeCard icon={HeartHandshake} label="Voluntário" to="/conversar" />
         <ModeCard icon={Stethoscope} label="Profissional" to="/apoio" />
         </div>
+        <Button size="sm" variant="outline" className="shrink-0" onClick={() => setVoiceOpen(true)} disabled={!prefs?.aiConsent} title="Conversar com Ella por voz"><Mic className="mr-1 h-4 w-4" /> <span className="hidden sm:inline">Voz</span></Button>
         <EmergencyButton inline />
       </div>
       <p className="shrink-0 break-words rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">O Ella Ribeiro é uma <strong>inteligência artificial de apoio emocional — não é psicólogo, não possui registro profissional e não realiza psicoterapia</strong>. Usa princípios de comunicação inspirados na Psicanálise, TCC e Terapia Cognitiva Analítica para ajudar você a refletir. Não faz diagnóstico nem substitui atendimento profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
@@ -360,6 +363,14 @@ function Page() {
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="w-0 min-w-0 flex-1 resize-none text-base sm:text-sm" />
         <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={busy || recording || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
       </form>
+      <EllaVoiceMode
+        open={voiceOpen}
+        onOpenChange={setVoiceOpen}
+        consent={prefs?.aiConsent === true}
+        messages={msgs}
+        onTranscript={(message) => setMsgs((current) => [...current, message])}
+        onRisk={(level) => { setRisk((current) => current === "urgent" ? current : level); setOfferHuman(true); }}
+      />
     </div>
   );
 }
