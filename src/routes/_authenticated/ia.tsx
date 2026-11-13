@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone } from "lucide-react";
+import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone, Paperclip, Image as ImageIcon, FileAudio, FileVideo } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { aiChat } from "@/lib/aiChat.functions";
@@ -23,7 +23,37 @@ export const Route = createFileRoute("/_authenticated/ia")({
 });
 
 type M = { role: "user" | "assistant"; content: string };
+type PendingMedia = { file: File; kind: "image" | "audio" | "video" };
 const GREETING: M = { role: "assistant", content: "Oi. Eu sou o Amigo IA, uma inteligência artificial de apoio emocional — não sou psicólogo nem substituo um profissional. Posso te ouvir com atenção, ajudar a organizar o que está passando pela sua cabeça e pensar com você em próximos passos, sem julgamentos. O que está pesando mais para você hoje?" };
+
+async function toDataUrl(file: File): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Falha ao ler arquivo."));
+    reader.onerror = () => reject(new Error("Falha ao ler arquivo."));
+    reader.readAsDataURL(file);
+  });
+}
+async function extractVideoFrames(file: File): Promise<string[]> {
+  const url = URL.createObjectURL(file);
+  try {
+    const video = document.createElement("video"); video.preload = "metadata"; video.muted = true; video.src = url;
+    await new Promise<void>((resolve, reject) => { video.onloadedmetadata = () => resolve(); video.onerror = () => reject(new Error("Não foi possível abrir o vídeo.")); });
+    if (!Number.isFinite(video.duration) || video.duration > 30) throw new Error("O vídeo deve ter até 30 segundos.");
+    const times = [...new Set([0, Math.min(1, video.duration / 2), Math.max(0, video.duration - 0.2)])];
+    const frames: string[] = [];
+    for (const time of times) {
+      video.currentTime = time;
+      await new Promise<void>((resolve, reject) => { video.onseeked = () => resolve(); video.onerror = () => reject(new Error("Falha ao processar o vídeo.")); });
+      const canvas = document.createElement("canvas");
+      const scale = Math.min(1, 960 / Math.max(video.videoWidth, video.videoHeight));
+      canvas.width = Math.max(1, Math.round(video.videoWidth * scale)); canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+      canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+      frames.push(canvas.toDataURL("image/jpeg", 0.72));
+    }
+    return frames;
+  } finally { URL.revokeObjectURL(url); }
+}
 
 function Page() {
   const send = useServerFn(aiChat);
@@ -41,6 +71,8 @@ function Page() {
   const [handoffBusy, setHandoffBusy] = useState(false);
   const [handoffError, setHandoffError] = useState("");
   const end = useRef<HTMLDivElement>(null);
+  const mediaInput = useRef<HTMLInputElement>(null);
+  const [media, setMedia] = useState<PendingMedia[]>([]);
 
   useEffect(() => {
     const p = loadPrefs(); setPrefs(p);
@@ -100,22 +132,43 @@ function Page() {
     if (prefs?.keepAiHistory && prefs.retentionDays) localStorage.setItem(AI_HISTORY_KEY, JSON.stringify({ at: Date.now(), msgs }));
   }, [msgs, prefs]);
 
+  function pickMedia(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []); event.target.value = "";
+    for (const file of files) {
+      const kind = file.type.startsWith("image/") ? "image" : file.type.startsWith("audio/") ? "audio" : file.type.startsWith("video/") ? "video" : null;
+      if (!kind) { toast.error("Envie uma imagem, áudio ou vídeo."); continue; }
+      const limit = kind === "image" ? 5 : kind === "audio" ? 8 : 25;
+      if (file.size > limit * 1024 * 1024) { toast.error(`O arquivo excede o limite de ${limit} MB.`); continue; }
+      setMedia((current) => current.length >= 3 ? current : [...current, { file, kind }]);
+    }
+  }
   async function submit() {
-    const t = text.trim(); if (!t || busy) return;
-    const next = [...msgs, { role: "user" as const, content: t }];
-    setMsgs(next); setText(""); setBusy(true);
+    const t = text.trim(); if ((!t && !media.length) || busy) return;
+    const selected = media;
+    const labels = selected.map((item) => `[Anexo: ${item.file.name}]`).join(" ");
+    const next = [...msgs, { role: "user" as const, content: [t, labels].filter(Boolean).join("\\n") }];
+    setMsgs(next); setText(""); setMedia([]); setBusy(true);
     try {
-      const r = await send({ data: { messages: next.slice(1) } });
+      const attachments: { kind: "image" | "audio" | "video-frame"; mimeType: string; name: string; dataUrl: string }[] = [];
+      for (const item of selected) {
+        if (item.kind === "video") {
+          const frames = await extractVideoFrames(item.file);
+          frames.forEach((dataUrl) => attachments.push({ kind: "video-frame", mimeType: "image/jpeg", name: item.file.name, dataUrl }));
+        } else {
+          attachments.push({ kind: item.kind, mimeType: item.file.type, name: item.file.name, dataUrl: await toDataUrl(item.file) });
+        }
+      }
+      const r = await send({ data: { messages: next.slice(1), attachments } });
       setMsgs([...next, { role: "assistant", content: r.reply }]);
       setDegraded(r.degraded);
       if (r.risk.level !== "none") setRisk((cur) => (cur === "urgent" ? cur : r.risk.level));
       if (r.risk.offerHuman) setOfferHuman(true);
-    } catch {
-      setMsgs([...next, { role: "assistant", content: "Não consegui responder agora. Você pode falar com um voluntário humano ou ligar 188 (CVV)." }]);
-      setDegraded(true); setOfferHuman(true); setRisk((c) => (c === "none" ? "attention" : c));
+    } catch (error) {
+      setMsgs([...next, { role: "assistant", content: error instanceof Error ? error.message : "Não consegui processar sua mensagem agora. Você pode tentar novamente ou falar com um voluntário." }]);
+      setDegraded(true); setOfferHuman(true); setRisk((current) => current === "none" ? "attention" : current);
     } finally { setBusy(false); }
   }
-  function endSession() { setMsgs([GREETING]); setRisk("none"); setOfferHuman(false); localStorage.removeItem(AI_HISTORY_KEY); }
+  function endSession() { setMsgs([GREETING]); setRisk("none"); setOfferHuman(false); setMedia([]); localStorage.removeItem(AI_HISTORY_KEY); }
 
   if (prefs && !prefs.aiConsent) return (
     <div className="mx-auto max-w-xl space-y-4 p-6 text-center">
@@ -180,10 +233,13 @@ function Page() {
         <Button size="sm" variant="ghost" asChild><Link to="/respirar"><Wind className="mr-1 h-4 w-4" />Respirar</Link></Button>
         <Button size="sm" variant="ghost" onClick={endSession}><X className="mr-1 h-4 w-4" />Encerrar conversa</Button>
       </div>
+      {media.length > 0 && <div className="flex flex-wrap gap-2" aria-label="Anexos selecionados">{media.map((item, index) => <div key={`${item.file.name}-${index}`} className="flex items-center gap-2 rounded-lg border bg-card px-2 py-1 text-xs"><span className="max-w-32 truncate">{item.file.name}</span><button type="button" aria-label={`Remover ${item.file.name}`} onClick={() => setMedia((current) => current.filter((_, i) => i !== index))}><X className="h-3 w-3" /></button></div>)}</div>}
       <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
+        <input ref={mediaInput} type="file" accept="image/jpeg,image/png,image/webp,audio/*,video/*" multiple className="hidden" onChange={pickMedia} />
+        <Button type="button" size="icon" variant="outline" className="h-auto w-11 shrink-0" disabled={busy || media.length >= 3} onClick={() => mediaInput.current?.click()} aria-label="Anexar foto, áudio ou vídeo"><Paperclip className="h-4 w-4" /></Button>
         <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={2000} placeholder="Escreva o que está sentindo…" aria-label="Mensagem"
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} className="resize-none" />
-        <Button type="submit" size="icon" className="h-auto w-12 shrink-0" disabled={busy || !text.trim()} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
+        <Button type="submit" size="icon" className="h-auto w-12 shrink-0" disabled={busy || (!text.trim() && !media.length)} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
       </form>
     </div>
   );
