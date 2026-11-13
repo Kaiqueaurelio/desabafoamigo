@@ -145,7 +145,8 @@ async function getBottomOverlays(page: Page) {
 
 for (const p of PROFILES) {
   test.describe(`safe-area @ ${p.name} (bottom=${p.insets.bottom}px)`, () => {
-    test.use({ ...devices[p.device] });
+    const { defaultBrowserType: _defaultBrowserType, ...deviceOptions } = devices[p.device];
+    test.use({ ...deviceOptions });
 
     let mode: "cdp" | "polyfill" | null = null;
 
