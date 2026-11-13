@@ -4,7 +4,7 @@ import { avatarUrl } from "@/lib/avatar";
 type Msg = { side: "me" | "peer"; text: string; delay: number };
 
 const SCRIPT: Msg[] = [
-  { side: "peer", text: "Oi! Eu sou o Amigo IA. Como você está se sentindo hoje?", delay: 900 },
+  { side: "peer", text: "Oi! Eu sou o Ella Ribeiro. Como você está se sentindo hoje?", delay: 900 },
   { side: "me", text: "Um pouco ansiosa com o trabalho…", delay: 1500 },
   { side: "peer", text: "Estou aqui para te ouvir e ajudar a organizar o que está passando pela sua cabeça. 💙", delay: 1600 },
   { side: "me", text: "Obrigada, isso já me acalma um pouco.", delay: 1500 },
@@ -54,7 +54,7 @@ export function ChatDemo() {
       <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-[var(--shadow-calm)] animate-float">
         <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
           <img
-            src={avatarUrl("Amigo IA", 96)}
+            src={avatarUrl("Ella Ribeiro", 96)}
             alt=""
             className="size-11 rounded-full ring-2 ring-brand-soft"
           />
