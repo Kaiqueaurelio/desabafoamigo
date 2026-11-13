@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier -- keep the device-profile test layout explicit */
 import { test, expect, devices, type Page, type BrowserContext } from "@playwright/test";
 
 /**
