@@ -54,5 +54,5 @@ export const synthesizeEllaSpeech = createServerFn({ method: "POST" })
     }
     const bytes = Buffer.from(await response.arrayBuffer());
     if (!bytes.length || bytes.length > 12_000_000) throw new Error("O serviço NVIDIA retornou um áudio inválido ou muito grande.");
-    return { audioBase64: bytes.toString("base64"), mimeType: response.headers.get("content-type")?.includes("wav") ? "audio/wav" : "audio/wav" };
+    return { audioBase64: bytes.toString("base64"), mimeType: "audio/wav" };
   });
