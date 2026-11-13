@@ -8,10 +8,13 @@ import { Logo } from "@/components/Logo";
  */
 export function PageIntro({ duration = 1400 }: { duration?: number }) {
   const reduce = useReducedMotion();
-  const [show, setShow] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return !sessionStorage.getItem("intro_seen_v1");
-  });
+  // Keep the first render identical on server and client to avoid hydration mismatch.
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("intro_seen_v1")) return;
+    setShow(true);
+  }, []);
 
   useEffect(() => {
     if (!show) return;
