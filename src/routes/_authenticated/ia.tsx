@@ -204,7 +204,7 @@ function Page() {
         <ModeCard icon={HeartHandshake} label="Voluntário" to="/conversar" />
         <ModeCard icon={Stethoscope} label="Profissional" to="/apoio" />
       </div>
-      <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">Este é um espaço de <strong>acolhimento emocional com inteligência artificial</strong>, não uma consulta psicológica. A IA pode ajudar você a refletir e encontrar próximos passos, mas não diagnostica nem substitui um profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
+      <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">O Amigo IA é uma <strong>inteligência artificial de apoio emocional — não é psicólogo, não possui registro profissional e não realiza psicoterapia</strong>. Usa princípios de comunicação inspirados na Psicanálise, TCC e Terapia Cognitiva Analítica para ajudar você a refletir. Não faz diagnóstico nem substitui atendimento profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
 
       {offerHuman && !queueId && (
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
