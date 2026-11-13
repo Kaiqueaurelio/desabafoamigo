@@ -159,8 +159,9 @@ function ProgressBar({ time, duration, onSeek }: { time: number; duration: numbe
         if (e.key === "ArrowRight") onSeek(Math.min(duration, time + 2));
         if (e.key === "ArrowLeft") onSeek(Math.max(0, time - 2));
       }}
-      className="relative h-9 min-w-0 flex-1 cursor-pointer rounded-full bg-background/60"
+      className="relative flex h-10 min-w-0 flex-1 cursor-pointer items-center rounded-full"
     >
+      <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-background/60" />
       <div className="absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary" style={{ width: `${pct}%` }} />
     </div>
   );
