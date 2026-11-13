@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier -- preserve existing auth page layout while guest access is introduced */
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
