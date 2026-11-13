@@ -6,7 +6,7 @@ import { EmergencyButton } from "@/components/EmergencyButton";
 import { supabase } from "@/integrations/supabase/client";
 import { avatarUrl } from "@/lib/avatar";
 import { useSidebarToggle } from "@/lib/useSidebarToggle";
-import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings, Wind, PanelLeftClose, PanelLeftOpen, Menu, X } from "lucide-react";
+import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings, Wind, Bot, PanelLeftClose, PanelLeftOpen, Menu, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { RouteFade } from "@/components/RouteFade";
@@ -41,7 +41,7 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 
   const patientNav = [
     { to: "/inicio", label: "Início", icon: Home },
-    { to: "/ia", label: "Amigo IA", icon: HeartHandshake },
+    { to: "/ia", label: "Amigo IA", icon: Bot },
     { to: "/conversar", label: "Conversar agora", icon: HeartHandshake },
     { to: "/respirar", label: "Respire comigo", icon: Wind, highlight: true },
     { to: "/consultas", label: "Minhas conversas", icon: CalendarClock },
@@ -276,8 +276,8 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
         <nav aria-label="Navegação principal" className="grid shrink-0 grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
           {[
             { to: "/inicio", label: "Início", icon: Home },
-            { to: "/conversar", label: "Conversar", icon: HeartHandshake },
-            { to: "/respirar", label: "Respirar", icon: Wind },
+            { to: "/ia", label: "Amigo IA", icon: Bot },
+            { to: "/conversar", label: "Voluntário", icon: HeartHandshake },
             { to: "/apoio", label: "Apoio", icon: BookOpen },
           ].map((it) => {
             const active = pathname.startsWith(it.to);
