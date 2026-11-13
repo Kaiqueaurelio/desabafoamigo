@@ -43,8 +43,11 @@ async function callNvidia(messages: unknown[]): Promise<string> {
 
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { messages: Msg[]; attachments?: AiAttachment[] }) => {
+  .inputValidator((d: { consent?: boolean; messages: Msg[]; attachments?: AiAttachment[] }) => {
+    if (d?.consent !== true) throw new Error("É necessário consentimento para processar mensagens com IA.");
     const attachments = Array.isArray(d?.attachments) ? d.attachments.slice(0, 5) : [];
+    const totalAttachmentSize = attachments.reduce((total, attachment) => total + (typeof attachment.dataUrl === "string" ? attachment.dataUrl.length : 0), 0);
+    if (totalAttachmentSize > 16_000_000) throw new Error("Os anexos ultrapassam o limite total permitido.");
     for (const a of attachments) {
       if (!["image", "audio", "video-frame"].includes(a.kind) || typeof a.dataUrl !== "string" ||
           !/^data:(image\/(jpeg|png|webp)|audio\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(a.dataUrl) ||
@@ -73,7 +76,7 @@ export const aiChat = createServerFn({ method: "POST" })
         const result = await transcribeAudio(new Blob([bytes], { type: mime }), attachment.name || "audio.webm");
         if (result.text.trim()) transcripts.push(result.text.trim());
       }
-      if (transcripts.length) mediaContext = "\\n\\nTranscrição dos áudios enviados pela pessoa (trate como relato do usuário): " + transcripts.join(" | ");
+      if (transcripts.length) mediaContext = "\n\nTranscrição dos áudios enviados pela pessoa (trate como relato do usuário): " + transcripts.join(" | ");
     }
     const lastWithMedia = last + mediaContext;
     const userContent = data.attachments.some((a) => a.kind !== "audio")
