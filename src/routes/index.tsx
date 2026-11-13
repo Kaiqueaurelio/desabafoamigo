@@ -121,6 +121,7 @@ function Landing() {
         <Header />
         <main id="conteudo" tabIndex={-1}>
           <Hero />
+          <WaysToTalk />
           <InfinityBand />
           <Origin />
           <InfinityBand reverse />
@@ -308,8 +309,7 @@ function Hero() {
             transition={{ delay: 0.7, duration: 0.7 }}
             className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground"
           >
-            Um espaço confiável para desabafar por mensagem, com voluntários treinados em escuta
-            ativa. Sem julgamento, sem exposição — seu apelido é gerado pelo app.
+            Um espaço de acolhimento com duas possibilidades: converse com o Amigo IA ou peça para falar com um(a) voluntário(a) treinado(a). Você escolhe como começar.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -365,6 +365,54 @@ function Hero() {
 }
 
 
+
+
+function WaysToTalk() {
+  const options = [
+    {
+      icon: <Sparkles className="size-6" />,
+      eyebrow: "Disponível no app",
+      title: "Converse com o Amigo IA",
+      text: "Um assistente de inteligência artificial que pode ouvir você, ajudar a organizar seus pensamentos e pensar em próximos passos, sem julgamentos.",
+      detail: "É uma IA — não é psicólogo e não substitui atendimento profissional.",
+    },
+    {
+      icon: <HeartHandshake className="size-6" />,
+      eyebrow: "Acolhimento humano",
+      title: "Fale com um voluntário",
+      text: "Se preferir conversar com uma pessoa, você pode solicitar acolhimento de um(a) voluntário(a) treinado(a) em escuta ativa.",
+      detail: "A disponibilidade depende da presença de voluntários e da fila de atendimento.",
+    },
+  ];
+
+  return (
+    <section id="formas-de-conversar" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
+      <div className="mx-auto max-w-2xl text-center">
+        <span className="text-xs font-semibold uppercase tracking-widest text-brand-green">Você escolhe</span>
+        <h2 className="mt-3 text-3xl font-bold text-primary sm:text-4xl">Duas formas de encontrar acolhimento</h2>
+        <p className="mt-4 text-muted-foreground">
+          O Desabafo Amigo reúne tecnologia e escuta humana. Entenda a diferença e escolha o caminho que faz mais sentido para você.
+        </p>
+      </div>
+      <div className="mt-9 grid gap-4 md:grid-cols-2">
+        {options.map((option) => (
+          <article key={option.title} className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-brand-soft text-primary">
+              {option.icon}
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-green">{option.eyebrow}</p>
+            <h3 className="mt-2 text-xl font-bold text-foreground sm:text-2xl">{option.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{option.text}</p>
+            <p className="mt-4 rounded-xl bg-brand-soft/60 p-3 text-xs leading-relaxed text-muted-foreground">{option.detail}</p>
+            <Link to="/inicio" className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+              Acessar o app <ArrowRight className="size-4" />
+            </Link>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function Origin() {
   return (
