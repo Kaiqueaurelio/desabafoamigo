@@ -272,6 +272,19 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           key={pathname}
           className="min-h-0 min-w-0 flex-1 overflow-x-clip overflow-y-auto pb-4 md:pb-6"
         >
+          {user.is_anonymous && (
+            <div className="border-b border-primary/15 bg-brand-soft/70 px-3 py-3 sm:px-6">
+              <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-primary">Você está usando como visitante</p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">Finalize seu cadastro para recuperar o acesso e continuar suas conversas em outro aparelho.</p>
+                </div>
+                <Link to="/finalizar-cadastro" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                  Manter minha conta
+                </Link>
+              </div>
+            </div>
+          )}
           <RouteFade>{children}</RouteFade>
         </main>
         <nav aria-label="Navegação principal" className="grid shrink-0 grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
