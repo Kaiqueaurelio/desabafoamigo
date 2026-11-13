@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier -- preserve existing auth page layout while guest access is introduced */
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +21,7 @@ const schema = z.object({
 
 // Chave e helpers para "Lembrar-me" (armazenamento local ofuscado; opt-in do usuário).
 const REMEMBER_KEY = "desabafo:auth:remember";
-type RememberPayload = { email: string; password?: string };
+type RememberPayload = { email: string };
 function encodeRemember(v: RememberPayload): string {
   try { return btoa(unescape(encodeURIComponent(JSON.stringify(v)))); } catch { return ""; }
 }
@@ -37,7 +36,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(true);
+  const [remember, setRemember] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
@@ -49,7 +48,6 @@ function AuthPage() {
     if (saved?.email) {
       setEmail(saved.email);
       setMode("signin");
-      if (saved.password) setPassword(saved.password);
       setRemember(true);
     }
   }, []);
@@ -106,7 +104,7 @@ function AuthPage() {
           const lower = error.message.toLowerCase();
           if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
             await signInAndRoute(normalizedEmail, normalizedPassword);
-            persistRemember(normalizedEmail, normalizedPassword);
+            persistRemember(normalizedEmail);
             return;
           }
         }
@@ -165,10 +163,10 @@ function AuthPage() {
     }
   }
 
-  function persistRemember(mail: string, pwd: string) {
+  function persistRemember(mail: string) {
     if (typeof window === "undefined") return;
     if (remember) {
-      window.localStorage.setItem(REMEMBER_KEY, encodeRemember({ email: mail, password: pwd }));
+      window.localStorage.setItem(REMEMBER_KEY, encodeRemember({ email: mail }));
     } else {
       window.localStorage.removeItem(REMEMBER_KEY);
     }
@@ -218,7 +216,7 @@ function AuthPage() {
             <span className="min-w-0">
               <strong className="text-foreground">Lembrar de mim neste dispositivo</strong>
               <span className="block text-[11px] opacity-80">
-                Salva e-mail e senha localmente para agilizar o login. Não ative em dispositivos compartilhados.
+                Salva somente seu e-mail neste dispositivo. A senha nunca é armazenada.
               </span>
             </span>
           </label>
