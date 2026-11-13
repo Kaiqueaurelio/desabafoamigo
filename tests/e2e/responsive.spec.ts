@@ -49,11 +49,11 @@ async function measureOverflow(page: Page) {
 
     // Detecta elementos individuais que ultrapassam a largura do viewport
     const vw = doc.clientWidth;
-    const offenders: Array<{ tag: string; cls: string; width: number; right: number }> = [];
+    const offenders: Array<{ tag: string; cls: string; width: number; left: number; right: number }> = [];
     const all = document.body.querySelectorAll<HTMLElement>("*");
     for (const el of all) {
       const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.right > vw + 1) {
+      if (rect.width > 0 && (rect.right > vw + 1 || rect.left < -1)) {
         offenders.push({
           tag: el.tagName.toLowerCase(),
           cls: (el.className || "").toString().slice(0, 120),
@@ -105,7 +105,79 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
-test.describe("smoke visual — landing", () => {
+
+const AUTHENTICATED_ROUTES = [
+  { path: "/inicio", name: "inicio" },
+  { path: "/ia", name: "amigo-ia" },
+  { path: "/conversar", name: "fila-voluntario" },
+  { path: "/consultas", name: "minhas-conversas" },
+  { path: "/diario", name: "diario" },
+  { path: "/apoio", name: "apoio" },
+  { path: "/minha-privacidade", name: "privacidade-autenticada" },
+  { path: "/configuracoes", name: "configuracoes" },
+];
+
+const AUTH_VIEWPORTS = [
+  { name: "phone-320", width: 320, height: 640 },
+  { name: "phone-390", width: 390, height: 844 },
+  { name: "tablet-768", width: 768, height: 1024 },
+  { name: "desktop-1440", width: 1440, height: 900 },
+];
+
+// Configure E2E_AUTH_STORAGE_STATE with a Playwright storage-state file to
+// exercise protected routes as a real signed-in user in CI or locally.
+for (const viewport of AUTH_VIEWPORTS) {
+  test.describe(`rotas autenticadas — ${viewport.name}`, () => {
+    test.use({
+      viewport: { width: viewport.width, height: viewport.height },
+      storageState: process.env.E2E_AUTH_STORAGE_STATE || undefined,
+    });
+    test.skip(!process.env.E2E_AUTH_STORAGE_STATE, "Configure E2E_AUTH_STORAGE_STATE para validar páginas autenticadas.");
+
+    for (const route of AUTHENTICATED_ROUTES) {
+      test(`sem overflow e com rolagem utilizável em ${route.name}`, async ({ page }, testInfo) => {
+        const errors: string[] = [];
+        page.on("pageerror", (error) => errors.push(error.message));
+        await page.goto(route.path, { waitUntil: "domcontentloaded" });
+        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+        await page.waitForTimeout(350);
+
+        const result = await measureOverflow(page);
+        await testInfo.attach(`${route.name}-${viewport.name}.png`, {
+          body: await page.screenshot({ fullPage: false }),
+          contentType: "image/png",
+        });
+
+        expect(page.url(), "a sessão autenticada deve permanecer na rota protegida").toContain(route.path);
+        expect(result.docOverflow, `document overflow em ${route.path}: ${JSON.stringify(result.offenders)}`).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
+        expect(result.bodyOverflow).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
+        expect(errors, `erros de execução: ${errors.join(" | ")}`).toHaveLength(0);
+
+        if (route.path === "/ia") {
+          const composer = page.locator("form").last();
+          await expect(composer).toBeVisible();
+          await expect(composer.locator("textarea")).toBeVisible();
+        }
+        if (route.path === "/conversar") {
+          await expect(page.getByRole("heading", { name: "Conversar agora" })).toBeVisible();
+        }
+      });
+    }
+
+    if (process.env.E2E_TEST_APPOINTMENT_ID) {
+      test("chat com voluntário sem overflow e com compositor visível", async ({ page }) => {
+        const appointmentPath = `/consulta/${process.env.E2E_TEST_APPOINTMENT_ID}`;
+        await page.goto(appointmentPath, { waitUntil: "domcontentloaded" });
+        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+        const result = await measureOverflow(page);
+        expect(page.url()).toContain(appointmentPath);
+        expect(result.docOverflow, JSON.stringify(result.offenders)).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
+        await expect(page.locator("form textarea")).toBeVisible();
+      });
+    }
+  });
+}
+\ntest.describe("smoke visual — landing", () => {
   test("landing renderiza herói e CTA em mobile", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto("/", { waitUntil: "domcontentloaded" });
