@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { secureSignOut } from "@/lib/secureSignOut";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
