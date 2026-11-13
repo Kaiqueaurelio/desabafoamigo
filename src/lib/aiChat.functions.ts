@@ -54,7 +54,8 @@ async function callNvidia(messages: unknown[]): Promise<string> {
   const r = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${k}` },
-    body: JSON.stringify({ model: "meta/llama-3.1-8b-instruct", messages, temperature: 0.35, top_p: 0.85, max_tokens: 420, stream: false, signal: AbortSignal.timeout(18000) }),
+    body: JSON.stringify({ model: "meta/llama-3.1-8b-instruct", messages, temperature: 0.35, top_p: 0.85, max_tokens: 420, stream: false }),
+    signal: AbortSignal.timeout(18000),
   });
   if (!r.ok) throw new Error(`nvidia ${r.status}`);
   const j = (await r.json()) as { choices?: { message?: { content?: string } }[] };
