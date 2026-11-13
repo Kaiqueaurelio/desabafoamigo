@@ -472,7 +472,7 @@ a[href*="lovable.dev"][target="_blank"] {
 @media (min-width: 1280px) { .container-fluid { max-width: 1200px; } }
 
 /* Mídia sempre fluida */
-img, video, canvas, svg { max-width: 100%; height: auto; }
+img, video, canvas { max-width: 100%; height: auto; }\nsvg { max-width: 100%; }
 
 /* Evita zoom involuntário no iOS quando o input tem fonte < 16px */
 @media (max-width: 640px) {
