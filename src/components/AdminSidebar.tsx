@@ -55,6 +55,7 @@ const groups: {
       { to: "/admin/usuarios", label: "Usuários e permissões", icon: ShieldCheck },
       { to: "/admin/metricas", label: "Métricas", icon: BarChart3 },
       { to: "/admin/observabilidade", label: "Observabilidade", icon: Activity },
+      { to: "/admin/inteligencia", label: "Inteligência de Acolhimento", icon: BarChart3 },
     ],
   },
 

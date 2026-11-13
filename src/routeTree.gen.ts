@@ -40,9 +40,11 @@ import { Route as AuthenticatedTransparenciaRouteImport } from './routes/_authen
 import { Route as AuthenticatedRespirarRouteImport } from './routes/_authenticated/respirar'
 import { Route as AuthenticatedRelaxarRouteImport } from './routes/_authenticated/relaxar'
 import { Route as AuthenticatedPlanoSegurancaRouteImport } from './routes/_authenticated/plano-seguranca'
+import { Route as AuthenticatedMinhaPrivacidadeRouteImport } from './routes/_authenticated/minha-privacidade'
 import { Route as AuthenticatedMinhaFilaRouteImport } from './routes/_authenticated/minha-fila'
 import { Route as AuthenticatedMeusDadosRouteImport } from './routes/_authenticated/meus-dados'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
+import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedConversarRouteImport } from './routes/_authenticated/conversar'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
@@ -216,6 +218,12 @@ const AuthenticatedPlanoSegurancaRoute =
     path: '/plano-seguranca',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMinhaPrivacidadeRoute =
+  AuthenticatedMinhaPrivacidadeRouteImport.update({
+    id: '/minha-privacidade',
+    path: '/minha-privacidade',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMinhaFilaRoute = AuthenticatedMinhaFilaRouteImport.update({
   id: '/minha-fila',
   path: '/minha-fila',
@@ -229,6 +237,11 @@ const AuthenticatedMeusDadosRoute = AuthenticatedMeusDadosRouteImport.update({
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
+  id: '/ia',
+  path: '/ia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDiarioRoute = AuthenticatedDiarioRouteImport.update({
@@ -335,9 +348,11 @@ export interface FileRoutesByFullPath {
   '/consultas': typeof AuthenticatedConsultasRoute
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
+  '/ia': typeof AuthenticatedIaRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/minha-fila': typeof AuthenticatedMinhaFilaRoute
+  '/minha-privacidade': typeof AuthenticatedMinhaPrivacidadeRoute
   '/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/respirar': typeof AuthenticatedRespirarRoute
@@ -386,9 +401,11 @@ export interface FileRoutesByTo {
   '/consultas': typeof AuthenticatedConsultasRoute
   '/conversar': typeof AuthenticatedConversarRoute
   '/diario': typeof AuthenticatedDiarioRoute
+  '/ia': typeof AuthenticatedIaRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/minha-fila': typeof AuthenticatedMinhaFilaRoute
+  '/minha-privacidade': typeof AuthenticatedMinhaPrivacidadeRoute
   '/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/relaxar': typeof AuthenticatedRelaxarRoute
   '/respirar': typeof AuthenticatedRespirarRoute
@@ -439,9 +456,11 @@ export interface FileRoutesById {
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/conversar': typeof AuthenticatedConversarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
+  '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/meus-dados': typeof AuthenticatedMeusDadosRoute
   '/_authenticated/minha-fila': typeof AuthenticatedMinhaFilaRoute
+  '/_authenticated/minha-privacidade': typeof AuthenticatedMinhaPrivacidadeRoute
   '/_authenticated/plano-seguranca': typeof AuthenticatedPlanoSegurancaRoute
   '/_authenticated/relaxar': typeof AuthenticatedRelaxarRoute
   '/_authenticated/respirar': typeof AuthenticatedRespirarRoute
@@ -492,9 +511,11 @@ export interface FileRouteTypes {
     | '/consultas'
     | '/conversar'
     | '/diario'
+    | '/ia'
     | '/inicio'
     | '/meus-dados'
     | '/minha-fila'
+    | '/minha-privacidade'
     | '/plano-seguranca'
     | '/relaxar'
     | '/respirar'
@@ -543,9 +564,11 @@ export interface FileRouteTypes {
     | '/consultas'
     | '/conversar'
     | '/diario'
+    | '/ia'
     | '/inicio'
     | '/meus-dados'
     | '/minha-fila'
+    | '/minha-privacidade'
     | '/plano-seguranca'
     | '/relaxar'
     | '/respirar'
@@ -595,9 +618,11 @@ export interface FileRouteTypes {
     | '/_authenticated/consultas'
     | '/_authenticated/conversar'
     | '/_authenticated/diario'
+    | '/_authenticated/ia'
     | '/_authenticated/inicio'
     | '/_authenticated/meus-dados'
     | '/_authenticated/minha-fila'
+    | '/_authenticated/minha-privacidade'
     | '/_authenticated/plano-seguranca'
     | '/_authenticated/relaxar'
     | '/_authenticated/respirar'
@@ -884,6 +909,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlanoSegurancaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/minha-privacidade': {
+      id: '/_authenticated/minha-privacidade'
+      path: '/minha-privacidade'
+      fullPath: '/minha-privacidade'
+      preLoaderRoute: typeof AuthenticatedMinhaPrivacidadeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/minha-fila': {
       id: '/_authenticated/minha-fila'
       path: '/minha-fila'
@@ -903,6 +935,13 @@ declare module '@tanstack/react-router' {
       path: '/inicio'
       fullPath: '/inicio'
       preLoaderRoute: typeof AuthenticatedInicioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ia': {
+      id: '/_authenticated/ia'
+      path: '/ia'
+      fullPath: '/ia'
+      preLoaderRoute: typeof AuthenticatedIaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/diario': {
@@ -1026,9 +1065,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
   AuthenticatedConversarRoute: typeof AuthenticatedConversarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
+  AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedMeusDadosRoute: typeof AuthenticatedMeusDadosRoute
   AuthenticatedMinhaFilaRoute: typeof AuthenticatedMinhaFilaRoute
+  AuthenticatedMinhaPrivacidadeRoute: typeof AuthenticatedMinhaPrivacidadeRoute
   AuthenticatedPlanoSegurancaRoute: typeof AuthenticatedPlanoSegurancaRoute
   AuthenticatedRelaxarRoute: typeof AuthenticatedRelaxarRoute
   AuthenticatedRespirarRoute: typeof AuthenticatedRespirarRoute
@@ -1047,9 +1088,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
   AuthenticatedConversarRoute: AuthenticatedConversarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
+  AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedMeusDadosRoute: AuthenticatedMeusDadosRoute,
   AuthenticatedMinhaFilaRoute: AuthenticatedMinhaFilaRoute,
+  AuthenticatedMinhaPrivacidadeRoute: AuthenticatedMinhaPrivacidadeRoute,
   AuthenticatedPlanoSegurancaRoute: AuthenticatedPlanoSegurancaRoute,
   AuthenticatedRelaxarRoute: AuthenticatedRelaxarRoute,
   AuthenticatedRespirarRoute: AuthenticatedRespirarRoute,
