@@ -24,9 +24,9 @@ export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
   const kwAny = detectRisk(text);
   if (immediate || repeatedIdeation) return { level: "urgent", offerHuman: true, source: "keywords" };
   const sev = typeof aiSeverity === "number" && Number.isFinite(aiSeverity) ? aiSeverity : null;
-  if (sev === null) return { level: anyIdeation || kwAny ? "urgent" : "attention", offerHuman: true, source: "fallback" };
-  if (sev >= 3 || anyIdeation) return { level: anyIdeation ? "urgent" : "urgent", offerHuman: true, source: anyIdeation ? "keywords" : "ai" };
-  if (sev >= 2 || kwAny) return { level: "attention", offerHuman: true, source: kwAny ? "keywords" : "ai" };
+  if (sev === null) return { level: anyIdeation || kwAny ? "attention" : "attention", offerHuman: true, source: "fallback" };
+  if (sev >= 3 || repeatedIdeation) return { level: "urgent", offerHuman: true, source: repeatedIdeation ? "keywords" : "ai" };
+  if (sev >= 2 || anyIdeation || kwAny) return { level: "attention", offerHuman: true, source: anyIdeation || kwAny ? "keywords" : "ai" };
   return { level: "none", offerHuman: false, source: "ai" };
 }
 
