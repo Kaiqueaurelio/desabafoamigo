@@ -32,8 +32,8 @@ Requisitos: Node.js 22, npm e variáveis de ambiente do Supabase e NVIDIA.
 ```bash
 git clone https://github.com/Kaiqueaurelio/desabafoamigo.git
 cd desabafoamigo
-bun install --frozen-lockfile
-bun run dev
+npm install
+npm run dev
 ```
 
 Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `NVIDIA_API_KEY` e `NVIDIA_API_KEY_VOICE` no ambiente do servidor. Para desenvolvimento local, use `.env` (não versionado). **Nunca coloque chaves privadas, tokens de serviço ou credenciais reais no Git.**
@@ -41,11 +41,11 @@ Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `NVIDIA_API_KEY` e `NVIDIA
 ## Qualidade e testes
 
 ```bash
-bun run lint
-bun run test
-bun run build:dev
-bun run build:prod
-bun run test:e2e
+npm run lint
+npm run test
+npm run build:dev
+npm run build:prod
+npm run test:e2e
 ```
 
 Para testar rotas autenticadas no Playwright, configure `E2E_AUTH_STORAGE_STATE` com um arquivo de sessão de teste. Para testar uma conversa humana específica, configure também `E2E_TEST_APPOINTMENT_ID`. Use somente contas e dados fictícios preparados para teste.
@@ -78,7 +78,6 @@ A demonstração usa cenários e indicadores fictícios. Não confunda a simula�
 
 - Aplicativo: será publicado no endereço `*.workers.dev` após configurar o Cloudflare Workers
 - Repositório: https://github.com/Kaiqueaurelio/desabafoamigo
-- Projeto Lovable: https://lovable.dev/projects/ce27e131-caf6-49a0-96ff-b49e0b0eee10
 
 
 ## Deploy independente do Lovable (Cloudflare Workers)
@@ -94,7 +93,7 @@ O deploy automático está em `.github/workflows/deploy-cloudflare.yml`. Configu
 
 O workflow publica as chaves como secrets do Worker (não as inclui no bundle do navegador). O Supabase continua sendo o backend de autenticação, banco, storage e realtime; ele não depende do Lovable.
 
-A conversa por voz usa reconhecimento de fala do navegador em pt-BR, NVIDIA NIM para gerar a resposta e NVIDIA Magpie Multilingual para sintetizar áudio. Isso é uma conversa por turnos, não full-duplex. A síntese usa o Function ID oficial do Magpie Multilingual. O nome de voz padrão pode ser sobrescrito por `NVIDIA_TTS_VOICE`.
+A conversa por voz usa reconhecimento de fala do navegador em pt-BR, NVIDIA NIM para gerar a resposta e NVIDIA Magpie Multilingual para sintetizar áudio. Isso é uma conversa por turnos, não full-duplex. A síntese usa o Function ID oficial do Magpie Multilingual. A voz pt-BR é descoberta consultando a lista oficial do serviço; se necessário, configure `NVIDIA_TTS_VOICE` com um identificador retornado pela API.
 
 A transcrição de anexos de áudio enviados no chat exige um endpoint HTTP próprio do NVIDIA Riva em `NVIDIA_ASR_HTTP_URL`; o endpoint hospedado Parakeet documenta gRPC. Sem esse endpoint, o recurso informa a limitação e não envia áudio para um provedor alternativo.
 
