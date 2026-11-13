@@ -307,9 +307,9 @@ function Hero() {
           >
             <MagneticWrap>
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 300, damping: 18 }}>
-                <Link to="/auth" className="btn-primary btn-shine inline-flex items-center gap-2 group">
+                <Link to="/inicio" className="btn-primary btn-shine inline-flex items-center gap-2 group">
                   <MessageSquareText className="size-5" />
-                  Começar a conversar
+                  Começar sem cadastro
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </motion.div>
