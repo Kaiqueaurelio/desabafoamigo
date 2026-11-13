@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone } from "lucide-react";
+import { Bot, Send, Loader2, HeartHandshake, Stethoscope, Wind, X, ShieldAlert, Phone, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { aiChat } from "@/lib/aiChat.functions";
+import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
 import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs";
 import type { RiskLevel } from "@/lib/aiSafety";
 
@@ -25,6 +27,8 @@ const GREETING: M = { role: "assistant", content: "Oi. Eu sou o Amigo IA, uma in
 
 function Page() {
   const send = useServerFn(aiChat);
+  const enqueue = useServerFn(enqueueMe);
+  const cancelQueue = useServerFn(cancelMyQueue);
   const [prefs, setPrefs] = useState<PrivacyPrefs | null>(null);
   const [msgs, setMsgs] = useState<M[]>([GREETING]);
   const [text, setText] = useState("");
@@ -32,6 +36,10 @@ function Page() {
   const [risk, setRisk] = useState<RiskLevel>("none");
   const [offerHuman, setOfferHuman] = useState(false);
   const [degraded, setDegraded] = useState(false);
+  const [queueId, setQueueId] = useState<string | null>(null);
+  const [queuePosition, setQueuePosition] = useState<number | null>(null);
+  const [handoffBusy, setHandoffBusy] = useState(false);
+  const [handoffError, setHandoffError] = useState("");
   const end = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,6 +53,48 @@ function Page() {
       } catch { /* ignore */ }
     }
   }, []);
+  useEffect(() => {
+    if (!queueId) return;
+    let active = true;
+    const channel = supabase.channel(`ai-handoff-${queueId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "queue", filter: `id=eq.${queueId}` }, async (payload) => {
+        const row = payload.new as { status: string; conversation_id: string | null };
+        if (row.status === "matched" && row.conversation_id) {
+          const { data: conv } = await supabase.from("conversations").select("appointment_id").eq("id", row.conversation_id).maybeSingle();
+          if (active && conv?.appointment_id) window.location.assign(`/consulta/${conv.appointment_id}`);
+        } else if (row.status === "cancelled" && active) {
+          setQueueId(null); setQueuePosition(null);
+        }
+      }).subscribe();
+    const refresh = async () => {
+      const { data } = await supabase.from("queue").select("id").eq("status", "waiting").order("created_at");
+      if (!active) return;
+      const index = (data ?? []).findIndex((item) => item.id === queueId);
+      setQueuePosition(index >= 0 ? index + 1 : null);
+    };
+    void refresh();
+    const poll = window.setInterval(() => void refresh(), 5000);
+    return () => { active = false; window.clearInterval(poll); void supabase.removeChannel(channel); };
+  }, [queueId]);
+
+  async function transferToVolunteer() {
+    if (queueId || handoffBusy) return;
+    setHandoffBusy(true); setHandoffError("");
+    try {
+      const recent = msgs.filter((m) => m.role === "user").slice(-3).map((m) => m.content.trim()).filter(Boolean).join(" | ");
+      const topic = `Encaminhamento solicitado após conversa com Amigo IA. Contexto compartilhado: ${recent.slice(-360) || "Pessoa pediu acolhimento humano."}`;
+      const result = await enqueue({ data: { topic: topic.slice(0, 500), urgency: risk === "urgent" ? "high" : risk === "attention" ? "medium" : "low", preferredLang: navigator.language || "pt-BR" } });
+      setQueueId(result.queueId);
+    } catch (error) {
+      setHandoffError(error instanceof Error ? error.message : "Não foi possível entrar na fila agora.");
+    } finally { setHandoffBusy(false); }
+  }
+
+  async function leaveVolunteerQueue() {
+    if (!queueId) return;
+    try { await cancelQueue({ data: { queueId } }); } finally { setQueueId(null); setQueuePosition(null); }
+  }
+
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth" });
     if (prefs?.keepAiHistory && prefs.retentionDays) localStorage.setItem(AI_HISTORY_KEY, JSON.stringify({ at: Date.now(), msgs }));
@@ -85,6 +135,25 @@ function Page() {
         <ModeCard icon={Stethoscope} label="Profissional" to="/apoio" />
       </div>
       <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">Este é um espaço de <strong>acolhimento emocional com inteligência artificial</strong>, não uma consulta psicológica. A IA pode ajudar você a refletir e encontrar próximos passos, mas não diagnostica nem substitui um profissional. {prefs?.keepAiHistory ? "Histórico salvo só neste aparelho." : "Sessão temporária: nada é guardado."} A seção de apoio apresenta serviços e redes públicas; não significa que haja psicólogos atendendo dentro do app.</p>
+
+      {offerHuman && !queueId && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
+          <p className="text-sm font-medium text-foreground">Acho que conversar com uma pessoa pode ajudar neste momento.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Posso avisar os voluntários e colocar você na fila. Compartilharei apenas um breve contexto das últimas mensagens para ajudar no acolhimento.</p>
+          <Button className="mt-3" size="sm" onClick={() => void transferToVolunteer()} disabled={handoffBusy}>
+            {handoffBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <HeartHandshake className="mr-2 h-4 w-4" />}
+            {handoffBusy ? "Encaminhando..." : "Conversar com um voluntário"}
+          </Button>
+          {handoffError && <p className="mt-2 text-xs text-destructive" role="alert">{handoffError}</p>}
+        </div>
+      )}
+      {queueId && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4" role="status" aria-live="polite">
+          <p className="flex items-center gap-2 text-sm font-semibold"><HeartHandshake className="h-4 w-4" /> Você está sendo encaminhado(a) para um voluntário.</p>
+          <p className="mt-1 text-xs text-muted-foreground">{queuePosition ? `Sua posição na fila é ${queuePosition}.` : "Os voluntários foram avisados. Assim que alguém aceitar, a conversa será aberta automaticamente."}</p>
+          <Button className="mt-3" size="sm" variant="outline" onClick={() => void leaveVolunteerQueue()}>Cancelar encaminhamento</Button>
+        </div>
+      )}
 
       <AnimatePresence>{(risk !== "none" || offerHuman) && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="alert"
