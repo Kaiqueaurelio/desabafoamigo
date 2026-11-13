@@ -17,7 +17,7 @@ export default defineConfig({
     ? [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]]
     : [["list"]],
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? "http://localhost:8080",
+    baseURL: process.env.E2E_BASE_URL ?? "http://127.0.0.1:5173",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -30,8 +30,8 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
-        command: "bun run dev",
-        url: "http://localhost:8080",
+        command: "bun run dev -- --host 127.0.0.1 --port 5173 --strictPort",
+        url: "http://127.0.0.1:5173",
         reuseExistingServer: true,
         timeout: 120_000,
       },
