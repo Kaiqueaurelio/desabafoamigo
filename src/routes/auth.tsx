@@ -39,6 +39,7 @@ function AuthPage() {
   const [remember, setRemember] = useState(true);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
 
   // Carrega credenciais salvas (se houver) — apenas no cliente.
   useEffect(() => {
@@ -138,6 +139,31 @@ function AuthPage() {
     } finally { setLoading(false); }
   }
 
+  async function continueAsGuest() {
+    setErr("");
+    setGuestLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      if (!data.user) throw new Error("Não foi possível iniciar sua sessão de convidado.");
+      if (next) {
+        window.location.assign(next);
+        return;
+      }
+      navigate({ to: "/inicio" });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "";
+      const lower = message.toLowerCase();
+      if (lower.includes("anonymous") || lower.includes("disabled") || lower.includes("not enabled")) {
+        setErr("O acesso como convidado ainda precisa ser ativado nas configurações de autenticação do Supabase. Tente novamente mais tarde.");
+      } else {
+        setErr(message || "Não foi possível entrar como convidado. Verifique sua conexão e tente novamente.");
+      }
+    } finally {
+      setGuestLoading(false);
+    }
+  }
+
   function persistRemember(mail: string, pwd: string) {
     if (typeof window === "undefined") return;
     if (remember) {
@@ -201,6 +227,23 @@ function AuthPage() {
             {loading ? "Enviando..." : mode === "signup" ? "Criar conta" : "Entrar"}
           </button>
         </form>
+
+        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span>ou</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <button
+          type="button"
+          onClick={continueAsGuest}
+          disabled={guestLoading || loading}
+          className="w-full rounded-xl border border-primary/30 bg-background px-4 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {guestLoading ? "Preparando seu acesso..." : "Entrar como convidado"}
+        </button>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          Sem e-mail e sem senha. Você receberá um apelido automaticamente.
+        </p>
 
         <button type="button" onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-primary">
           {mode === "signup" ? "Já tenho conta" : "Criar conta"}
