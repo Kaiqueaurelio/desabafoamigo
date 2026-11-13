@@ -62,6 +62,11 @@ describe("sinais persistentes de risco", () => {
     expect(result.level).toBe("none");
   });
 
+  it("reconhece expressões imediatas curtas mesmo com severidade zero", () => {
+    expect(assessRisk("Quero morrer hoje.", 0).level).toBe("urgent");
+    expect(assessRisk("Estou pensando em agir hoje.", 0).level).toBe("urgent");
+  });
+
   it("não ignora uma intenção imediata só porque o modelo retornou severidade zero", () => {
     const result = assessRisk("Decidi me matar hoje.", 0);
     expect(result.level).toBe("urgent");
