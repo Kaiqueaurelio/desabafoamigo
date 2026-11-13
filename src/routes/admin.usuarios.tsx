@@ -172,7 +172,7 @@ function UsuariosPage() {
             ) : filtered.length === 0 ? (
               <p className="p-6 text-center text-sm text-muted-foreground">Nenhum usuário encontrado.</p>
             ) : (
-              <div className="w-full max-w-full overflow-x-auto">
+              <div role="region" aria-label="Tabela de usuários. Deslize horizontalmente para ver todas as colunas." tabIndex={0} className="w-full max-w-full touch-pan-x overscroll-x-contain overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
 
               <Table>
                 <TableHeader>
