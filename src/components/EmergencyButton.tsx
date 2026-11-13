@@ -64,7 +64,7 @@ export function EmergencyButton() {
   return (
     <>
       {/* Atalho único de emergência: sempre visível e abre diretamente os recursos de ajuda. */}
-      <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] right-4 z-40 md:bottom-6 md:right-6">
+      <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] right-4 z-40 md:bottom-24 md:right-6">
         <button
           type="button"
           onClick={() => setOpen(true)}
