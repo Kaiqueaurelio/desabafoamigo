@@ -53,7 +53,19 @@ async function measureOverflow(page: Page) {
     const all = document.body.querySelectorAll<HTMLElement>("*");
     for (const el of all) {
       const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && (rect.right > vw + 1 || rect.left < -1)) {
+      let clippedByAncestor = false;
+      let ancestor = el.parentElement;
+      while (ancestor && ancestor !== document.body) {
+        const overflowX = getComputedStyle(ancestor).overflowX;
+        if (overflowX === "hidden" || overflowX === "clip" || overflowX === "auto" || overflowX === "scroll") {
+          clippedByAncestor = true;
+          break;
+        }
+        ancestor = ancestor.parentElement;
+      }
+      // Tracks/carousels may move left inside a clipping viewport intentionally.
+      const escapesViewport = rect.right > vw + 1 || (rect.left < -1 && !clippedByAncestor);
+      if (rect.width > 0 && escapesViewport) {
         offenders.push({
           tag: el.tagName.toLowerCase(),
           cls: (el.className || "").toString().slice(0, 120),
