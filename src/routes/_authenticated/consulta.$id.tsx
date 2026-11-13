@@ -307,6 +307,7 @@ function Consulta() {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          {!isPro && <EmergencyButton inline />}
           {!isPro && <ReportButton appointmentId={appt.id} reportedUserId={appt.professional_id} />}
           {appt.status !== "completed" && appt.status !== "cancelled" && (
             <button onClick={finish} className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium hover:bg-muted">
