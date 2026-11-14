@@ -58,7 +58,10 @@ describe("sinais persistentes de risco", () => {
   });
 
   it("não marca automaticamente uma negação explícita de intenção como ideação", () => {
-    const result = assessRisk("Não estou pensando em me matar e não tenho intenção de suicídio.", 0);
+    const result = assessRisk(
+      "Não estou pensando em me matar e não tenho intenção de suicídio.",
+      0,
+    );
     expect(result.level).toBe("none");
   });
 
@@ -95,6 +98,8 @@ describe("sinais persistentes de risco", () => {
   });
 
   it("mantém a negação explícita quando não há cláusula positiva posterior", () => {
-    expect(assessRisk("Não estou pensando em me matar e não tenho intenção de suicídio.", 0).level).toBe("none");
+    expect(
+      assessRisk("Não estou pensando em me matar e não tenho intenção de suicídio.", 0).level,
+    ).toBe("none");
   });
 });
