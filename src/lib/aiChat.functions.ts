@@ -198,6 +198,7 @@ export const aiChat = createServerFn({ method: "POST" })
         temperature: 0.35,
         top_p: 0.85,
         max_tokens: 480,
+        response_format: { type: "json_object" },
       });
       provider = "nvidia";
     } catch (error) {
@@ -207,6 +208,17 @@ export const aiChat = createServerFn({ method: "POST" })
       );
     }
     const parsed = raw ? parseAiJson(raw) : null;
+    // Some compatible inference endpoints occasionally ignore JSON mode. Keep
+    // a usable plain-text answer instead of discarding it and showing a false
+    // outage message; risk is still handled conservatively when severity is absent.
+    const plainTextReply = raw
+      .trim()
+      .replace(/^\`\`\`(?:json)?\s*/i, "")
+      .replace(/\s*\`\`\`$/, "")
+      .trim();
+    const reply =
+      parsed?.reply ??
+      (plainTextReply && !plainTextReply.startsWith("{") ? plainTextReply.slice(0, 2000) : FALLBACK_REPLY);
     const riskContext =
       data.messages
         .filter((message) => message.role === "user")
@@ -223,5 +235,5 @@ export const aiChat = createServerFn({ method: "POST" })
       });
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
-    return { reply: parsed?.reply ?? FALLBACK_REPLY, risk, provider, degraded: !parsed };
+    return { reply, risk, provider, degraded: !raw };
   });
