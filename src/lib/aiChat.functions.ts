@@ -197,7 +197,11 @@ export const aiChat = createServerFn({ method: "POST" })
         messages,
         temperature: 0.35,
         top_p: 0.85,
-        max_tokens: 480,
+        max_tokens: 700,
+        // Nemotron 3.5 Lightning reasons by default. Disable visible reasoning
+        // for this short structured response so the token budget is spent on
+        // the JSON payload instead of a reasoning trace that can truncate it.
+        chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
       provider = "nvidia";
