@@ -190,24 +190,22 @@ export const aiChat = createServerFn({ method: "POST" })
       { role: "user", content: userContent },
     ];
     let raw = "";
-    let provider: "nvidia" | "none" = "none";
+    let provider: "nvidia" | "lovable" | "none" = "none";
     try {
-      const { chatCompletion } = await import("./ai-gateway.server");
-      raw = await chatCompletion({
+      const { chatCompletionWithProvider } = await import("./ai-gateway.server");
+      const completion = await chatCompletionWithProvider({
         messages,
         temperature: 0.35,
         top_p: 0.85,
         max_tokens: 700,
-        // Nemotron 3.5 Lightning reasons by default. Disable visible reasoning
-        // for this short structured response so the token budget is spent on
-        // the JSON payload instead of a reasoning trace that can truncate it.
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
-      provider = "nvidia";
+      raw = completion.content;
+      provider = completion.provider;
     } catch (error) {
       console.error(
-        "[aiChat] NVIDIA NIM indisponível",
+        "[aiChat] todos os provedores de IA indisponíveis",
         error instanceof Error ? error.message : error,
       );
     }
