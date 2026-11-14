@@ -1,7 +1,10 @@
 import { getServerEnv } from "./server-env";
 
 function nvidiaBaseUrl(): string {
-  return (getServerEnv("NVIDIA_BASE_URL") || "https://integrate.api.nvidia.com/v1").replace(\n    /\\/$/,\n    "",\n  );
+  return (getServerEnv("NVIDIA_BASE_URL") || "https://integrate.api.nvidia.com/v1").replace(
+    /\\/$/,
+    "",
+  );
 }
 
 function nvidiaKey(): string {
