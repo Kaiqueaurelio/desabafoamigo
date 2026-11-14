@@ -72,4 +72,15 @@ describe("sinais persistentes de risco", () => {
     expect(result.level).toBe("urgent");
     expect(result.source).toBe("keywords");
   });
+
+  it("uma negação não pode apagar intenção declarada depois de mas", () => {
+    const result = assessRisk("Não quero morrer, mas vou me matar hoje.", 0);
+    expect(result.level).toBe("urgent");
+    expect(result.offerHuman).toBe(true);
+    expect(result.source).toBe("keywords");
+  });
+
+  it("mantém a negação explícita quando não há cláusula positiva posterior", () => {
+    expect(assessRisk("Não estou pensando em me matar e não tenho intenção de suicídio.", 0).level).toBe("none");
+  });
 });
