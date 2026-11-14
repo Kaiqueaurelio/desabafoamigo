@@ -36,6 +36,12 @@ describe("triagem do Desabafo Amigo AI", () => {
     expect(parseAiJson("texto solto")).toBeNull();
     expect(parseAiJson('{"reply":"oi","severity":5}')?.severity).toBe(3);
   });
+  it("aceita resposta válida mesmo quando o modelo omite a severidade", () => {
+    expect(parseAiJson('{"reply":"Estou aqui para ouvir você."}')).toMatchObject({
+      reply: "Estou aqui para ouvir você.",
+      severity: null,
+    });
+  });
 });
 
 describe("sinais persistentes de risco", () => {
