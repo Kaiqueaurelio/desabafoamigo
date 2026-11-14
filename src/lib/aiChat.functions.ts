@@ -177,7 +177,10 @@ export const aiChat = createServerFn({ method: "POST" })
           .eq("user_id", context.userId);
       }
     } else {
-      await withPendingDatabaseTypes(context.supabase).from("ai_user_memory").delete().eq("user_id", context.userId);
+      await withPendingDatabaseTypes(context.supabase)
+        .from("ai_user_memory")
+        .delete()
+        .eq("user_id", context.userId);
     }
     const memoryMessage = savedMemory
       ? {
@@ -240,11 +243,11 @@ export const aiChat = createServerFn({ method: "POST" })
       )
         .from("ai_user_memory")
         .upsert({
-        user_id: context.userId,
-        memory_summary: parsed.memorySummary,
-        expires_at: expiresAt,
-        updated_at: new Date().toISOString(),
-      });
+          user_id: context.userId,
+          memory_summary: parsed.memorySummary,
+          expires_at: expiresAt,
+          updated_at: new Date().toISOString(),
+        });
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
     return { reply, risk, provider, degraded: !raw };
