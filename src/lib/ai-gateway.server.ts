@@ -83,6 +83,7 @@ async function requestLovable(body: Record<string, unknown>, apiKey: string): Pr
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
       "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "tanstack-ai",
     },
     body: JSON.stringify({
       ...body,
