@@ -5,8 +5,7 @@ import { AppShell } from "@/components/AppShell";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
-    const redirectToLogin = () =>
-      redirect({ to: "/auth", search: { next: location.pathname } });
+    const redirectToLogin = () => redirect({ to: "/auth", search: { next: location.pathname } });
 
     let data: Awaited<ReturnType<typeof supabase.auth.getUser>>["data"];
     let error: Awaited<ReturnType<typeof supabase.auth.getUser>>["error"];
@@ -25,7 +24,9 @@ export const Route = createFileRoute("/_authenticated")({
     if (!error && !data.user) {
       try {
         const guest = await supabase.auth.signInAnonymously();
-        if (guest.error || !guest.data.user) throw guest.error ?? new Error("Sessão de convidado indisponível");
+        if (guest.error || !guest.data.user) {
+          throw guest.error ?? new Error("Sessão de convidado indisponível");
+        }
         data = { user: guest.data.user };
       } catch (cause) {
         console.warn("[AuthGuard] Não foi possível criar sessão de convidado:", cause);
@@ -43,17 +44,19 @@ export const Route = createFileRoute("/_authenticated")({
     // usuário comum até que o banco confirme explicitamente uma role privilegiada.
     let roles: Array<{ role: string }> = [];
     try {
-      const result = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id);
+      const result = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
       if (result.error) {
-        console.warn("[AuthGuard] Consulta de permissões indisponível; aplicando menor privilégio.");
+        console.warn(
+          "[AuthGuard] Consulta de permissões indisponível; aplicando menor privilégio.",
+        );
       } else {
         roles = (result.data ?? []) as Array<{ role: string }>;
       }
     } catch (cause) {
-      console.warn("[AuthGuard] Falha na consulta de permissões; aplicando menor privilégio:", cause);
+      console.warn(
+        "[AuthGuard] Falha na consulta de permissões; aplicando menor privilégio:",
+        cause,
+      );
     }
 
     const isPro = roles.some((r) => r.role === "volunteer");
