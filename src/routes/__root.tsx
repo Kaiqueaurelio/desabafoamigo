@@ -102,13 +102,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "referrer", content: "no-referrer" },
-      { httpEquiv: "Content-Security-Policy", content: "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data: https://fonts.gstatic.com https://fonts.cdnfonts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.cdnfonts.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.dicebear.com https://*.lovable.app https://*.lovable.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" },
+      {
+        httpEquiv: "Content-Security-Policy",
+        content:
+          "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data: https://fonts.gstatic.com https://fonts.cdnfonts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.cdnfonts.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.dicebear.com https://*.lovable.app https://*.lovable.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      },
       { httpEquiv: "X-Content-Type-Options", content: "nosniff" },
       { httpEquiv: "Permissions-Policy", content: "camera=(), microphone=(self), geolocation=()" },
       { name: "twitter:title", content: "Desabafo Amigo — sua voz merece ser ouvida" },
-      { name: "twitter:description", content: "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4474fd7c-b298-4d57-981c-07e48bc5070a/id-preview-889889cc--ce27e131-caf6-49a0-96ff-b49e0b0eee10.lovable.app-1783809047965.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4474fd7c-b298-4d57-981c-07e48bc5070a/id-preview-889889cc--ce27e131-caf6-49a0-96ff-b49e0b0eee10.lovable.app-1783809047965.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4474fd7c-b298-4d57-981c-07e48bc5070a/id-preview-889889cc--ce27e131-caf6-49a0-96ff-b49e0b0eee10.lovable.app-1783809047965.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4474fd7c-b298-4d57-981c-07e48bc5070a/id-preview-889889cc--ce27e131-caf6-49a0-96ff-b49e0b0eee10.lovable.app-1783809047965.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -117,13 +133,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      },
       { rel: "stylesheet", href: "https://fonts.cdnfonts.com/css/opendyslexic" },
-
     ],
-    scripts: [
-      { type: "application/ld+json", children: ORG_JSONLD },
-    ],
+    scripts: [{ type: "application/ld+json", children: ORG_JSONLD }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -148,7 +164,6 @@ function RootShell({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -179,18 +194,27 @@ function RootComponent() {
       const { data } = supabase.auth.onAuthStateChange((event) => {
         if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
           void router.invalidate().catch((error) => {
-            console.warn("[App] Não foi possível atualizar as rotas após mudança de sessão:", error);
+            console.warn(
+              "[App] Não foi possível atualizar as rotas após mudança de sessão:",
+              error,
+            );
           });
           if (event !== "SIGNED_OUT") {
             void queryClient.invalidateQueries().catch((error) => {
-              console.warn("[App] Não foi possível atualizar os dados após mudança de sessão:", error);
+              console.warn(
+                "[App] Não foi possível atualizar os dados após mudança de sessão:",
+                error,
+              );
             });
           }
         }
       });
       unsubscribeAuth = () => data.subscription.unsubscribe();
     } catch (error) {
-      console.error("[App] Serviço de autenticação indisponível; mantendo a navegação pública:", error);
+      console.error(
+        "[App] Serviço de autenticação indisponível; mantendo a navegação pública:",
+        error,
+      );
     }
 
     return () => {
