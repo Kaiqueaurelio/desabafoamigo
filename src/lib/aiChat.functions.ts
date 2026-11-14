@@ -72,22 +72,32 @@ export const aiChat = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const last = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
-    if (!last.trim()) throw new Error("Mensagem vazia");
+    if (!last.trim() && data.attachments.length === 0) throw new Error("Mensagem vazia");
     let mediaContext = "";
-    if (data.attachments.length) {
+    let audioTranscriptionUnavailable = false;
+    if (data.attachments.some((attachment) => attachment.kind === "audio")) {
       const { transcribeAudio } = await import("./ai-gateway.server");
       const transcripts: string[] = [];
       for (const attachment of data.attachments) {
         if (attachment.kind !== "audio") continue;
-        const [meta, encoded] = attachment.dataUrl.split(",", 2);
-        const mime = meta.match(/^data:([^;]+)/)?.[1] ?? attachment.mimeType;
-        const bytes = Buffer.from(encoded, "base64");
-        const result = await transcribeAudio(new Blob([bytes], { type: mime }), attachment.name || "audio.webm");
-        if (result.text.trim()) transcripts.push(result.text.trim());
+        try {
+          const [meta, encoded] = attachment.dataUrl.split(",", 2);
+          const mime = meta.match(/^data:([^;]+)/)?.[1] ?? attachment.mimeType;
+          const bytes = Buffer.from(encoded, "base64");
+          const result = await transcribeAudio(new Blob([bytes], { type: mime }), attachment.name || "audio.webm");
+          if (result.text.trim()) transcripts.push(result.text.trim());
+          else audioTranscriptionUnavailable = true;
+        } catch (error) {
+          audioTranscriptionUnavailable = true;
+          console.warn("[aiChat] audio transcription unavailable", error instanceof Error ? error.message : error);
+        }
       }
-      if (transcripts.length) mediaContext = "\n\nTranscrição dos áudios enviados pela pessoa (trate como relato do usuário): " + transcripts.join(" | ");
+      if (transcripts.length) mediaContext = "Transcrição dos áudios enviados pela pessoa (trate como relato do usuário): " + transcripts.join(" | ");
     }
-    const lastWithMedia = last + mediaContext;
+    const audioHelp = audioTranscriptionUnavailable
+      ? "Não foi possível transcrever um dos áudios. Não invente o conteúdo; explique com delicadeza que a pessoa pode reenviar o áudio ou escrever o que gostaria de compartilhar."
+      : "";
+    const lastWithMedia = [last.trim(), mediaContext, audioHelp].filter(Boolean).join("\\n\\n");
     const userContent = data.attachments.some((a) => a.kind !== "audio")
       ? [
           { type: "text", text: lastWithMedia || "A pessoa enviou mídia sem texto. Descreva com cuidado apenas o que for observável e pergunte como isso se relaciona ao que ela está vivendo." },
