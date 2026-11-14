@@ -84,7 +84,10 @@ describe("sinais persistentes de risco", () => {
   });
 
   it("uma negação não pode esconder um sinal de ação imediata depois de e", () => {
-    const result = assessRisk("Não estou pensando em me matar e já tomei vários comprimidos.", 0);
+    const result = assessRisk(
+      "Não estou pensando em me matar e já tomei vários comprimidos.",
+      0,
+    );
     expect(result.level).toBe("urgent");
     expect(result.offerHuman).toBe(true);
     expect(result.source).toBe("keywords");
