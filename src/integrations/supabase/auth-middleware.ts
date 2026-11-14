@@ -3,6 +3,7 @@ import { createMiddleware } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './types'
+import { getServerEnv } from '@/lib/server-env'
 
 function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
@@ -34,11 +35,11 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
     // projects may only have VITE_SUPABASE_* values injected at build time. Support
     // both conventions so authenticated server functions can use the same project.
     const SUPABASE_URL =
-      process.env.SUPABASE_URL ||
+      getServerEnv("SUPABASE_URL") ||
       import.meta.env.VITE_SUPABASE_URL;
 
     const SUPABASE_PUBLISHABLE_KEY =
-      process.env.SUPABASE_PUBLISHABLE_KEY ||
+      getServerEnv("SUPABASE_PUBLISHABLE_KEY") ||
       import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
       import.meta.env.VITE_SUPABASE_ANON_KEY;
 
