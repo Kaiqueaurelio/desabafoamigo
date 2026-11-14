@@ -198,7 +198,14 @@ function AuthPage() {
     setGuestLoading(true);
     try {
       const request = () => supabase.auth.signInAnonymously();
-      let result = await request();
+      let result: Awaited<ReturnType<typeof request>>;
+      try {
+        result = await request();
+      } catch (cause) {
+        if (!isNetworkError(cause)) throw cause;
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+        result = await request();
+      }
       if (isNetworkError(result.error)) {
         await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
         result = await request();
@@ -248,7 +255,7 @@ function AuthPage() {
           <Logo size={28} />
           <span className="text-sm font-semibold text-primary">Desabafo Amigo</span>
         </Link>
-        <h1 className="text-2xl font-bold text-primary">
+        <h1 id="auth-title" className="text-2xl font-bold text-primary">
           {mode === "signup" ? "Criar conta" : "Entrar"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -268,26 +275,33 @@ function AuthPage() {
           </div>
         )}
 
-        <form onSubmit={submit} className="mt-5 space-y-3">
+        <form onSubmit={submit} aria-labelledby="auth-title" className="mt-5 space-y-3">
           <Input
             label="E-mail"
             type="email"
+            name="email"
+            autoComplete="username"
             value={email}
             onChange={setEmail}
             placeholder="voce@email.com"
+            required
           />
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">Senha</span>
             <PasswordInput
+              id="auth-password"
+              name="password"
               value={password}
               onChange={setPassword}
               placeholder="••••••"
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              required
             />
           </label>
           <label className="flex items-start gap-2 rounded-lg bg-brand-soft/60 p-2.5 text-xs text-muted-foreground">
             <input
               type="checkbox"
+              name="remember"
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
               className="mt-0.5 size-4 shrink-0 accent-[hsl(var(--primary))]"
@@ -299,7 +313,11 @@ function AuthPage() {
               </span>
             </span>
           </label>
-          {err && <p className="text-sm text-destructive">{err}</p>}
+          {err && (
+            <p role="alert" aria-live="polite" className="text-sm text-destructive">
+              {err}
+            </p>
+          )}
 
           <button disabled={loading} type="submit" className="btn-primary w-full">
             {loading ? "Enviando..." : mode === "signup" ? "Criar conta" : "Entrar"}
@@ -343,25 +361,38 @@ function AuthPage() {
 
 function Input({
   label,
+  name,
   value,
   onChange,
   type = "text",
   placeholder,
+  autoComplete,
+  required,
 }: {
   label: string;
+  name: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   placeholder?: string;
+  autoComplete?: string;
+  required?: boolean;
 }) {
   return (
     <label className="block">
       <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
       <input
+        id={`auth-${name}`}
+        name={name}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        autoComplete={autoComplete}
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        required={required}
         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
       />
     </label>

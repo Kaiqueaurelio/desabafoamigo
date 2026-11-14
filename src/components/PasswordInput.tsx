@@ -3,6 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 type Props = {
   id?: string;
+  name?: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
@@ -13,6 +14,7 @@ type Props = {
 
 export function PasswordInput({
   id,
+  name,
   value,
   onChange,
   placeholder,
@@ -25,6 +27,7 @@ export function PasswordInput({
     <div className="relative">
       <input
         id={id}
+        name={name}
         type={show ? "text" : "password"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
