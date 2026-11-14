@@ -3,7 +3,6 @@ import {
   Outlet,
   Link,
   createRootRouteWithContext,
-  useRouter,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -14,6 +13,7 @@ import { SkipLink } from "@/components/SkipLink";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { recoverAppFromRootError } from "@/lib/pwa-register";
 import { supabase } from "@/integrations/supabase/client";
 import { applyA11yPrefs, loadA11yPrefs } from "@/lib/a11y";
 import { applyTheme, loadTheme, watchSystemTheme } from "@/lib/theme";
@@ -43,24 +43,37 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: ErrorComponentProps) {
-  const router = useRouter();
+function ErrorComponent({ error }: ErrorComponentProps) {
   useEffect(() => {
+    console.error("[Desabafo Amigo] Falha na raiz do aplicativo:", error);
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
+
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-foreground">Algo deu errado</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Tente novamente.</p>
+    <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 text-center shadow-[var(--shadow-calm)] sm:p-8">
+        <h1 className="text-xl font-semibold text-foreground">Não foi possível abrir o aplicativo</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Uma falha impediu o carregamento. Vamos tentar recuperar a versão mais recente do aplicativo.
+        </p>
         <button
-          onClick={() => { router.invalidate(); reset(); }}
-          className="mt-6 btn-primary"
+          type="button"
+          onClick={() => void recoverAppFromRootError()}
+          className="btn-primary mt-6 w-full"
         >
-          Tentar novamente
+          Recuperar aplicativo e tentar novamente
         </button>
+        <a
+          href="/?sw=off"
+          className="mt-4 inline-flex min-h-11 items-center justify-center text-sm font-medium text-primary underline underline-offset-4"
+        >
+          Abrir a página inicial
+        </a>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Se o problema continuar, tente abrir o aplicativo novamente pelo navegador.
+        </p>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -129,20 +142,49 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
-    applyA11yPrefs(loadA11yPrefs());
-    applyTheme(loadTheme());
-    const unwatch = watchSystemTheme();
-    import("@/lib/errorTracking").then((m) => m.installErrorTracking()).catch(() => {});
-    import("@/lib/pwa-register").then((m) => m.registerPwa()).catch(() => {});
+    let unwatch = () => {};
+    let unsubscribeAuth = () => {};
 
+    // Preferências e integrações auxiliares nunca devem derrubar a aplicação inteira.
+    try {
+      applyA11yPrefs(loadA11yPrefs());
+      applyTheme(loadTheme());
+      unwatch = watchSystemTheme();
+    } catch (error) {
+      console.error("[App] Não foi possível inicializar preferências visuais:", error);
+    }
 
-    const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-        router.invalidate();
-        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-      }
-    });
-    return () => { data.subscription.unsubscribe(); unwatch(); };
+    void import("@/lib/errorTracking")
+      .then((m) => m.installErrorTracking())
+      .catch((error) => console.warn("[App] Rastreamento de erros indisponível:", error));
+    void import("@/lib/pwa-register")
+      .then((m) => m.registerPwa())
+      .catch((error) => console.warn("[App] Registro offline indisponível:", error));
+
+    // A indisponibilidade do Supabase não pode impedir a página pública ou o login
+    // de serem renderizados. As operações autenticadas tratam a falha em seus próprios fluxos.
+    try {
+      const { data } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+          void router.invalidate().catch((error) => {
+            console.warn("[App] Não foi possível atualizar as rotas após mudança de sessão:", error);
+          });
+          if (event !== "SIGNED_OUT") {
+            void queryClient.invalidateQueries().catch((error) => {
+              console.warn("[App] Não foi possível atualizar os dados após mudança de sessão:", error);
+            });
+          }
+        }
+      });
+      unsubscribeAuth = () => data.subscription.unsubscribe();
+    } catch (error) {
+      console.error("[App] Serviço de autenticação indisponível; mantendo a navegação pública:", error);
+    }
+
+    return () => {
+      unsubscribeAuth();
+      unwatch();
+    };
   }, [router, queryClient]);
 
   return (
