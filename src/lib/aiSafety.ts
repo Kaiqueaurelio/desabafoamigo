@@ -43,8 +43,7 @@ export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
   if (immediate || repeatedIdeation) {
     return { level: "urgent", offerHuman: true, source: "keywords" };
   }
-  const sev =
-    typeof aiSeverity === "number" && Number.isFinite(aiSeverity) ? aiSeverity : null;
+  const sev = typeof aiSeverity === "number" && Number.isFinite(aiSeverity) ? aiSeverity : null;
   if (sev === null) {
     return { level: "attention", offerHuman: true, source: "fallback" };
   }
