@@ -162,7 +162,8 @@ export const aiChat = createServerFn({ method: "POST" })
     if (data.rememberContext) {
       const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(
         context.supabase,
-      ).from("ai_user_memory")
+      )
+        .from("ai_user_memory")
         .select("memory_summary, expires_at")
         .eq("user_id", context.userId)
         .maybeSingle();
