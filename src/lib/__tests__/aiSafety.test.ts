@@ -80,6 +80,20 @@ describe("sinais persistentes de risco", () => {
     expect(result.source).toBe("keywords");
   });
 
+  it("uma negação não pode esconder um sinal de ação imediata depois de e", () => {
+    const result = assessRisk("Não estou pensando em me matar e já tomei vários comprimidos.", 0);
+    expect(result.level).toBe("urgent");
+    expect(result.offerHuman).toBe(true);
+    expect(result.source).toBe("keywords");
+  });
+
+  it("uma negação não pode esconder intenção positiva depois de vírgula", () => {
+    const result = assessRisk("Não quero morrer, vou me matar hoje.", 0);
+    expect(result.level).toBe("urgent");
+    expect(result.offerHuman).toBe(true);
+    expect(result.source).toBe("keywords");
+  });
+
   it("mantém a negação explícita quando não há cláusula positiva posterior", () => {
     expect(assessRisk("Não estou pensando em me matar e não tenho intenção de suicídio.", 0).level).toBe("none");
   });
