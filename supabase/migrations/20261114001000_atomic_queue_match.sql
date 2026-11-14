@@ -69,5 +69,5 @@ begin
 end;
 $$;
 
-revoke all on function public.claim_queue_entry(uuid) from public;
+revoke all on function public.claim_queue_entry(uuid) from public, anon;
 grant execute on function public.claim_queue_entry(uuid) to authenticated;
