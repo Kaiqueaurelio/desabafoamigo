@@ -24,13 +24,44 @@ function modelFor(body: Record<string, unknown>): string {
 
 /** Gateway único NVIDIA NIM; nenhuma chamada ou chave Lovable no runtime. */
 export async function chatCompletion(body: Record<string, unknown>): Promise<string> {
+  const baseUrl = nvidiaBaseUrl();
+  const apiKey = nvidiaKey();
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` };
   const payload = { ...body, model: modelFor(body), stream: false };
-  const response = await fetch(`${nvidiaBaseUrl()}/chat/completions`, {
+  let response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${nvidiaKey()}` },
+    headers,
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(30000),
   });
+
+  // NVIDIA NIM can acknowledge an inference request with HTTP 202. In that
+  // case the actual completion is available from /status/{nvcf-reqid}; treating
+  // the empty 202 body as a successful completion silently breaks the chat.
+  if (response.status === 202) {
+    const requestId = response.headers.get("nvcf-reqid");
+    if (!requestId) {
+      throw new Error("A NVIDIA aceitou a solicitação, mas não retornou o identificador de processamento.");
+    }
+
+    let completed = false;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 750));
+      response = await fetch(`${baseUrl}/status/${encodeURIComponent(requestId)}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${apiKey}` },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (response.status !== 202) {
+        completed = true;
+        break;
+      }
+    }
+    if (!completed) {
+      throw new Error("A NVIDIA ainda está processando a resposta. Tente novamente em instantes.");
+    }
+  }
+
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 500);
     console.error("[NVIDIA NIM] chat completion failed", response.status, detail);
