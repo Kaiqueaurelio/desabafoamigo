@@ -217,7 +217,9 @@ function AuthPage() {
           "O acesso como convidado ainda precisa ser ativado nas configurações de autenticação do Supabase. Tente novamente mais tarde.",
         );
       } else {
-        setErr(getAuthErrorMessage(e, typeof navigator !== "undefined" ? navigator.onLine : undefined));
+        setErr(
+          getAuthErrorMessage(e, typeof navigator !== "undefined" ? navigator.onLine : undefined),
+        );
       }
     } finally {
       setGuestLoading(false);
