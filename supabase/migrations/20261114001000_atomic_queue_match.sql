@@ -1,7 +1,9 @@
 -- Atomically claim a waiting queue entry and create its appointment/conversation.
 -- All writes run in one transaction: a failure rolls back the claim and related rows.
-create or replace function public.claim_queue_entry(_queue_id uuid)
-returns table (appointment_id uuid, conversation_id uuid)
+drop function if exists public.claim_queue_entry(uuid);
+
+create function public.claim_queue_entry(_queue_id uuid)
+returns table (user_id uuid, appointment_id uuid, conversation_id uuid)
 language plpgsql
 security definer
 set search_path = public, pg_temp
@@ -63,7 +65,7 @@ begin
          updated_at = now()
    where id = _queue_id;
 
-  return query select v_appointment, v_conversation;
+  return query select v_patient, v_appointment, v_conversation;
 end;
 $$;
 
