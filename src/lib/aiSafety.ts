@@ -16,20 +16,20 @@ const IDEATION = [
 
 /** Avalia a conversa acumulada; não substitui avaliação humana nem diagnóstico clínico. */
 export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
-  const normalized = text.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+  const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   // Evaluate each clause independently. A denial before "mas/porém" must
   // never suppress a later positive statement of intent in the same message.
   const clauses = normalized
-    .split(/\\b(?:mas|por[eé]m|contudo|todavia|no entanto|s[oó] que)\\b/i)
+    .split(/\b(?:mas|por[eé]m|contudo|todavia|no entanto|s[oó] que)\b/i)
     .map((clause) => clause.trim())
     .filter(Boolean);
-  const denial = /\\b(nao estou pensando em|nao pretendo|nao tenho intencao de|nao quero morrer|nao quero me matar|nao tenho plano de|nao penso em me matar|nao penso em suicidio)\\b/i;
+  const denial = /\b(nao estou pensando em|nao pretendo|nao tenho intencao de|nao quero morrer|nao quero me matar|nao tenho plano de|nao penso em me matar|nao penso em suicidio)\b/i;
   const positiveClauses = clauses.filter((clause) => !denial.test(clause));
   const immediate = positiveClauses.some((clause) => IMMEDIATE_INTENT.some((pattern) => pattern.test(clause)));
   const ideationMentions = positiveClauses.filter((clause) => IDEATION.some((pattern) => pattern.test(clause))).length;
   const repeatedIdeation = ideationMentions >= 2;
   const anyIdeation = ideationMentions >= 1;
-  const kwAny = positiveClauses.length > 0 && detectRisk(positiveClauses.join("\\n"));
+  const kwAny = positiveClauses.length > 0 && detectRisk(positiveClauses.join("\n"));
   if (immediate || repeatedIdeation) return { level: "urgent", offerHuman: true, source: "keywords" };
   const sev = typeof aiSeverity === "number" && Number.isFinite(aiSeverity) ? aiSeverity : null;
   if (sev === null) return { level: "attention", offerHuman: true, source: "fallback" };
