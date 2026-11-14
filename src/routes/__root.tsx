@@ -30,14 +30,15 @@ const ORG_JSONLD = JSON.stringify({
 });
 
 
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <p className="mt-4 text-muted-foreground">Página não encontrada.</p>
-        <Link to="/" className="mt-6 inline-block btn-primary">Voltar ao início</Link>
+        <Link to="/" className="mt-6 inline-block btn-primary">
+          Voltar ao início
+        </Link>
       </div>
     </div>
   );
@@ -52,9 +53,12 @@ function ErrorComponent({ error }: ErrorComponentProps) {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 text-center shadow-[var(--shadow-calm)] sm:p-8">
-        <h1 className="text-xl font-semibold text-foreground">Não foi possível abrir o aplicativo</h1>
+        <h1 className="text-xl font-semibold text-foreground">
+          Não foi possível abrir o aplicativo
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Uma falha impediu o carregamento. Vamos tentar recuperar a versão mais recente do aplicativo.
+          Uma falha impediu o carregamento. Vamos tentar recuperar a versão mais recente do
+          aplicativo.
         </p>
         <button
           type="button"
@@ -83,10 +87,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Desabafo Amigo — sua voz merece ser ouvida" },
-      { name: "description", content: "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida." },
+      {
+        name: "description",
+        content:
+          "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida.",
+      },
       { name: "theme-color", content: "#0F2A47" },
       { property: "og:title", content: "Desabafo Amigo — sua voz merece ser ouvida" },
-      { property: "og:description", content: "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida." },
+      {
+        property: "og:description",
+        content:
+          "Um espaço confiável para conversar por mensagem com voluntários treinados em escuta acolhedora. Seu apelido é gerado pelo app — sua identidade fica protegida.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "referrer", content: "no-referrer" },
