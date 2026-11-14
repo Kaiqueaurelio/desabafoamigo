@@ -26,19 +26,27 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
-
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  // Support current Supabase names and the legacy Vite anon-key name used by
+  // older Lovable-connected projects. Public keys are safe for browser use;
+  // service-role/secret keys must never be placed in VITE_* variables.
+  const SUPABASE_URL =
+    import.meta.env.VITE_SUPABASE_URL ||
+    process.env.SUPABASE_URL;
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
-      ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
+      ...(!SUPABASE_URL ? ['VITE_SUPABASE_URL / SUPABASE_URL'] : []),
+      ...(!SUPABASE_PUBLISHABLE_KEY
+        ? ['VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY / SUPABASE_PUBLISHABLE_KEY']
+        : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Configure SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in your hosting environment.`;
+    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Configure the Supabase URL and public/publishable key in your hosting environment.`;
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
   }
@@ -51,7 +59,7 @@ function createSupabaseClient() {
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
-    }
+    },
   });
 }
 
@@ -65,4 +73,3 @@ export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>,
     return Reflect.get(_supabase, prop, receiver);
   },
 });
-
