@@ -83,7 +83,7 @@ export function parseAiJson(
       const char = raw[end];
       if (inString) {
         if (escaped) escaped = false;
-        else if (char === "\\\\") escaped = true;
+        else if (char === "\\") escaped = true;
         else if (char === '"') inString = false;
         continue;
       }
