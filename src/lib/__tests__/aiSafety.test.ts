@@ -38,13 +38,13 @@ describe("triagem do Desabafo Amigo AI", () => {
   });
   it("aceita JSON cercado por Markdown", () => {
     expect(
-      parseAiJson('```json\\n{"reply":"Estou aqui com você.","severity":1}\\n```'),
+      parseAiJson('```json\n{"reply":"Estou aqui com você.","severity":1}\n```'),
     ).toMatchObject({ reply: "Estou aqui com você.", severity: 1 });
   });
   it("encontra JSON válido depois de um preâmbulo de raciocínio", () => {
     expect(
       parseAiJson(
-        'Analisando o contexto.\\n{"reply":"Obrigado por compartilhar isso comigo.","severity":1}',
+        'Analisando o contexto.\n{"reply":"Obrigado por compartilhar isso comigo.","severity":1}',
       ),
     ).toMatchObject({
       reply: "Obrigado por compartilhar isso comigo.",
@@ -54,7 +54,7 @@ describe("triagem do Desabafo Amigo AI", () => {
   it("ignora objeto inválido antes do JSON final válido", () => {
     expect(
       parseAiJson(
-        'resultado: {"analysis":"interno"}\\n{"reply":"Podemos conversar sobre isso.","severity":0}',
+        'resultado: {"analysis":"interno"}\n{"reply":"Podemos conversar sobre isso.","severity":0}',
       )?.reply,
     ).toBe("Podemos conversar sobre isso.");
   });
