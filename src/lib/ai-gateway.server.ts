@@ -5,7 +5,9 @@ type ChatProvider = "nvidia" | "lovable";
 function modelFor(body: Record<string, unknown>): string {
   const hasImage = JSON.stringify(body.messages ?? []).includes("image_url");
   return hasImage
-    ? getServerEnv("NVIDIA_VISION_MODEL") || getServerEnv("NVIDIA_MODEL") || "meta/llama-3.2-11b-vision-instruct"
+    ? getServerEnv("NVIDIA_VISION_MODEL") ||
+      getServerEnv("NVIDIA_MODEL") ||
+      "meta/llama-3.2-11b-vision-instruct"
     : getServerEnv("NVIDIA_MODEL") || "nvidia/nemotron-3.5-lightning-30b-a3b";
 }
 
@@ -35,7 +37,9 @@ async function readCompletion(response: Response, provider: string): Promise<str
 }
 
 async function requestNvidia(body: Record<string, unknown>, apiKey: string): Promise<string> {
-  const baseUrl = (getServerEnv("NVIDIA_BASE_URL") || "https://integrate.api.nvidia.com/v1").replace(/\/$/, "");
+  const baseUrl = (
+    getServerEnv("NVIDIA_BASE_URL") || "https://integrate.api.nvidia.com/v1"
+  ).replace(/\/$/, "");
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` };
   let response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
@@ -55,7 +59,10 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
         headers: { Authorization: `Bearer ${apiKey}` },
         signal: AbortSignal.timeout(10000),
       });
-      if (response.status !== 202) { completed = true; break; }
+      if (response.status !== 202) {
+        completed = true;
+        break;
+      }
     }
     if (!completed) throw new Error("A NVIDIA ainda está processando a resposta.");
   }
