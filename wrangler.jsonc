@@ -8,7 +8,7 @@
   "assets": { "directory": "./dist/client", "binding": "ASSETS" },
   "vars": {
     "NVIDIA_BASE_URL": "https://integrate.api.nvidia.com/v1",
-    "NVIDIA_MODEL": "meta/llama-3.1-8b-instruct",
+    "NVIDIA_MODEL": "nvidia/nemotron-3.5-lightning-30b-a3b",
     "NVIDIA_TTS_FUNCTION_ID": "877104f7-e885-42b9-8de8-f6e4c6303969"
   }
 }
