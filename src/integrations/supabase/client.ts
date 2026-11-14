@@ -68,7 +68,7 @@ function createSupabaseClient() {
 
   return createClient<Database>(clientUrl, clientKey, {
     global: {
-      fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
+      fetch: createSupabaseFetch(clientKey),
     },
     auth: {
       storage: typeof window !== "undefined" ? window.localStorage : undefined,
