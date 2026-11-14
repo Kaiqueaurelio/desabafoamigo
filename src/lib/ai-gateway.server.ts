@@ -28,11 +28,18 @@ function extractContent(data: unknown): string {
       message?: {
         content?: string | Array<{ type?: string; text?: string }> | null;
         output_text?: string;
+        reasoning_content?: string;
+        reasoning?: string;
       };
     }[];
   };
   const message = result.choices?.[0]?.message;
-  const content = message?.content ?? message?.output_text ?? result.choices?.[0]?.text;
+  const content =
+    message?.content ??
+    message?.output_text ??
+    result.choices?.[0]?.text ??
+    message?.reasoning_content ??
+    message?.reasoning;
   if (typeof content === "string") return content;
   if (Array.isArray(content)) return content.map((part) => part.text ?? "").join("");
   return "";
@@ -59,13 +66,33 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
   ).replace(/\/$/, "");
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` };
   const payload = { ...body, model: modelFor(body), stream: false };
-  const request = (requestBody: Record<string, unknown>) =>
-    fetch(`${baseUrl}/chat/completions`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(requestBody),
-      signal: AbortSignal.timeout(30000),
-    });
+  const request = async (requestBody: Record<string, unknown>) => {
+    let response: Response | undefined;
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        response = await fetch(`${baseUrl}/chat/completions`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(45000),
+        });
+        const retryable =
+          response.status === 408 ||
+          response.status === 425 ||
+          response.status === 429 ||
+          response.status >= 500;
+        if (!retryable || attempt === 2) return response;
+        await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+      } catch (error) {
+        lastError = error;
+        if (attempt === 2) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+      }
+    }
+    if (response) return response;
+    throw lastError instanceof Error ? lastError : new Error("Falha de rede ao acessar a NVIDIA.");
+  };
   let response = await request(payload);
 
   // Some NIM profiles reject optional structured-output parameters. Retry with
