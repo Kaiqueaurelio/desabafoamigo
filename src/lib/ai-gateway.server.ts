@@ -1,17 +1,6 @@
 import { getServerEnv } from "./server-env";
 
-function nvidiaBaseUrl(): string {
-  return (getServerEnv("NVIDIA_BASE_URL") || "https://integrate.api.nvidia.com/v1").replace(
-    /\/$/,
-    "",
-  );
-}
-
-function nvidiaKey(): string {
-  const value = getServerEnv("NVIDIA_API_KEY");
-  if (!value) throw new Error("NVIDIA_API_KEY não está configurada no servidor.");
-  return value;
-}
+type ChatProvider = "nvidia" | "lovable";
 
 function modelFor(body: Record<string, unknown>): string {
   const hasImage = JSON.stringify(body.messages ?? []).includes("image_url");
@@ -22,28 +11,53 @@ function modelFor(body: Record<string, unknown>): string {
     : getServerEnv("NVIDIA_MODEL") || "nvidia/nemotron-3.5-lightning-30b-a3b";
 }
 
-/** Gateway único NVIDIA NIM; nenhuma chamada ou chave Lovable no runtime. */
-export async function chatCompletion(body: Record<string, unknown>): Promise<string> {
-  const baseUrl = nvidiaBaseUrl();
-  const apiKey = nvidiaKey();
+function extractContent(data: unknown): string {
+  const result = data as {
+    choices?: {
+      text?: string;
+      message?: {
+        content?: string | Array<{ type?: string; text?: string }> | null;
+        output_text?: string;
+      };
+    }[];
+  };
+  const message = result.choices?.[0]?.message;
+  const content = message?.content ?? message?.output_text ?? result.choices?.[0]?.text;
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) return content.map((part) => part.text ?? "").join("");
+  return "";
+}
+
+async function readCompletion(response: Response, provider: string): Promise<string> {
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 300);
+    console.error(`[${provider}] chat completion failed`, response.status, detail);
+    throw new Error(
+      response.status === 401
+        ? `A credencial do provedor ${provider} não foi aceita.`
+        : response.status === 429
+          ? `O provedor ${provider} está temporariamente ocupado.`
+          : `Falha no provedor ${provider} (HTTP ${response.status}).`,
+    );
+  }
+  return extractContent(await response.json());
+}
+
+async function requestNvidia(body: Record<string, unknown>, apiKey: string): Promise<string> {
+  const baseUrl = (
+    getServerEnv("NVIDIA_BASE_URL") || "https://integrate.api.nvidia.com/v1"
+  ).replace(/\/$/, "");
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` };
-  const payload = { ...body, model: modelFor(body), stream: false };
   let response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...body, model: modelFor(body), stream: false }),
     signal: AbortSignal.timeout(30000),
   });
 
-  // NVIDIA NIM can acknowledge an inference request with HTTP 202. In that
-  // case the actual completion is available from /status/{nvcf-reqid}; treating
-  // the empty 202 body as a successful completion silently breaks the chat.
   if (response.status === 202) {
     const requestId = response.headers.get("nvcf-reqid");
-    if (!requestId) {
-      throw new Error("A NVIDIA aceitou a solicitação, mas não retornou o identificador de processamento.");
-    }
-
+    if (!requestId) throw new Error("A NVIDIA não retornou o identificador de processamento.");
     let completed = false;
     for (let attempt = 0; attempt < 20; attempt += 1) {
       await new Promise((resolve) => setTimeout(resolve, 750));
@@ -57,29 +71,76 @@ export async function chatCompletion(body: Record<string, unknown>): Promise<str
         break;
       }
     }
-    if (!completed) {
-      throw new Error("A NVIDIA ainda está processando a resposta. Tente novamente em instantes.");
+    if (!completed) throw new Error("A NVIDIA ainda está processando a resposta.");
+  }
+  return readCompletion(response, "NVIDIA NIM");
+}
+
+async function requestLovable(body: Record<string, unknown>, apiKey: string): Promise<string> {
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "tanstack-ai",
+    },
+    body: JSON.stringify({
+      ...body,
+      model: getServerEnv("LOVABLE_AI_MODEL") || "google/gemini-3.7-flash",
+      stream: false,
+    }),
+    signal: AbortSignal.timeout(45000),
+  });
+  return readCompletion(response, "Lovable AI");
+}
+
+/**
+ * Tenta NVIDIA quando configurada e usa Lovable AI como fallback real.
+ * As duas credenciais são lidas exclusivamente no servidor.
+ */
+export async function chatCompletionWithProvider(
+  body: Record<string, unknown>,
+): Promise<{ content: string; provider: ChatProvider }> {
+  const nvidiaKey = getServerEnv("NVIDIA_API_KEY");
+  const lovableKey = getServerEnv("LOVABLE_API_KEY");
+  const errors: string[] = [];
+
+  if (nvidiaKey) {
+    try {
+      const content = await requestNvidia(body, nvidiaKey);
+      if (content.trim()) return { content, provider: "nvidia" };
+      errors.push("NVIDIA retornou uma resposta vazia.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "erro desconhecido";
+      console.warn("[aiChat] NVIDIA indisponível; tentando Lovable AI:", message);
+      errors.push(message);
     }
+  } else {
+    errors.push("NVIDIA_API_KEY ausente.");
   }
 
-  if (!response.ok) {
-    const detail = (await response.text()).slice(0, 500);
-    console.error("[NVIDIA NIM] chat completion failed", response.status, detail);
-    throw new Error(
-      response.status === 401
-        ? "A chave NVIDIA_API_KEY não foi aceita."
-        : response.status === 429
-          ? "A NVIDIA está temporariamente ocupada. Tente novamente."
-          : `Falha no serviço NVIDIA (HTTP ${response.status}).`,
-    );
+  if (lovableKey) {
+    try {
+      const content = await requestLovable(body, lovableKey);
+      if (content.trim()) return { content, provider: "lovable" };
+      errors.push("Lovable AI retornou uma resposta vazia.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "erro desconhecido";
+      console.error("[aiChat] Lovable AI também indisponível:", message);
+      errors.push(message);
+    }
+  } else {
+    errors.push("LOVABLE_API_KEY ausente no runtime.");
   }
-  const result = (await response.json()) as {
-    choices?: { message?: { content?: string | Array<{ type?: string; text?: string }> } }[];
-  };
-  const content = result.choices?.[0]?.message?.content;
-  if (typeof content === "string") return content;
-  if (Array.isArray(content)) return content.map((part) => part.text ?? "").join("");
-  return "";
+
+  throw new Error(`Nenhum provedor de IA conseguiu responder. ${errors.join(" ")}`);
+}
+
+/** Compatibilidade para chamadas existentes que só precisam do texto. */
+export async function chatCompletion(body: Record<string, unknown>): Promise<string> {
+  const result = await chatCompletionWithProvider(body);
+  return result.content;
 }
 
 export type TranscriptSegment = { start: number; end: number; text: string };

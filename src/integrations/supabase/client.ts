@@ -33,28 +33,42 @@ function createSupabaseClient() {
   // Support current Supabase names and the legacy Vite anon-key name used by
   // older Lovable-connected projects. Public keys are safe for browser use;
   // service-role/secret keys must never be placed in VITE_* variables.
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const runtimeEnv = typeof process !== "undefined" ? process.env : undefined;
+  const viteEnv = import.meta.env ?? {};
+
+  const SUPABASE_URL =
+    viteEnv.VITE_SUPABASE_URL || runtimeEnv?.VITE_SUPABASE_URL || runtimeEnv?.SUPABASE_URL;
 
   const SUPABASE_PUBLISHABLE_KEY =
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-    import.meta.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_PUBLISHABLE_KEY;
+    viteEnv.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    viteEnv.VITE_SUPABASE_ANON_KEY ||
+    runtimeEnv?.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    runtimeEnv?.VITE_SUPABASE_ANON_KEY ||
+    runtimeEnv?.SUPABASE_PUBLISHABLE_KEY;
 
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ["VITE_SUPABASE_URL / SUPABASE_URL"] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY
-        ? ["VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY / SUPABASE_PUBLISHABLE_KEY"]
-        : []),
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Configure the Supabase URL and public/publishable key in your hosting environment.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+  const missing: string[] = [];
+  if (!SUPABASE_URL) missing.push("VITE_SUPABASE_URL / SUPABASE_URL");
+  if (!SUPABASE_PUBLISHABLE_KEY) {
+    missing.push(
+      "VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY / SUPABASE_PUBLISHABLE_KEY",
+    );
   }
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  if (missing.length > 0) {
+    console.error(
+      `[Supabase] Missing environment variable(s): ${missing.join(", ")}. Public pages will render, but Supabase features remain unavailable until the hosting variables are configured.`,
+    );
+  }
+
+  // Keep the app shell renderable when a deployment is missing its config.
+  // This invalid endpoint fails requests instead of silently connecting to
+  // another project or using a fabricated credential.
+  const clientUrl = SUPABASE_URL || "https://missing-supabase-config.invalid";
+  const clientKey = SUPABASE_PUBLISHABLE_KEY || "missing-public-key";
+
+  return createClient<Database>(clientUrl, clientKey, {
     global: {
-      fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
+      fetch: createSupabaseFetch(clientKey),
     },
     auth: {
       storage: typeof window !== "undefined" ? window.localStorage : undefined,

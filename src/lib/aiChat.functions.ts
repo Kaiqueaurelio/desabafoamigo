@@ -160,7 +160,9 @@ export const aiChat = createServerFn({ method: "POST" })
       : lastWithMedia;
     let savedMemory: string | null = null;
     if (data.rememberContext) {
-      const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(context.supabase)
+      const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(
+        context.supabase,
+      )
         .from("ai_user_memory")
         .select("memory_summary, expires_at")
         .eq("user_id", context.userId)
@@ -170,10 +172,16 @@ export const aiChat = createServerFn({ method: "POST" })
       } else if (memoryRow && new Date(memoryRow.expires_at).getTime() > Date.now()) {
         savedMemory = memoryRow.memory_summary;
       } else if (memoryRow) {
-        await withPendingDatabaseTypes(context.supabase).from("ai_user_memory").delete().eq("user_id", context.userId);
+        await withPendingDatabaseTypes(context.supabase)
+          .from("ai_user_memory")
+          .delete()
+          .eq("user_id", context.userId);
       }
     } else {
-      await withPendingDatabaseTypes(context.supabase).from("ai_user_memory").delete().eq("user_id", context.userId);
+      await withPendingDatabaseTypes(context.supabase)
+        .from("ai_user_memory")
+        .delete()
+        .eq("user_id", context.userId);
     }
     const memoryMessage = savedMemory
       ? {
@@ -190,24 +198,22 @@ export const aiChat = createServerFn({ method: "POST" })
       { role: "user", content: userContent },
     ];
     let raw = "";
-    let provider: "nvidia" | "none" = "none";
+    let provider: "nvidia" | "lovable" | "none" = "none";
     try {
-      const { chatCompletion } = await import("./ai-gateway.server");
-      raw = await chatCompletion({
+      const { chatCompletionWithProvider } = await import("./ai-gateway.server");
+      const completion = await chatCompletionWithProvider({
         messages,
         temperature: 0.35,
         top_p: 0.85,
         max_tokens: 700,
-        // Nemotron 3.5 Lightning reasons by default. Disable visible reasoning
-        // for this short structured response so the token budget is spent on
-        // the JSON payload instead of a reasoning trace that can truncate it.
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
-      provider = "nvidia";
+      raw = completion.content;
+      provider = completion.provider;
     } catch (error) {
       console.error(
-        "[aiChat] NVIDIA NIM indisponível",
+        "[aiChat] todos os provedores de IA indisponíveis",
         error instanceof Error ? error.message : error,
       );
     }
@@ -217,12 +223,14 @@ export const aiChat = createServerFn({ method: "POST" })
     // outage message; risk is still handled conservatively when severity is absent.
     const plainTextReply = raw
       .trim()
-      .replace(/^\`\`\`(?:json)?\s*/i, "")
-      .replace(/\s*\`\`\`$/, "")
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/, "")
       .trim();
     const reply =
       parsed?.reply ??
-      (plainTextReply && !plainTextReply.startsWith("{") ? plainTextReply.slice(0, 2000) : FALLBACK_REPLY);
+      (plainTextReply && !plainTextReply.startsWith("{")
+        ? plainTextReply.slice(0, 2000)
+        : FALLBACK_REPLY);
     const riskContext =
       data.messages
         .filter((message) => message.role === "user")
@@ -231,12 +239,14 @@ export const aiChat = createServerFn({ method: "POST" })
     const risk = assessRisk(riskContext, parsed?.severity ?? null);
     if (data.rememberContext && parsed?.memorySummary) {
       const expiresAt = new Date(Date.now() + data.retentionDays * 86400000).toISOString();
-      const { error: writeError } = await withPendingDatabaseTypes(context.supabase).from("ai_user_memory").upsert({
-        user_id: context.userId,
-        memory_summary: parsed.memorySummary,
-        expires_at: expiresAt,
-        updated_at: new Date().toISOString(),
-      });
+      const { error: writeError } = await withPendingDatabaseTypes(context.supabase)
+        .from("ai_user_memory")
+        .upsert({
+          user_id: context.userId,
+          memory_summary: parsed.memorySummary,
+          expires_at: expiresAt,
+          updated_at: new Date().toISOString(),
+        });
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
     return { reply, risk, provider, degraded: !raw };

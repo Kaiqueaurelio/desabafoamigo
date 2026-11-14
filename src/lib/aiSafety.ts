@@ -68,33 +68,69 @@ export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
 export function parseAiJson(
   raw: string,
 ): { reply: string; severity: number | null; memorySummary: string | null } | null {
-  try {
-    const m = raw.match(/\{[\s\S]*\}/);
-    if (!m) return null;
-    const j = JSON.parse(m[0]) as {
-      reply?: unknown;
-      severity?: unknown;
-      memorySummary?: unknown;
-    };
-    const sev = j.severity === undefined || j.severity === null ? null : Number(j.severity);
-    if (
-      typeof j.reply !== "string" ||
-      !j.reply.trim() ||
-      (sev !== null && !Number.isFinite(sev))
-    ) {
-      return null;
+  if (!raw.trim()) return null;
+
+  // Models may prepend a short reasoning/preamble or wrap JSON in Markdown.
+  // Scan balanced JSON objects rather than using a greedy regex, which can
+  // accidentally merge multiple objects and reject an otherwise valid reply.
+  const candidates: string[] = [];
+  for (let start = 0; start < raw.length; start += 1) {
+    if (raw[start] !== "{") continue;
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let end = start; end < raw.length; end += 1) {
+      const char = raw[end];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (char === "\\") escaped = true;
+        else if (char === '"') inString = false;
+        continue;
+      }
+      if (char === '"') inString = true;
+      else if (char === "{") depth += 1;
+      else if (char === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          candidates.push(raw.slice(start, end + 1));
+          start = end;
+          break;
+        }
+      }
     }
-    return {
-      reply: j.reply.trim().slice(0, 2000),
-      severity: sev === null ? null : Math.max(0, Math.min(3, Math.round(sev))),
-      memorySummary:
-        typeof j.memorySummary === "string" && j.memorySummary.trim()
-          ? j.memorySummary.trim().slice(0, 1500)
-          : null,
-    };
-  } catch {
-    return null;
   }
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate) as {
+        reply?: unknown;
+        severity?: unknown;
+        memorySummary?: unknown;
+      };
+      const severityValue = Number(parsed.severity);
+      const severity =
+        parsed.severity === undefined || parsed.severity === null ? null : severityValue;
+      if (
+        typeof parsed.reply !== "string" ||
+        !parsed.reply.trim() ||
+        (severity !== null && !Number.isFinite(severity))
+      ) {
+        continue;
+      }
+      const memorySummary =
+        typeof parsed.memorySummary === "string"
+          ? parsed.memorySummary.trim().slice(0, 1500) || null
+          : null;
+      return {
+        reply: parsed.reply.trim().slice(0, 2000),
+        severity: severity === null ? null : Math.max(0, Math.min(3, Math.round(severity))),
+        memorySummary,
+      };
+    } catch {
+      // Ignore malformed candidates and keep looking for a valid response.
+    }
+  }
+  return null;
 }
 
 export const FALLBACK_REPLY =
