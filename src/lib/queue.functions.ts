@@ -51,34 +51,21 @@ export const matchQueueEntry = createServerFn({ method: "POST" })
   .inputValidator((d: { queueId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    // authorize: must be volunteer or admin
-    const { data: isVol } = await supabase.rpc("has_role", { _user_id: userId, _role: "volunteer" });
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    if (!isVol && !isAdmin) throw new Error("Somente voluntários");
-
-    const { data: q } = await supabase.from("queue")
-      .select("id, user_id, status, topic").eq("id", data.queueId).maybeSingle();
-    if (!q || q.status !== "waiting") throw new Error("Entrada indisponível");
-
-    // create appointment + conversation
-    const { data: appt, error: aErr } = await supabase.from("appointments").insert({
-      patient_id: q.user_id,
-      professional_id: userId,
-      scheduled_at: new Date().toISOString(),
-      topic: q.topic || "Conversa rápida",
-      status: "in_progress",
-    }).select("id").single();
-    if (aErr) throw aErr;
-
-    const { data: conv, error: cErr } = await supabase.from("conversations").insert({
-      user_id: q.user_id, volunteer_id: userId, appointment_id: appt.id, status: "active",
-    }).select("id").single();
-    if (cErr) throw cErr;
-
-    await supabase.from("appointments").update({ conversation_id: conv.id }).eq("id", appt.id);
-    await supabase.from("queue").update({
-      status: "matched", matched_volunteer_id: userId, conversation_id: conv.id,
-    }).eq("id", q.id);
+    // Atomic claim + appointment + conversation creation. The database function
+    // verifies the volunteer role and locks the waiting queue row in one transaction.
+    const { data: matches, error: matchError } = await supabase.rpc("claim_queue_entry", {
+      _queue_id: data.queueId,
+    });
+    if (matchError) {
+      console.warn("[queue] atomic match failed", matchError.message);
+      throw new Error(matchError.message || "Não foi possível assumir esta conversa.");
+    }
+    const match = matches?.[0];
+    if (!match?.appointment_id || !match.conversation_id) {
+      throw new Error("A fila não retornou uma conversa válida. Atualize e tente novamente.");
+    }
+    const appointmentId = match.appointment_id;
+    const conversationId = match.conversation_id;
 
     // Notifica o solicitante que um voluntário aceitou (match) — best-effort
     try {
@@ -87,7 +74,7 @@ export const matchQueueEntry = createServerFn({ method: "POST" })
       await sendPushToUser(supabaseAdmin, q.user_id, {
         title: "Você tem um match! 💬",
         body: "Um(a) voluntário(a) está pronto(a) para conversar com você.",
-        url: `/consulta/${appt.id}`,
+        url: `/consulta/${appointmentId}`,
         tag: "match-ready",
         requireInteraction: true,
         icon: "/icon-192.png",
@@ -96,5 +83,5 @@ export const matchQueueEntry = createServerFn({ method: "POST" })
       console.warn("[push] match notify failed", e);
     }
 
-    return { appointmentId: appt.id, conversationId: conv.id };
+    return { appointmentId, conversationId };
   });
