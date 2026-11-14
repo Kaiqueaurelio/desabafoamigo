@@ -1413,6 +1413,14 @@ export type Database = {
           remaining_seconds: number
         }[]
       }
+      claim_queue_entry: {
+        Args: { _queue_id: string }
+        Returns: {
+          appointment_id: string
+          conversation_id: string
+          user_id: string
+        }[]
+      }
       generate_random_alias: { Args: never; Returns: string }
       has_role: {
         Args: {
