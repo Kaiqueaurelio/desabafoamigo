@@ -160,9 +160,8 @@ export const aiChat = createServerFn({ method: "POST" })
       : lastWithMedia;
     let savedMemory: string | null = null;
     if (data.rememberContext) {
-      const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(
-        context.supabase,
-      ).from("ai_user_memory")
+      const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(context.supabase)
+        .from("ai_user_memory")
         .select("memory_summary, expires_at")
         .eq("user_id", context.userId)
         .maybeSingle();
@@ -238,9 +237,7 @@ export const aiChat = createServerFn({ method: "POST" })
     const risk = assessRisk(riskContext, parsed?.severity ?? null);
     if (data.rememberContext && parsed?.memorySummary) {
       const expiresAt = new Date(Date.now() + data.retentionDays * 86400000).toISOString();
-      const { error: writeError } = await withPendingDatabaseTypes(
-        context.supabase,
-      )
+      const { error: writeError } = await withPendingDatabaseTypes(context.supabase)
         .from("ai_user_memory")
         .upsert({
           user_id: context.userId,
