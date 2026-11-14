@@ -77,10 +77,7 @@ export async function registerPwa(): Promise<void> {
   const killSwitch = url.searchParams.get("sw") === "off";
 
   const shouldRefuse =
-    !import.meta.env.PROD ||
-    inIframe() ||
-    isPreviewHost(window.location.hostname) ||
-    killSwitch;
+    !import.meta.env.PROD || inIframe() || isPreviewHost(window.location.hostname) || killSwitch;
 
   if (shouldRefuse) {
     await unregisterAppSw();
