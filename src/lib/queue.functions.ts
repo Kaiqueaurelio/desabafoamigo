@@ -71,7 +71,7 @@ export const matchQueueEntry = createServerFn({ method: "POST" })
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { sendPushToUser } = await import("@/lib/push.server");
-      await sendPushToUser(supabaseAdmin, q.user_id, {
+      await sendPushToUser(supabaseAdmin, match.user_id, {
         title: "Você tem um match! 💬",
         body: "Um(a) voluntário(a) está pronto(a) para conversar com você.",
         url: `/consulta/${appointmentId}`,
