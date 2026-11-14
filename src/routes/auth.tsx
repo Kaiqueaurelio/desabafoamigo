@@ -5,11 +5,15 @@ import { Logo } from "@/components/Logo";
 import { PasswordInput } from "@/components/PasswordInput";
 import { Sparkles } from "lucide-react";
 import { z } from "zod";
+import { getAuthErrorMessage, isNetworkError } from "@/lib/authErrors";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — Desabafo Amigo" }] }),
   validateSearch: (s: Record<string, unknown>): { next?: string } => ({
-    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : "",
+    next:
+      typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
+        ? s.next
+        : "",
   }),
   component: AuthPage,
 });
@@ -23,11 +27,19 @@ const schema = z.object({
 const REMEMBER_KEY = "desabafo:auth:remember";
 type RememberPayload = { email: string };
 function encodeRemember(v: RememberPayload): string {
-  try { return btoa(unescape(encodeURIComponent(JSON.stringify(v)))); } catch { return ""; }
+  try {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(v))));
+  } catch {
+    return "";
+  }
 }
 function decodeRemember(raw: string | null): RememberPayload | null {
   if (!raw) return null;
-  try { return JSON.parse(decodeURIComponent(escape(atob(raw)))) as RememberPayload; } catch { return null; }
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(raw)))) as RememberPayload;
+  } catch {
+    return null;
+  }
 }
 
 function AuthPage() {
@@ -54,12 +66,28 @@ function AuthPage() {
     }
   }, []);
 
+  async function signInWithNetworkRetry(normalizedEmail: string, normalizedPassword: string) {
+    const request = () =>
+      supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: normalizedPassword,
+      });
+
+    try {
+      const firstAttempt = await request();
+      if (!isNetworkError(firstAttempt.error)) return firstAttempt;
+    } catch (error) {
+      if (!isNetworkError(error)) throw error;
+    }
+
+    // Safari on iOS can surface a transient transport failure as "Load failed".
+    // Retry once only for network failures; credential and server errors are not retried.
+    await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+    return request();
+  }
 
   async function signInAndRoute(normalizedEmail: string, normalizedPassword: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password: normalizedPassword,
-    });
+    const { data, error } = await signInWithNetworkRetry(normalizedEmail, normalizedPassword);
     if (error) throw error;
 
     const userId = data.user?.id;
@@ -71,18 +99,25 @@ function AuthPage() {
       return;
     }
 
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
+    // A autenticação já foi concluída. Uma falha temporária na consulta de papel
+    // não deve desfazer o login; o fallback é sempre a área comum, nunca a área admin.
+    let isAdmin = false;
+    try {
+      const { data: roles, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
 
-    const isAdmin = (roles ?? []).some((role) => role.role === "admin");
-    if (isAdmin) {
-      navigate({ to: "/admin" });
-      return;
+      if (roleError) {
+        console.warn("[Auth] Login concluído; não foi possível confirmar o papel administrativo.");
+      } else {
+        isAdmin = (roles ?? []).some((role) => role.role === "admin");
+      }
+    } catch {
+      console.warn("[Auth] Login concluído; consulta de papel indisponível. Usando acesso comum.");
     }
 
-    navigate({ to: "/inicio" });
+    navigate({ to: isAdmin ? "/admin" : "/inicio" });
   }
 
   async function submit(e: React.FormEvent) {
@@ -91,7 +126,10 @@ function AuthPage() {
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedPassword = password.replace(/^\s+|\s+$/g, "");
     const parsed = schema.safeParse({ email: normalizedEmail, password: normalizedPassword });
-    if (!parsed.success) { setErr(parsed.error.issues[0].message); return; }
+    if (!parsed.success) {
+      setErr(parsed.error.issues[0].message);
+      return;
+    }
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -99,12 +137,17 @@ function AuthPage() {
           ? `${window.location.origin}${next}`
           : `${window.location.origin}/inicio`;
         const { error } = await supabase.auth.signUp({
-          email: normalizedEmail, password: normalizedPassword,
+          email: normalizedEmail,
+          password: normalizedPassword,
           options: { emailRedirectTo },
         });
         if (error) {
           const lower = error.message.toLowerCase();
-          if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
+          if (
+            lower.includes("already registered") ||
+            lower.includes("user_already_exists") ||
+            lower.includes("already been registered")
+          ) {
             await signInAndRoute(normalizedEmail, normalizedPassword);
             persistRemember(normalizedEmail);
             return;
@@ -125,9 +168,15 @@ function AuthPage() {
     } catch (e) {
       const raw = e instanceof Error ? e.message : "Erro";
       const lower = raw.toLowerCase();
-      if (lower.includes("already registered") || lower.includes("user_already_exists") || lower.includes("already been registered")) {
+      if (
+        lower.includes("already registered") ||
+        lower.includes("user_already_exists") ||
+        lower.includes("already been registered")
+      ) {
         setMode("signin");
-        setErr("Este e-mail já tem cadastro. Tentei entrar com a senha digitada, mas ela não conferiu.");
+        setErr(
+          "Este e-mail já tem cadastro. Tentei entrar com a senha digitada, mas ela não conferiu.",
+        );
       } else if (lower.includes("invalid login") || lower.includes("invalid_credentials")) {
         setErr("E-mail ou senha incorretos.");
       } else if (lower.includes("email not confirmed")) {
@@ -135,9 +184,13 @@ function AuthPage() {
       } else if (lower.includes("rate limit") || lower.includes("over_email_send_rate_limit")) {
         setErr("Muitas tentativas. Aguarde alguns minutos e tente novamente.");
       } else {
-        setErr(raw);
+        setErr(
+          getAuthErrorMessage(e, typeof navigator !== "undefined" ? navigator.onLine : undefined),
+        );
       }
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function continueAsGuest() {
@@ -155,10 +208,18 @@ function AuthPage() {
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       const lower = message.toLowerCase();
-      if (lower.includes("anonymous") || lower.includes("disabled") || lower.includes("not enabled")) {
-        setErr("O acesso como convidado ainda precisa ser ativado nas configurações de autenticação do Supabase. Tente novamente mais tarde.");
+      if (
+        lower.includes("anonymous") ||
+        lower.includes("disabled") ||
+        lower.includes("not enabled")
+      ) {
+        setErr(
+          "O acesso como convidado ainda precisa ser ativado nas configurações de autenticação do Supabase. Tente novamente mais tarde.",
+        );
       } else {
-        setErr(message || "Não foi possível entrar como convidado. Verifique sua conexão e tente novamente.");
+        setErr(
+          getAuthErrorMessage(e, typeof navigator !== "undefined" ? navigator.onLine : undefined),
+        );
       }
     } finally {
       setGuestLoading(false);
@@ -173,9 +234,6 @@ function AuthPage() {
       window.localStorage.removeItem(REMEMBER_KEY);
     }
   }
-
-
-
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-brand-soft px-4">
@@ -197,16 +255,29 @@ function AuthPage() {
           <div className="mt-4 flex items-start gap-3 rounded-xl bg-brand-soft p-3 text-xs text-muted-foreground">
             <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
-              Ao criar sua conta, o app gera automaticamente um <strong>apelido</strong> e um <strong>avatar</strong> para você. Sua identidade não é compartilhada com os voluntários.
+              Ao criar sua conta, o app gera automaticamente um <strong>apelido</strong> e um{" "}
+              <strong>avatar</strong> para você. Sua identidade não é compartilhada com os
+              voluntários.
             </p>
           </div>
         )}
 
         <form onSubmit={submit} className="mt-5 space-y-3">
-          <Input label="E-mail" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
+          <Input
+            label="E-mail"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="voce@email.com"
+          />
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">Senha</span>
-            <PasswordInput value={password} onChange={setPassword} placeholder="••••••" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+            <PasswordInput
+              value={password}
+              onChange={setPassword}
+              placeholder="••••••"
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+            />
           </label>
           <label className="flex items-start gap-2 rounded-lg bg-brand-soft/60 p-2.5 text-xs text-muted-foreground">
             <input
@@ -246,23 +317,47 @@ function AuthPage() {
           Sem e-mail e sem senha. Você receberá um apelido automaticamente.
         </p>
 
-        <button type="button" onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-primary">
+        <button
+          type="button"
+          onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+          className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-primary"
+        >
           {mode === "signup" ? "Já tenho conta" : "Criar conta"}
         </button>
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Quer ser voluntário(a)? <Link to="/pro/cadastro" className="text-primary hover:underline">Cadastre-se aqui</Link>
+          Quer ser voluntário(a)?{" "}
+          <Link to="/pro/cadastro" className="text-primary hover:underline">
+            Cadastre-se aqui
+          </Link>
         </p>
       </div>
     </main>
   );
 }
 
-function Input({ label, value, onChange, type = "text", placeholder }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string }) {
+function Input({
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  placeholder?: string;
+}) {
   return (
     <label className="block">
       <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring/40" />
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
+      />
     </label>
   );
 }
