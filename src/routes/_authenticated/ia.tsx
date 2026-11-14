@@ -28,7 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { aiChat } from "@/lib/aiChat.functions";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
 import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs";
-import { assessRisk, type RiskLevel } from "@/lib/aiSafety";
+import { assessRisk, FALLBACK_REPLY, type RiskLevel } from "@/lib/aiSafety";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { EllaVoiceMode } from "@/components/EllaVoiceMode";
 
@@ -59,6 +59,19 @@ const GREETING: M = {
   content:
     "Oi! Meu nome é Ella Ribeiro, sou uma inteligência artificial de apoio emocional — não sou psicólogo nem substituo um profissional. Posso te ouvir com atenção, ajudar a organizar o que está passando pela sua cabeça e pensar com você em próximos passos, sem julgamentos. O que está pesando mais para você hoje?",
 };
+
+// Do not keep showing an outage message that was saved during a previous
+// provider failure after the NVIDIA gateway is healthy again. User messages
+// remain in the conversation so they can simply send a new message.
+function isStaleTechnicalReply(message: M): boolean {
+  if (message.role !== "assistant") return false;
+  const content = message.content.trim();
+  return (
+    content === FALLBACK_REPLY ||
+    content.startsWith("Não consegui processar sua mensagem agora.") ||
+    content.startsWith("Estou com dificuldade técnica para responder agora,")
+  );
+}
 
 async function toDataUrl(file: File): Promise<string> {
   return await new Promise((resolve, reject) => {
@@ -158,8 +171,14 @@ function Page() {
           msgs: M[];
         } | null;
         const maxAge = (p.retentionDays || 0) * 86400000;
-        if (s && maxAge && Date.now() - s.at < maxAge) setMsgs(s.msgs);
-        else localStorage.removeItem(AI_HISTORY_KEY);
+        if (s && maxAge && Date.now() - s.at < maxAge) {
+          const cleaned = Array.isArray(s.msgs)
+            ? s.msgs.filter((message) => !isStaleTechnicalReply(message))
+            : [];
+          setMsgs(cleaned.length ? cleaned : [GREETING]);
+          if (cleaned.length !== s.msgs.length)
+            localStorage.setItem(AI_HISTORY_KEY, JSON.stringify({ at: Date.now(), msgs: cleaned }));
+        } else localStorage.removeItem(AI_HISTORY_KEY);
       } catch {
         /* ignore */
       }
