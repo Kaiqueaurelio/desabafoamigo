@@ -55,7 +55,7 @@ Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary"
 
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: {
       consent?: boolean;
       rememberContext?: boolean;

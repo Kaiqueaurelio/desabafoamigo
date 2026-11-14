@@ -56,7 +56,7 @@ async function reauthenticate(email: string, password: string) {
  */
 export const createLgpdRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => createSchema.parse(data))
+  .validator((data: unknown) => createSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId, claims } = context;
     const email = (claims.email as string | undefined) ?? "";
@@ -228,7 +228,7 @@ export const listLgpdRequests = createServerFn({ method: "GET" })
  */
 export const getLgpdDownloadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: req, error } = await context.supabase
       .from("lgpd_requests")

@@ -26,7 +26,7 @@ async function resolveBrazilianVoice(apiKey: string): Promise<string> {
 
 export const synthesizeEllaSpeech = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { consent: boolean; text: string }) => {
+  .validator((data: { consent: boolean; text: string }) => {
     if (data?.consent !== true) throw new Error("É necessário consentimento para gerar áudio.");
     const text = typeof data.text === "string" ? data.text.trim().slice(0, 1200) : "";
     if (!text) throw new Error("Texto vazio para síntese.");

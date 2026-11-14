@@ -50,14 +50,14 @@ async function verifyToken(token: string): Promise<Record<string, unknown> | nul
 
 export const passkeyRegisterOptions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { scope?: "admin" | "pro" | "user"; deviceName?: string }) => d)
+  .validator((d: { scope?: "admin" | "pro" | "user"; deviceName?: string }) => d)
   .handler(async () => {
     throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
   });
 
 export const passkeyRegisterVerify = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { response: unknown; scope?: string; deviceName?: string }) => d)
+  .validator((d: { response: unknown; scope?: string; deviceName?: string }) => d)
   .handler(async () => {
     throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
   });
@@ -65,13 +65,13 @@ export const passkeyRegisterVerify = createServerFn({ method: "POST" })
 // --------------------------------------------------------------- Authentication (login)
 
 export const passkeyAuthOptions = createServerFn({ method: "POST" })
-  .inputValidator((d: { email?: string; scope?: "admin" | "pro" | "user" }) => d)
+  .validator((d: { email?: string; scope?: "admin" | "pro" | "user" }) => d)
   .handler(async () => {
     throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
   });
 
 export const passkeyAuthVerify = createServerFn({ method: "POST" })
-  .inputValidator((d: { response: unknown; email?: string; scope?: string }) => d)
+  .validator((d: { response: unknown; email?: string; scope?: string }) => d)
   .handler(async () => {
     throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
   });
@@ -79,7 +79,7 @@ export const passkeyAuthVerify = createServerFn({ method: "POST" })
 // -------------------------------------------------- Server-side guard for the token
 export const passkeyTokenValid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { token: string; scope?: string }) => d)
+  .validator((d: { token: string; scope?: string }) => d)
   .handler(async ({ data, context }) => {
     const payload = await verifyToken(data.token);
     if (!payload) return { valid: false as const };
@@ -103,7 +103,7 @@ export const listMyPasskeys = createServerFn({ method: "GET" })
 
 export const deleteMyPasskey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await context.supabase.from("webauthn_credentials").delete().eq("id", data.id).eq("user_id", context.userId);
     return { ok: true };

@@ -7,7 +7,7 @@ export type Segment = { start: number; end: number; text: string };
 // ===== Onda 2: Classificação de risco por IA =====
 export const classifyRisk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { text: string }) => d)
+  .validator((d: { text: string }) => d)
   .handler(async ({ data }) => {
     const text = (data.text ?? "").slice(0, 2000).trim();
     if (!text) return { severity: 0, reason: "", suggestion: "" };
@@ -47,7 +47,7 @@ export const classifyRisk = createServerFn({ method: "POST" })
 // ===== Onda 2: Sugestões de resposta empáticas =====
 export const suggestReplies = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { conversationId: string }) => d)
+  .validator((d: { conversationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: conv } = await supabase
@@ -123,7 +123,7 @@ export const suggestReplies = createServerFn({ method: "POST" })
 type TriageTurn = { role: "user" | "assistant"; content: string };
 export const triageStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { history: TriageTurn[] }) => ({
+  .validator((d: { history: TriageTurn[] }) => ({
     history: (Array.isArray(d?.history) ? d.history : [])
       .slice(-10)
       .filter((h) => (h.role === "user" || h.role === "assistant") && typeof h.content === "string")
@@ -180,7 +180,7 @@ Responda SEMPRE JSON: {"reply":"...","done":boolean,"topic":"...opcional...","ur
 
 export const transcribeMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { messageId: string }) => d)
+  .validator((d: { messageId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: msg, error } = await supabase
@@ -216,7 +216,7 @@ export const transcribeMessage = createServerFn({ method: "POST" })
 
 export const translateMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { messageId: string; targetLang: string }) => d)
+  .validator((d: { messageId: string; targetLang: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: msg } = await supabase
@@ -285,7 +285,7 @@ export const translateMessage = createServerFn({ method: "POST" })
 
 export const summarizeConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { conversationId: string }) => d)
+  .validator((d: { conversationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: conv } = await supabase.from("conversations").select("id, user_id").eq("id", data.conversationId).maybeSingle();

@@ -11,7 +11,7 @@ const submitQuizSchema = z.object({
 
 export const submitQuiz = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => submitQuizSchema.parse(data))
+  .validator((data) => submitQuizSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -82,7 +82,7 @@ const replyFollowUpSchema = z.object({
 
 export const respondFollowUp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => replyFollowUpSchema.parse(data))
+  .validator((data) => replyFollowUpSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -105,7 +105,7 @@ const accessLogSchema = z.object({
 
 export const logConversationAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => accessLogSchema.parse(data))
+  .validator((data) => accessLogSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.rpc("log_conversation_access", {
