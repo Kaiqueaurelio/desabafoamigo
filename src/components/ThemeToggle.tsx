@@ -4,7 +4,9 @@ import { loadTheme, saveTheme, type Theme } from "@/lib/theme";
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("auto");
-  useEffect(() => { setTheme(loadTheme()); }, []);
+  useEffect(() => {
+    setTheme(loadTheme());
+  }, []);
 
   const opts: { value: Theme; label: string; Icon: typeof Sun }[] = [
     { value: "light", label: "Claro", Icon: Sun },
@@ -22,9 +24,14 @@ export function ThemeToggle() {
             key={value}
             role="radio"
             aria-checked={theme === value}
-            onClick={() => { setTheme(value); saveTheme(value); }}
+            onClick={() => {
+              setTheme(value);
+              saveTheme(value);
+            }}
             className={`flex flex-col items-center gap-1 rounded-xl border px-3 py-3 text-xs font-medium transition ${
-              theme === value ? "border-primary bg-brand-soft text-primary" : "border-border bg-background hover:bg-muted"
+              theme === value
+                ? "border-primary bg-brand-soft text-primary"
+                : "border-border bg-background hover:bg-muted"
             }`}
           >
             <Icon className="size-4" aria-hidden />

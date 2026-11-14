@@ -14,7 +14,9 @@ export function ScrollProgress() {
       el.style.setProperty("--sp", String(p));
       raf = 0;
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
@@ -46,7 +48,15 @@ export function SpotlightBinder() {
 }
 
 /** Divide o texto em palavras e revela cada uma com atraso em cascata. */
-export function WordReveal({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
+export function WordReveal({
+  text,
+  className = "",
+  delay = 0,
+}: {
+  text: string;
+  className?: string;
+  delay?: number;
+}) {
   const words = text.split(" ");
   return (
     <span className={`word-reveal ${className}`}>

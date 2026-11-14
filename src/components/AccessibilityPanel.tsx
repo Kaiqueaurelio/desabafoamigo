@@ -5,13 +5,27 @@ import { loadA11yPrefs, saveA11yPrefs, type A11yPrefs } from "@/lib/a11y";
 export function AccessibilityPanel() {
   const [prefs, setPrefs] = useState<A11yPrefs>(() => loadA11yPrefs());
 
-  useEffect(() => { saveA11yPrefs(prefs); }, [prefs]);
+  useEffect(() => {
+    saveA11yPrefs(prefs);
+  }, [prefs]);
 
   const items: { key: keyof A11yPrefs; label: string; desc: string }[] = [
-    { key: "highContrast", label: "Alto contraste", desc: "Cores mais fortes e bordas visíveis para melhor legibilidade." },
-    { key: "dyslexia", label: "Fonte para dislexia", desc: "Usa uma tipografia com letras mais espaçadas e diferenciadas." },
+    {
+      key: "highContrast",
+      label: "Alto contraste",
+      desc: "Cores mais fortes e bordas visíveis para melhor legibilidade.",
+    },
+    {
+      key: "dyslexia",
+      label: "Fonte para dislexia",
+      desc: "Usa uma tipografia com letras mais espaçadas e diferenciadas.",
+    },
     { key: "largeText", label: "Texto maior", desc: "Aumenta o tamanho da fonte em todo o app." },
-    { key: "reduceMotion", label: "Reduzir animações", desc: "Desliga transições e efeitos suaves." },
+    {
+      key: "reduceMotion",
+      label: "Reduzir animações",
+      desc: "Desliga transições e efeitos suaves.",
+    },
   ];
 
   return (
@@ -39,9 +53,11 @@ export function AccessibilityPanel() {
                     prefs[it.key] ? "bg-primary" : "bg-muted"
                   }`}
                 >
-                  <span className={`inline-block size-5 rounded-full bg-background shadow transition ${
-                    prefs[it.key] ? "translate-x-5" : "translate-x-0.5"
-                  }`} />
+                  <span
+                    className={`inline-block size-5 rounded-full bg-background shadow transition ${
+                      prefs[it.key] ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
                 </button>
               </li>
             ))}

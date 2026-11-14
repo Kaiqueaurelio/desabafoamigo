@@ -17,7 +17,9 @@ export function TriageBot({
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [urgency, setUrgency] = useState<"low" | "medium" | "high">("low");
-  const [done, setDone] = useState<{ topic: string; urgency: "low" | "medium" | "high" } | null>(null);
+  const [done, setDone] = useState<{ topic: string; urgency: "low" | "medium" | "high" } | null>(
+    null,
+  );
   const bottomRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
 
@@ -43,7 +45,10 @@ export function TriageBot({
         setDone({ topic: r.topic, urgency: r.urgency });
       }
     } catch (e) {
-      setHistory((h) => [...h, { role: "assistant", content: e instanceof Error ? e.message : "Erro. Tente novamente." }]);
+      setHistory((h) => [
+        ...h,
+        { role: "assistant", content: e instanceof Error ? e.message : "Erro. Tente novamente." },
+      ]);
     } finally {
       setBusy(false);
     }
@@ -67,7 +72,8 @@ export function TriageBot({
         <div>
           <p className="text-sm font-semibold text-primary">Antes de entrar na fila</p>
           <p className="text-[11px] text-muted-foreground">
-            Um assistente amigo faz 2–4 perguntas para preparar o(a) voluntário(a). Você pode pular quando quiser.
+            Um assistente amigo faz 2–4 perguntas para preparar o(a) voluntário(a). Você pode pular
+            quando quiser.
           </p>
         </div>
       </div>
@@ -77,7 +83,10 @@ export function TriageBot({
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
           <div className="text-xs">
             <p className="font-semibold text-destructive">Se estiver em risco agora, ligue já:</p>
-            <a href="tel:188" className="mt-1 inline-flex items-center gap-1 rounded-full bg-destructive px-3 py-1 text-[11px] font-semibold text-destructive-foreground">
+            <a
+              href="tel:188"
+              className="mt-1 inline-flex items-center gap-1 rounded-full bg-destructive px-3 py-1 text-[11px] font-semibold text-destructive-foreground"
+            >
               <PhoneCall className="size-3" /> CVV 188
             </a>
           </div>
@@ -89,7 +98,9 @@ export function TriageBot({
           <div key={i} className={t.role === "user" ? "text-right" : "text-left"}>
             <span
               className={`inline-block min-w-0 max-w-[90%] break-words [overflow-wrap:anywhere] rounded-2xl px-3 py-1.5 text-sm ${
-                t.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
+                t.role === "user"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground"
               }`}
             >
               {t.content}
@@ -109,7 +120,10 @@ export function TriageBot({
           <p className="text-xs font-medium text-primary">Resumo para o(a) voluntário(a):</p>
           <p className="mt-1 text-sm text-foreground">"{done.topic}"</p>
           <div className="mt-3 flex justify-end gap-2">
-            <button onClick={onSkip} className="rounded-full px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted">
+            <button
+              onClick={onSkip}
+              className="rounded-full px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted"
+            >
               Editar manualmente
             </button>
             <button onClick={() => onReady(done)} className="btn-primary text-xs">
@@ -151,7 +165,10 @@ export function TriageBot({
       )}
 
       <div className="mt-3 text-center">
-        <button onClick={onSkip} className="text-[11px] text-muted-foreground hover:text-foreground hover:underline">
+        <button
+          onClick={onSkip}
+          className="text-[11px] text-muted-foreground hover:text-foreground hover:underline"
+        >
           Pular triagem e escrever eu mesmo(a)
         </button>
       </div>

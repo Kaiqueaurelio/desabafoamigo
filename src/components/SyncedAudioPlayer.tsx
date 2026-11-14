@@ -78,7 +78,10 @@ export function SyncedAudioPlayer({
         <ProgressBar
           time={time}
           duration={duration}
-          onSeek={(t) => { const el = audioRef.current; if (el) el.currentTime = t; }}
+          onSeek={(t) => {
+            const el = audioRef.current;
+            if (el) el.currentTime = t;
+          }}
         />
         <span className="w-16 shrink-0 text-right text-[10px] tabular-nums opacity-70">
           {fmt(time)} / {fmt(duration)}
@@ -89,10 +92,22 @@ export function SyncedAudioPlayer({
       {(showOriginal || visibleTracks.length > 0) && (
         <div className="mt-2 space-y-2">
           {showOriginal && original && (
-            <CaptionRow label={original.label} segments={original.segments} time={time} onSeek={seekTo} italic />
+            <CaptionRow
+              label={original.label}
+              segments={original.segments}
+              time={time}
+              onSeek={seekTo}
+              italic
+            />
           )}
           {visibleTracks.map((t) => (
-            <CaptionRow key={t.lang} label={t.label} segments={t.segments} time={time} onSeek={seekTo} />
+            <CaptionRow
+              key={t.lang}
+              label={t.label}
+              segments={t.segments}
+              time={time}
+              onSeek={seekTo}
+            />
           ))}
         </div>
       )}
@@ -101,7 +116,11 @@ export function SyncedAudioPlayer({
 }
 
 function CaptionRow({
-  label, segments, time, onSeek, italic,
+  label,
+  segments,
+  time,
+  onSeek,
+  italic,
 }: {
   label: string;
   segments: CaptionSegment[];
@@ -141,7 +160,15 @@ function CaptionRow({
   );
 }
 
-function ProgressBar({ time, duration, onSeek }: { time: number; duration: number; onSeek: (t: number) => void }) {
+function ProgressBar({
+  time,
+  duration,
+  onSeek,
+}: {
+  time: number;
+  duration: number;
+  onSeek: (t: number) => void;
+}) {
   const pct = duration > 0 ? Math.min(100, (time / duration) * 100) : 0;
   return (
     <div
@@ -162,7 +189,10 @@ function ProgressBar({ time, duration, onSeek }: { time: number; duration: numbe
       className="relative flex h-10 min-w-0 flex-1 cursor-pointer items-center rounded-full"
     >
       <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-background/60" />
-      <div className="absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary" style={{ width: `${pct}%` }} />
+      <div
+        className="absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary"
+        style={{ width: `${pct}%` }}
+      />
     </div>
   );
 }

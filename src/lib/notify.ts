@@ -20,9 +20,15 @@ export function notifyUser(title: string, body: string) {
   if (typeof window === "undefined") return;
   if ("Notification" in window && Notification.permission === "granted") {
     try {
-      const n = new Notification(title, { body, icon: "/apple-touch-icon.png", tag: "desabafo-queue" });
+      const n = new Notification(title, {
+        body,
+        icon: "/apple-touch-icon.png",
+        tag: "desabafo-queue",
+      });
       setTimeout(() => n.close(), 8000);
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   }
   playPing();
 }
@@ -31,7 +37,10 @@ let audioCtx: AudioContext | null = null;
 export function playPing() {
   if (typeof window === "undefined") return;
   try {
-    audioCtx ||= new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    audioCtx ||= new (
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    )();
     const ctx = audioCtx;
     const o = ctx.createOscillator();
     const g = ctx.createGain();
@@ -44,7 +53,9 @@ export function playPing() {
     o.connect(g).connect(ctx.destination);
     o.start();
     o.stop(ctx.currentTime + 0.42);
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 
 export function setTitleBadge(count: number) {

@@ -23,7 +23,9 @@ export function CrisisVolunteerPanel({
     try {
       await escalate({ data: { conversationId, userId, severity: "high" } });
       setEscalated(true);
-      toast.success("Um admin de plantão foi notificado. Continue acolhendo — não está sozinho(a).");
+      toast.success(
+        "Um admin de plantão foi notificado. Continue acolhendo — não está sozinho(a).",
+      );
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -48,12 +50,29 @@ export function CrisisVolunteerPanel({
       {open && (
         <div className="mt-3 space-y-3 text-foreground">
           <ol className="ml-4 list-decimal space-y-1">
-            <li><strong>Escute sem julgar.</strong> Não minimize (“vai passar”), não force positividade.</li>
-            <li><strong>Valide o sentimento.</strong> “Entendo que dói. Obrigado(a) por confiar em mim.”</li>
-            <li><strong>Pergunte diretamente</strong> se há ideação: “Você está pensando em se machucar?”</li>
-            <li><strong>Ofereça recursos concretos</strong>: CVV 188 (24h), SAMU 192, o plano de segurança do próprio app.</li>
-            <li><strong>Sugira o plano de segurança</strong> em Configurações → Meu plano de segurança para acionar contato de confiança.</li>
-            <li><strong>Não prometa segredo absoluto</strong> nem tente resolver sozinho(a). Escale.</li>
+            <li>
+              <strong>Escute sem julgar.</strong> Não minimize (“vai passar”), não force
+              positividade.
+            </li>
+            <li>
+              <strong>Valide o sentimento.</strong> “Entendo que dói. Obrigado(a) por confiar em
+              mim.”
+            </li>
+            <li>
+              <strong>Pergunte diretamente</strong> se há ideação: “Você está pensando em se
+              machucar?”
+            </li>
+            <li>
+              <strong>Ofereça recursos concretos</strong>: CVV 188 (24h), SAMU 192, o plano de
+              segurança do próprio app.
+            </li>
+            <li>
+              <strong>Sugira o plano de segurança</strong> em Configurações → Meu plano de segurança
+              para acionar contato de confiança.
+            </li>
+            <li>
+              <strong>Não prometa segredo absoluto</strong> nem tente resolver sozinho(a). Escale.
+            </li>
           </ol>
 
           <div className="rounded-lg border border-border bg-card p-2">
@@ -76,7 +95,8 @@ export function CrisisVolunteerPanel({
               disabled={busy}
               className="inline-flex items-center gap-2 rounded-full bg-destructive px-4 py-2 text-xs font-semibold text-destructive-foreground hover:brightness-110 disabled:opacity-60"
             >
-              <LifeBuoy className="size-4" /> {busy ? "Notificando..." : "Escalar para admin de plantão"}
+              <LifeBuoy className="size-4" />{" "}
+              {busy ? "Notificando..." : "Escalar para admin de plantão"}
             </button>
           )}
         </div>

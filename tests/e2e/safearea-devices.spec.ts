@@ -33,14 +33,11 @@ const PROFILES: Profile[] = [
 function getSupabaseCreds() {
   return {
     storageKey:
-      process.env.E2E_SUPABASE_STORAGE_KEY ??
-      process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY,
+      process.env.E2E_SUPABASE_STORAGE_KEY ?? process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY,
     sessionJson:
-      process.env.E2E_SUPABASE_SESSION_JSON ??
-      process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON,
+      process.env.E2E_SUPABASE_SESSION_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON,
     cookiesJson:
-      process.env.E2E_SUPABASE_COOKIES_JSON ??
-      process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON,
+      process.env.E2E_SUPABASE_COOKIES_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON,
   };
 }
 
@@ -60,10 +57,10 @@ async function restoreSession(context: BrowserContext, page: Page) {
     }
   }
   await page.goto("http://localhost:8080", { waitUntil: "domcontentloaded" });
-  await page.evaluate(
-    ({ key, value }) => window.localStorage.setItem(key, value),
-    { key: storageKey, value: sessionJson },
-  );
+  await page.evaluate(({ key, value }) => window.localStorage.setItem(key, value), {
+    key: storageKey,
+    value: sessionJson,
+  });
   return true;
 }
 
@@ -117,23 +114,42 @@ async function applySafeArea(page: Page, insets: Profile["insets"]): Promise<"cd
   }
 }
 
-function overlaps(a: DOMRect | { top: number; bottom: number; left: number; right: number }, b: typeof a) {
+function overlaps(
+  a: DOMRect | { top: number; bottom: number; left: number; right: number },
+  b: typeof a,
+) {
   return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
 }
 
 async function getBottomOverlays(page: Page) {
   return page.evaluate(() => {
-    const rects: Array<{ label: string; top: number; bottom: number; left: number; right: number }> = [];
-    const nav = document.querySelector('nav[aria-label="Navegação principal"]') as HTMLElement | null;
+    const rects: Array<{
+      label: string;
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    }> = [];
+    const nav = document.querySelector(
+      'nav[aria-label="Navegação principal"]',
+    ) as HTMLElement | null;
     if (nav && getComputedStyle(nav).display !== "none") {
       const r = nav.getBoundingClientRect();
-      rects.push({ label: "bottom-nav", top: r.top, bottom: r.bottom, left: r.left, right: r.right });
+      rects.push({
+        label: "bottom-nav",
+        top: r.top,
+        bottom: r.bottom,
+        left: r.left,
+        right: r.right,
+      });
     }
-    const sos = Array.from(document.querySelectorAll<HTMLElement>('[class*="fixed"]')).filter((el) => {
-      const t = (el.innerText || "").toLowerCase();
-      const a = (el.getAttribute("aria-label") || "").toLowerCase();
-      return /sos|ajuda urgente|188|emergência/.test(t + " " + a);
-    });
+    const sos = Array.from(document.querySelectorAll<HTMLElement>('[class*="fixed"]')).filter(
+      (el) => {
+        const t = (el.innerText || "").toLowerCase();
+        const a = (el.getAttribute("aria-label") || "").toLowerCase();
+        return /sos|ajuda urgente|188|emergência/.test(t + " " + a);
+      },
+    );
     for (const el of sos) {
       const r = el.getBoundingClientRect();
       if (r.width > 0 && r.height > 0) {
@@ -165,11 +181,16 @@ for (const p of PROFILES) {
       await page.waitForTimeout(150);
     });
 
-    test("env(safe-area-inset-bottom) resolve para o valor esperado do perfil", async ({ page }) => {
+    test("env(safe-area-inset-bottom) resolve para o valor esperado do perfil", async ({
+      page,
+    }) => {
       // Só verificamos o valor nativo quando o CDP conseguiu aplicar o override.
       // No polyfill CSS o env() nativo permanece 0, mas os components ainda
       // recebem o padding correto (validado nos testes abaixo).
-      test.skip(mode !== "cdp", "Override nativo indisponível — validando via polyfill nos demais testes");
+      test.skip(
+        mode !== "cdp",
+        "Override nativo indisponível — validando via polyfill nos demais testes",
+      );
 
       const measured = await page.evaluate(() => {
         const probe = document.createElement("div");
@@ -191,11 +212,16 @@ for (const p of PROFILES) {
         return m ? parseFloat(getComputedStyle(m).paddingBottom) : 0;
       });
       // 7rem = 112px, mais o safe-bottom do perfil.
-      expect(pb, `padding-bottom=${pb}px < ${112 + p.insets.bottom}`).toBeGreaterThanOrEqual(112 + p.insets.bottom - 1);
+      expect(pb, `padding-bottom=${pb}px < ${112 + p.insets.bottom}`).toBeGreaterThanOrEqual(
+        112 + p.insets.bottom - 1,
+      );
     });
 
     test("bottom nav e SOS não cobrem nenhum CTA na aba Técnicas", async ({ page }) => {
-      await page.getByRole("button", { name: /Técnicas/i }).first().click();
+      await page
+        .getByRole("button", { name: /Técnicas/i })
+        .first()
+        .click();
       await page.waitForTimeout(150);
       await page.evaluate(() => {
         const m = document.querySelector("main");
@@ -214,7 +240,12 @@ for (const p of PROFILES) {
         if (!(await el.isVisible())) continue;
         const box = await el.boundingBox();
         if (!box) continue;
-        const rect = { top: box.y, bottom: box.y + box.height, left: box.x, right: box.x + box.width };
+        const rect = {
+          top: box.y,
+          bottom: box.y + box.height,
+          left: box.x,
+          right: box.x + box.width,
+        };
         for (const ov of overlays) {
           if (overlaps(rect, ov)) {
             const txt = (await el.innerText().catch(() => "")).slice(0, 40);
@@ -227,7 +258,10 @@ for (const p of PROFILES) {
     });
 
     test("botão 'Ligar para CVV' totalmente clicável na aba Emergência", async ({ page }) => {
-      await page.getByRole("button", { name: /Emergência/i }).first().click();
+      await page
+        .getByRole("button", { name: /Emergência/i })
+        .first()
+        .click();
       await page.waitForTimeout(150);
 
       const cta = page.getByRole("link", { name: /Ligar para CVV/i });
@@ -241,7 +275,12 @@ for (const p of PROFILES) {
 
       // Não sobreposto por overlays inferiores
       const overlays = await getBottomOverlays(page);
-      const rect = { top: box.y, bottom: box.y + box.height, left: box.x, right: box.x + box.width };
+      const rect = {
+        top: box.y,
+        bottom: box.y + box.height,
+        left: box.x,
+        right: box.x + box.width,
+      };
       for (const ov of overlays) {
         expect(
           overlaps(rect, ov),

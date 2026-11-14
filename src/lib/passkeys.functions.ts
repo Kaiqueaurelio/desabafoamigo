@@ -31,12 +31,7 @@ async function verifyToken(token: string): Promise<Record<string, unknown> | nul
       ["verify"],
     );
     const sigBytes = Uint8Array.from(atob(sig), (c) => c.charCodeAt(0));
-    const ok = await crypto.subtle.verify(
-      "HMAC",
-      key,
-      sigBytes,
-      new TextEncoder().encode(body),
-    );
+    const ok = await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(body));
     if (!ok) return null;
     const payload = JSON.parse(atob(body));
     if (typeof payload.exp === "number" && payload.exp < Math.floor(Date.now() / 1000)) return null;
@@ -52,14 +47,18 @@ export const passkeyRegisterOptions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: { scope?: "admin" | "pro" | "user"; deviceName?: string }) => d)
   .handler(async () => {
-    throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
+    throw new Error(
+      "Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.",
+    );
   });
 
 export const passkeyRegisterVerify = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: { response: unknown; scope?: string; deviceName?: string }) => d)
   .handler(async () => {
-    throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
+    throw new Error(
+      "Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.",
+    );
   });
 
 // --------------------------------------------------------------- Authentication (login)
@@ -67,13 +66,17 @@ export const passkeyRegisterVerify = createServerFn({ method: "POST" })
 export const passkeyAuthOptions = createServerFn({ method: "POST" })
   .validator((d: { email?: string; scope?: "admin" | "pro" | "user" }) => d)
   .handler(async () => {
-    throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
+    throw new Error(
+      "Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.",
+    );
   });
 
 export const passkeyAuthVerify = createServerFn({ method: "POST" })
   .validator((d: { response: unknown; email?: string; scope?: string }) => d)
   .handler(async () => {
-    throw new Error("Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.");
+    throw new Error(
+      "Chaves de acesso estão temporariamente indisponíveis. Use senha + código de 6 dígitos.",
+    );
   });
 
 // -------------------------------------------------- Server-side guard for the token
@@ -105,6 +108,10 @@ export const deleteMyPasskey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    await context.supabase.from("webauthn_credentials").delete().eq("id", data.id).eq("user_id", context.userId);
+    await context.supabase
+      .from("webauthn_credentials")
+      .delete()
+      .eq("id", data.id)
+      .eq("user_id", context.userId);
     return { ok: true };
   });

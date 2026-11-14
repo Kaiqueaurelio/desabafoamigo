@@ -1,7 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { useSidebarToggle } from "@/lib/useSidebarToggle";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   Headphones,
   Flag,
@@ -30,11 +37,14 @@ import {
   BellRing,
 } from "lucide-react";
 
-
-
 const groups: {
   label: string;
-  items: { to: string; label: string; icon: React.ComponentType<{ className?: string }>; tone?: "primary" | "destructive" | "muted" }[];
+  items: {
+    to: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    tone?: "primary" | "destructive" | "muted";
+  }[];
 }[] = [
   {
     label: "Meu espaço",
@@ -62,7 +72,12 @@ const groups: {
   {
     label: "Atendimento",
     items: [
-      { to: "/admin/atendimento", label: "Central de atendimento", icon: Headphones, tone: "primary" },
+      {
+        to: "/admin/atendimento",
+        label: "Central de atendimento",
+        icon: Headphones,
+        tone: "primary",
+      },
       { to: "/admin/plantao", label: "Plantão de crise", icon: LifeBuoy, tone: "destructive" },
       { to: "/admin/denuncias", label: "Denúncias", icon: Flag, tone: "destructive" },
       { to: "/admin/incidentes", label: "Incidentes de captura", icon: Camera },
@@ -86,7 +101,6 @@ const groups: {
   },
 ];
 
-
 const ADMIN_SIDEBAR_KEY = "ui:adminSidebarCollapsed";
 
 export function useAdminSidebar() {
@@ -108,7 +122,6 @@ export function AdminSidebarToggle({ className = "" }: { className?: string }) {
     </button>
   );
 }
-
 
 export function AdminSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -132,31 +145,28 @@ export function AdminSidebar() {
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const active =
-                  item.to === "/admin"
-                    ? pathname === "/admin"
-                    : pathname.startsWith(item.to);
+                  item.to === "/admin" ? pathname === "/admin" : pathname.startsWith(item.to);
                 const toneRing =
                   item.tone === "destructive"
                     ? "text-destructive"
                     : item.tone === "primary"
-                    ? "text-primary"
-                    : "text-muted-foreground";
+                      ? "text-primary"
+                      : "text-muted-foreground";
                 return (
                   <li key={item.to}>
                     <Link
                       to={item.to}
                       aria-current={active ? "page" : undefined}
                       className={`group interactive relative flex items-center gap-2.5 overflow-hidden rounded-lg px-2 py-2 text-sm press ${
-                        active
-                          ? "nav-active-row"
-                          : "text-foreground/85 hover:bg-muted"
+                        active ? "nav-active-row" : "text-foreground/85 hover:bg-muted"
                       }`}
                     >
-                      <Icon aria-hidden className={`size-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${active ? "text-primary" : toneRing} group-hover:text-foreground`} />
+                      <Icon
+                        aria-hidden
+                        className={`size-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${active ? "text-primary" : toneRing} group-hover:text-foreground`}
+                      />
                       <span className="truncate">{item.label}</span>
                     </Link>
-
-
                   </li>
                 );
               })}
@@ -168,13 +178,14 @@ export function AdminSidebar() {
   );
 }
 
-
 /** Compact horizontal version rendered on mobile above the content. */
 export function AdminSidebarMobile() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
   const flat = groups.flatMap((g) => g.items);
-  const current = flat.find((item) => item.to === "/admin" ? pathname === "/admin" : pathname.startsWith(item.to));
+  const current = flat.find((item) =>
+    item.to === "/admin" ? pathname === "/admin" : pathname.startsWith(item.to),
+  );
   const CurrentIcon = current?.icon ?? LayoutDashboard;
 
   return (
@@ -198,7 +209,6 @@ export function AdminSidebarMobile() {
         </SheetTrigger>
       </div>
 
-
       <SheetContent side="left" className="flex w-[85vw] max-w-sm flex-col gap-0 p-0 sm:max-w-sm">
         <SheetHeader className="border-b border-border px-5 py-4 text-left">
           <div className="flex items-center gap-3">
@@ -206,23 +216,30 @@ export function AdminSidebarMobile() {
               <LayoutDashboard aria-hidden className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <SheetTitle className="text-base font-semibold text-primary">Painel administrativo</SheetTitle>
-              <SheetDescription className="text-[11px] text-muted-foreground">Gestão da comunidade</SheetDescription>
+              <SheetTitle className="text-base font-semibold text-primary">
+                Painel administrativo
+              </SheetTitle>
+              <SheetDescription className="text-[11px] text-muted-foreground">
+                Gestão da comunidade
+              </SheetDescription>
             </div>
           </div>
         </SheetHeader>
 
-        <nav aria-label="Navegação administrativa" className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+        <nav
+          aria-label="Navegação administrativa"
+          className="flex-1 space-y-5 overflow-y-auto px-3 py-4"
+        >
           {groups.map((group) => (
             <div key={group.label} className="flex flex-col gap-1.5">
-              <p className="px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{group.label}</p>
+              <p className="px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {group.label}
+              </p>
               <div className="flex flex-col gap-1">
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const active =
-                    item.to === "/admin"
-                      ? pathname === "/admin"
-                      : pathname.startsWith(item.to);
+                    item.to === "/admin" ? pathname === "/admin" : pathname.startsWith(item.to);
                   return (
                     <Link
                       key={item.to}
@@ -230,12 +247,13 @@ export function AdminSidebarMobile() {
                       aria-current={active ? "page" : undefined}
                       onClick={() => setOpen(false)}
                       className={`interactive flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] ${
-                        active
-                          ? "nav-active-row font-semibold"
-                          : "text-foreground hover:bg-muted"
+                        active ? "nav-active-row font-semibold" : "text-foreground hover:bg-muted"
                       }`}
                     >
-                      <Icon aria-hidden className={`size-5 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                      <Icon
+                        aria-hidden
+                        className={`size-5 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`}
+                      />
                       <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     </Link>
                   );
@@ -248,4 +266,3 @@ export function AdminSidebarMobile() {
     </Sheet>
   );
 }
-

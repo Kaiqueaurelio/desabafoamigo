@@ -5,9 +5,24 @@ import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { AdminSidebar, AdminSidebarMobile, AdminSidebarToggle } from "@/components/AdminSidebar";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
-import { ArrowLeft, Search, ShieldCheck, HeartHandshake, User as UserIcon, Trash2, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  ShieldCheck,
+  HeartHandshake,
+  User as UserIcon,
+  Trash2,
+  Plus,
+} from "lucide-react";
 import { TableRowsSkeleton } from "@/components/AdminSkeletons";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +37,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { avatarUrl } from "@/lib/avatar";
 
 type AppRole = "admin" | "volunteer" | "psychologist";
@@ -58,7 +79,7 @@ function UsuariosPage() {
     ]);
     const map = new Map<string, Row>();
     (profiles ?? []).forEach((p) =>
-      map.set(p.user_id, { user_id: p.user_id, display_name: p.display_name, roles: [] })
+      map.set(p.user_id, { user_id: p.user_id, display_name: p.display_name, roles: [] }),
     );
     (roles ?? []).forEach((r) => {
       const existing = map.get(r.user_id) ?? { user_id: r.user_id, display_name: null, roles: [] };
@@ -79,7 +100,7 @@ function UsuariosPage() {
     return rows.filter(
       (r) =>
         (r.display_name ?? "").toLowerCase().includes(term) ||
-        r.user_id.toLowerCase().includes(term)
+        r.user_id.toLowerCase().includes(term),
     );
   }, [rows, q]);
 
@@ -89,7 +110,7 @@ function UsuariosPage() {
       admins: rows.filter((r) => r.roles.includes("admin")).length,
       vols: rows.filter((r) => r.roles.includes("volunteer")).length,
     }),
-    [rows]
+    [rows],
   );
 
   async function grantRole(userId: string, role: AppRole) {
@@ -107,7 +128,11 @@ function UsuariosPage() {
       toast.error("Você não pode remover a sua própria patente de admin.");
       return;
     }
-    const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
+    const { error } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", userId)
+      .eq("role", role);
     if (error) {
       toast.error(error.message);
       return;
@@ -122,10 +147,16 @@ function UsuariosPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
           <div className="flex min-w-0 items-center gap-2">
             <Logo size={28} className="shrink-0" />
-            <span className="truncate text-sm font-semibold text-primary">Usuários e permissões</span>
+            <span className="truncate text-sm font-semibold text-primary">
+              Usuários e permissões
+            </span>
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary" aria-label="Voltar ao painel">
+            <Link
+              to="/admin"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+              aria-label="Voltar ao painel"
+            >
               <ArrowLeft className="size-4" /> <span className="hidden sm:inline">Voltar</span>
             </Link>
           </div>
@@ -144,16 +175,28 @@ function UsuariosPage() {
           <div>
             <h1 className="text-xl font-semibold text-foreground">Controle de acesso</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Somente administradores podem alterar patentes. Voluntários atendem a fila; administradores fazem tudo isso e gerenciam conteúdo.
+              Somente administradores podem alterar patentes. Voluntários atendem a fila;
+              administradores fazem tudo isso e gerenciam conteúdo.
             </p>
           </div>
 
           <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatCard label="Contas" value={stats.total} icon={<UserIcon className="size-4 text-muted-foreground" />} />
-            <StatCard label="Voluntários" value={stats.vols} icon={<HeartHandshake className="size-4 text-primary" />} />
-            <StatCard label="Administradores" value={stats.admins} icon={<ShieldCheck className="size-4 text-brand-green" />} />
+            <StatCard
+              label="Contas"
+              value={stats.total}
+              icon={<UserIcon className="size-4 text-muted-foreground" />}
+            />
+            <StatCard
+              label="Voluntários"
+              value={stats.vols}
+              icon={<HeartHandshake className="size-4 text-primary" />}
+            />
+            <StatCard
+              label="Administradores"
+              value={stats.admins}
+              icon={<ShieldCheck className="size-4 text-brand-green" />}
+            />
           </section>
-
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -170,85 +213,97 @@ function UsuariosPage() {
             {loading ? (
               <TableRowsSkeleton rows={6} cols={3} />
             ) : filtered.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">Nenhum usuário encontrado.</p>
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                Nenhum usuário encontrado.
+              </p>
             ) : (
-              <div role="region" aria-label="Tabela de usuários. Deslize horizontalmente para ver todas as colunas." tabIndex={0} className="w-full max-w-full touch-pan-x overscroll-x-contain overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Usuário</TableHead>
-                    <TableHead>Patentes atuais</TableHead>
-                    <TableHead className="w-[220px] text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((r) => {
-                    const isSelf = r.user_id === me;
-                    const missing = (["admin", "volunteer"] as AppRole[]).filter(
-                      (role) => !r.roles.includes(role)
-                    );
-                    return (
-                      <TableRow key={r.user_id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={avatarUrl(r.display_name ?? r.user_id, 56)}
-                              alt=""
-                              className="size-8 rounded-full ring-1 ring-border"
-                            />
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-medium text-foreground">
-                                {r.display_name ?? "(sem apelido)"}
-                                {isSelf && (
-                                  <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                                    você
-                                  </span>
-                                )}
-                              </p>
-                              <p className="truncate text-[11px] text-muted-foreground">{r.user_id}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1.5">
-                            {r.roles.length === 0 && (
-                              <Badge variant="outline" className="text-muted-foreground">
-                                Usuário comum
-                              </Badge>
-                            )}
-                            {r.roles.map((role) => (
-                              <RoleBadge key={role} role={role} />
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="inline-flex items-center gap-2">
-                            {missing.length > 0 && (
-                              <AddRoleControl userId={r.user_id} options={missing} onGrant={grantRole} />
-                            )}
-                            {r.roles.length > 0 && (
-                              <RemoveRoleMenu
-                                userId={r.user_id}
-                                roles={r.roles}
-                                onRevoke={revokeRole}
-                                isSelf={isSelf}
+              <div
+                role="region"
+                aria-label="Tabela de usuários. Deslize horizontalmente para ver todas as colunas."
+                tabIndex={0}
+                className="w-full max-w-full touch-pan-x overscroll-x-contain overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Usuário</TableHead>
+                      <TableHead>Patentes atuais</TableHead>
+                      <TableHead className="w-[220px] text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filtered.map((r) => {
+                      const isSelf = r.user_id === me;
+                      const missing = (["admin", "volunteer"] as AppRole[]).filter(
+                        (role) => !r.roles.includes(role),
+                      );
+                      return (
+                        <TableRow key={r.user_id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={avatarUrl(r.display_name ?? r.user_id, 56)}
+                                alt=""
+                                className="size-8 rounded-full ring-1 ring-border"
                               />
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  {r.display_name ?? "(sem apelido)"}
+                                  {isSelf && (
+                                    <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                                      você
+                                    </span>
+                                  )}
+                                </p>
+                                <p className="truncate text-[11px] text-muted-foreground">
+                                  {r.user_id}
+                                </p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1.5">
+                              {r.roles.length === 0 && (
+                                <Badge variant="outline" className="text-muted-foreground">
+                                  Usuário comum
+                                </Badge>
+                              )}
+                              {r.roles.map((role) => (
+                                <RoleBadge key={role} role={role} />
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="inline-flex items-center gap-2">
+                              {missing.length > 0 && (
+                                <AddRoleControl
+                                  userId={r.user_id}
+                                  options={missing}
+                                  onGrant={grantRole}
+                                />
+                              )}
+                              {r.roles.length > 0 && (
+                                <RemoveRoleMenu
+                                  userId={r.user_id}
+                                  roles={r.roles}
+                                  onRevoke={revokeRole}
+                                  isSelf={isSelf}
+                                />
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </div>
 
-
           <p className="text-[11px] text-muted-foreground">
-            As patentes são aplicadas no servidor por políticas de acesso (RLS). Alterações são registradas no log de auditoria.
+            As patentes são aplicadas no servidor por políticas de acesso (RLS). Alterações são
+            registradas no log de auditoria.
           </p>
         </div>
       </div>
@@ -346,10 +401,7 @@ function RemoveRoleMenu({
   const [target, setTarget] = useState<AppRole | null>(null);
   return (
     <>
-      <Select
-        value=""
-        onValueChange={(v) => setTarget(v as AppRole)}
-      >
+      <Select value="" onValueChange={(v) => setTarget(v as AppRole)}>
         <SelectTrigger className="h-8 w-[130px] text-xs text-destructive">
           <SelectValue placeholder="Revogar..." />
         </SelectTrigger>
@@ -370,7 +422,8 @@ function RemoveRoleMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>Remover patente?</AlertDialogTitle>
             <AlertDialogDescription>
-              A permissão de <strong>{target ? labelForRole(target) : ""}</strong> será revogada imediatamente. O usuário perde o acesso às áreas correspondentes.
+              A permissão de <strong>{target ? labelForRole(target) : ""}</strong> será revogada
+              imediatamente. O usuário perde o acesso às áreas correspondentes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

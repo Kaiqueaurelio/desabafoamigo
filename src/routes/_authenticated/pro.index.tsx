@@ -13,9 +13,14 @@ export const Route = createFileRoute("/_authenticated/pro/")({
   component: ProAgenda,
 });
 
-type Appt = { id: string; scheduled_at: string; topic: string; status: string; patient_id: string; };
+type Appt = { id: string; scheduled_at: string; topic: string; status: string; patient_id: string };
 
-const STATUS: Record<string, string> = { scheduled: "Agendada", in_progress: "Em andamento", completed: "Finalizada", cancelled: "Cancelada" };
+const STATUS: Record<string, string> = {
+  scheduled: "Agendada",
+  in_progress: "Em andamento",
+  completed: "Finalizada",
+  cancelled: "Cancelada",
+};
 
 function ProAgenda() {
   const [appts, setAppts] = useState<Appt[]>([]);
@@ -26,7 +31,8 @@ function ProAgenda() {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
-      const { data } = await supabase.from("appointments")
+      const { data } = await supabase
+        .from("appointments")
         .select("id, scheduled_at, topic, status, patient_id")
         .eq("professional_id", u.user.id)
         .order("scheduled_at", { ascending: false })
@@ -34,13 +40,21 @@ function ProAgenda() {
       setAppts((data ?? []) as Appt[]);
       const ids = Array.from(new Set((data ?? []).map((a) => a.patient_id)));
       if (ids.length) {
-        const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", ids);
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, display_name")
+          .in("user_id", ids);
         const m: Record<string, string> = {};
-        (profs ?? []).forEach((p) => { m[p.user_id] = p.display_name ?? "Amigo(a)"; });
+        (profs ?? []).forEach((p) => {
+          m[p.user_id] = p.display_name ?? "Amigo(a)";
+        });
         setNames(m);
       }
-      const { data: ratings } = await supabase.from("appointments")
-        .select("patient_rating").eq("professional_id", u.user.id).not("patient_rating", "is", null);
+      const { data: ratings } = await supabase
+        .from("appointments")
+        .select("patient_rating")
+        .eq("professional_id", u.user.id)
+        .not("patient_rating", "is", null);
       if (ratings && ratings.length) {
         const nums = ratings.map((r) => Number(r.patient_rating)).filter((n) => !isNaN(n));
         if (nums.length) setAvgRating(nums.reduce((a, b) => a + b, 0) / nums.length);
@@ -51,14 +65,19 @@ function ProAgenda() {
   const upcoming = appts.filter((a) => a.status === "scheduled" || a.status === "in_progress");
   const past = appts.filter((a) => a.status === "completed" || a.status === "cancelled");
   const completedCount = past.filter((a) => a.status === "completed").length;
-  const stats = useMemo(() => ({ completed: completedCount, avgRating }), [completedCount, avgRating]);
+  const stats = useMemo(
+    () => ({ completed: completedCount, avgRating }),
+    [completedCount, avgRating],
+  );
   const badges = badgesFor(stats);
   const level = badgeLevel(completedCount);
 
   return (
     <div className="mx-auto max-w-4xl p-6">
       <h1 className="text-2xl font-bold text-primary">Minha agenda</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Conversas agendadas com pessoas que buscam escuta.</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Conversas agendadas com pessoas que buscam escuta.
+      </p>
 
       <section className="mt-4 rounded-2xl border border-border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -69,16 +88,21 @@ function ProAgenda() {
             <div>
               <p className="text-sm font-semibold text-foreground">Nível: {level.label}</p>
               <p className="text-xs text-muted-foreground">
-                {completedCount} conversa(s) concluída(s){avgRating !== null && ` · avaliação média ${avgRating.toFixed(1)}★`}
-                {level.next && ` · faltam ${Math.max(0, level.next - completedCount)} p/ próximo nível`}
+                {completedCount} conversa(s) concluída(s)
+                {avgRating !== null && ` · avaliação média ${avgRating.toFixed(1)}★`}
+                {level.next &&
+                  ` · faltam ${Math.max(0, level.next - completedCount)} p/ próximo nível`}
               </p>
             </div>
           </div>
           {badges.length > 0 && (
             <ul className="flex flex-wrap gap-1.5">
               {badges.map((b) => (
-                <li key={b.key} title={b.description}
-                  className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-primary">
+                <li
+                  key={b.key}
+                  title={b.description}
+                  className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-primary"
+                >
                   <span aria-hidden>{b.emoji}</span> {b.label}
                 </li>
               ))}
@@ -90,9 +114,15 @@ function ProAgenda() {
       <section className="mt-6">
         <h2 className="mb-2 text-sm font-semibold text-foreground">Próximas ({upcoming.length})</h2>
         {upcoming.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">Nenhuma conversa pendente.</p>
+          <p className="rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
+            Nenhuma conversa pendente.
+          </p>
         ) : (
-          <ul className="space-y-2">{upcoming.map((a) => <ApptRow key={a.id} a={a} name={names[a.patient_id]} />)}</ul>
+          <ul className="space-y-2">
+            {upcoming.map((a) => (
+              <ApptRow key={a.id} a={a} name={names[a.patient_id]} />
+            ))}
+          </ul>
         )}
       </section>
 
@@ -101,7 +131,11 @@ function ProAgenda() {
         {past.length === 0 ? (
           <p className="text-sm text-muted-foreground">Sem conversas finalizadas.</p>
         ) : (
-          <ul className="space-y-2">{past.map((a) => <ApptRow key={a.id} a={a} name={names[a.patient_id]} />)}</ul>
+          <ul className="space-y-2">
+            {past.map((a) => (
+              <ApptRow key={a.id} a={a} name={names[a.patient_id]} />
+            ))}
+          </ul>
         )}
       </section>
     </div>
@@ -111,12 +145,20 @@ function ProAgenda() {
 function ApptRow({ a, name }: { a: Appt; name?: string }) {
   return (
     <li>
-      <Link to="/consulta/$id" params={{ id: a.id }} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/40">
+      <Link
+        to="/consulta/$id"
+        params={{ id: a.id }}
+        className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/40"
+      >
         <div className="min-w-0">
           <p className="truncate font-medium text-foreground">{a.topic}</p>
-          <p className="text-xs text-muted-foreground">{name ?? "Amigo(a)"} · {new Date(a.scheduled_at).toLocaleString("pt-BR")}</p>
+          <p className="text-xs text-muted-foreground">
+            {name ?? "Amigo(a)"} · {new Date(a.scheduled_at).toLocaleString("pt-BR")}
+          </p>
         </div>
-        <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-xs">{STATUS[a.status]}</span>
+        <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-xs">
+          {STATUS[a.status]}
+        </span>
       </Link>
     </li>
   );

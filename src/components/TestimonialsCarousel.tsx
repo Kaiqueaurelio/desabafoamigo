@@ -112,7 +112,11 @@ export function TestimonialsCarousel({ items, interval = 5000, className }: Prop
       </Carousel>
 
       {count > 1 && (
-        <div className="mt-6 flex justify-center gap-2" role="tablist" aria-label="Ir para depoimento">
+        <div
+          className="mt-6 flex justify-center gap-2"
+          role="tablist"
+          aria-label="Ir para depoimento"
+        >
           {Array.from({ length: count }).map((_, i) => {
             const active = i === selected;
             return (
@@ -125,7 +129,9 @@ export function TestimonialsCarousel({ items, interval = 5000, className }: Prop
                 onClick={() => api?.scrollTo(i)}
                 className={cn(
                   "h-2 rounded-full transition-all",
-                  active ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/60",
+                  active
+                    ? "w-6 bg-primary"
+                    : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/60",
                 )}
               />
             );

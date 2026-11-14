@@ -1,7 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wind, ArrowLeft, Play, Pause, RotateCcw, Volume2, VolumeX, Check, Sparkles } from "lucide-react";
+import {
+  Wind,
+  ArrowLeft,
+  Play,
+  Pause,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Check,
+  Sparkles,
+} from "lucide-react";
 import { AmbientSounds } from "@/components/AmbientSounds";
 
 export const Route = createFileRoute("/_authenticated/respirar")({
@@ -9,12 +19,21 @@ export const Route = createFileRoute("/_authenticated/respirar")({
   head: () => ({
     meta: [
       { title: "Respiração guiada — Desabafo Amigo" },
-      { name: "description", content: "Exercícios de respiração guiada para relaxar, meditar e aliviar a ansiedade em 1, 5 ou 10 minutos." },
+      {
+        name: "description",
+        content:
+          "Exercícios de respiração guiada para relaxar, meditar e aliviar a ansiedade em 1, 5 ou 10 minutos.",
+      },
     ],
   }),
 });
 
-type Phase = { key: "inhale" | "hold" | "exhale" | "rest"; label: string; seconds: number; scale: number };
+type Phase = {
+  key: "inhale" | "hold" | "exhale" | "rest";
+  label: string;
+  seconds: number;
+  scale: number;
+};
 type Technique = {
   id: string;
   name: string;
@@ -35,8 +54,8 @@ const TECHNIQUES: Technique[] = [
     ring: "rgba(56,189,248,0.55)",
     phases: [
       { key: "inhale", label: "Inspire pelo nariz", seconds: 4, scale: 1 },
-      { key: "hold",   label: "Segure o ar",       seconds: 7, scale: 1 },
-      { key: "exhale", label: "Solte pela boca",   seconds: 8, scale: 0.55 },
+      { key: "hold", label: "Segure o ar", seconds: 7, scale: 1 },
+      { key: "exhale", label: "Solte pela boca", seconds: 8, scale: 0.55 },
     ],
   },
   {
@@ -47,10 +66,10 @@ const TECHNIQUES: Technique[] = [
     color: "from-emerald-500/30 to-teal-500/10",
     ring: "rgba(16,185,129,0.55)",
     phases: [
-      { key: "inhale", label: "Inspire",     seconds: 4, scale: 1 },
-      { key: "hold",   label: "Segure",      seconds: 4, scale: 1 },
-      { key: "exhale", label: "Expire",      seconds: 4, scale: 0.55 },
-      { key: "rest",   label: "Pausa",       seconds: 4, scale: 0.55 },
+      { key: "inhale", label: "Inspire", seconds: 4, scale: 1 },
+      { key: "hold", label: "Segure", seconds: 4, scale: 1 },
+      { key: "exhale", label: "Expire", seconds: 4, scale: 0.55 },
+      { key: "rest", label: "Pausa", seconds: 4, scale: 0.55 },
     ],
   },
   {
@@ -62,20 +81,30 @@ const TECHNIQUES: Technique[] = [
     ring: "rgba(251,113,133,0.55)",
     phases: [
       { key: "inhale", label: "Inspire lentamente", seconds: 5, scale: 1 },
-      { key: "exhale", label: "Expire suavemente",  seconds: 5, scale: 0.55 },
+      { key: "exhale", label: "Expire suavemente", seconds: 5, scale: 0.55 },
     ],
   },
 ];
 
 const DURATIONS = [
-  { min: 1,  label: "1 min",  desc: "Pausa rápida" },
-  { min: 5,  label: "5 min",  desc: "Recomeço" },
+  { min: 1, label: "1 min", desc: "Pausa rápida" },
+  { min: 5, label: "5 min", desc: "Recomeço" },
   { min: 10, label: "10 min", desc: "Meditação" },
 ];
 
-function playTone(ctxRef: React.MutableRefObject<AudioContext | null>, freq: number, duration = 0.25) {
+function playTone(
+  ctxRef: React.MutableRefObject<AudioContext | null>,
+  freq: number,
+  duration = 0.25,
+) {
   try {
-    if (!ctxRef.current) ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (!ctxRef.current) {
+      const AudioContextCtor =
+        window.AudioContext ||
+        (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextCtor) return;
+      ctxRef.current = new AudioContextCtor();
+    }
     const ctx = ctxRef.current;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -87,7 +116,9 @@ function playTone(ctxRef: React.MutableRefObject<AudioContext | null>, freq: num
     osc.connect(gain).connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + duration);
-  } catch {}
+  } catch {
+    // Audio is optional and can be blocked by browser policy.
+  }
 }
 
 const prefersReducedMotion = () =>
@@ -107,7 +138,7 @@ function RespirarPage() {
   const [pulse, setPulse] = useState(0); // trigger para pulso ao trocar fase
   const audioCtx = useRef<AudioContext | null>(null);
 
-  const technique = useMemo(() => TECHNIQUES.find(t => t.id === techId)!, [techId]);
+  const technique = useMemo(() => TECHNIQUES.find((t) => t.id === techId)!, [techId]);
   const totalSeconds = minutes * 60;
   const phase = technique.phases[phaseIdx];
   const reduce = prefersReducedMotion();
@@ -121,7 +152,7 @@ function RespirarPage() {
   useEffect(() => {
     if (!running || done) return;
     const t = setInterval(() => {
-      setElapsed(e => {
+      setElapsed((e) => {
         const next = e + 1;
         if (next >= totalSeconds) {
           setRunning(false);
@@ -130,16 +161,16 @@ function RespirarPage() {
         }
         return next;
       });
-      setRemaining(r => {
+      setRemaining((r) => {
         if (r > 1) return r - 1;
-        setPhaseIdx(i => {
+        setPhaseIdx((i) => {
           const nextIdx = (i + 1) % technique.phases.length;
           if (sound) {
             const nextPhase = technique.phases[nextIdx];
             const freq = nextPhase.key === "inhale" ? 523 : nextPhase.key === "exhale" ? 392 : 440;
             playTone(audioCtx, freq, 0.18);
           }
-          setPulse(p => p + 1);
+          setPulse((p) => p + 1);
           return nextIdx;
         });
         return technique.phases[(phaseIdx + 1) % technique.phases.length].seconds;
@@ -169,7 +200,14 @@ function RespirarPage() {
   const ss = String((totalSeconds - elapsed) % 60).padStart(2, "0");
 
   // Escala alvo do círculo por fase
-  const targetScale = phase.key === "inhale" ? 1.15 : phase.key === "exhale" ? 0.6 : phase.key === "hold" ? 1.15 : 0.6;
+  const targetScale =
+    phase.key === "inhale"
+      ? 1.15
+      : phase.key === "exhale"
+        ? 0.6
+        : phase.key === "hold"
+          ? 1.15
+          : 0.6;
   const transitionDur = reduce ? 0.2 : phase.seconds;
 
   return (
@@ -178,17 +216,22 @@ function RespirarPage() {
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[520px]"
-        style={{ background: "radial-gradient(60% 60% at 50% 0%, rgba(56,189,248,0.22), transparent)" }}
+        style={{
+          background: "radial-gradient(60% 60% at 50% 0%, rgba(56,189,248,0.22), transparent)",
+        }}
         animate={reduce ? undefined : { opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <div className="relative mx-auto max-w-3xl px-4 py-8">
         <div className="mb-6 flex items-center justify-between">
-          <Link to="/apoio" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/10">
+          <Link
+            to="/apoio"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/10"
+          >
             <ArrowLeft className="size-3.5" /> Central de apoio
           </Link>
           <button
-            onClick={() => setSound(s => !s)}
+            onClick={() => setSound((s) => !s)}
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/10"
             aria-label={sound ? "Silenciar sons" : "Ativar sons"}
           >
@@ -206,8 +249,12 @@ function RespirarPage() {
           <div className="mx-auto mb-3 inline-flex size-12 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-300">
             <Wind className="size-6" />
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Respire comigo</h1>
-          <p className="mt-2 text-sm text-slate-400">Escolha uma técnica, uma duração e siga o círculo. Você está seguro(a) aqui.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            Respire comigo
+          </h1>
+          <p className="mt-2 text-sm text-slate-400">
+            Escolha uma técnica, uma duração e siga o círculo. Você está seguro(a) aqui.
+          </p>
         </motion.header>
 
         <AnimatePresence mode="wait">
@@ -221,7 +268,9 @@ function RespirarPage() {
               transition={{ duration: 0.35 }}
             >
               <section>
-                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Técnica</h2>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Técnica
+                </h2>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {TECHNIQUES.map((t, idx) => {
                     const active = t.id === techId;
@@ -236,7 +285,9 @@ function RespirarPage() {
                         whileTap={{ scale: 0.98 }}
                         className={`text-left rounded-2xl border p-4 transition ${active ? "border-sky-400/60 bg-sky-500/10 ring-1 ring-sky-400/40" : "border-white/10 bg-white/5 hover:bg-white/10"}`}
                       >
-                        <div className="text-[10px] uppercase tracking-wider text-slate-400">{t.tag}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-slate-400">
+                          {t.tag}
+                        </div>
                         <div className="mt-1 text-base font-semibold text-white">{t.name}</div>
                         <p className="mt-2 text-xs leading-relaxed text-slate-400">{t.desc}</p>
                       </motion.button>
@@ -246,7 +297,9 @@ function RespirarPage() {
               </section>
 
               <section>
-                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Duração</h2>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Duração
+                </h2>
                 <div className="grid grid-cols-3 gap-3">
                   {DURATIONS.map((d, idx) => {
                     const active = d.min === minutes;
@@ -269,7 +322,6 @@ function RespirarPage() {
                 </div>
               </section>
               <AmbientSounds />
-
 
               <motion.button
                 onClick={start}
@@ -295,7 +347,9 @@ function RespirarPage() {
               <div className="mb-6 w-full max-w-md">
                 <div className="mb-3 flex items-center justify-between text-[11px] uppercase tracking-widest text-slate-400">
                   <span>{technique.name}</span>
-                  <span>{mm}:{ss}</span>
+                  <span>
+                    {mm}:{ss}
+                  </span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                   <motion.div
@@ -313,15 +367,24 @@ function RespirarPage() {
                     key={pulse}
                     aria-hidden
                     className="absolute rounded-full"
-                    initial={{ width: 240, height: 240, opacity: 0.35, boxShadow: `0 0 0 0 ${technique.ring}` }}
+                    initial={{
+                      width: 240,
+                      height: 240,
+                      opacity: 0.35,
+                      boxShadow: `0 0 0 0 ${technique.ring}`,
+                    }}
                     animate={{ width: 380, height: 380, opacity: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 1.6, ease: "easeOut" }}
-                    style={{ background: `radial-gradient(closest-side, ${technique.ring}, transparent)` }}
+                    style={{
+                      background: `radial-gradient(closest-side, ${technique.ring}, transparent)`,
+                    }}
                   />
                 </AnimatePresence>
 
-                <div className={`absolute inset-0 -m-10 rounded-full bg-gradient-to-br ${technique.color} blur-2xl`} />
+                <div
+                  className={`absolute inset-0 -m-10 rounded-full bg-gradient-to-br ${technique.color} blur-2xl`}
+                />
 
                 {/* Círculo respiratório */}
                 <motion.div
@@ -349,7 +412,9 @@ function RespirarPage() {
                         {remaining || phase.seconds}
                       </motion.div>
                     </AnimatePresence>
-                    <div className="mt-2 text-xs uppercase tracking-widest text-sky-200/80">segundos</div>
+                    <div className="mt-2 text-xs uppercase tracking-widest text-sky-200/80">
+                      segundos
+                    </div>
                   </div>
                 </motion.div>
               </div>
@@ -366,7 +431,9 @@ function RespirarPage() {
                   {phase.label}
                 </motion.p>
               </AnimatePresence>
-              <p className="mt-2 max-w-sm text-center text-sm text-slate-400">Mantenha a calma. Deixe o corpo relaxar. Você está indo bem.</p>
+              <p className="mt-2 max-w-sm text-center text-sm text-slate-400">
+                Mantenha a calma. Deixe o corpo relaxar. Você está indo bem.
+              </p>
 
               <div className="mt-8 flex gap-3">
                 <motion.button
@@ -401,12 +468,20 @@ function RespirarPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <p className="text-sm text-slate-400">Sessão pausada — {mm}:{ss} restantes</p>
+              <p className="text-sm text-slate-400">
+                Sessão pausada — {mm}:{ss} restantes
+              </p>
               <div className="flex gap-3">
-                <button onClick={() => setRunning(true)} className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400">
+                <button
+                  onClick={() => setRunning(true)}
+                  className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
+                >
                   <Play className="size-4" /> Continuar
                 </button>
-                <button onClick={reset} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">
+                <button
+                  onClick={reset}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10"
+                >
                   <RotateCcw className="size-4" /> Recomeçar
                 </button>
               </div>
@@ -431,14 +506,21 @@ function RespirarPage() {
               </motion.div>
               <h2 className="text-2xl font-semibold text-white">Muito bem!</h2>
               <p className="mt-2 text-sm text-slate-400">
-                Você concluiu {minutes} {minutes === 1 ? "minuto" : "minutos"} de {technique.name.toLowerCase()}.
-                Perceba como o corpo está agora — os ombros mais soltos, a respiração mais lenta.
+                Você concluiu {minutes} {minutes === 1 ? "minuto" : "minutos"} de{" "}
+                {technique.name.toLowerCase()}. Perceba como o corpo está agora — os ombros mais
+                soltos, a respiração mais lenta.
               </p>
               <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-                <button onClick={start} className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400">
+                <button
+                  onClick={start}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-400"
+                >
                   <Sparkles className="size-4" /> Fazer novamente
                 </button>
-                <Link to="/apoio" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">
+                <Link
+                  to="/apoio"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10"
+                >
                   Voltar para o apoio
                 </Link>
               </div>

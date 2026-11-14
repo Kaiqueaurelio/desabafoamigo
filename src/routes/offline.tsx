@@ -21,13 +21,16 @@ function OfflinePage() {
         </div>
         <h1 className="text-2xl font-bold text-foreground">Você está sem conexão</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Assim que a internet voltar, você pode continuar sua conversa. Enquanto isso, respire fundo — três vezes, devagar.
+          Assim que a internet voltar, você pode continuar sua conversa. Enquanto isso, respire
+          fundo — três vezes, devagar.
         </p>
         <button onClick={() => location.reload()} className="btn-primary mt-6">
           Tentar novamente
         </button>
         <div className="mt-4">
-          <Link to="/" className="text-sm text-primary underline">Voltar ao início</Link>
+          <Link to="/" className="text-sm text-primary underline">
+            Voltar ao início
+          </Link>
         </div>
       </div>
     </div>

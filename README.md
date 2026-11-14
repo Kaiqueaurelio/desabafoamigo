@@ -80,7 +80,6 @@ A demonstração usa cenários e indicadores fictícios. Não confunda a simula�
 - Aplicativo publicado: https://desabafoamigo.lovable.app
 - Repositório: https://github.com/Kaiqueaurelio/desabafoamigo
 
-
 ## Deploy independente do Lovable (Cloudflare Workers)
 
 O deploy alternativo para Cloudflare está em `.github/workflows/deploy-cloudflare.yml` e é **manual** (`workflow_dispatch`). O aplicativo principal continua hospedado no Lovable. Para usar Cloudflare, configure os seguintes **GitHub Actions Secrets** no repositório:

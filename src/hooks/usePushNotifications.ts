@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { getVapidPublicKey, subscribeToPush, unsubscribeFromPush, sendTestPush } from "@/lib/push.functions";
+import {
+  getVapidPublicKey,
+  subscribeToPush,
+  unsubscribeFromPush,
+  sendTestPush,
+} from "@/lib/push.functions";
 
 const SW_URL = "/push-sw.js";
 
@@ -46,16 +51,28 @@ export function usePushNotifications() {
       setStatus("blocked");
       return;
     }
-    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+    if (
+      !("serviceWorker" in navigator) ||
+      !("PushManager" in window) ||
+      !("Notification" in window)
+    ) {
       setStatus("unsupported");
       return;
     }
-    setStatus(Notification.permission === "granted" ? "granted" : Notification.permission === "denied" ? "denied" : "prompt");
+    setStatus(
+      Notification.permission === "granted"
+        ? "granted"
+        : Notification.permission === "denied"
+          ? "denied"
+          : "prompt",
+    );
   }, []);
 
   const enable = useCallback(async () => {
-    if (typeof window === "undefined" || isPreviewOrDev()) return { ok: false as const, reason: "preview" };
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return { ok: false as const, reason: "unsupported" };
+    if (typeof window === "undefined" || isPreviewOrDev())
+      return { ok: false as const, reason: "preview" };
+    if (!("serviceWorker" in navigator) || !("PushManager" in window))
+      return { ok: false as const, reason: "unsupported" };
     setBusy(true);
     try {
       const perm = await Notification.requestPermission();

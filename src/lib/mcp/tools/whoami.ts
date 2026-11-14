@@ -18,7 +18,7 @@ export default defineTool({
       {
         global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
         auth: { persistSession: false, autoRefreshToken: false },
-      }
+      },
     );
     const userId = ctx.getUserId();
     const [{ data: profile }, { data: roles }] = await Promise.all([

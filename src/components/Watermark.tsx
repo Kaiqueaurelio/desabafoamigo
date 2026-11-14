@@ -27,13 +27,7 @@ export function Watermark() {
  * Qualquer screenshot leva junto apelido + horário + hash único da sessão,
  * permitindo rastrear precisamente qual sessão originou o vazamento.
  */
-export function IdentityWatermark({
-  label,
-  sessionHash,
-}: {
-  label: string;
-  sessionHash?: string;
-}) {
+export function IdentityWatermark({ label, sessionHash }: { label: string; sessionHash?: string }) {
   const stamp = new Date().toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -54,7 +48,10 @@ export function IdentityWatermark({
     >
       <div className="flex h-full w-full -rotate-[24deg] flex-col justify-around opacity-[0.08]">
         {rows.map((_, r) => (
-          <div key={r} className="flex justify-around whitespace-nowrap text-[11px] font-medium text-foreground">
+          <div
+            key={r}
+            className="flex justify-around whitespace-nowrap text-[11px] font-medium text-foreground"
+          >
             {cols.map((_, c) => (
               <span key={c}>{parts}</span>
             ))}

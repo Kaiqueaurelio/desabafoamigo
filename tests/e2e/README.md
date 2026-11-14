@@ -28,15 +28,15 @@ bunx playwright test -g "landing" --project=chromium-mobile
 
 ## Viewports cobertos
 
-| Nome                     | Largura | Altura |
-| ------------------------ | ------- | ------ |
-| mobile-portrait-320      | 320     | 640    |
-| mobile-portrait-360      | 360     | 780    |
-| mobile-landscape-780     | 780     | 360    |
-| tablet-portrait-768      | 768     | 1024   |
-| tablet-landscape-1024    | 1024    | 768    |
-| desktop-1280             | 1280    | 800    |
-| desktop-wide-1920        | 1920    | 1080   |
+| Nome                  | Largura | Altura |
+| --------------------- | ------- | ------ |
+| mobile-portrait-320   | 320     | 640    |
+| mobile-portrait-360   | 360     | 780    |
+| mobile-landscape-780  | 780     | 360    |
+| tablet-portrait-768   | 768     | 1024   |
+| tablet-landscape-1024 | 1024    | 768    |
+| desktop-1280          | 1280    | 800    |
+| desktop-wide-1920     | 1920    | 1080   |
 
 ## Rotas cobertas
 

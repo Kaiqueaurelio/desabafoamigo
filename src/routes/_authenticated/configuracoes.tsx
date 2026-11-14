@@ -46,8 +46,7 @@ function SettingsPage() {
             <div>
               <h2 className="font-medium">Privacidade e segurança</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Saiba o que coletamos, por quanto tempo guardamos e como
-                protegemos suas conversas.
+                Saiba o que coletamos, por quanto tempo guardamos e como protegemos suas conversas.
               </p>
               <a
                 href="/privacidade"
@@ -67,8 +66,8 @@ function SettingsPage() {
             <div className="flex-1">
               <h2 className="font-medium">Meus dados (LGPD)</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Peça uma cópia dos seus dados em JSON ou CSV, ou solicite a
-                exclusão da sua conta. Você acompanha o status em tempo real.
+                Peça uma cópia dos seus dados em JSON ou CSV, ou solicite a exclusão da sua conta.
+                Você acompanha o status em tempo real.
               </p>
               <Link
                 to="/meus-dados"
@@ -86,8 +85,8 @@ function SettingsPage() {
             <div className="flex-1">
               <h2 className="font-medium">Transparência da conta</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Veja os últimos eventos em que sua conta aparece — entradas,
-                saídas, ações que você fez ou que aconteceram com você.
+                Veja os últimos eventos em que sua conta aparece — entradas, saídas, ações que você
+                fez ou que aconteceram com você.
               </p>
               <a
                 href="/transparencia"

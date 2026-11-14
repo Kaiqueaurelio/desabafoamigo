@@ -27,7 +27,10 @@ function ImpactoPage() {
     (async () => {
       const [c, v, m] = await Promise.all([
         supabase.from("appointments").select("id", { count: "exact", head: true }),
-        supabase.from("volunteers").select("id", { count: "exact", head: true }).eq("approval_status", "approved"),
+        supabase
+          .from("volunteers")
+          .select("id", { count: "exact", head: true })
+          .eq("approval_status", "approved"),
         supabase.from("mood_entries").select("id", { count: "exact", head: true }),
       ]);
       setNums({
@@ -42,7 +45,9 @@ function ImpactoPage() {
     <main id="conteudo" className="mx-auto max-w-4xl px-4 py-16">
       <div className="mb-8 flex items-center justify-between">
         <Logo size={48} />
-        <Link to="/" className="text-sm text-primary hover:underline">← Início</Link>
+        <Link to="/" className="text-sm text-primary hover:underline">
+          ← Início
+        </Link>
       </div>
 
       <h1 className="text-4xl font-bold text-primary">Impacto em números</h1>

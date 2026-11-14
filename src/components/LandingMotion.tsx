@@ -1,4 +1,12 @@
-import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type Variants } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type Variants,
+} from "framer-motion";
 import { useEffect, useRef } from "react";
 
 /** Container que aplica stagger nos filhos ao entrar em vista. */
@@ -16,7 +24,12 @@ export function MotionStagger({
   const reduce = useReducedMotion();
   const variants: Variants = {
     hidden: {},
-    show: { transition: { staggerChildren: reduce ? 0 : stagger, delayChildren: reduce ? 0 : delayChildren } },
+    show: {
+      transition: {
+        staggerChildren: reduce ? 0 : stagger,
+        delayChildren: reduce ? 0 : delayChildren,
+      },
+    },
   };
   return (
     <motion.div
@@ -46,7 +59,12 @@ export function MotionItem({
   const reduce = useReducedMotion();
   const variants: Variants = {
     hidden: { opacity: 0, y: reduce ? 0 : y, filter: reduce ? "none" : "blur(6px)" },
-    show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: [0.22, 0.9, 0.28, 1] } },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.7, ease: [0.22, 0.9, 0.28, 1] },
+    },
   };
   const MotionTag = motion[as] as typeof motion.div;
   return (
@@ -57,7 +75,15 @@ export function MotionItem({
 }
 
 /** Botão magnético — segue o cursor sutilmente. */
-export function MagneticWrap({ children, className, strength = 0.25 }: { children: React.ReactNode; className?: string; strength?: number }) {
+export function MagneticWrap({
+  children,
+  className,
+  strength = 0.25,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  strength?: number;
+}) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 200, damping: 15, mass: 0.4 });
@@ -89,7 +115,15 @@ export function MagneticWrap({ children, className, strength = 0.25 }: { childre
 }
 
 /** Aplica parallax vertical baseado no scroll global. */
-export function Parallax({ children, offset = 60, className }: { children: React.ReactNode; offset?: number; className?: string }) {
+export function Parallax({
+  children,
+  offset = 60,
+  className,
+}: {
+  children: React.ReactNode;
+  offset?: number;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const reduce = useReducedMotion();

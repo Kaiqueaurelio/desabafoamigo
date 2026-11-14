@@ -76,8 +76,9 @@ function SafetyPlanPage() {
         </div>
         <h1 className="text-2xl font-semibold">Meu plano de segurança</h1>
         <p className="text-sm text-muted-foreground">
-          Um plano de segurança é uma folha de rota para momentos difíceis. Você preenche no seu tempo,
-          e ele fica guardado só para você. Voluntários e admins não têm acesso a este conteúdo.
+          Um plano de segurança é uma folha de rota para momentos difíceis. Você preenche no seu
+          tempo, e ele fica guardado só para você. Voluntários e admins não têm acesso a este
+          conteúdo.
         </p>
       </header>
 
@@ -87,8 +88,8 @@ function SafetyPlanPage() {
           <div>
             <h2 className="font-medium">Contato de confiança</h2>
             <p className="text-xs text-muted-foreground">
-              Quem você gostaria que soubesse se acontecer algo? O app só envia mensagem para essa pessoa
-              se <strong>você</strong> apertar o botão de ajuda — nunca automaticamente.
+              Quem você gostaria que soubesse se acontecer algo? O app só envia mensagem para essa
+              pessoa se <strong>você</strong> apertar o botão de ajuda — nunca automaticamente.
             </p>
           </div>
         </div>
@@ -104,7 +105,9 @@ function SafetyPlanPage() {
             />
           </label>
           <label className="text-sm space-y-1">
-            <span className="font-medium flex items-center gap-1"><Phone className="size-3.5" /> Telefone (com DDD)</span>
+            <span className="font-medium flex items-center gap-1">
+              <Phone className="size-3.5" /> Telefone (com DDD)
+            </span>
             <input
               value={plan.emergency_contact_phone ?? ""}
               onChange={(e) => setPlan({ ...plan, emergency_contact_phone: e.target.value })}
@@ -153,8 +156,14 @@ function SafetyPlanPage() {
         <Info className="mt-0.5 size-4 text-primary" />
         <p>
           O Desabafo Amigo não substitui atendimento profissional. Em risco imediato, ligue para o
-          <a href="tel:188" className="mx-1 font-semibold text-primary underline">CVV 188</a>
-          ou <a href="tel:192" className="mx-1 font-semibold text-primary underline">SAMU 192</a>.
+          <a href="tel:188" className="mx-1 font-semibold text-primary underline">
+            CVV 188
+          </a>
+          ou{" "}
+          <a href="tel:192" className="mx-1 font-semibold text-primary underline">
+            SAMU 192
+          </a>
+          .
         </p>
       </div>
 

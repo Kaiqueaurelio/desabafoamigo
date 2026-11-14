@@ -46,14 +46,22 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: ({ url, sameOrigin }) => sameOrigin && /\.(?:js|css|woff2?)$/.test(url.pathname),
+            urlPattern: ({ url, sameOrigin }) =>
+              sameOrigin && /\.(?:js|css|woff2?)$/.test(url.pathname),
             handler: "CacheFirst",
-            options: { cacheName: "app-assets", expiration: { maxEntries: 120, maxAgeSeconds: 2592000 } },
+            options: {
+              cacheName: "app-assets",
+              expiration: { maxEntries: 120, maxAgeSeconds: 2592000 },
+            },
           },
           {
-            urlPattern: ({ url, sameOrigin }) => sameOrigin && /\.(?:png|svg|webp|ico|jpg|jpeg)$/.test(url.pathname),
+            urlPattern: ({ url, sameOrigin }) =>
+              sameOrigin && /\.(?:png|svg|webp|ico|jpg|jpeg)$/.test(url.pathname),
             handler: "CacheFirst",
-            options: { cacheName: "app-images", expiration: { maxEntries: 120, maxAgeSeconds: 2592000 } },
+            options: {
+              cacheName: "app-images",
+              expiration: { maxEntries: 120, maxAgeSeconds: 2592000 },
+            },
           },
         ],
       },

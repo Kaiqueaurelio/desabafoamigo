@@ -43,7 +43,9 @@ export function useSidebarToggle(key: string, defaultCollapsed = false) {
       const next = !prev;
       try {
         window.localStorage.setItem(key, next ? "1" : "0");
-      } catch {}
+      } catch {
+        // localStorage may be unavailable in private browsing or restricted frames.
+      }
       window.dispatchEvent(new CustomEvent("sidebar:toggle", { detail: { key, value: next } }));
       return next;
     });

@@ -20,9 +20,15 @@ export function getSessionForensicHash(userId: string): string {
   try {
     const cached = sessionStorage.getItem(SESSION_KEY);
     if (cached) return cached;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   const seed = `${userId}|${Date.now()}|${navigator.userAgent}|${Math.random()}`;
   const hash = fnv1a(seed).slice(0, 8).toUpperCase();
-  try { sessionStorage.setItem(SESSION_KEY, hash); } catch { /* ignore */ }
+  try {
+    sessionStorage.setItem(SESSION_KEY, hash);
+  } catch {
+    /* ignore */
+  }
   return hash;
 }

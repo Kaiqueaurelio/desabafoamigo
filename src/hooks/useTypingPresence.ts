@@ -15,7 +15,8 @@ export function useTypingPresence(conversationId: string | null, meId: string | 
 
   useEffect(() => {
     if (!conversationId || !meId) return;
-    const ch = supabase.channel(`typing:${conversationId}`, { config: { broadcast: { self: false } } })
+    const ch = supabase
+      .channel(`typing:${conversationId}`, { config: { broadcast: { self: false } } })
       .on("broadcast", { event: "typing" }, ({ payload }) => {
         const p = payload as Payload;
         if (p.user_id === meId) return;
@@ -27,7 +28,11 @@ export function useTypingPresence(conversationId: string | null, meId: string | 
       })
       .subscribe();
     chRef.current = ch;
-    return () => { supabase.removeChannel(ch); chRef.current = null; setPeerTyping(false); };
+    return () => {
+      supabase.removeChannel(ch);
+      chRef.current = null;
+      setPeerTyping(false);
+    };
   }, [conversationId, meId]);
 
   function notifyTyping(typing: boolean) {
@@ -35,7 +40,11 @@ export function useTypingPresence(conversationId: string | null, meId: string | 
     const now = Date.now();
     if (typing && now - throttle.current < 1500) return;
     throttle.current = now;
-    chRef.current.send({ type: "broadcast", event: "typing", payload: { user_id: meId, typing, at: now } });
+    chRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { user_id: meId, typing, at: now },
+    });
   }
 
   return { peerTyping, notifyTyping };

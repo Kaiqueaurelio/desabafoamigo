@@ -20,20 +20,18 @@ export const subscribeToPush = createServerFn({ method: "POST" })
   .validator((d: unknown) => subscribeSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase
-      .from("push_subscriptions")
-      .upsert(
-        {
-          user_id: userId,
-          endpoint: data.endpoint,
-          p256dh: data.p256dh,
-          auth: data.auth,
-          user_agent: data.userAgent ?? null,
-          active: true,
-          last_seen_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,endpoint" },
-      );
+    const { error } = await supabase.from("push_subscriptions").upsert(
+      {
+        user_id: userId,
+        endpoint: data.endpoint,
+        p256dh: data.p256dh,
+        auth: data.auth,
+        user_agent: data.userAgent ?? null,
+        active: true,
+        last_seen_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,endpoint" },
+    );
     if (error) throw error;
     return { ok: true };
   });

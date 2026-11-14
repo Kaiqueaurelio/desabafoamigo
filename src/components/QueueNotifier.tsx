@@ -29,13 +29,18 @@ export function QueueNotifier({ count }: { count: number }) {
   }, [count, enabled]);
 
   useEffect(() => {
-    const onVis = () => { if (document.visibilityState === "visible") setTitleBadge(0); };
+    const onVis = () => {
+      if (document.visibilityState === "visible") setTitleBadge(0);
+    };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
   async function toggle() {
-    if (enabled) { setEnabled(false); return; }
+    if (enabled) {
+      setEnabled(false);
+      return;
+    }
     const ok = await ensureNotifyPermission();
     setEnabled(ok);
   }
@@ -48,7 +53,11 @@ export function QueueNotifier({ count }: { count: number }) {
       aria-pressed={enabled}
       title={enabled ? "Notificações ativas" : "Ativar notificações"}
     >
-      {enabled ? <Bell className="size-3.5 text-primary" /> : <BellOff className="size-3.5 text-muted-foreground" />}
+      {enabled ? (
+        <Bell className="size-3.5 text-primary" />
+      ) : (
+        <BellOff className="size-3.5 text-muted-foreground" />
+      )}
       {enabled ? "Notificações ativas" : "Ativar notificações"}
     </button>
   );

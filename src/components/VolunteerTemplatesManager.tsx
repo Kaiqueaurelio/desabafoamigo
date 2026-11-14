@@ -22,7 +22,9 @@ export function VolunteerTemplatesManager() {
     setItems((data ?? []) as Row[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function add() {
     if (!form.label.trim() || !form.body.trim()) {
@@ -31,7 +33,10 @@ export function VolunteerTemplatesManager() {
     }
     setSaving(true);
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) { setSaving(false); return; }
+    if (!u.user) {
+      setSaving(false);
+      return;
+    }
     const { error } = await supabase.from("volunteer_templates").insert({
       volunteer_id: u.user.id,
       label: form.label.trim(),
@@ -103,7 +108,10 @@ export function VolunteerTemplatesManager() {
           </p>
         )}
         {items.map((t) => (
-          <div key={t.id} className="flex items-start gap-3 rounded-xl border border-border bg-background p-3">
+          <div
+            key={t.id}
+            className="flex items-start gap-3 rounded-xl border border-border bg-background p-3"
+          >
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-foreground">
                 {t.label}

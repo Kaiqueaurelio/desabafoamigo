@@ -44,9 +44,19 @@ const FAQS = [
 ];
 
 const DEPOIMENTOS = [
-  { nome: "Voluntária desde 2024", texto: "Nunca imaginei o quanto ouvir alguém uma vez por semana mudaria também a minha vida." },
-  { nome: "Voluntário há 8 meses", texto: "É simples, é seguro e faz diferença de verdade. Recomendo a qualquer pessoa com um tempinho." },
-  { nome: "Voluntária há 1 ano", texto: "O treinamento me deu ferramentas que uso até fora do app, com família e amigos." },
+  {
+    nome: "Voluntária desde 2024",
+    texto: "Nunca imaginei o quanto ouvir alguém uma vez por semana mudaria também a minha vida.",
+  },
+  {
+    nome: "Voluntário há 8 meses",
+    texto:
+      "É simples, é seguro e faz diferença de verdade. Recomendo a qualquer pessoa com um tempinho.",
+  },
+  {
+    nome: "Voluntária há 1 ano",
+    texto: "O treinamento me deu ferramentas que uso até fora do app, com família e amigos.",
+  },
 ];
 
 function SejaVoluntario() {
@@ -54,24 +64,43 @@ function SejaVoluntario() {
     <main id="conteudo" className="mx-auto max-w-4xl px-4 py-16">
       <div className="mb-8 flex items-center justify-between">
         <Logo size={48} />
-        <Link to="/" className="text-sm text-primary hover:underline">← Início</Link>
+        <Link to="/" className="text-sm text-primary hover:underline">
+          ← Início
+        </Link>
       </div>
 
       <h1 className="text-4xl font-bold text-primary">Ouvir também transforma quem ouve</h1>
       <p className="mt-4 max-w-2xl text-lg text-foreground/80">
-        Uma hora do seu dia pode ser o motivo de alguém acordar melhor amanhã.
-        Nosso time acolhe voluntários com empatia, disponibilidade e vontade de ajudar.
+        Uma hora do seu dia pode ser o motivo de alguém acordar melhor amanhã. Nosso time acolhe
+        voluntários com empatia, disponibilidade e vontade de ajudar.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <Bloco icon={<Heart className="size-5" />} title="Sem custo" desc="Você doa tempo. Nós doamos treinamento." />
-        <Bloco icon={<GraduationCap className="size-5" />} title="Treinamento antes" desc="Escuta ativa, limites, protocolos de risco." />
-        <Bloco icon={<Clock className="size-5" />} title="Flexível" desc="Você entra na fila quando pode. Sem escala rígida." />
+        <Bloco
+          icon={<Heart className="size-5" />}
+          title="Sem custo"
+          desc="Você doa tempo. Nós doamos treinamento."
+        />
+        <Bloco
+          icon={<GraduationCap className="size-5" />}
+          title="Treinamento antes"
+          desc="Escuta ativa, limites, protocolos de risco."
+        />
+        <Bloco
+          icon={<Clock className="size-5" />}
+          title="Flexível"
+          desc="Você entra na fila quando pode. Sem escala rígida."
+        />
       </div>
 
       <div className="mt-10 flex gap-3">
-        <Link to="/pro/cadastro" className="btn-primary">Quero me cadastrar</Link>
-        <Link to="/sobre" className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:border-primary/40">
+        <Link to="/pro/cadastro" className="btn-primary">
+          Quero me cadastrar
+        </Link>
+        <Link
+          to="/sobre"
+          className="rounded-xl border border-border px-4 py-2 text-sm font-medium hover:border-primary/40"
+        >
           Conhecer o projeto
         </Link>
       </div>
@@ -91,7 +120,9 @@ function SejaVoluntario() {
       <section className="mt-16">
         <h2 className="text-2xl font-semibold text-foreground">Perguntas frequentes</h2>
         <div className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
-          {FAQS.map((f) => <Faq key={f.q} q={f.q} a={f.a} />)}
+          {FAQS.map((f) => (
+            <Faq key={f.q} q={f.q} a={f.a} />
+          ))}
         </div>
       </section>
     </main>
@@ -101,7 +132,9 @@ function SejaVoluntario() {
 function Bloco({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="mb-2 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary">{icon}</div>
+      <div className="mb-2 grid size-10 place-items-center rounded-xl bg-brand-soft text-primary">
+        {icon}
+      </div>
       <p className="font-semibold text-foreground">{title}</p>
       <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
     </div>

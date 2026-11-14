@@ -4,24 +4,42 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const enqueueMe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { topic: string; urgency?: "low" | "medium" | "high"; preferredLang?: string }) => d)
+  .validator(
+    (d: { topic: string; urgency?: "low" | "medium" | "high"; preferredLang?: string }) => d,
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const urgency = data.urgency === "high" || data.urgency === "medium" ? data.urgency : "low";
     const preferredLang = (data.preferredLang ?? "pt-BR").slice(0, 10);
     // cancel any old waiting entries from me
-    await supabase.from("queue").update({ status: "cancelled" })
-      .eq("user_id", userId).eq("status", "waiting");
-    const { data: row, error } = await supabase.from("queue")
-      .insert({ user_id: userId, topic: data.topic.slice(0, 500), status: "waiting", urgency, preferred_lang: preferredLang })
-      .select("id").single();
+    await supabase
+      .from("queue")
+      .update({ status: "cancelled" })
+      .eq("user_id", userId)
+      .eq("status", "waiting");
+    const { data: row, error } = await supabase
+      .from("queue")
+      .insert({
+        user_id: userId,
+        topic: data.topic.slice(0, 500),
+        status: "waiting",
+        urgency,
+        preferred_lang: preferredLang,
+      })
+      .select("id")
+      .single();
     if (error) throw error;
 
     // Notifica voluntários aprovados sobre nova pessoa na fila (best-effort, não bloqueia)
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { sendPushToRole } = await import("@/lib/push.server");
-      const urgencyLabel = urgency === "high" ? "🔴 Urgência alta" : urgency === "medium" ? "🟡 Urgência média" : "🟢 Fila aberta";
+      const urgencyLabel =
+        urgency === "high"
+          ? "🔴 Urgência alta"
+          : urgency === "medium"
+            ? "🟡 Urgência média"
+            : "🟢 Fila aberta";
       await sendPushToRole(supabaseAdmin, "volunteer", {
         title: "Alguém precisa de escuta 💙",
         body: `${urgencyLabel} — nova pessoa aguardando na fila.`,
@@ -41,8 +59,11 @@ export const cancelMyQueue = createServerFn({ method: "POST" })
   .validator((d: { queueId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await supabase.from("queue").update({ status: "cancelled" })
-      .eq("id", data.queueId).eq("user_id", userId);
+    await supabase
+      .from("queue")
+      .update({ status: "cancelled" })
+      .eq("id", data.queueId)
+      .eq("user_id", userId);
     return { ok: true };
   });
 
@@ -54,9 +75,12 @@ export const matchQueueEntry = createServerFn({ method: "POST" })
     const { supabase } = context;
     // Atomic claim + appointment + conversation creation. The database function
     // verifies the volunteer role and locks the waiting queue row in one transaction.
-    const { data: matches, error: matchError } = await withPendingDatabaseTypes(supabase).rpc("claim_queue_entry", {
-      _queue_id: data.queueId,
-    });
+    const { data: matches, error: matchError } = await withPendingDatabaseTypes(supabase).rpc(
+      "claim_queue_entry",
+      {
+        _queue_id: data.queueId,
+      },
+    );
     if (matchError) {
       console.warn("[queue] atomic match failed", matchError.message);
       throw new Error(matchError.message || "Não foi possível assumir esta conversa.");

@@ -18,7 +18,10 @@ function BlockedWordsPage() {
   const [loading, setLoading] = useState(true);
 
   async function load() {
-    const { data } = await supabase.from("blocked_words").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("blocked_words")
+      .select("*")
+      .order("created_at", { ascending: false });
     setItems((data ?? []) as BlockedWord[]);
     setLoading(false);
   }
@@ -53,7 +56,9 @@ function BlockedWordsPage() {
         <Shield className="size-6 text-primary" />
         <div>
           <h1 className="text-2xl font-bold text-foreground">Palavras bloqueadas</h1>
-          <p className="text-sm text-muted-foreground">Termos que devem ser sinalizados ou bloqueados no chat.</p>
+          <p className="text-sm text-muted-foreground">
+            Termos que devem ser sinalizados ou bloqueados no chat.
+          </p>
         </div>
       </header>
 
@@ -79,7 +84,10 @@ function BlockedWordsPage() {
               <option value="block">Bloquear</option>
             </select>
           </div>
-          <button onClick={add} className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground">
+          <button
+            onClick={add}
+            className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+          >
             <Plus className="size-4" /> Adicionar
           </button>
         </div>
@@ -125,4 +133,3 @@ export const Route = createFileRoute("/admin/palavras")({
   component: BlockedWordsPage,
   head: () => ({ meta: [{ title: "Palavras bloqueadas · Admin" }] }),
 });
-

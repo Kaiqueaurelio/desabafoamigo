@@ -17,7 +17,9 @@ function fmtTime(s: number): string {
 function renderBlock(label: string, text: string, segments?: CaptionSegment[]): string {
   const header = `--- ${label} ---`;
   if (segments && segments.length > 0) {
-    const body = segments.map((s) => `[${fmtTime(s.start)} - ${fmtTime(s.end)}] ${s.text.trim()}`).join("\n");
+    const body = segments
+      .map((s) => `[${fmtTime(s.start)} - ${fmtTime(s.end)}] ${s.text.trim()}`)
+      .join("\n");
     return `${header}\n${body}`;
   }
   return `${header}\n${text.trim()}`;
@@ -28,7 +30,8 @@ export function buildTranscriptText(data: TranscriptExport): string {
   parts.push(data.title);
   parts.push(`Gerado em: ${new Date(data.createdAt).toLocaleString()}`);
   parts.push("");
-  if (data.original) parts.push(renderBlock(data.original.label, data.original.text, data.original.segments));
+  if (data.original)
+    parts.push(renderBlock(data.original.label, data.original.text, data.original.segments));
   for (const t of data.translations) {
     parts.push("");
     parts.push(renderBlock(`Tradução — ${t.label}`, t.text, t.segments));
@@ -39,8 +42,15 @@ export function buildTranscriptText(data: TranscriptExport): string {
 }
 
 function slug(s: string): string {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 60) || "transcricao";
+  return (
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+      .slice(0, 60) || "transcricao"
+  );
 }
 
 export function downloadTxt(data: TranscriptExport): void {
@@ -57,12 +67,19 @@ export async function downloadPdf(data: TranscriptExport): Promise<void> {
   const maxWidth = pageWidth - margin * 2;
   let y = margin;
 
-  const writeLine = (text: string, size: number, style: "normal" | "bold" | "italic" = "normal") => {
+  const writeLine = (
+    text: string,
+    size: number,
+    style: "normal" | "bold" | "italic" = "normal",
+  ) => {
     doc.setFont("helvetica", style);
     doc.setFontSize(size);
     const lines = doc.splitTextToSize(text, maxWidth) as string[];
     for (const line of lines) {
-      if (y > pageHeight - margin) { doc.addPage(); y = margin; }
+      if (y > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
       doc.text(line, margin, y);
       y += size * 1.25;
     }
@@ -75,7 +92,8 @@ export async function downloadPdf(data: TranscriptExport): Promise<void> {
   const writeBlock = (label: string, text: string, segments?: CaptionSegment[]) => {
     writeLine(label, 12, "bold");
     if (segments && segments.length > 0) {
-      for (const s of segments) writeLine(`[${fmtTime(s.start)} - ${fmtTime(s.end)}] ${s.text.trim()}`, 11);
+      for (const s of segments)
+        writeLine(`[${fmtTime(s.start)} - ${fmtTime(s.end)}] ${s.text.trim()}`, 11);
     } else {
       writeLine(text.trim(), 11);
     }
@@ -92,8 +110,10 @@ export async function downloadPdf(data: TranscriptExport): Promise<void> {
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

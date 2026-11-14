@@ -36,7 +36,9 @@ function ProMfa() {
         if (verified.length > 0) {
           // já inscrito -> desafiar
           const factor = verified[0];
-          const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: factor.id });
+          const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({
+            factorId: factor.id,
+          });
           if (chErr) throw chErr;
           setFactorId(factor.id);
           setChallengeId(ch.id);

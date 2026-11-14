@@ -56,9 +56,20 @@ function BreathingModal({ onClose }: { onClose: () => void }) {
 
   const phase = PHASES[phaseIdx];
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="dialog" aria-modal="true">
-      <div ref={panelRef} className="relative w-full max-w-sm rounded-3xl bg-card p-8 text-center shadow-2xl">
-        <button onClick={onClose} aria-label="Fechar" className="absolute right-3 top-3 rounded-full p-2 text-muted-foreground hover:bg-muted">
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        ref={panelRef}
+        className="relative w-full max-w-sm rounded-3xl bg-card p-8 text-center shadow-2xl"
+      >
+        <button
+          onClick={onClose}
+          aria-label="Fechar"
+          className="absolute right-3 top-3 rounded-full p-2 text-muted-foreground hover:bg-muted"
+        >
           <X className="size-4" />
         </button>
         <p className="text-xs uppercase tracking-wider text-muted-foreground">Respiração 4-7-8</p>
@@ -71,7 +82,9 @@ function BreathingModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <p className="text-lg font-semibold text-foreground">{phase.label}</p>
-        <p className="mt-2 text-xs text-muted-foreground">Repita quantas vezes quiser. Feche quando se sentir melhor.</p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Repita quantas vezes quiser. Feche quando se sentir melhor.
+        </p>
       </div>
     </div>
   );

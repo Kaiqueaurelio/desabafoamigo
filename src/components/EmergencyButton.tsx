@@ -22,10 +22,11 @@ export function EmergencyButton({ inline = false }: { inline?: boolean }) {
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(open, panelRef, { onEscape: () => setOpen(false) });
 
-
   useEffect(() => {
     if (!open) return;
-    loadPlan().then((row) => setPlan(row as Plan)).catch(() => {});
+    loadPlan()
+      .then((row) => setPlan(row as Plan))
+      .catch(() => {});
   }, [open, loadPlan]);
 
   function callAndLog(kind: "called_cvv" | "called_samu", number: string) {
@@ -64,21 +65,32 @@ export function EmergencyButton({ inline = false }: { inline?: boolean }) {
   return (
     <>
       {/* Atalho único de emergência: sempre visível e abre diretamente os recursos de ajuda. */}
-      <div className={inline ? "shrink-0" : "fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] right-4 z-40 md:bottom-24 md:right-6"}>
+      <div
+        className={
+          inline
+            ? "shrink-0"
+            : "fixed bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] right-4 z-40 md:bottom-24 md:right-6"
+        }
+      >
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Você não está sozinho. Abrir ajuda e contatos de emergência"
           title="Você não está sozinho — ajuda e emergência"
-          className={inline
-            ? "inline-flex min-h-10 items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive transition hover:bg-destructive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
-            : "grid size-16 place-items-center rounded-full bg-destructive text-destructive-foreground shadow-xl ring-4 ring-destructive/15 transition hover:scale-105 hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40 active:scale-95"}
+          className={
+            inline
+              ? "inline-flex min-h-10 items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive transition hover:bg-destructive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+              : "grid size-16 place-items-center rounded-full bg-destructive text-destructive-foreground shadow-xl ring-4 ring-destructive/15 transition hover:scale-105 hover:brightness-110 focus:outline-none focus-visible:ring-4 focus-visible:ring-destructive/40 active:scale-95"
+          }
         >
           <LifeBuoy className={inline ? "size-4" : "size-8"} aria-hidden />
-          {inline ? "Ajuda agora" : <span className="sr-only">Você não está sozinho. Abrir contatos de emergência</span>}
+          {inline ? (
+            "Ajuda agora"
+          ) : (
+            <span className="sr-only">Você não está sozinho. Abrir contatos de emergência</span>
+          )}
         </button>
       </div>
-
 
       {open && (
         <div
@@ -88,19 +100,26 @@ export function EmergencyButton({ inline = false }: { inline?: boolean }) {
           className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto overscroll-contain bg-black/50 p-3 sm:items-center sm:p-4"
           onClick={() => setOpen(false)}
         >
-          <div ref={panelRef} className="max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl bg-card p-4 shadow-2xl sm:my-auto sm:max-h-[calc(100dvh-2rem)] sm:p-6" onClick={(e) => e.stopPropagation()}>
-
+          <div
+            ref={panelRef}
+            className="max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl bg-card p-4 shadow-2xl sm:my-auto sm:max-h-[calc(100dvh-2rem)] sm:p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="mb-4 flex items-start justify-between gap-4">
               <h2 id="emergencia-titulo" className="text-xl font-semibold text-foreground">
                 Você não está sozinho(a)
               </h2>
-              <button onClick={() => setOpen(false)} aria-label="Fechar" className="rounded-md p-1 text-muted-foreground hover:bg-muted">
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Fechar"
+                className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+              >
                 <X className="size-5" />
               </button>
             </div>
             <p className="mb-4 text-sm text-muted-foreground">
-              Se você está em risco imediato, ligue para um dos serviços oficiais. O Desabafo Amigo é
-              escuta voluntária e não substitui atendimento de urgência.
+              Se você está em risco imediato, ligue para um dos serviços oficiais. O Desabafo Amigo
+              é escuta voluntária e não substitui atendimento de urgência.
             </p>
 
             <ul className="space-y-2">
@@ -110,7 +129,9 @@ export function EmergencyButton({ inline = false }: { inline?: boolean }) {
                   onClick={() => callAndLog("called_cvv", "188")}
                   className="flex w-full items-center justify-between rounded-lg border border-border bg-brand-soft px-4 py-3 text-foreground transition hover:border-primary hover:bg-secondary"
                 >
-                  <span className="text-sm font-medium text-left">CVV — Centro de Valorização da Vida (24h)</span>
+                  <span className="text-sm font-medium text-left">
+                    CVV — Centro de Valorização da Vida (24h)
+                  </span>
                   <span className="flex items-center gap-2 font-mono text-base font-semibold text-primary">
                     <Phone className="size-4" aria-hidden /> 188
                   </span>
@@ -140,8 +161,8 @@ export function EmergencyButton({ inline = false }: { inline?: boolean }) {
                   {plan?.emergency_contact_phone && plan.share_location_with_contact ? (
                     <>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Avisar <strong>{plan.emergency_contact_name || "seu contato"}</strong> pelo SMS do seu
-                        celular com sua localização aproximada.
+                        Avisar <strong>{plan.emergency_contact_name || "seu contato"}</strong> pelo
+                        SMS do seu celular com sua localização aproximada.
                       </p>
                       <button
                         type="button"
@@ -149,15 +170,19 @@ export function EmergencyButton({ inline = false }: { inline?: boolean }) {
                         disabled={sharing}
                         className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
                       >
-                        {sharing ? <Loader2 className="size-3.5 animate-spin" /> : <MapPin className="size-3.5" />}
+                        {sharing ? (
+                          <Loader2 className="size-3.5 animate-spin" />
+                        ) : (
+                          <MapPin className="size-3.5" />
+                        )}
                         Avisar meu contato com localização
                       </button>
                     </>
                   ) : (
                     <>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Cadastre um contato de confiança e autorize o envio de localização — só é enviado se
-                        você apertar aqui.
+                        Cadastre um contato de confiança e autorize o envio de localização — só é
+                        enviado se você apertar aqui.
                       </p>
                       <Link
                         to="/plano-seguranca"
@@ -173,7 +198,8 @@ export function EmergencyButton({ inline = false }: { inline?: boolean }) {
             </div>
 
             <p className="mt-4 text-xs text-muted-foreground">
-              Fora do Brasil? Procure o serviço de prevenção ao suicídio ou emergência local do seu país.
+              Fora do Brasil? Procure o serviço de prevenção ao suicídio ou emergência local do seu
+              país.
             </p>
           </div>
         </div>

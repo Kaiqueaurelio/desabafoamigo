@@ -28,7 +28,8 @@ export const classifyRisk = createServerFn({ method: "POST" })
       });
       const j = JSON.parse(raw) as { severity?: unknown; reason?: unknown; suggestion?: unknown };
       const severity = Number(j.severity);
-      if (!Number.isFinite(severity) || severity < 0 || severity > 3) throw new Error("Resposta de risco inválida");
+      if (!Number.isFinite(severity) || severity < 0 || severity > 3)
+        throw new Error("Resposta de risco inválida");
       return {
         severity: Math.max(localRisk ? 2 : 0, Math.min(3, Math.round(severity))),
         reason: typeof j.reason === "string" ? j.reason.slice(0, 200) : "",
@@ -39,7 +40,8 @@ export const classifyRisk = createServerFn({ method: "POST" })
       return {
         severity: localRisk ? 3 : 2,
         reason: "Avaliação automática indisponível; encaminhar para acolhimento humano.",
-        suggestion: "Não estou conseguindo avaliar isso com segurança agora. Posso te conectar a uma pessoa voluntária para conversar?",
+        suggestion:
+          "Não estou conseguindo avaliar isso com segurança agora. Posso te conectar a uma pessoa voluntária para conversar?",
       };
     }
   });
@@ -66,7 +68,10 @@ export const suggestReplies = createServerFn({ method: "POST" })
       .limit(12);
     const ordered = (msgs ?? []).reverse();
     const lines = ordered
-      .map((m) => `${m.sender_id === conv.user_id ? "Pessoa" : "Voluntário"}: ${m.content ?? m.transcription ?? "(anexo)"}`)
+      .map(
+        (m) =>
+          `${m.sender_id === conv.user_id ? "Pessoa" : "Voluntário"}: ${m.content ?? m.transcription ?? "(anexo)"}`,
+      )
       .join("\n")
       .slice(0, 4000);
     if (!lines) return { suggestions: [] as string[] };
@@ -111,13 +116,14 @@ export const suggestReplies = createServerFn({ method: "POST" })
     });
     try {
       const j = JSON.parse(raw) as { suggestions?: string[] };
-      const list = Array.isArray(j.suggestions) ? j.suggestions.filter((s) => typeof s === "string").slice(0, 3) : [];
+      const list = Array.isArray(j.suggestions)
+        ? j.suggestions.filter((s) => typeof s === "string").slice(0, 3)
+        : [];
       return { suggestions: list };
     } catch {
       return { suggestions: [] as string[] };
     }
   });
-
 
 // ===== Onda 2: Chatbot de triagem antes da fila =====
 type TriageTurn = { role: "user" | "assistant"; content: string };
@@ -131,7 +137,10 @@ export const triageStep = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     const history = data.history;
-    const userText = history.filter((h) => h.role === "user").map((h) => h.content).join("\n");
+    const userText = history
+      .filter((h) => h.role === "user")
+      .map((h) => h.content)
+      .join("\n");
     const localRisk = detectRisk(userText);
     const safeFallback = {
       reply: localRisk
@@ -141,7 +150,7 @@ export const triageStep = createServerFn({ method: "POST" })
       topic: localRisk
         ? "A pessoa demonstrou sofrimento intenso e precisa de acolhimento humano prioritário."
         : "A triagem automática ficou indisponível; oferecer acolhimento humano.",
-      urgency: localRisk ? "high" as const : "medium" as const,
+      urgency: localRisk ? ("high" as const) : ("medium" as const),
     };
 
     try {
@@ -163,17 +172,26 @@ Responda SEMPRE JSON: {"reply":"...","done":boolean,"topic":"...opcional...","ur
         ],
         response_format: { type: "json_object" },
       });
-      const j = JSON.parse(raw) as { reply?: unknown; done?: unknown; topic?: unknown; urgency?: unknown };
-      if (typeof j.reply !== "string" || !j.reply.trim()) throw new Error("Resposta de triagem inválida");
+      const j = JSON.parse(raw) as {
+        reply?: unknown;
+        done?: unknown;
+        topic?: unknown;
+        urgency?: unknown;
+      };
+      if (typeof j.reply !== "string" || !j.reply.trim())
+        throw new Error("Resposta de triagem inválida");
       const urgency = j.urgency === "high" || j.urgency === "medium" ? j.urgency : "low";
       return {
         reply: j.reply.slice(0, 600),
         done: Boolean(j.done) || localRisk,
         topic: (typeof j.topic === "string" ? j.topic : safeFallback.topic).slice(0, 200),
-        urgency: localRisk ? "high" as const : urgency,
+        urgency: localRisk ? ("high" as const) : urgency,
       };
     } catch (error) {
-      console.error("[triageStep] triagem indisponível; encaminhando para acolhimento humano", error);
+      console.error(
+        "[triageStep] triagem indisponível; encaminhando para acolhimento humano",
+        error,
+      );
       return safeFallback;
     }
   });
@@ -194,12 +212,15 @@ export const transcribeMessage = createServerFn({ method: "POST" })
     }
 
     const { data: att } = await supabase
-      .from("attachments").select("storage_path, mime_type, kind, original_name")
-      .eq("id", msg.attachment_id).maybeSingle();
+      .from("attachments")
+      .select("storage_path, mime_type, kind, original_name")
+      .eq("id", msg.attachment_id)
+      .maybeSingle();
     if (!att || (att.kind !== "audio" && att.kind !== "video")) throw new Error("Sem áudio");
 
     const { data: signed } = await supabase.storage
-      .from("consultation-files").createSignedUrl(att.storage_path, 120);
+      .from("consultation-files")
+      .createSignedUrl(att.storage_path, 120);
     if (!signed?.signedUrl) throw new Error("Falha ao ler arquivo");
 
     const fileRes = await fetch(signed.signedUrl);
@@ -207,10 +228,13 @@ export const transcribeMessage = createServerFn({ method: "POST" })
     const { transcribeAudio } = await import("./ai-gateway.server");
     const result = await transcribeAudio(blob, att.original_name ?? "audio.webm");
 
-    await supabase.from("messages").update({
-      transcription: result.text,
-      segments: result.segments,
-    }).eq("id", msg.id);
+    await supabase
+      .from("messages")
+      .update({
+        transcription: result.text,
+        segments: result.segments,
+      })
+      .eq("id", msg.id);
     return { text: result.text, segments: result.segments };
   });
 
@@ -222,7 +246,8 @@ export const translateMessage = createServerFn({ method: "POST" })
     const { data: msg } = await supabase
       .from("messages")
       .select("id, content, transcription, segments, translations, translation_segments")
-      .eq("id", data.messageId).maybeSingle();
+      .eq("id", data.messageId)
+      .maybeSingle();
     if (!msg) throw new Error("Mensagem inválida");
     const source = msg.content ?? msg.transcription ?? "";
     if (!source.trim()) throw new Error("Nada para traduzir");
@@ -255,18 +280,30 @@ export const translateMessage = createServerFn({ method: "POST" })
       try {
         const parsed = JSON.parse(raw) as { lines?: string[] };
         lines = Array.isArray(parsed.lines) ? parsed.lines : [];
-      } catch { lines = []; }
+      } catch {
+        lines = [];
+      }
       // Ensure length matches by padding/truncating.
       while (lines.length < segments.length) lines.push("");
       lines = lines.slice(0, segments.length);
-      const translatedSegs: Segment[] = segments.map((s, i) => ({ start: s.start, end: s.end, text: lines[i] ?? "" }));
-      const fullText = translatedSegs.map((s) => s.text).join(" ").trim();
+      const translatedSegs: Segment[] = segments.map((s, i) => ({
+        start: s.start,
+        end: s.end,
+        text: lines[i] ?? "",
+      }));
+      const fullText = translatedSegs
+        .map((s) => s.text)
+        .join(" ")
+        .trim();
       cache[data.targetLang] = fullText;
       segCache[data.targetLang] = translatedSegs;
-      await supabase.from("messages").update({
-        translations: cache,
-        translation_segments: segCache,
-      }).eq("id", msg.id);
+      await supabase
+        .from("messages")
+        .update({
+          translations: cache,
+          translation_segments: segCache,
+        })
+        .eq("id", msg.id);
       return { text: fullText, segments: translatedSegs };
     }
 
@@ -274,7 +311,10 @@ export const translateMessage = createServerFn({ method: "POST" })
     const translated = await chatCompletion({
       model: "google/gemini-3-flash-preview",
       messages: [
-        { role: "system", content: `Você é um tradutor profissional. Traduza fielmente o texto do usuário para o idioma "${data.targetLang}". Responda somente com a tradução, sem comentários.` },
+        {
+          role: "system",
+          content: `Você é um tradutor profissional. Traduza fielmente o texto do usuário para o idioma "${data.targetLang}". Responda somente com a tradução, sem comentários.`,
+        },
         { role: "user", content: source },
       ],
     });
@@ -288,35 +328,52 @@ export const summarizeConversation = createServerFn({ method: "POST" })
   .validator((d: { conversationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: conv } = await supabase.from("conversations").select("id, user_id").eq("id", data.conversationId).maybeSingle();
+    const { data: conv } = await supabase
+      .from("conversations")
+      .select("id, user_id")
+      .eq("id", data.conversationId)
+      .maybeSingle();
     if (!conv) throw new Error("Conversa inválida");
-    const { data: msgs } = await supabase.from("messages")
+    const { data: msgs } = await supabase
+      .from("messages")
       .select("sender_id, content, transcription")
-      .eq("conversation_id", data.conversationId).order("created_at");
+      .eq("conversation_id", data.conversationId)
+      .order("created_at");
     // Redação básica de PII antes de enviar ao modelo
-    const redactPII = (s: string) => s
-      .replace(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, "[CPF]")
-      .replace(/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/g, "[CNPJ]")
-      .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, "[EMAIL]")
-      .replace(/\b(?:\+?55\s?)?\(?\d{2}\)?\s?9?\d{4}-?\d{4}\b/g, "[TELEFONE]")
-      .replace(/\b\d{5}-?\d{3}\b/g, "[CEP]")
-      .replace(/\bhttps?:\/\/\S+/g, "[LINK]");
-    const lines = (msgs ?? []).map((m) => {
-      const who = m.sender_id === conv.user_id ? "Usuário" : "Voluntário";
-      return `${who}: ${redactPII(m.content ?? m.transcription ?? "(anexo)")}`;
-    }).join("\n").slice(0, 8000);
+    const redactPII = (s: string) =>
+      s
+        .replace(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, "[CPF]")
+        .replace(/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/g, "[CNPJ]")
+        .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, "[EMAIL]")
+        .replace(/\b(?:\+?55\s?)?\(?\d{2}\)?\s?9?\d{4}-?\d{4}\b/g, "[TELEFONE]")
+        .replace(/\b\d{5}-?\d{3}\b/g, "[CEP]")
+        .replace(/\bhttps?:\/\/\S+/g, "[LINK]");
+    const lines = (msgs ?? [])
+      .map((m) => {
+        const who = m.sender_id === conv.user_id ? "Usuário" : "Voluntário";
+        return `${who}: ${redactPII(m.content ?? m.transcription ?? "(anexo)")}`;
+      })
+      .join("\n")
+      .slice(0, 8000);
     if (!lines) return { summary: "", technical: "" };
 
     const { chatCompletion } = await import("./ai-gateway.server");
     const raw = await chatCompletion({
       model: "google/gemini-3-flash-preview",
       messages: [
-        { role: "system", content: `Você resume conversas de escuta acolhedora para um voluntário que poderá conversar novamente com a mesma pessoa. Responda em JSON com os campos "summary" (2-4 frases, tom acolhedor, sem dados sensíveis) e "technical" (bullet points curtos com temas, gatilhos e recomendações práticas, sem diagnósticos clínicos).` },
+        {
+          role: "system",
+          content: `Você resume conversas de escuta acolhedora para um voluntário que poderá conversar novamente com a mesma pessoa. Responda em JSON com os campos "summary" (2-4 frases, tom acolhedor, sem dados sensíveis) e "technical" (bullet points curtos com temas, gatilhos e recomendações práticas, sem diagnósticos clínicos).`,
+        },
         { role: "user", content: lines },
       ],
       response_format: { type: "json_object" },
     });
     let parsed: { summary?: string; technical?: string } = {};
-    try { parsed = JSON.parse(raw); } catch { parsed = { summary: raw }; }
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = { summary: raw };
+    }
     return { summary: parsed.summary ?? "", technical: parsed.technical ?? "" };
   });

@@ -37,7 +37,9 @@ export function PushNotificationCard() {
       <div className="flex items-start gap-3">
         <div
           className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
-            status === "granted" ? "bg-emerald-500/15 text-emerald-500" : "bg-primary/10 text-primary"
+            status === "granted"
+              ? "bg-emerald-500/15 text-emerald-500"
+              : "bg-primary/10 text-primary"
           }`}
         >
           {status === "granted" ? <BellRing className="size-5" /> : <Bell className="size-5" />}
@@ -56,7 +58,8 @@ export function PushNotificationCard() {
           )}
           {status === "denied" && !preview && (
             <p className="mt-2 rounded-lg bg-destructive/10 px-3 py-1.5 text-[11px] text-destructive">
-              Você bloqueou notificações. Vá em Configurações do navegador → Notificações para permitir novamente.
+              Você bloqueou notificações. Vá em Configurações do navegador → Notificações para
+              permitir novamente.
             </p>
           )}
           {status === "unsupported" && !preview && (
@@ -89,7 +92,11 @@ export function PushNotificationCard() {
                 disabled={busy || preview || status === "unsupported" || status === "denied"}
                 className="btn-primary inline-flex items-center gap-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Bell className="size-3.5" />}
+                {busy ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Bell className="size-3.5" />
+                )}
                 Ativar notificações
               </button>
             )}

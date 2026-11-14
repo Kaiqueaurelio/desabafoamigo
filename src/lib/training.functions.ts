@@ -63,9 +63,7 @@ export const submitQuiz = createServerFn({ method: "POST" })
         .eq("id", existing.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await supabase
-        .from("volunteer_training_progress")
-        .insert(payload);
+      const { error } = await supabase.from("volunteer_training_progress").insert(payload);
       if (error) throw new Error(error.message);
     }
 

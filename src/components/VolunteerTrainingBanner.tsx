@@ -5,8 +5,7 @@ import { GraduationCap, ArrowRight } from "lucide-react";
 
 export function VolunteerTrainingBanner() {
   const [state, setState] = useState<
-    | { status: "hidden" }
-    | { status: "pending"; completedCount: number; totalCount: number }
+    { status: "hidden" } | { status: "pending"; completedCount: number; totalCount: number }
   >({ status: "hidden" });
 
   useEffect(() => {
@@ -23,8 +22,15 @@ export function VolunteerTrainingBanner() {
       if (vol.training_completed_at) return;
 
       const [{ count: total }, { data: passed }] = await Promise.all([
-        supabase.from("volunteer_training_modules").select("id", { count: "exact", head: true }).eq("active", true),
-        supabase.from("volunteer_training_progress").select("module_id").eq("user_id", u.user.id).eq("passed", true),
+        supabase
+          .from("volunteer_training_modules")
+          .select("id", { count: "exact", head: true })
+          .eq("active", true),
+        supabase
+          .from("volunteer_training_progress")
+          .select("module_id")
+          .eq("user_id", u.user.id)
+          .eq("passed", true),
       ]);
       setState({
         status: "pending",
@@ -45,11 +51,10 @@ export function VolunteerTrainingBanner() {
       <div className="flex items-start gap-3">
         <GraduationCap className="mt-0.5 size-5 shrink-0 text-sky-200" />
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-white">
-            Conclua sua trilha de voluntário(a)
-          </h3>
+          <h3 className="text-sm font-semibold text-white">Conclua sua trilha de voluntário(a)</h3>
           <p className="mt-0.5 text-xs text-slate-300">
-            Você concluiu {state.completedCount}/{state.totalCount} módulos. A aprovação da sua inscrição fica liberada assim que a trilha estiver completa.
+            Você concluiu {state.completedCount}/{state.totalCount} módulos. A aprovação da sua
+            inscrição fica liberada assim que a trilha estiver completa.
           </p>
           <Link
             to="/pro/treinamento"

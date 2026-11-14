@@ -2,7 +2,15 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export function NpsPrompt({ conversationId, userId, onDone }: { conversationId: string; userId: string; onDone?: () => void }) {
+export function NpsPrompt({
+  conversationId,
+  userId,
+  onDone,
+}: {
+  conversationId: string;
+  userId: string;
+  onDone?: () => void;
+}) {
   const [score, setScore] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [sent, setSent] = useState(false);
@@ -25,13 +33,19 @@ export function NpsPrompt({ conversationId, userId, onDone }: { conversationId: 
   }
 
   if (sent) {
-    return <p className="text-sm text-muted-foreground">Sua opinião nos ajuda a acolher melhor. Obrigado.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        Sua opinião nos ajuda a acolher melhor. Obrigado.
+      </p>
+    );
   }
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
       <p className="text-sm font-medium text-foreground">Como foi essa conversa para você?</p>
-      <p className="mt-1 text-xs text-muted-foreground">0 = nada acolhedora · 10 = muito acolhedora</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        0 = nada acolhedora · 10 = muito acolhedora
+      </p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {Array.from({ length: 11 }, (_, i) => (
           <button

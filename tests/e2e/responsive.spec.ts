@@ -49,7 +49,13 @@ async function measureOverflow(page: Page) {
 
     // Detecta elementos individuais que ultrapassam a largura do viewport
     const vw = doc.clientWidth;
-    const offenders: Array<{ tag: string; cls: string; width: number; left: number; right: number }> = [];
+    const offenders: Array<{
+      tag: string;
+      cls: string;
+      width: number;
+      left: number;
+      right: number;
+    }> = [];
     const all = document.body.querySelectorAll<HTMLElement>("*");
     for (const el of all) {
       const rect = el.getBoundingClientRect();
@@ -58,7 +64,12 @@ async function measureOverflow(page: Page) {
       let ancestor = el.parentElement;
       while (ancestor && ancestor !== document.body) {
         const overflowX = getComputedStyle(ancestor).overflowX;
-        if (overflowX === "hidden" || overflowX === "clip" || overflowX === "auto" || overflowX === "scroll") {
+        if (
+          overflowX === "hidden" ||
+          overflowX === "clip" ||
+          overflowX === "auto" ||
+          overflowX === "scroll"
+        ) {
           const clipRect = ancestor.getBoundingClientRect();
           visibleLeft = Math.max(visibleLeft, clipRect.left);
           visibleRight = Math.min(visibleRight, clipRect.right);
@@ -105,12 +116,12 @@ for (const viewport of VIEWPORTS) {
 
         expect(
           result.docOverflow,
-          `document overflow=${result.docOverflow}px em ${route.path} @ ${viewport.name}. Offenders: ${JSON.stringify(result.offenders)}`
+          `document overflow=${result.docOverflow}px em ${route.path} @ ${viewport.name}. Offenders: ${JSON.stringify(result.offenders)}`,
         ).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
 
         expect(
           result.bodyOverflow,
-          `body overflow=${result.bodyOverflow}px em ${route.path} @ ${viewport.name}`
+          `body overflow=${result.bodyOverflow}px em ${route.path} @ ${viewport.name}`,
         ).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
 
         expect(errors, `runtime errors: ${errors.join(" | ")}`).toHaveLength(0);
@@ -118,7 +129,6 @@ for (const viewport of VIEWPORTS) {
     }
   });
 }
-
 
 const AUTHENTICATED_ROUTES = [
   { path: "/inicio", name: "inicio" },
@@ -146,7 +156,10 @@ for (const viewport of AUTH_VIEWPORTS) {
       viewport: { width: viewport.width, height: viewport.height },
       storageState: process.env.E2E_AUTH_STORAGE_STATE || undefined,
     });
-    test.skip(!process.env.E2E_AUTH_STORAGE_STATE, "Configure E2E_AUTH_STORAGE_STATE para validar páginas autenticadas.");
+    test.skip(
+      !process.env.E2E_AUTH_STORAGE_STATE,
+      "Configure E2E_AUTH_STORAGE_STATE para validar páginas autenticadas.",
+    );
 
     for (const route of AUTHENTICATED_ROUTES) {
       test(`sem overflow e com rolagem utilizável em ${route.name}`, async ({ page }, testInfo) => {
@@ -162,8 +175,13 @@ for (const viewport of AUTH_VIEWPORTS) {
           contentType: "image/png",
         });
 
-        expect(page.url(), "a sessão autenticada deve permanecer na rota protegida").toContain(route.path);
-        expect(result.docOverflow, `document overflow em ${route.path}: ${JSON.stringify(result.offenders)}`).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
+        expect(page.url(), "a sessão autenticada deve permanecer na rota protegida").toContain(
+          route.path,
+        );
+        expect(
+          result.docOverflow,
+          `document overflow em ${route.path}: ${JSON.stringify(result.offenders)}`,
+        ).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
         expect(result.bodyOverflow).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
         expect(errors, `erros de execução: ${errors.join(" | ")}`).toHaveLength(0);
 
@@ -180,7 +198,9 @@ for (const viewport of AUTH_VIEWPORTS) {
           await expect(startButton).toBeVisible();
           const buttonBounds = await startButton.boundingBox();
           expect(buttonBounds?.x ?? -1).toBeGreaterThanOrEqual(0);
-          expect((buttonBounds?.x ?? 0) + (buttonBounds?.width ?? 0)).toBeLessThanOrEqual(viewport.width + 1);
+          expect((buttonBounds?.x ?? 0) + (buttonBounds?.width ?? 0)).toBeLessThanOrEqual(
+            viewport.width + 1,
+          );
         }
       });
     }
@@ -192,7 +212,9 @@ for (const viewport of AUTH_VIEWPORTS) {
         await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
         const result = await measureOverflow(page);
         expect(page.url()).toContain(appointmentPath);
-        expect(result.docOverflow, JSON.stringify(result.offenders)).toBeLessThanOrEqual(OVERFLOW_TOLERANCE_PX);
+        expect(result.docOverflow, JSON.stringify(result.offenders)).toBeLessThanOrEqual(
+          OVERFLOW_TOLERANCE_PX,
+        );
         await expect(page.locator("form textarea")).toBeVisible();
       });
     }

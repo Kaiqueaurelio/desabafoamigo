@@ -14,9 +14,17 @@ type OAuthDetails = {
   redirect_to?: string;
 };
 type OAuthApi = {
-  getAuthorizationDetails: (id: string) => Promise<{ data: OAuthDetails | null; error: Error | null }>;
-  approveAuthorization: (id: string) => Promise<{ data: { redirect_url?: string; redirect_to?: string } | null; error: Error | null }>;
-  denyAuthorization: (id: string) => Promise<{ data: { redirect_url?: string; redirect_to?: string } | null; error: Error | null }>;
+  getAuthorizationDetails: (
+    id: string,
+  ) => Promise<{ data: OAuthDetails | null; error: Error | null }>;
+  approveAuthorization: (id: string) => Promise<{
+    data: { redirect_url?: string; redirect_to?: string } | null;
+    error: Error | null;
+  }>;
+  denyAuthorization: (id: string) => Promise<{
+    data: { redirect_url?: string; redirect_to?: string } | null;
+    error: Error | null;
+  }>;
 };
 function oauthApi(): OAuthApi {
   return (supabase.auth as unknown as { oauth: OAuthApi }).oauth;

@@ -1,8 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
+type JsonRow = Record<string, unknown>;
+
+async function assertAdmin(context: { supabase: SupabaseClient<Database>; userId: string }) {
   const { data, error } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
@@ -22,7 +26,8 @@ export const getPushConfigStatus = createServerFn({ method: "GET" })
     const b64 = pub.replace(/-/g, "+").replace(/_/g, "/");
     let publicKeyBytes = 0;
     try {
-      if (typeof atob === "function") publicKeyBytes = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4)).length;
+      if (typeof atob === "function")
+        publicKeyBytes = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4)).length;
       else publicKeyBytes = Buffer.from(b64, "base64").length;
     } catch {
       publicKeyBytes = 0;
@@ -46,7 +51,9 @@ export const getPushOverview = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [subsResp, logs24, logs7d] = await Promise.all([
-      supabaseAdmin.from("push_subscriptions").select("id, active", { count: "exact", head: false }),
+      supabaseAdmin
+        .from("push_subscriptions")
+        .select("id, active", { count: "exact", head: false }),
       supabaseAdmin
         .from("push_delivery_log")
         .select("success, stale, status_code, created_at")
@@ -61,15 +68,15 @@ export const getPushOverview = createServerFn({ method: "GET" })
     const active = subs.filter((s: { active: boolean }) => s.active).length;
     const inactive = subs.length - active;
 
-    const l24 = logs24.data ?? [];
-    const sent24 = l24.filter((r: any) => r.success).length;
+    const l24 = (logs24.data ?? []) as unknown as JsonRow[];
+    const sent24 = l24.filter((r) => r.success === true).length;
     const failed24 = l24.length - sent24;
-    const gone24 = l24.filter((r: any) => r.status_code === 410).length;
-    const notFound24 = l24.filter((r: any) => r.status_code === 404).length;
+    const gone24 = l24.filter((r) => r.status_code === 410).length;
+    const notFound24 = l24.filter((r) => r.status_code === 404).length;
 
     const byStatus: Record<string, number> = {};
     for (const r of logs7d.data ?? []) {
-      const k = String((r as any).status_code ?? "null");
+      const k = String((r as JsonRow).status_code ?? "null");
       byStatus[k] = (byStatus[k] ?? 0) + 1;
     }
 
@@ -77,7 +84,13 @@ export const getPushOverview = createServerFn({ method: "GET" })
       totalSubscriptions: subs.length,
       activeSubscriptions: active,
       inactiveSubscriptions: inactive,
-      last24h: { sent: sent24, failed: failed24, gone: gone24, notFound: notFound24, total: l24.length },
+      last24h: {
+        sent: sent24,
+        failed: failed24,
+        gone: gone24,
+        notFound: notFound24,
+        total: l24.length,
+      },
       statusBreakdown7d: byStatus,
     };
   });
@@ -105,10 +118,10 @@ export const searchPushUsers = createServerFn({ method: "GET" })
     const { data: rows, error } = await query;
     if (error) throw error;
     return {
-      subscriptions: (rows ?? []).map((r: any) => ({
+      subscriptions: (rows ?? []).map((r) => ({
         user_id: r.user_id,
         endpoint_host: safeHost(r.endpoint),
-        endpoint_tail: (r.endpoint as string).slice(-14),
+        endpoint_tail: r.endpoint.slice(-14),
         active: r.active,
         user_agent: r.user_agent,
         last_seen_at: r.last_seen_at,
@@ -119,13 +132,19 @@ export const searchPushUsers = createServerFn({ method: "GET" })
 
 export const getUserPushLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => z.object({ userId: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() }).parse(d))
+  .validator((d: unknown) =>
+    z
+      .object({ userId: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: logs, error } = await supabaseAdmin
       .from("push_delivery_log")
-      .select("id, endpoint_host, endpoint_tail, status_code, success, stale, error_body, title, tag, created_at")
+      .select(
+        "id, endpoint_host, endpoint_tail, status_code, success, stale, error_body, title, tag, created_at",
+      )
       .eq("user_id", data.userId)
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 100);
@@ -138,9 +157,9 @@ export const getUserPushLogs = createServerFn({ method: "GET" })
 
     return {
       logs: logs ?? [],
-      subscriptions: (subs ?? []).map((r: any) => ({
+      subscriptions: (subs ?? []).map((r) => ({
         endpoint_host: safeHost(r.endpoint),
-        endpoint_tail: (r.endpoint as string).slice(-14),
+        endpoint_tail: r.endpoint.slice(-14),
         active: r.active,
         user_agent: r.user_agent,
         last_seen_at: r.last_seen_at,

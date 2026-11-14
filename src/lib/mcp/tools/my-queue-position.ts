@@ -18,7 +18,7 @@ export default defineTool({
       {
         global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
         auth: { persistSession: false, autoRefreshToken: false },
-      }
+      },
     );
     const { data, error } = await supabase.rpc("my_queue_position");
     if (error) {

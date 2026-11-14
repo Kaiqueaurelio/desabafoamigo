@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { KeyRound, Trash2, Loader2, ShieldCheck, Plus } from "lucide-react";
-import {
-  isPasskeySupported,
-  registerPasskey,
-} from "@/lib/passkeys";
+import { isPasskeySupported, registerPasskey } from "@/lib/passkeys";
 import { deleteMyPasskey, listMyPasskeys } from "@/lib/passkeys.functions";
 
 type Cred = {
@@ -57,7 +54,12 @@ export function PasskeyManager({ scope }: { scope: "admin" | "pro" | "user" }) {
   }
 
   async function remove(id: string) {
-    if (!confirm("Remover esta chave de acesso? Você precisará usar o código de 6 dígitos até cadastrar outra.")) return;
+    if (
+      !confirm(
+        "Remover esta chave de acesso? Você precisará usar o código de 6 dígitos até cadastrar outra.",
+      )
+    )
+      return;
     setBusy(true);
     try {
       await deleteMyPasskey({ data: { id } });
@@ -70,8 +72,8 @@ export function PasskeyManager({ scope }: { scope: "admin" | "pro" | "user" }) {
   if (!supported) {
     return (
       <div className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
-        Chaves de acesso estão temporariamente indisponíveis. Para manter sua conta segura,
-        use senha + código de 6 dígitos enquanto finalizamos essa opção.
+        Chaves de acesso estão temporariamente indisponíveis. Para manter sua conta segura, use
+        senha + código de 6 dígitos enquanto finalizamos essa opção.
       </div>
     );
   }
@@ -100,7 +102,11 @@ export function PasskeyManager({ scope }: { scope: "admin" | "pro" | "user" }) {
           className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
           disabled={busy}
         />
-        <button onClick={add} disabled={busy} className="btn-primary inline-flex items-center gap-2">
+        <button
+          onClick={add}
+          disabled={busy}
+          className="btn-primary inline-flex items-center gap-2"
+        >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
           Cadastrar
         </button>
@@ -129,7 +135,9 @@ export function PasskeyManager({ scope }: { scope: "admin" | "pro" | "user" }) {
                 <p className="text-xs text-muted-foreground">
                   {c.device_type === "multiDevice" ? "Sincronizada" : "Ligada a este dispositivo"} •
                   cadastrada em {new Date(c.created_at).toLocaleDateString("pt-BR")}
-                  {c.last_used_at ? ` • último uso ${new Date(c.last_used_at).toLocaleDateString("pt-BR")}` : ""}
+                  {c.last_used_at
+                    ? ` • último uso ${new Date(c.last_used_at).toLocaleDateString("pt-BR")}`
+                    : ""}
                 </p>
               </div>
               <button
@@ -161,7 +169,6 @@ function friendlyError(e: unknown): string {
   const msg = e instanceof Error ? e.message : String(e);
   if (/NotAllowedError|cancel|abort/i.test(msg))
     return "Cadastro cancelado. Tente novamente e conclua a verificação biométrica.";
-  if (/InvalidStateError/i.test(msg))
-    return "Esta chave já está cadastrada neste dispositivo.";
+  if (/InvalidStateError/i.test(msg)) return "Esta chave já está cadastrada neste dispositivo.";
   return msg || "Falha ao cadastrar a chave.";
 }

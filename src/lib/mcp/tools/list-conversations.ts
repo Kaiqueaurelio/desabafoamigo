@@ -8,7 +8,13 @@ export default defineTool({
   description:
     "Lista as conversas do usuário conectado (como pessoa acolhida ou como voluntário), com status e datas. Respeita o controle de acesso: cada chamador só vê as próprias conversas.",
   inputSchema: {
-    limit: z.number().int().min(1).max(50).default(20).describe("Quantidade máxima de conversas a retornar."),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .default(20)
+      .describe("Quantidade máxima de conversas a retornar."),
     status: z
       .enum(["active", "ended", "waiting"])
       .optional()
@@ -25,7 +31,7 @@ export default defineTool({
       {
         global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
         auth: { persistSession: false, autoRefreshToken: false },
-      }
+      },
     );
     let query = supabase
       .from("conversations")

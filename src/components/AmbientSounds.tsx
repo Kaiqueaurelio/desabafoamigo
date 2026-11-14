@@ -11,9 +11,9 @@ type Track = {
 };
 
 const TRACKS: Track[] = [
-  { key: "waves",  label: "Ondas do mar", Icon: Waves,     color: "text-sky-300" },
-  { key: "rain",   label: "Chuva leve",   Icon: CloudRain, color: "text-cyan-300" },
-  { key: "forest", label: "Vento e mata", Icon: WindIcon,  color: "text-emerald-300" },
+  { key: "waves", label: "Ondas do mar", Icon: Waves, color: "text-sky-300" },
+  { key: "rain", label: "Chuva leve", Icon: CloudRain, color: "text-cyan-300" },
+  { key: "forest", label: "Vento e mata", Icon: WindIcon, color: "text-emerald-300" },
 ];
 
 // Cria um buffer de ruído (branco) reutilizável
@@ -48,7 +48,17 @@ function buildWaves(ctx: AudioContext, noise: AudioBuffer): Node {
   src.connect(lp).connect(master);
   src.start();
   lfo.start();
-  return { master, stop: () => { try { src.stop(); lfo.stop(); } catch {} } };
+  return {
+    master,
+    stop: () => {
+      try {
+        src.stop();
+        lfo.stop();
+      } catch {
+        // Audio nodes can already be stopped during cleanup.
+      }
+    },
+  };
 }
 
 function buildRain(ctx: AudioContext, noise: AudioBuffer): Node {
@@ -65,7 +75,16 @@ function buildRain(ctx: AudioContext, noise: AudioBuffer): Node {
   master.gain.value = 0;
   src.connect(hp).connect(lp).connect(master);
   src.start();
-  return { master, stop: () => { try { src.stop(); } catch {} } };
+  return {
+    master,
+    stop: () => {
+      try {
+        src.stop();
+      } catch {
+        // Audio nodes can already be stopped during cleanup.
+      }
+    },
+  };
 }
 
 function buildForest(ctx: AudioContext, noise: AudioBuffer): Node {
@@ -85,37 +104,60 @@ function buildForest(ctx: AudioContext, noise: AudioBuffer): Node {
   src.connect(lp).connect(master);
   src.start();
   lfo.start();
-  return { master, stop: () => { try { src.stop(); lfo.stop(); } catch {} } };
+  return {
+    master,
+    stop: () => {
+      try {
+        src.stop();
+        lfo.stop();
+      } catch {
+        // Audio nodes can already be stopped during cleanup.
+      }
+    },
+  };
 }
 
 export function AmbientSounds() {
   const ctxRef = useRef<AudioContext | null>(null);
   const nodesRef = useRef<Partial<Record<AmbientKey, Node>>>({});
-  const [volumes, setVolumes] = useState<Record<AmbientKey, number>>({ waves: 0, rain: 0, forest: 0 });
+  const [volumes, setVolumes] = useState<Record<AmbientKey, number>>({
+    waves: 0,
+    rain: 0,
+    forest: 0,
+  });
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const mutedRef = useRef(false);
   const announceTickRef = useRef(0);
 
-  useEffect(() => () => {
-    // cleanup on unmount
-    Object.values(nodesRef.current).forEach(n => n?.stop());
-    ctxRef.current?.close().catch(() => {});
-  }, []);
+  useEffect(
+    () => () => {
+      // cleanup on unmount
+      Object.values(nodesRef.current).forEach((n) => n?.stop());
+      ctxRef.current?.close().catch(() => {
+        // The audio context may already be closed.
+      });
+    },
+    [],
+  );
 
   async function ensureCtx() {
     if (ctxRef.current) {
       if (ctxRef.current.state === "suspended") await ctxRef.current.resume();
       return ctxRef.current;
     }
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextCtor =
+      window.AudioContext ||
+      (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextCtor) throw new Error("AudioContext indisponível neste navegador.");
+    const ctx = new AudioContextCtor();
     ctxRef.current = ctx;
     const noise = createNoiseBuffer(ctx, 3);
     nodesRef.current.waves = buildWaves(ctx, noise);
     nodesRef.current.rain = buildRain(ctx, noise);
     nodesRef.current.forest = buildForest(ctx, noise);
-    Object.values(nodesRef.current).forEach(n => n?.master.connect(ctx.destination));
+    Object.values(nodesRef.current).forEach((n) => n?.master.connect(ctx.destination));
     setReady(true);
     return ctx;
   }
@@ -131,16 +173,16 @@ export function AmbientSounds() {
 
   async function handleChange(key: AmbientKey, value: number) {
     await ensureCtx();
-    setVolumes(v => ({ ...v, [key]: value }));
+    setVolumes((v) => ({ ...v, [key]: value }));
     applyGain(key, value, mutedRef.current);
   }
 
   const toggleMute = useCallback(() => {
-    setMuted(prev => {
+    setMuted((prev) => {
       const next = !prev;
       mutedRef.current = next;
       // apply to all tracks with current volumes
-      (Object.keys(nodesRef.current) as AmbientKey[]).forEach(k => {
+      (Object.keys(nodesRef.current) as AmbientKey[]).forEach((k) => {
         applyGain(k, volumes[k], next);
       });
       // Anúncio para leitores de tela — mensagem descritiva com contexto e como reverter.
@@ -150,7 +192,7 @@ export function AmbientSounds() {
       setAnnouncement(
         next
           ? `${marker}Sons ambientais silenciados. Pressione M novamente para retomar.`
-          : `${marker}Sons ambientais retomados. Pressione M para silenciar.`
+          : `${marker}Sons ambientais retomados. Pressione M para silenciar.`,
       );
       return next;
     });
@@ -175,7 +217,11 @@ export function AmbientSounds() {
           document.activeElement !== previouslyFocused &&
           document.contains(previouslyFocused)
         ) {
-          try { previouslyFocused.focus({ preventScroll: true }); } catch {}
+          try {
+            previouslyFocused.focus({ preventScroll: true });
+          } catch {
+            // Some browsers do not allow restoring focus after a context change.
+          }
         }
       });
     }
@@ -183,19 +229,13 @@ export function AmbientSounds() {
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleMute]);
 
-
   return (
     <section
       aria-label="Sons ambientais"
       className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
     >
       {/* Região aria-live para anunciar pausa/retomada aos leitores de tela */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
       </div>
       <div className="mb-3 flex items-center gap-2">
@@ -219,26 +259,42 @@ export function AmbientSounds() {
               : "border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
           }`}
         >
-          {muted ? <VolumeX className="size-3.5" aria-hidden="true" /> : <Volume2 className="size-3.5" aria-hidden="true" />}
+          {muted ? (
+            <VolumeX className="size-3.5" aria-hidden="true" />
+          ) : (
+            <Volume2 className="size-3.5" aria-hidden="true" />
+          )}
           <span aria-hidden="true">{muted ? "Mudo" : "Som"}</span>
           <span className="sr-only">
             {muted ? "Sons ambientais silenciados" : "Sons ambientais ativos"}
           </span>
-          <kbd className="ml-1 hidden rounded bg-black/30 px-1 text-[9px] tracking-widest text-slate-400 sm:inline" aria-hidden="true">M</kbd>
+          <kbd
+            className="ml-1 hidden rounded bg-black/30 px-1 text-[9px] tracking-widest text-slate-400 sm:inline"
+            aria-hidden="true"
+          >
+            M
+          </kbd>
         </button>
       </div>
       <p className="mb-3 text-xs text-slate-400">
-        Combine e ajuste o volume de cada som. Pressione <kbd className="rounded bg-white/10 px-1 text-[10px]">M</kbd> para pausar tudo instantaneamente.
+        Combine e ajuste o volume de cada som. Pressione{" "}
+        <kbd className="rounded bg-white/10 px-1 text-[10px]">M</kbd> para pausar tudo
+        instantaneamente.
       </p>
       <div className={`space-y-3 transition-opacity ${muted ? "opacity-60" : ""}`}>
         {TRACKS.map(({ key, label, Icon, color }) => (
           <div key={key} className="flex items-center gap-3">
-            <div className={`grid size-8 shrink-0 place-items-center rounded-lg bg-white/5 ${color}`}>
+            <div
+              className={`grid size-8 shrink-0 place-items-center rounded-lg bg-white/5 ${color}`}
+            >
               <Icon className="size-4" />
             </div>
             <label className="flex-1 min-w-0">
               <div className="mb-1 flex items-center justify-between text-[11px] text-slate-300">
-                <span>{label}{muted && volumes[key] > 0 ? " · silenciado" : ""}</span>
+                <span>
+                  {label}
+                  {muted && volumes[key] > 0 ? " · silenciado" : ""}
+                </span>
                 <span className="tabular-nums text-slate-500">{volumes[key]}%</span>
               </div>
               <input
@@ -256,11 +312,8 @@ export function AmbientSounds() {
         ))}
       </div>
       {!ready && (
-        <p className="mt-3 text-[10px] text-slate-500">
-          Toque no controle para começar a ouvir.
-        </p>
+        <p className="mt-3 text-[10px] text-slate-500">Toque no controle para começar a ouvir.</p>
       )}
     </section>
   );
 }
-

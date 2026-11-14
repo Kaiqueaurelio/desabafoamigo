@@ -13,24 +13,19 @@ export const Route = createFileRoute("/api/public/hooks/daily-maintenance")({
         }
 
         try {
-          const { supabaseAdmin } = await import(
-            "@/integrations/supabase/client.server"
-          );
-          const { data, error } = await supabaseAdmin.rpc(
-            "run_daily_maintenance",
-          );
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data, error } = await supabaseAdmin.rpc("run_daily_maintenance");
           if (error) throw error;
-          return new Response(
-            JSON.stringify({ ok: true, result: data }),
-            { headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ ok: true, result: data }), {
+            headers: { "Content-Type": "application/json" },
+          });
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
           console.error("daily-maintenance error:", message);
-          return new Response(
-            JSON.stringify({ ok: false, error: message }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ ok: false, error: message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
     },

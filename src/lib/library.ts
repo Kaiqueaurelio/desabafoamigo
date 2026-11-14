@@ -7,7 +7,9 @@ const BUCKET = "library-media";
  * Se o valor recebido já é uma URL http(s), devolve como está — permite
  * combinar arquivos hospedados no bucket com URLs externas curadas.
  */
-export async function libraryMediaUrl(pathOrUrl: string | null | undefined): Promise<string | null> {
+export async function libraryMediaUrl(
+  pathOrUrl: string | null | undefined,
+): Promise<string | null> {
   if (!pathOrUrl) return null;
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(pathOrUrl, 3600);

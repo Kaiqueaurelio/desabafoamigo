@@ -19,8 +19,12 @@ export const Route = createFileRoute("/admin/atendimento")({
 });
 
 type QueueRow = {
-  id: string; user_id: string; topic: string | null; created_at: string;
-  urgency?: "low" | "medium" | "high" | null; preferred_lang?: string | null;
+  id: string;
+  user_id: string;
+  topic: string | null;
+  created_at: string;
+  urgency?: "low" | "medium" | "high" | null;
+  preferred_lang?: string | null;
   alias?: string;
 };
 
@@ -67,22 +71,35 @@ function AdminAtendimento() {
     const chan = supabase
       .channel("admin-atendimento")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => refresh())
-      .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, () => refresh())
-      .on("postgres_changes", { event: "*", schema: "public", table: "queue" }, () => refreshQueue())
+      .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, () =>
+        refresh(),
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "queue" }, () =>
+        refreshQueue(),
+      )
       .subscribe();
-    return () => { supabase.removeChannel(chan); };
+    return () => {
+      supabase.removeChannel(chan);
+    };
   }, []);
 
   async function refreshQueue() {
-    const { data } = await supabase.from("queue")
+    const { data } = await supabase
+      .from("queue")
       .select("id, user_id, topic, created_at, urgency, preferred_lang")
-      .eq("status", "waiting").order("created_at");
+      .eq("status", "waiting")
+      .order("created_at");
     const list = (data ?? []) as QueueRow[];
     if (list.length) {
       const ids = list.map((r) => r.user_id);
-      const { data: profs } = await supabase.from("profiles").select("user_id, display_name").in("user_id", ids);
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, display_name")
+        .in("user_id", ids);
       const pm = new Map((profs ?? []).map((p) => [p.user_id, p.display_name ?? "Anônimo"]));
-      list.forEach((r) => { r.alias = pm.get(r.user_id) ?? "Anônimo"; });
+      list.forEach((r) => {
+        r.alias = pm.get(r.user_id) ?? "Anônimo";
+      });
     }
     setQueue(list);
   }
@@ -106,15 +123,21 @@ function AdminAtendimento() {
       .limit(200);
     const list = (appts ?? []) as Omit<Row, "patient_name" | "pro_name" | "unread" | "last_at">[];
 
-    const ids = Array.from(new Set(list.flatMap((a) => [a.patient_id, a.professional_id].filter(Boolean) as string[])));
+    const ids = Array.from(
+      new Set(list.flatMap((a) => [a.patient_id, a.professional_id].filter(Boolean) as string[])),
+    );
     const nameMap: Record<string, string> = {};
     if (ids.length) {
       const [{ data: profs }, { data: vols }] = await Promise.all([
         supabase.from("profiles").select("user_id, display_name").in("user_id", ids),
         supabase.from("volunteers").select("user_id, full_name").in("user_id", ids),
       ]);
-      (profs ?? []).forEach((p) => { nameMap[p.user_id] = p.display_name ?? "Amigo(a)"; });
-      (vols ?? []).forEach((v) => { if (v.full_name) nameMap[v.user_id] = v.full_name; });
+      (profs ?? []).forEach((p) => {
+        nameMap[p.user_id] = p.display_name ?? "Amigo(a)";
+      });
+      (vols ?? []).forEach((v) => {
+        if (v.full_name) nameMap[v.user_id] = v.full_name;
+      });
     }
 
     const convIds = list.map((a) => a.conversation_id).filter(Boolean) as string[];
@@ -128,7 +151,8 @@ function AdminAtendimento() {
         const c = m.conversation_id as string;
         const entry = unreadMap[c] ?? { unread: 0, last_at: null };
         if (!m.read_at) entry.unread += 1;
-        if (!entry.last_at || (m.created_at as string) > entry.last_at) entry.last_at = m.created_at as string;
+        if (!entry.last_at || (m.created_at as string) > entry.last_at)
+          entry.last_at = m.created_at as string;
         unreadMap[c] = entry;
       });
     }
@@ -136,7 +160,9 @@ function AdminAtendimento() {
     const enriched: Row[] = list.map((a) => ({
       ...a,
       patient_name: nameMap[a.patient_id] ?? "Amigo(a)",
-      pro_name: a.professional_id ? (nameMap[a.professional_id] ?? "Voluntário(a)") : "— sem voluntário —",
+      pro_name: a.professional_id
+        ? (nameMap[a.professional_id] ?? "Voluntário(a)")
+        : "— sem voluntário —",
       unread: a.conversation_id ? (unreadMap[a.conversation_id]?.unread ?? 0) : 0,
       last_at: a.conversation_id ? (unreadMap[a.conversation_id]?.last_at ?? null) : null,
     }));
@@ -147,7 +173,10 @@ function AdminAtendimento() {
   async function assumir(r: Row) {
     if (!me) return;
     if (!confirm(`Assumir esta conversa com ${r.patient_name}?`)) return;
-    await supabase.from("appointments").update({ professional_id: me, status: "in_progress" }).eq("id", r.id);
+    await supabase
+      .from("appointments")
+      .update({ professional_id: me, status: "in_progress" })
+      .eq("id", r.id);
     navigate({ to: "/consulta/$id", params: { id: r.id } });
   }
 
@@ -167,13 +196,20 @@ function AdminAtendimento() {
       <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <Link to="/admin" aria-label="Voltar" className="rounded-full p-2 text-muted-foreground hover:bg-muted">
+            <Link
+              to="/admin"
+              aria-label="Voltar"
+              className="rounded-full p-2 text-muted-foreground hover:bg-muted"
+            >
               <ArrowLeft className="size-5" />
             </Link>
             <Logo size={28} />
             <span className="text-sm font-semibold text-primary">Central de atendimento</span>
           </div>
-          <button onClick={signOut} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted">
+          <button
+            onClick={signOut}
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+          >
             <LogOut className="size-4" /> Sair
           </button>
         </div>
@@ -181,38 +217,75 @@ function AdminAtendimento() {
 
       <div className="mx-auto max-w-6xl px-4 py-6">
         <p className="mb-4 rounded-2xl bg-brand-soft p-4 text-sm text-muted-foreground">
-          Como administrador(a), você pode atender diretamente as pessoas na fila de escuta, acompanhar todas as conversas e intervir em atendimentos em andamento.
+          Como administrador(a), você pode atender diretamente as pessoas na fila de escuta,
+          acompanhar todas as conversas e intervir em atendimentos em andamento.
         </p>
 
         {/* Fila de espera — atendimento direto */}
         <section className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-5">
           <div className="mb-3 flex items-center gap-2">
-            <div className="grid size-9 place-items-center rounded-lg bg-brand-soft text-primary"><Users className="size-5" /></div>
-            <div className="flex-1">
-              <h2 className="text-base font-semibold text-primary">Fila de escuta — atender agora</h2>
-              <p className="text-xs text-muted-foreground">Pessoas aguardando alguém para conversar neste momento.</p>
+            <div className="grid size-9 place-items-center rounded-lg bg-brand-soft text-primary">
+              <Users className="size-5" />
             </div>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{queue.length}</span>
+            <div className="flex-1">
+              <h2 className="text-base font-semibold text-primary">
+                Fila de escuta — atender agora
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Pessoas aguardando alguém para conversar neste momento.
+              </p>
+            </div>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              {queue.length}
+            </span>
           </div>
           {queue.length === 0 ? (
-            <p className="rounded-lg bg-background/50 p-4 text-center text-xs text-muted-foreground">Ninguém aguardando no momento. 💛</p>
+            <p className="rounded-lg bg-background/50 p-4 text-center text-xs text-muted-foreground">
+              Ninguém aguardando no momento. 💛
+            </p>
           ) : (
             <ul className="space-y-2">
               {queue.map((r) => {
-                const mins = Math.max(1, Math.round((Date.now() - +new Date(r.created_at)) / 60000));
+                const mins = Math.max(
+                  1,
+                  Math.round((Date.now() - +new Date(r.created_at)) / 60000),
+                );
                 return (
-                  <li key={r.id} className="flex items-start gap-3 rounded-xl border border-border bg-card p-3">
-                    <img src={avatarUrl(r.alias || r.user_id, 80)} alt="" className="size-10 shrink-0 rounded-full ring-2 ring-brand-soft" />
+                  <li
+                    key={r.id}
+                    className="flex items-start gap-3 rounded-xl border border-border bg-card p-3"
+                  >
+                    <img
+                      src={avatarUrl(r.alias || r.user_id, 80)}
+                      alt=""
+                      className="size-10 shrink-0 rounded-full ring-2 ring-brand-soft"
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm font-semibold text-foreground">{r.alias}</p>
-                        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="size-3" /> {mins} min</span>
-                        {r.urgency === "high" && <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive">Urgência alta</span>}
-                        {r.urgency === "medium" && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">Média</span>}
+                        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <Clock className="size-3" /> {mins} min
+                        </span>
+                        {r.urgency === "high" && (
+                          <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+                            Urgência alta
+                          </span>
+                        )}
+                        {r.urgency === "medium" && (
+                          <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                            Média
+                          </span>
+                        )}
                       </div>
-                      {r.topic && <p className="mt-1 line-clamp-2 text-xs text-foreground/80">"{r.topic}"</p>}
+                      {r.topic && (
+                        <p className="mt-1 line-clamp-2 text-xs text-foreground/80">"{r.topic}"</p>
+                      )}
                     </div>
-                    <button onClick={() => pickFromQueue(r.id)} disabled={pickBusy === r.id} className="btn-primary shrink-0 text-xs">
+                    <button
+                      onClick={() => pickFromQueue(r.id)}
+                      disabled={pickBusy === r.id}
+                      className="btn-primary shrink-0 text-xs"
+                    >
                       {pickBusy === r.id ? "Abrindo..." : "Atender"}
                     </button>
                   </li>
@@ -222,25 +295,34 @@ function AdminAtendimento() {
           )}
         </section>
 
-
         <div className="mb-4 flex gap-2">
           {(["waiting", "active", "all"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                tab === t ? "bg-primary text-primary-foreground shadow" : "bg-secondary text-secondary-foreground hover:bg-muted"
+                tab === t
+                  ? "bg-primary text-primary-foreground shadow"
+                  : "bg-secondary text-secondary-foreground hover:bg-muted"
               }`}
             >
-              {t === "waiting" ? "Aguardando / não lidas" : t === "active" ? "Em andamento" : "Todas"}
+              {t === "waiting"
+                ? "Aguardando / não lidas"
+                : t === "active"
+                  ? "Em andamento"
+                  : "Todas"}
             </button>
           ))}
         </div>
 
         {loading ? (
-          <div className="grid place-items-center py-12"><Loader2 className="size-6 animate-spin text-primary" /></div>
+          <div className="grid place-items-center py-12">
+            <Loader2 className="size-6 animate-spin text-primary" />
+          </div>
         ) : filtered.length === 0 ? (
-          <p className="rounded-lg bg-brand-soft p-6 text-center text-sm text-muted-foreground">Nenhuma conversa nesta categoria.</p>
+          <p className="rounded-lg bg-brand-soft p-6 text-center text-sm text-muted-foreground">
+            Nenhuma conversa nesta categoria.
+          </p>
         ) : (
           <ul className="space-y-2">
             {filtered.map((r) => (
@@ -249,24 +331,37 @@ function AdminAtendimento() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <MessageCircleHeart className="size-4 text-brand-green" />
-                      <p className="truncate text-sm font-semibold text-foreground">{r.patient_name}</p>
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {r.patient_name}
+                      </p>
                       {r.unread > 0 && (
-                        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">{r.unread} nova(s)</span>
+                        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">
+                          {r.unread} nova(s)
+                        </span>
                       )}
                     </div>
                     <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {r.topic} · {new Date(r.scheduled_at).toLocaleString("pt-BR")} · com {r.pro_name}
+                      {r.topic} · {new Date(r.scheduled_at).toLocaleString("pt-BR")} · com{" "}
+                      {r.pro_name}
                     </p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">
                       Status: <span className="font-medium">{STATUS[r.status] ?? r.status}</span>
-                      {r.last_at && <> · última msg {new Date(r.last_at).toLocaleString("pt-BR")}</>}
+                      {r.last_at && (
+                        <> · última msg {new Date(r.last_at).toLocaleString("pt-BR")}</>
+                      )}
                     </p>
                   </div>
                   <div className="flex shrink-0 gap-2">
                     {(!r.professional_id || r.status === "scheduled") && (
-                      <button onClick={() => assumir(r)} className="btn-primary text-xs">Assumir e atender</button>
+                      <button onClick={() => assumir(r)} className="btn-primary text-xs">
+                        Assumir e atender
+                      </button>
                     )}
-                    <Link to="/consulta/$id" params={{ id: r.id }} className="rounded-lg bg-secondary px-3 py-2 text-xs font-medium hover:bg-muted">
+                    <Link
+                      to="/consulta/$id"
+                      params={{ id: r.id }}
+                      className="rounded-lg bg-secondary px-3 py-2 text-xs font-medium hover:bg-muted"
+                    >
                       Abrir chat
                     </Link>
                   </div>

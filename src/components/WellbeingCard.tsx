@@ -32,8 +32,8 @@ export function WellbeingCard({ visible, onClose }: { visible: boolean; onClose:
       <div className="flex-1">
         <p className="font-semibold text-foreground">Você já atendeu {count} conversas hoje 💛</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Que tal uma pausa de 5 minutos? Beba água, respire, alongue os ombros. Escutar bem também é
-          cuidar de quem escuta.
+          Que tal uma pausa de 5 minutos? Beba água, respire, alongue os ombros. Escutar bem também
+          é cuidar de quem escuta.
         </p>
       </div>
       <button

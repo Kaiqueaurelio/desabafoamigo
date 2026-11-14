@@ -82,10 +82,15 @@ function TransparenciaPage() {
         )}
 
         {items.map((it) => (
-          <div key={it.id} className="flex items-start gap-3 rounded-xl border border-border bg-card p-3">
+          <div
+            key={it.id}
+            className="flex items-start gap-3 rounded-xl border border-border bg-card p-3"
+          >
             <div
               className={`grid size-9 shrink-0 place-items-center rounded-lg ${
-                it.role === "actor" ? "bg-primary/10 text-primary" : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                it.role === "actor"
+                  ? "bg-primary/10 text-primary"
+                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
               }`}
               aria-hidden
             >
@@ -95,7 +100,9 @@ function TransparenciaPage() {
               <p className="truncate text-sm font-medium text-foreground">{human(it.action)}</p>
               <p className="text-xs text-muted-foreground">
                 {new Date(it.created_at).toLocaleString("pt-BR")}{" "}
-                <span className="opacity-60">· {it.role === "actor" ? "você fez" : "aconteceu com você"}</span>
+                <span className="opacity-60">
+                  · {it.role === "actor" ? "você fez" : "aconteceu com você"}
+                </span>
               </p>
             </div>
           </div>

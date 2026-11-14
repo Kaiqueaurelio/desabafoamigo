@@ -6,7 +6,11 @@ type Msg = { side: "me" | "peer"; text: string; delay: number };
 const SCRIPT: Msg[] = [
   { side: "peer", text: "Oi! Eu sou o Ella Ribeiro. Como você está se sentindo hoje?", delay: 900 },
   { side: "me", text: "Um pouco ansiosa com o trabalho…", delay: 1500 },
-  { side: "peer", text: "Estou aqui para te ouvir e ajudar a organizar o que está passando pela sua cabeça. 💙", delay: 1600 },
+  {
+    side: "peer",
+    text: "Estou aqui para te ouvir e ajudar a organizar o que está passando pela sua cabeça. 💙",
+    delay: 1600,
+  },
   { side: "me", text: "Obrigada, isso já me acalma um pouco.", delay: 1500 },
   { side: "peer", text: "Vamos com calma. Quer me contar um pouco mais? 🌿", delay: 1800 },
 ];
@@ -17,7 +21,7 @@ export function ChatDemo() {
 
   useEffect(() => {
     let cancelled = false;
-    let timers: ReturnType<typeof setTimeout>[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
     const run = () => {
       setVisible(0);
@@ -31,14 +35,14 @@ export function ChatDemo() {
             setVisible(i + 1);
             const next = SCRIPT[i + 1];
             setTyping(next ? next.side : null);
-          }, acc)
+          }, acc),
         );
       });
       // restart loop
       timers.push(
         setTimeout(() => {
           if (!cancelled) run();
-        }, acc + 3200)
+        }, acc + 3200),
       );
     };
     run();
@@ -50,7 +54,10 @@ export function ChatDemo() {
 
   return (
     <div className="relative">
-      <div aria-hidden className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-brand-sky/30 via-brand-green/20 to-brand-sky/30 blur-2xl animate-gradient-shift" />
+      <div
+        aria-hidden
+        className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-brand-sky/30 via-brand-green/20 to-brand-sky/30 blur-2xl animate-gradient-shift"
+      />
       <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-[var(--shadow-calm)] animate-float">
         <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
           <img

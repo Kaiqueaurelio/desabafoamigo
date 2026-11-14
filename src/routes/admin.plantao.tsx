@@ -44,24 +44,34 @@ function PlantaoPage() {
   useEffect(() => {
     const channel = supabase
       .channel("crisis_escalations")
-      .on("postgres_changes", { event: "*", schema: "public", table: "crisis_escalations" }, (payload) => {
-        setItems((prev) => {
-          if (payload.eventType === "INSERT") {
-            const row = payload.new as Escalation;
-            if (prev.some((x) => x.id === row.id)) return prev;
-            if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-              new Notification("🚨 Novo escalonamento de crise", { body: "Uma conversa foi marcada como risco alto." });
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "crisis_escalations" },
+        (payload) => {
+          setItems((prev) => {
+            if (payload.eventType === "INSERT") {
+              const row = payload.new as Escalation;
+              if (prev.some((x) => x.id === row.id)) return prev;
+              if (
+                typeof window !== "undefined" &&
+                "Notification" in window &&
+                Notification.permission === "granted"
+              ) {
+                new Notification("🚨 Novo escalonamento de crise", {
+                  body: "Uma conversa foi marcada como risco alto.",
+                });
+              }
+              return [row, ...prev];
             }
-            return [row, ...prev];
-          }
-          if (payload.eventType === "UPDATE") {
-            const row = payload.new as Escalation;
-            if (row.status === "resolved") return prev.filter((x) => x.id !== row.id);
-            return prev.map((x) => (x.id === row.id ? row : x));
-          }
-          return prev;
-        });
-      })
+            if (payload.eventType === "UPDATE") {
+              const row = payload.new as Escalation;
+              if (row.status === "resolved") return prev.filter((x) => x.id !== row.id);
+              return prev.map((x) => (x.id === row.id ? row : x));
+            }
+            return prev;
+          });
+        },
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
@@ -119,7 +129,10 @@ function PlantaoPage() {
       ) : (
         <ul className="space-y-3">
           {items.map((it) => (
-            <li key={it.id} className="rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-4">
+            <li
+              key={it.id}
+              className="rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-4"
+            >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex-1 min-w-[240px]">
                   <div className="flex items-center gap-2">
@@ -134,7 +147,8 @@ function PlantaoPage() {
                   {it.notes && <p className="mt-1 text-sm">{it.notes}</p>}
                   <p className="mt-1 text-[11px] text-muted-foreground">
                     Conversa <code>{it.conversation_id.slice(0, 8)}</code>
-                    {it.acknowledged_at && ` · assumido em ${new Date(it.acknowledged_at).toLocaleTimeString("pt-BR")}`}
+                    {it.acknowledged_at &&
+                      ` · assumido em ${new Date(it.acknowledged_at).toLocaleTimeString("pt-BR")}`}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">

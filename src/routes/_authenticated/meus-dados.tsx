@@ -3,11 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  createLgpdRequest,
-  getLgpdDownloadUrl,
-  listLgpdRequests,
-} from "@/lib/lgpd.functions";
+import { createLgpdRequest, getLgpdDownloadUrl, listLgpdRequests } from "@/lib/lgpd.functions";
 import { PasswordInput } from "@/components/PasswordInput";
 import {
   ShieldCheck,
@@ -36,13 +32,34 @@ type Req = {
   completed_at: string | null;
 };
 
-const STATUS_META: Record<Req["status"], { label: string; className: string; icon: typeof Clock }> = {
-  pending: { label: "Aguardando", className: "bg-amber-500/15 text-amber-300 border-amber-500/30", icon: Clock },
-  processing: { label: "Processando", className: "bg-sky-500/15 text-sky-300 border-sky-500/30", icon: Loader2 },
-  completed: { label: "Concluída", className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", icon: CheckCircle2 },
-  failed: { label: "Falhou", className: "bg-rose-500/15 text-rose-300 border-rose-500/30", icon: AlertTriangle },
-  cancelled: { label: "Cancelada", className: "bg-muted text-muted-foreground border-border", icon: AlertTriangle },
-};
+const STATUS_META: Record<Req["status"], { label: string; className: string; icon: typeof Clock }> =
+  {
+    pending: {
+      label: "Aguardando",
+      className: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+      icon: Clock,
+    },
+    processing: {
+      label: "Processando",
+      className: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+      icon: Loader2,
+    },
+    completed: {
+      label: "Concluída",
+      className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+      icon: CheckCircle2,
+    },
+    failed: {
+      label: "Falhou",
+      className: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+      icon: AlertTriangle,
+    },
+    cancelled: {
+      label: "Cancelada",
+      className: "bg-muted text-muted-foreground border-border",
+      icon: AlertTriangle,
+    },
+  };
 
 function PrivacyPage() {
   const list = useServerFn(listLgpdRequests);
@@ -157,9 +174,9 @@ function PrivacyPage() {
         </div>
         <h1 className="text-2xl font-semibold">Meus dados e privacidade</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Você pode baixar uma cópia de tudo o que guardamos sobre você ou pedir
-          para apagar sua conta e seus dados. Todas as solicitações ficam
-          registradas abaixo com o status em tempo real.
+          Você pode baixar uma cópia de tudo o que guardamos sobre você ou pedir para apagar sua
+          conta e seus dados. Todas as solicitações ficam registradas abaixo com o status em tempo
+          real.
         </p>
       </header>
 
@@ -176,8 +193,8 @@ function PrivacyPage() {
               Exportar meus dados
             </h2>
             <p className="text-sm text-muted-foreground">
-              Inclui perfil, humor registrado, conversas em que você enviou
-              mensagens, avaliações, favoritos e resumos de sessões.
+              Inclui perfil, humor registrado, conversas em que você enviou mensagens, avaliações,
+              favoritos e resumos de sessões.
             </p>
           </div>
         </div>
@@ -252,9 +269,8 @@ function PrivacyPage() {
               Excluir minha conta
             </h2>
             <p className="text-sm text-muted-foreground">
-              Esta ação é permanente. Apagamos seu perfil, humor, favoritos,
-              avaliações, resumos e o login. Mensagens em conversas em andamento
-              são anonimizadas. Não é possível desfazer.
+              Esta ação é permanente. Apagamos seu perfil, humor, favoritos, avaliações, resumos e o
+              login. Mensagens em conversas em andamento são anonimizadas. Não é possível desfazer.
             </p>
           </div>
         </div>
@@ -315,9 +331,7 @@ function PrivacyPage() {
         {loading ? (
           <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : requests.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Você ainda não fez solicitações.
-          </p>
+          <p className="text-sm text-muted-foreground">Você ainda não fez solicitações.</p>
         ) : (
           <ul className="space-y-2">
             {requests.map((r) => {
@@ -347,9 +361,7 @@ function PrivacyPage() {
                         ? ` · concluída em ${new Date(r.completed_at).toLocaleString("pt-BR")}`
                         : ""}
                     </p>
-                    {r.error && (
-                      <p className="text-xs text-rose-300 mt-1">Erro: {r.error}</p>
-                    )}
+                    {r.error && <p className="text-xs text-rose-300 mt-1">Erro: {r.error}</p>}
                   </div>
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${meta.className}`}

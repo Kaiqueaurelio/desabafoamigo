@@ -5,7 +5,6 @@ import { MoodCheckIn } from "@/components/MoodCheckIn";
 import { NotebookPen, Trash2, Sparkles } from "lucide-react";
 import { todaysPrompt } from "@/lib/journalPrompts";
 
-
 export const Route = createFileRoute("/_authenticated/diario")({
   component: Diario,
 });
@@ -21,9 +20,13 @@ function Diario() {
   const [saving, setSaving] = useState(false);
   const prompt = useMemo(() => todaysPrompt(), []);
 
-
   async function load(userId: string) {
-    const { data } = await supabase.from("mood_entries").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(60);
+    const { data } = await supabase
+      .from("mood_entries")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(60);
     setEntries((data ?? []) as Entry[]);
   }
 
@@ -41,7 +44,8 @@ function Diario() {
     if (!text.trim() || !me) return;
     setSaving(true);
     await supabase.from("mood_entries").insert({ user_id: me, mood, note: text.trim() });
-    setText(""); setMood(3);
+    setText("");
+    setMood(3);
     await load(me);
     setSaving(false);
   }
@@ -55,25 +59,40 @@ function Diario() {
   return (
     <div className="mx-auto max-w-3xl p-6">
       <div className="flex items-center gap-3">
-        <div className="grid size-12 place-items-center rounded-2xl bg-brand-soft text-primary"><NotebookPen className="size-6" /></div>
+        <div className="grid size-12 place-items-center rounded-2xl bg-brand-soft text-primary">
+          <NotebookPen className="size-6" />
+        </div>
         <div>
           <h1 className="text-2xl font-bold text-primary">Diário emocional</h1>
-          <p className="text-sm text-muted-foreground">Um espaço seu, privado. Ninguém mais vê o que você escreve aqui.</p>
+          <p className="text-sm text-muted-foreground">
+            Um espaço seu, privado. Ninguém mais vê o que você escreve aqui.
+          </p>
         </div>
       </div>
 
-      {me && <div className="mt-6"><MoodCheckIn userId={me} /></div>}
+      {me && (
+        <div className="mt-6">
+          <MoodCheckIn userId={me} />
+        </div>
+      )}
 
       <form onSubmit={saveJournal} className="mt-4 rounded-2xl border border-border bg-card p-5">
         <h3 className="text-sm font-semibold text-foreground">Só desabafar</h3>
-        <p className="text-xs text-muted-foreground">Escreva livremente o que está sentindo. É só para você.</p>
+        <p className="text-xs text-muted-foreground">
+          Escreva livremente o que está sentindo. É só para você.
+        </p>
         <div className="mt-3 flex items-start gap-2 rounded-xl border border-primary/20 bg-brand-soft/40 p-3">
           <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Provocação de hoje</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+              Provocação de hoje
+            </p>
             <p className="mt-0.5 text-sm text-foreground">{prompt}</p>
-            <button type="button" onClick={() => setText((t) => (t ? t + "\n\n" : "") + prompt + "\n")}
-              className="mt-2 text-[11px] font-medium text-primary underline underline-offset-2 hover:no-underline">
+            <button
+              type="button"
+              onClick={() => setText((t) => (t ? t + "\n\n" : "") + prompt + "\n")}
+              className="mt-2 text-[11px] font-medium text-primary underline underline-offset-2 hover:no-underline"
+            >
               Usar como ponto de partida
             </button>
           </div>
@@ -81,16 +100,30 @@ function Diario() {
 
         <div className="mt-3 flex gap-2">
           {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} type="button" onClick={() => setMood(n)} aria-label={`Humor ${n}`}
-              className={`grid size-10 place-items-center rounded-xl border text-xl transition ${mood === n ? "border-primary bg-brand-soft" : "border-border"}`}>
+            <button
+              key={n}
+              type="button"
+              onClick={() => setMood(n)}
+              aria-label={`Humor ${n}`}
+              className={`grid size-10 place-items-center rounded-xl border text-xl transition ${mood === n ? "border-primary bg-brand-soft" : "border-border"}`}
+            >
               {EMOJIS[n]}
             </button>
           ))}
         </div>
-        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} maxLength={2000}
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={5}
+          maxLength={2000}
           placeholder="O que está passando pela sua cabeça hoje?"
-          className="mt-3 w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-primary" />
-        <button type="submit" disabled={saving || !text.trim()} className="btn-primary mt-3 text-sm">
+          className="mt-3 w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-primary"
+        />
+        <button
+          type="submit"
+          disabled={saving || !text.trim()}
+          className="btn-primary mt-3 text-sm"
+        >
           {saving ? "Salvando..." : "Guardar no diário"}
         </button>
       </form>
@@ -98,7 +131,9 @@ function Diario() {
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold text-foreground">Seus registros</h2>
         {entries.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Ainda não há registros. Comece agora ☝️</p>
+          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            Ainda não há registros. Comece agora ☝️
+          </p>
         ) : (
           <ul className="space-y-2">
             {entries.map((e) => (
@@ -106,11 +141,22 @@ function Diario() {
                 <span className="text-3xl">{EMOJIS[e.mood]}</span>
                 <div className="flex-1">
                   <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                    {new Date(e.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    {new Date(e.created_at).toLocaleString("pt-BR", {
+                      day: "2-digit",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
-                  {e.note && <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{e.note}</p>}
+                  {e.note && (
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{e.note}</p>
+                  )}
                 </div>
-                <button onClick={() => remove(e.id)} aria-label="Apagar" className="self-start rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-destructive">
+                <button
+                  onClick={() => remove(e.id)}
+                  aria-label="Apagar"
+                  className="self-start rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-destructive"
+                >
                   <Trash2 className="size-4" />
                 </button>
               </li>

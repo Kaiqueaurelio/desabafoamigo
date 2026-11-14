@@ -29,9 +29,14 @@ import {
   Save,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/admin/biblioteca")({
   ssr: false,
@@ -54,7 +59,6 @@ type BulkItem = {
   error?: string;
 };
 
-
 type Audio = {
   id: string;
   title: string;
@@ -65,8 +69,21 @@ type Audio = {
   duration_seconds: number | null;
   published: boolean;
 };
-type Phrase = { id: string; text: string; author: string | null; category: string; published: boolean };
-type Image = { id: string; title: string; caption: string | null; image_url: string; category: string; published: boolean };
+type Phrase = {
+  id: string;
+  text: string;
+  author: string | null;
+  category: string;
+  published: boolean;
+};
+type Image = {
+  id: string;
+  title: string;
+  caption: string | null;
+  image_url: string;
+  category: string;
+  published: boolean;
+};
 
 const TAB_META: { id: Tab; label: string; icon: typeof Music; hint: string }[] = [
   { id: "audios", label: "Áudios", icon: Music, hint: "ASMR, meditações e sons calmantes" },
@@ -99,7 +116,10 @@ function BibliotecaAdmin() {
             <Logo size={28} />
             <span className="text-sm font-semibold text-primary">Biblioteca de acolhimento</span>
           </div>
-          <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+          <Link
+            to="/admin"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+          >
             <ArrowLeft className="size-4" /> Voltar
           </Link>
         </div>
@@ -110,7 +130,8 @@ function BibliotecaAdmin() {
         <div className="mb-5">
           <h1 className="text-xl font-semibold text-foreground">Conteúdos de acolhimento</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Gerencie os áudios, frases e imagens que aparecem para as pessoas na sala de relaxamento.
+            Gerencie os áudios, frases e imagens que aparecem para as pessoas na sala de
+            relaxamento.
           </p>
         </div>
 
@@ -154,11 +175,29 @@ function BibliotecaAdmin() {
 
 /* ---------- Reusable pieces ---------- */
 
-function SectionCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-2xl border border-border bg-card p-5 ${className}`}>{children}</div>;
+function SectionCard({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`rounded-2xl border border-border bg-card p-5 ${className}`}>{children}</div>
+  );
 }
 
-function Field({ label, children, full, hint }: { label: string; children: React.ReactNode; full?: boolean; hint?: string }) {
+function Field({
+  label,
+  children,
+  full,
+  hint,
+}: {
+  label: string;
+  children: React.ReactNode;
+  full?: boolean;
+  hint?: string;
+}) {
   return (
     <label className={`block ${full ? "md:col-span-2" : ""}`}>
       <span className="mb-1.5 block text-xs font-medium text-foreground">{label}</span>
@@ -168,7 +207,15 @@ function Field({ label, children, full, hint }: { label: string; children: React
   );
 }
 
-function SearchBar({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+function SearchBar({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
   return (
     <div className="relative">
       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -182,7 +229,15 @@ function SearchBar({ value, onChange, placeholder }: { value: string; onChange: 
   );
 }
 
-function AddToggle({ open, onToggle, label }: { open: boolean; onToggle: () => void; label: string }) {
+function AddToggle({
+  open,
+  onToggle,
+  label,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  label: string;
+}) {
   return (
     <button
       onClick={onToggle}
@@ -194,7 +249,15 @@ function AddToggle({ open, onToggle, label }: { open: boolean; onToggle: () => v
   );
 }
 
-function EmptyState({ icon: Icon, title, hint }: { icon: typeof Music; title: string; hint: string }) {
+function EmptyState({
+  icon: Icon,
+  title,
+  hint,
+}: {
+  icon: typeof Music;
+  title: string;
+  hint: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
       <Icon className="mb-2 size-6 text-muted-foreground" />
@@ -297,7 +360,6 @@ function AudiosManager() {
     await load();
   }
 
-
   async function aiFill() {
     if (!audioFile && !form.audio_url) return toast.error("Selecione o arquivo de áudio antes.");
     setAiLoading(true);
@@ -311,7 +373,8 @@ function AudiosManager() {
         setForm((f) => ({ ...f, audio_url: path }));
         setAudioFile(null);
       }
-      if (/^https?:\/\//i.test(path)) throw new Error("IA só funciona com upload direto, não URL externa.");
+      if (/^https?:\/\//i.test(path))
+        throw new Error("IA só funciona com upload direto, não URL externa.");
       const r = await autofillLibraryMedia({
         data: { kind: "audio", storagePath: path, filename },
       });
@@ -329,10 +392,12 @@ function AudiosManager() {
     }
   }
 
-
   async function load() {
     setLoading(true);
-    const { data } = await supabase.from("library_audios").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("library_audios")
+      .select("*")
+      .order("created_at", { ascending: false });
     setRows((data ?? []) as Audio[]);
     setLoading(false);
   }
@@ -341,9 +406,8 @@ function AudiosManager() {
   }, []);
 
   const filtered = useMemo(
-    () =>
-      rows.filter((r) => (q ? r.title.toLowerCase().includes(q.toLowerCase()) : true)),
-    [rows, q]
+    () => rows.filter((r) => (q ? r.title.toLowerCase().includes(q.toLowerCase()) : true)),
+    [rows, q],
   );
 
   async function add(e: React.FormEvent) {
@@ -366,7 +430,14 @@ function AudiosManager() {
       });
       if (error) throw error;
       toast.success("Áudio adicionado.");
-      setForm({ title: "", description: "", category: "asmr", audio_url: "", cover_url: "", duration_seconds: "" });
+      setForm({
+        title: "",
+        description: "",
+        category: "asmr",
+        audio_url: "",
+        cover_url: "",
+        duration_seconds: "",
+      });
       setAudioFile(null);
       setCoverFile(null);
       setOpen(false);
@@ -415,7 +486,8 @@ function AudiosManager() {
             <div>
               <h3 className="text-sm font-semibold text-foreground">Envio em lote com IA</h3>
               <p className="text-xs text-muted-foreground">
-                Selecione vários arquivos. A IA transcreve, sugere título, categoria e descrição de cada um.
+                Selecione vários arquivos. A IA transcreve, sugere título, categoria e descrição de
+                cada um.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -480,7 +552,8 @@ function AudiosManager() {
                         {it.status === "uploading" && "Enviando…"}
                         {it.status === "analyzing" && "Analisando com IA…"}
                         {it.status === "saving" && "Salvando…"}
-                        {it.status === "saved" && `Salvo · ${AUDIO_CATEGORIES.find((c) => c.id === it.category)?.label ?? it.category}`}
+                        {it.status === "saved" &&
+                          `Salvo · ${AUDIO_CATEGORIES.find((c) => c.id === it.category)?.label ?? it.category}`}
                         {it.status === "error" && (it.error || "Erro")}
                       </p>
                     </div>
@@ -513,7 +586,11 @@ function AudiosManager() {
                   onClick={() => runBulk(false)}
                   className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background/40 px-4 py-2 text-sm font-medium text-foreground hover:bg-background/60 disabled:opacity-50"
                 >
-                  {bulkRunning ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+                  {bulkRunning ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Upload className="size-4" />
+                  )}
                   Enviar sem IA
                 </button>
                 <button
@@ -522,7 +599,11 @@ function AudiosManager() {
                   onClick={() => runBulk(true)}
                   className="btn-primary inline-flex items-center gap-2"
                 >
-                  {bulkRunning ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                  {bulkRunning ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="size-4" />
+                  )}
                   Enviar tudo com IA
                 </button>
               </div>
@@ -530,7 +611,6 @@ function AudiosManager() {
           )}
         </SectionCard>
       )}
-
 
       {open && (
         <SectionCard>
@@ -612,15 +692,21 @@ function AudiosManager() {
                 disabled={aiLoading || busy}
                 className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
               >
-                {aiLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                {aiLoading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Sparkles className="size-4" />
+                )}
                 Preencher com IA
               </button>
-              <button disabled={busy || aiLoading} className="btn-primary inline-flex items-center gap-2">
+              <button
+                disabled={busy || aiLoading}
+                className="btn-primary inline-flex items-center gap-2"
+              >
                 {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
                 Salvar áudio
               </button>
             </div>
-
           </form>
         </SectionCard>
       )}
@@ -664,8 +750,12 @@ function AudiosManager() {
                     {!r.published && " · rascunho"}
                   </p>
                 </div>
-                <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} onEdit={() => setEditing(r)} />
-
+                <RowActions
+                  published={r.published}
+                  onToggle={() => togglePublished(r)}
+                  onRemove={() => remove(r)}
+                  onEdit={() => setEditing(r)}
+                />
               </li>
             ))}
           </ul>
@@ -674,7 +764,6 @@ function AudiosManager() {
       <EditAudioDialog row={editing} onClose={() => setEditing(null)} onSaved={load} />
     </div>
   );
-
 }
 
 /* ---------- Frases ---------- */
@@ -688,7 +777,6 @@ function PhrasesManager() {
   const [q, setQ] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [editing, setEditing] = useState<Phrase | null>(null);
-
 
   async function aiFill() {
     if (!form.text.trim()) return toast.error("Escreva a frase antes.");
@@ -713,7 +801,10 @@ function PhrasesManager() {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase.from("library_phrases").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("library_phrases")
+      .select("*")
+      .order("created_at", { ascending: false });
     setRows((data ?? []) as Phrase[]);
     setLoading(false);
   }
@@ -723,7 +814,7 @@ function PhrasesManager() {
 
   const filtered = useMemo(
     () => rows.filter((r) => (q ? r.text.toLowerCase().includes(q.toLowerCase()) : true)),
-    [rows, q]
+    [rows, q],
   );
 
   async function add(e: React.FormEvent) {
@@ -805,10 +896,17 @@ function PhrasesManager() {
                 disabled={aiLoading || busy}
                 className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
               >
-                {aiLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                {aiLoading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Sparkles className="size-4" />
+                )}
                 Classificar com IA
               </button>
-              <button disabled={busy || aiLoading} className="btn-primary inline-flex items-center gap-2">
+              <button
+                disabled={busy || aiLoading}
+                className="btn-primary inline-flex items-center gap-2"
+              >
                 {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
                 Salvar frase
               </button>
@@ -848,8 +946,12 @@ function PhrasesManager() {
                     {!r.published && " · rascunho"}
                   </p>
                 </div>
-                <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} onEdit={() => setEditing(r)} />
-
+                <RowActions
+                  published={r.published}
+                  onToggle={() => togglePublished(r)}
+                  onRemove={() => remove(r)}
+                  onEdit={() => setEditing(r)}
+                />
               </li>
             ))}
           </ul>
@@ -858,7 +960,6 @@ function PhrasesManager() {
       <EditPhraseDialog row={editing} onClose={() => setEditing(null)} onSaved={load} />
     </div>
   );
-
 }
 
 /* ---------- Imagens ---------- */
@@ -866,14 +967,18 @@ function PhrasesManager() {
 function ImagesManager() {
   const [rows, setRows] = useState<Image[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ title: "", caption: "", image_url: "", category: "acolhimento" });
+  const [form, setForm] = useState({
+    title: "",
+    caption: "",
+    image_url: "",
+    category: "acolhimento",
+  });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [editing, setEditing] = useState<Image | null>(null);
-
 
   async function aiFill() {
     if (!file && !form.image_url) return toast.error("Selecione a imagem antes.");
@@ -888,7 +993,8 @@ function ImagesManager() {
         setForm((f) => ({ ...f, image_url: path }));
         setFile(null);
       }
-      if (/^https?:\/\//i.test(path)) throw new Error("IA só funciona com upload direto, não URL externa.");
+      if (/^https?:\/\//i.test(path))
+        throw new Error("IA só funciona com upload direto, não URL externa.");
       const r = await autofillLibraryMedia({
         data: { kind: "image", storagePath: path, filename },
       });
@@ -906,10 +1012,12 @@ function ImagesManager() {
     }
   }
 
-
   async function load() {
     setLoading(true);
-    const { data } = await supabase.from("library_images").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("library_images")
+      .select("*")
+      .order("created_at", { ascending: false });
     setRows((data ?? []) as Image[]);
     setLoading(false);
   }
@@ -919,7 +1027,7 @@ function ImagesManager() {
 
   const filtered = useMemo(
     () => rows.filter((r) => (q ? r.title.toLowerCase().includes(q.toLowerCase()) : true)),
-    [rows, q]
+    [rows, q],
   );
 
   async function add(e: React.FormEvent) {
@@ -1024,15 +1132,21 @@ function ImagesManager() {
                 disabled={aiLoading || busy}
                 className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
               >
-                {aiLoading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                {aiLoading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Sparkles className="size-4" />
+                )}
                 Preencher com IA
               </button>
-              <button disabled={busy || aiLoading} className="btn-primary inline-flex items-center gap-2">
+              <button
+                disabled={busy || aiLoading}
+                className="btn-primary inline-flex items-center gap-2"
+              >
                 {busy ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
                 Salvar imagem
               </button>
             </div>
-
           </form>
         </SectionCard>
       )}
@@ -1055,7 +1169,10 @@ function ImagesManager() {
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((r) => (
-              <li key={r.id} className="overflow-hidden rounded-xl border border-border/60 bg-background/40">
+              <li
+                key={r.id}
+                className="overflow-hidden rounded-xl border border-border/60 bg-background/40"
+              >
                 <div className="aspect-video w-full overflow-hidden bg-muted">
                   <img src={r.image_url} alt={r.title} className="size-full object-cover" />
                 </div>
@@ -1067,7 +1184,12 @@ function ImagesManager() {
                       {!r.published && " · rascunho"}
                     </p>
                   </div>
-                  <RowActions published={r.published} onToggle={() => togglePublished(r)} onRemove={() => remove(r)} onEdit={() => setEditing(r)} />
+                  <RowActions
+                    published={r.published}
+                    onToggle={() => togglePublished(r)}
+                    onRemove={() => remove(r)}
+                    onEdit={() => setEditing(r)}
+                  />
                 </div>
               </li>
             ))}
@@ -1077,7 +1199,6 @@ function ImagesManager() {
       <EditImageDialog row={editing} onClose={() => setEditing(null)} onSaved={load} />
     </div>
   );
-
 }
 
 /* ---------- Row actions ---------- */
@@ -1108,9 +1229,7 @@ function RowActions({
       <button
         onClick={onToggle}
         className={`rounded-lg p-2 transition ${
-          published
-            ? "text-primary hover:bg-primary/10"
-            : "text-muted-foreground hover:bg-muted"
+          published ? "text-primary hover:bg-primary/10" : "text-muted-foreground hover:bg-muted"
         }`}
         title={published ? "Publicado — clique para ocultar" : "Rascunho — clique para publicar"}
         aria-label={published ? "Ocultar" : "Publicar"}
@@ -1200,25 +1319,48 @@ function EditAudioDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar áudio</DialogTitle>
-          <DialogDescription>Atualize os metadados. O arquivo de áudio permanece o mesmo.</DialogDescription>
+          <DialogDescription>
+            Atualize os metadados. O arquivo de áudio permanece o mesmo.
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
           <Field label="Título">
-            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" />
+            <input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="input"
+            />
           </Field>
           <Field label="Descrição">
-            <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input" />
+            <textarea
+              rows={3}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="input"
+            />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Categoria">
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="input"
+              >
                 {AUDIO_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
                 ))}
               </select>
             </Field>
             <Field label="Duração (segundos)">
-              <input type="number" min={0} value={form.duration_seconds} onChange={(e) => setForm({ ...form, duration_seconds: e.target.value })} className="input" />
+              <input
+                type="number"
+                min={0}
+                value={form.duration_seconds}
+                onChange={(e) => setForm({ ...form, duration_seconds: e.target.value })}
+                className="input"
+              />
             </Field>
           </div>
           <Field label="Capa (opcional)" hint="Envie uma nova imagem para substituir a atual.">
@@ -1232,9 +1374,18 @@ function EditAudioDialog({
                   />
                 </div>
               )}
-              <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="input" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+                className="input"
+              />
               {form.cover_url && !coverFile && (
-                <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="text-xs text-destructive hover:underline">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, cover_url: "" })}
+                  className="text-xs text-destructive hover:underline"
+                >
                   Remover
                 </button>
               )}
@@ -1242,9 +1393,21 @@ function EditAudioDialog({
           </Field>
         </div>
         <DialogFooter>
-          <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm">Cancelar</button>
-          <button type="button" onClick={save} disabled={busy} className="btn-primary inline-flex items-center gap-2">
-            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Salvar
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-border px-4 py-2 text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            disabled={busy}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{" "}
+            Salvar
           </button>
         </DialogFooter>
       </DialogContent>
@@ -1295,25 +1458,52 @@ function EditPhraseDialog({
         </DialogHeader>
         <div className="grid gap-4">
           <Field label="Frase">
-            <textarea rows={3} value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })} className="input" />
+            <textarea
+              rows={3}
+              value={form.text}
+              onChange={(e) => setForm({ ...form, text: e.target.value })}
+              className="input"
+            />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Autor (opcional)">
-              <input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} className="input" />
+              <input
+                value={form.author}
+                onChange={(e) => setForm({ ...form, author: e.target.value })}
+                className="input"
+              />
             </Field>
             <Field label="Categoria">
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="input"
+              >
                 {PHRASE_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
                 ))}
               </select>
             </Field>
           </div>
         </div>
         <DialogFooter>
-          <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm">Cancelar</button>
-          <button type="button" onClick={save} disabled={busy} className="btn-primary inline-flex items-center gap-2">
-            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Salvar
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-border px-4 py-2 text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            disabled={busy}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{" "}
+            Salvar
           </button>
         </DialogFooter>
       </DialogContent>
@@ -1330,13 +1520,23 @@ function EditImageDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [form, setForm] = useState({ title: "", caption: "", category: "acolhimento", image_url: "" });
+  const [form, setForm] = useState({
+    title: "",
+    caption: "",
+    category: "acolhimento",
+    image_url: "",
+  });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (row) {
-      setForm({ title: row.title, caption: row.caption ?? "", category: row.category, image_url: row.image_url });
+      setForm({
+        title: row.title,
+        caption: row.caption ?? "",
+        category: row.category,
+        image_url: row.image_url,
+      });
       setFile(null);
     }
   }, [row]);
@@ -1380,36 +1580,71 @@ function EditImageDialog({
         <div className="grid gap-4">
           {(file || form.image_url) && (
             <div className="aspect-video w-full overflow-hidden rounded-xl bg-muted">
-              <img alt="" className="size-full object-cover" src={file ? URL.createObjectURL(file) : form.image_url} />
+              <img
+                alt=""
+                className="size-full object-cover"
+                src={file ? URL.createObjectURL(file) : form.image_url}
+              />
             </div>
           )}
           <Field label="Título">
-            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" />
+            <input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="input"
+            />
           </Field>
           <Field label="Legenda">
-            <textarea rows={2} value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} className="input" />
+            <textarea
+              rows={2}
+              value={form.caption}
+              onChange={(e) => setForm({ ...form, caption: e.target.value })}
+              className="input"
+            />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Categoria">
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="input"
+              >
                 {IMAGE_CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
                 ))}
               </select>
             </Field>
             <Field label="Substituir imagem">
-              <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="input" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                className="input"
+              />
             </Field>
           </div>
         </div>
         <DialogFooter>
-          <button type="button" onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm">Cancelar</button>
-          <button type="button" onClick={save} disabled={busy} className="btn-primary inline-flex items-center gap-2">
-            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Salvar
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-border px-4 py-2 text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            disabled={busy}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}{" "}
+            Salvar
           </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-

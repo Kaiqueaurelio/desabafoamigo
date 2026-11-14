@@ -7,8 +7,18 @@ type PendingDatabase = Omit<Database, "public"> & {
     Tables: Database["public"]["Tables"] & {
       ai_user_memory: {
         Row: { user_id: string; memory_summary: string; expires_at: string; updated_at: string };
-        Insert: { user_id: string; memory_summary: string; expires_at: string; updated_at?: string };
-        Update: { user_id?: string; memory_summary?: string; expires_at?: string; updated_at?: string };
+        Insert: {
+          user_id: string;
+          memory_summary: string;
+          expires_at: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          memory_summary?: string;
+          expires_at?: string;
+          updated_at?: string;
+        };
         Relationships: [];
       };
     };

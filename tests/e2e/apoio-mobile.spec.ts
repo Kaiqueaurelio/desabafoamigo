@@ -36,11 +36,9 @@ const CATEGORY_LABELS: Record<(typeof CATEGORIES)[number], RegExp> = {
 
 function getSupabaseCreds() {
   const storageKey =
-    process.env.E2E_SUPABASE_STORAGE_KEY ??
-    process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY;
+    process.env.E2E_SUPABASE_STORAGE_KEY ?? process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY;
   const sessionJson =
-    process.env.E2E_SUPABASE_SESSION_JSON ??
-    process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
+    process.env.E2E_SUPABASE_SESSION_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
   return { storageKey, sessionJson };
 }
 
@@ -50,8 +48,7 @@ async function restoreSession(context: BrowserContext, page: Page) {
 
   // Cookies (@supabase/ssr) — se disponíveis, também restauram
   const cookiesJson =
-    process.env.E2E_SUPABASE_COOKIES_JSON ??
-    process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON;
+    process.env.E2E_SUPABASE_COOKIES_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON;
   if (cookiesJson) {
     try {
       const cookies = JSON.parse(cookiesJson).map((c: Record<string, unknown>) => ({
@@ -65,10 +62,10 @@ async function restoreSession(context: BrowserContext, page: Page) {
   }
 
   await page.goto("http://localhost:8080", { waitUntil: "domcontentloaded" });
-  await page.evaluate(
-    ({ key, value }) => window.localStorage.setItem(key, value),
-    { key: storageKey, value: sessionJson }
-  );
+  await page.evaluate(({ key, value }) => window.localStorage.setItem(key, value), {
+    key: storageKey,
+    value: sessionJson,
+  });
   return true;
 }
 
@@ -108,7 +105,10 @@ for (const vp of MOBILE_WIDTHS) {
     test.beforeEach(async ({ context, page }) => {
       const restored = await restoreSession(context, page);
       if (!restored) {
-        test.skip(true, "Sessão Supabase ausente — defina E2E_SUPABASE_STORAGE_KEY/SESSION_JSON para rodar");
+        test.skip(
+          true,
+          "Sessão Supabase ausente — defina E2E_SUPABASE_STORAGE_KEY/SESSION_JSON para rodar",
+        );
       }
       await page.goto("/apoio", { waitUntil: "domcontentloaded" });
       await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
@@ -125,7 +125,9 @@ for (const vp of MOBILE_WIDTHS) {
 
       // Chips visíveis (o container é scroll-x com snap em mobile)
       for (const cat of CATEGORIES) {
-        await expect(page.getByRole("button", { name: CATEGORY_LABELS[cat] }).first()).toBeVisible();
+        await expect(
+          page.getByRole("button", { name: CATEGORY_LABELS[cat] }).first(),
+        ).toBeVisible();
       }
 
       const result = await measureOverflow(page);
@@ -136,11 +138,17 @@ for (const vp of MOBILE_WIDTHS) {
 
       expect(
         result.docOverflow,
-        `document overflow=${result.docOverflow}px. Offenders: ${JSON.stringify(result.offenders)}`
+        `document overflow=${result.docOverflow}px. Offenders: ${JSON.stringify(result.offenders)}`,
       ).toBeLessThanOrEqual(1);
       expect(result.bodyOverflow, `body overflow=${result.bodyOverflow}px`).toBeLessThanOrEqual(1);
-      expect(result.bodyWidth, `body width=${result.bodyWidth}px maior que viewport=${result.vw}px`).toBeLessThanOrEqual(result.vw + 1);
-      expect(result.mainWidth, `main width=${result.mainWidth}px maior que viewport=${result.vw}px`).toBeLessThanOrEqual(result.vw + 1);
+      expect(
+        result.bodyWidth,
+        `body width=${result.bodyWidth}px maior que viewport=${result.vw}px`,
+      ).toBeLessThanOrEqual(result.vw + 1);
+      expect(
+        result.mainWidth,
+        `main width=${result.mainWidth}px maior que viewport=${result.vw}px`,
+      ).toBeLessThanOrEqual(result.vw + 1);
     });
 
     test("troca entre todas as categorias sem quebrar layout", async ({ page }) => {
@@ -150,7 +158,7 @@ for (const vp of MOBILE_WIDTHS) {
         const result = await measureOverflow(page);
         expect(
           result.docOverflow,
-          `overflow após abrir "${cat}": ${result.docOverflow}px. Offenders: ${JSON.stringify(result.offenders)}`
+          `overflow após abrir "${cat}": ${result.docOverflow}px. Offenders: ${JSON.stringify(result.offenders)}`,
         ).toBeLessThanOrEqual(1);
       }
     });
@@ -164,9 +172,14 @@ for (const vp of MOBILE_WIDTHS) {
       expect(box, "CTA deve ter bounding box").not.toBeNull();
       if (!box) return;
 
-      expect(box.height, `hitbox height=${box.height}px < 44 (WCAG 2.5.5)`).toBeGreaterThanOrEqual(44);
+      expect(box.height, `hitbox height=${box.height}px < 44 (WCAG 2.5.5)`).toBeGreaterThanOrEqual(
+        44,
+      );
       expect(box.x, "CTA vazando à esquerda").toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width, `CTA vazando à direita (right=${box.x + box.width}, vw=${vp.width})`).toBeLessThanOrEqual(vp.width + 1);
+      expect(
+        box.x + box.width,
+        `CTA vazando à direita (right=${box.x + box.width}, vw=${vp.width})`,
+      ).toBeLessThanOrEqual(vp.width + 1);
     });
 
     test("Emergência: botão 'Ligar 188' totalmente visível e clicável", async ({ page }) => {

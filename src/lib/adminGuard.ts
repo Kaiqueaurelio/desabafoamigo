@@ -27,4 +27,3 @@ export async function ensureAdminAal2(opts: { allowMfaEnroll?: boolean } = {}) {
 
   return { user: userRes.user, needsEnroll: false };
 }
-

@@ -104,7 +104,10 @@ function TrainingPage() {
     return (
       <div className="mx-auto max-w-3xl p-4 sm:p-6">
         <button
-          onClick={() => { setActive(null); setAnswers({}); }}
+          onClick={() => {
+            setActive(null);
+            setAnswers({});
+          }}
           className="mb-4 inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white"
         >
           <ArrowLeft className="size-4" /> Voltar à trilha
@@ -127,7 +130,10 @@ function TrainingPage() {
               </legend>
               <div className="space-y-2">
                 {q.options.map((opt, oi) => (
-                  <label key={oi} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-200 hover:bg-white/5">
+                  <label
+                    key={oi}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-200 hover:bg-white/5"
+                  >
                     <input
                       type="radio"
                       name={`q-${qi}`}
@@ -164,7 +170,8 @@ function TrainingPage() {
           </div>
           <h1 className="mt-2 text-2xl font-semibold text-white">Preparação obrigatória</h1>
           <p className="mt-1 max-w-xl text-sm text-slate-400">
-            Você precisa concluir todos os módulos com nota mínima para ser aprovado(a) como voluntário(a).
+            Você precisa concluir todos os módulos com nota mínima para ser aprovado(a) como
+            voluntário(a).
           </p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center">
@@ -204,10 +211,19 @@ function TrainingPage() {
                   )}
                 </div>
                 <button
-                  onClick={() => { setActive(m); setAnswers({}); }}
+                  onClick={() => {
+                    setActive(m);
+                    setAnswers({});
+                  }}
                   className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/10"
                 >
-                  {done ? <><RefreshCw className="size-3.5" /> Refazer</> : "Estudar"}
+                  {done ? (
+                    <>
+                      <RefreshCw className="size-3.5" /> Refazer
+                    </>
+                  ) : (
+                    "Estudar"
+                  )}
                 </button>
               </div>
             </li>

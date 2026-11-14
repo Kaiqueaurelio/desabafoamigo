@@ -8,8 +8,7 @@ const TOKEN_KEY = (scope: string) => `passkey_token_${scope}`;
 export function getStoredPasskeyToken(scope: string): string | null {
   if (typeof window === "undefined") return null;
   try {
-    return localStorage.getItem(TOKEN_KEY(scope))
-      ?? sessionStorage.getItem(TOKEN_KEY(scope));
+    return localStorage.getItem(TOKEN_KEY(scope)) ?? sessionStorage.getItem(TOKEN_KEY(scope));
   } catch {
     return null;
   }

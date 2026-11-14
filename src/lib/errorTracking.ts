@@ -30,7 +30,7 @@ export function installErrorTracking() {
     send(
       typeof reason === "string" ? reason : reason?.message || "unhandledrejection",
       reason?.stack,
-      { type: "unhandledrejection" }
+      { type: "unhandledrejection" },
     );
   });
 }

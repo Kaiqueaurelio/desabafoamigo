@@ -24,11 +24,9 @@ const MOBILE_WIDTHS = [
 
 function getSupabaseCreds() {
   const storageKey =
-    process.env.E2E_SUPABASE_STORAGE_KEY ??
-    process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY;
+    process.env.E2E_SUPABASE_STORAGE_KEY ?? process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY;
   const sessionJson =
-    process.env.E2E_SUPABASE_SESSION_JSON ??
-    process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
+    process.env.E2E_SUPABASE_SESSION_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
   return { storageKey, sessionJson };
 }
 
@@ -36,8 +34,7 @@ async function restoreSession(context: BrowserContext, page: Page) {
   const { storageKey, sessionJson } = getSupabaseCreds();
   if (!storageKey || !sessionJson) return false;
   const cookiesJson =
-    process.env.E2E_SUPABASE_COOKIES_JSON ??
-    process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON;
+    process.env.E2E_SUPABASE_COOKIES_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON;
   if (cookiesJson) {
     try {
       const cookies = JSON.parse(cookiesJson).map((c: Record<string, unknown>) => ({
@@ -50,10 +47,10 @@ async function restoreSession(context: BrowserContext, page: Page) {
     }
   }
   await page.goto("http://localhost:8080", { waitUntil: "domcontentloaded" });
-  await page.evaluate(
-    ({ key, value }) => window.localStorage.setItem(key, value),
-    { key: storageKey, value: sessionJson }
-  );
+  await page.evaluate(({ key, value }) => window.localStorage.setItem(key, value), {
+    key: storageKey,
+    value: sessionJson,
+  });
   return true;
 }
 
@@ -83,8 +80,8 @@ async function collectInteractiveNames(page: Page) {
     const main = document.querySelector("main") ?? document.body;
     const nodes = Array.from(
       main.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [role="button"]:not([aria-disabled="true"])'
-      )
+        'a[href], button:not([disabled]), [role="button"]:not([aria-disabled="true"])',
+      ),
     );
     return nodes.map((el) => {
       const ariaLabel = el.getAttribute("aria-label");
@@ -96,8 +93,8 @@ async function collectInteractiveNames(page: Page) {
             labelledby
               .split(/\s+/)
               .map((id) => `#${CSS.escape(id)}`)
-              .join(",")
-          )
+              .join(","),
+          ),
         )
           .map((n) => (n.textContent || "").trim())
           .join(" ");
@@ -141,13 +138,13 @@ for (const vp of MOBILE_WIDTHS) {
       const unnamed = visible.filter((i) => !i.name || i.name.length === 0);
       expect(
         unnamed,
-        `Interativos sem nome acessível:\n${JSON.stringify(unnamed, null, 2)}`
+        `Interativos sem nome acessível:\n${JSON.stringify(unnamed, null, 2)}`,
       ).toEqual([]);
 
       const badTabIndex = visible.filter((i) => i.tabIndex > 0);
       expect(
         badTabIndex,
-        `tabindex > 0 quebra ordem natural:\n${JSON.stringify(badTabIndex, null, 2)}`
+        `tabindex > 0 quebra ordem natural:\n${JSON.stringify(badTabIndex, null, 2)}`,
       ).toEqual([]);
     });
 
@@ -171,9 +168,7 @@ for (const vp of MOBILE_WIDTHS) {
           if (main && !main.contains(el)) return { skip: true };
           const rect = el.getBoundingClientRect();
           return {
-            text: ((el.getAttribute("aria-label") || el.textContent) || "")
-              .trim()
-              .slice(0, 40),
+            text: (el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 40),
             top: Math.round(rect.top),
           };
         });
@@ -191,7 +186,7 @@ for (const vp of MOBILE_WIDTHS) {
 
       expect(
         focusFailures,
-        `CTAs sem foco visível:\n${JSON.stringify(focusFailures, null, 2)}`
+        `CTAs sem foco visível:\n${JSON.stringify(focusFailures, null, 2)}`,
       ).toEqual([]);
 
       // A ordem visual deve ser aproximadamente top-descendente. Contamos regressões grandes.
@@ -201,7 +196,7 @@ for (const vp of MOBILE_WIDTHS) {
       }
       expect(
         regressions,
-        `Ordem de Tab não segue ordem visual:\n${JSON.stringify(order, null, 2)}`
+        `Ordem de Tab não segue ordem visual:\n${JSON.stringify(order, null, 2)}`,
       ).toBeLessThanOrEqual(1);
     });
 
@@ -217,7 +212,7 @@ for (const vp of MOBILE_WIDTHS) {
         .analyze();
 
       const critical = results.violations.filter((v) =>
-        ["serious", "critical"].includes(v.impact ?? "")
+        ["serious", "critical"].includes(v.impact ?? ""),
       );
       const summary = critical.map((v) => ({
         id: v.id,
@@ -227,7 +222,7 @@ for (const vp of MOBILE_WIDTHS) {
       }));
       expect(
         critical,
-        `Violações a11y críticas em /apoio:\n${JSON.stringify(summary, null, 2)}`
+        `Violações a11y críticas em /apoio:\n${JSON.stringify(summary, null, 2)}`,
       ).toEqual([]);
     });
   });

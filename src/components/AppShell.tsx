@@ -7,16 +7,50 @@ import { EmergencyButton } from "@/components/EmergencyButton";
 import { supabase } from "@/integrations/supabase/client";
 import { avatarUrl } from "@/lib/avatar";
 import { useSidebarToggle } from "@/lib/useSidebarToggle";
-import { Home, Users, CalendarClock, UserCog, LogOut, ShieldCheck, HeartHandshake, NotebookPen, BookOpen, Settings, Wind, Bot, PanelLeftClose, PanelLeftOpen, Menu, X } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import {
+  Home,
+  Users,
+  CalendarClock,
+  UserCog,
+  LogOut,
+  ShieldCheck,
+  HeartHandshake,
+  NotebookPen,
+  BookOpen,
+  Settings,
+  Wind,
+  Bot,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Menu,
+  X,
+} from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { RouteFade } from "@/components/RouteFade";
 import type { User } from "@supabase/supabase-js";
 import type { ReactNode } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-
-export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNode; user: User; isPro: boolean; isAdmin: boolean }) {
+export function AppShell({
+  children,
+  user,
+  isPro,
+  isAdmin,
+}: {
+  children: ReactNode;
+  user: User;
+  isPro: boolean;
+  isAdmin: boolean;
+}) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [alias, setAlias] = useState<string>("");
@@ -25,12 +59,17 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
   const isChatRoute = pathname === "/ia" || pathname.startsWith("/consulta/");
 
   // Fecha o drawer ao navegar (mudança de rota)
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
-
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("profiles").select("display_name").eq("user_id", user.id).maybeSingle();
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
       setAlias(data?.display_name ?? "");
     })();
   }, [user.id]);
@@ -62,9 +101,16 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
     <div className="flex h-dvh min-h-0 w-full max-w-full overflow-hidden bg-background">
       {!collapsed && (
         <aside className="hidden h-full min-h-0 w-64 shrink-0 flex-col border-r border-border bg-card md:flex animate-fade-in">
-          <Link to="/inicio" aria-label="Desabafo Amigo — ir para o início" className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40">
+          <Link
+            to="/inicio"
+            aria-label="Desabafo Amigo — ir para o início"
+            className="group flex items-center gap-3 border-b border-border px-5 py-4 transition-colors hover:bg-brand-soft/40"
+          >
             <span className="relative grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white shadow-calm ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105">
-              <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
+              <span
+                aria-hidden
+                className="absolute inset-0 rounded-2xl bg-primary/10 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100"
+              />
               <Logo responsive decorative priority className="relative h-10 w-10" />
             </span>
             <div className="leading-tight flex-1">
@@ -73,7 +119,11 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             </div>
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(); }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggle();
+              }}
               aria-label="Fechar menu lateral"
               title="Fechar menu"
               className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -84,31 +134,58 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
             <NavGroup title="Meu espaço">
               {patientNav.map((it) => (
-                <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname.startsWith(it.to)} highlight={"highlight" in it && it.highlight} />
+                <NavItem
+                  key={it.to}
+                  to={it.to}
+                  label={it.label}
+                  icon={it.icon}
+                  active={pathname.startsWith(it.to)}
+                  highlight={"highlight" in it && it.highlight}
+                />
               ))}
             </NavGroup>
             {isPro && (
               <NavGroup title="Voluntário(a)">
                 {proNav.map((it) => (
-                  <NavItem key={it.to} to={it.to} label={it.label} icon={it.icon} active={pathname === it.to || pathname.startsWith(it.to + "/")} />
+                  <NavItem
+                    key={it.to}
+                    to={it.to}
+                    label={it.label}
+                    icon={it.icon}
+                    active={pathname === it.to || pathname.startsWith(it.to + "/")}
+                  />
                 ))}
               </NavGroup>
             )}
             {isAdmin && (
               <NavGroup title="Administração">
-                <NavItem to="/admin" label="Painel admin" icon={ShieldCheck} active={pathname.startsWith("/admin")} />
+                <NavItem
+                  to="/admin"
+                  label="Painel admin"
+                  icon={ShieldCheck}
+                  active={pathname.startsWith("/admin")}
+                />
               </NavGroup>
             )}
           </nav>
           <div className="border-t border-border p-3">
             <div className="mb-2 flex items-center gap-2 px-1">
-              {alias && <img src={avatarUrl(alias, 64)} alt="" className="size-8 rounded-full ring-1 ring-border" />}
+              {alias && (
+                <img
+                  src={avatarUrl(alias, 64)}
+                  alt=""
+                  className="size-8 rounded-full ring-1 ring-border"
+                />
+              )}
               <div className="min-w-0">
                 <p className="truncate text-xs font-medium text-foreground">{alias || "..."}</p>
                 <p className="truncate text-[10px] text-muted-foreground">Apelido do app</p>
               </div>
             </div>
-            <button onClick={signOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted">
+            <button
+              onClick={signOut}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+            >
               <LogOut className="size-4" /> Sair
             </button>
           </div>
@@ -129,16 +206,24 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
                   <PanelLeftOpen aria-hidden className="size-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>Abrir menu</TooltipContent>
+              <TooltipContent side="right" sideOffset={8}>
+                Abrir menu
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link to="/inicio" aria-label="Início" className="interactive mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15">
+                <Link
+                  to="/inicio"
+                  aria-label="Início"
+                  className="interactive mt-1 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15"
+                >
                   <Logo responsive decorative priority className="h-7 w-7" />
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>Início — Desabafo Amigo</TooltipContent>
+              <TooltipContent side="right" sideOffset={8}>
+                Início — Desabafo Amigo
+              </TooltipContent>
             </Tooltip>
 
             <div className="mt-2 flex flex-col items-center gap-1">
@@ -156,7 +241,9 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
                         <it.icon aria-hidden className="size-4" />
                       </Link>
                     </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={8}>{it.label}</TooltipContent>
+                    <TooltipContent side="right" sideOffset={8}>
+                      {it.label}
+                    </TooltipContent>
                   </Tooltip>
                 );
               })}
@@ -165,18 +252,22 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             <div className="mt-auto">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button onClick={signOut} aria-label="Sair" className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <button
+                    onClick={signOut}
+                    aria-label="Sair"
+                    className="interactive grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
                     <LogOut aria-hidden className="size-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={8}>Sair da conta</TooltipContent>
+                <TooltipContent side="right" sideOffset={8}>
+                  Sair da conta
+                </TooltipContent>
               </Tooltip>
             </div>
           </aside>
         </TooltipProvider>
       )}
-
-
 
       <div className="flex h-full min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden">
         <header className="safe-top grid w-full max-w-full shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-card px-2 py-2.5 md:hidden">
@@ -190,15 +281,22 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
                 <Menu aria-hidden className="size-5" />
               </button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex w-[85vw] max-w-sm flex-col gap-0 p-0 sm:max-w-sm">
+            <SheetContent
+              side="left"
+              className="flex w-[85vw] max-w-sm flex-col gap-0 p-0 sm:max-w-sm"
+            >
               <SheetHeader className="border-b border-border px-5 py-4 text-left">
                 <div className="flex items-center gap-3">
                   <span className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-soft to-white ring-1 ring-primary/15">
                     <Logo responsive decorative priority className="h-9 w-9" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <SheetTitle className="text-base font-semibold text-primary">Desabafo Amigo</SheetTitle>
-                    <SheetDescription className="text-[11px] text-muted-foreground">Escuta acolhedora</SheetDescription>
+                    <SheetTitle className="text-base font-semibold text-primary">
+                      Desabafo Amigo
+                    </SheetTitle>
+                    <SheetDescription className="text-[11px] text-muted-foreground">
+                      Escuta acolhedora
+                    </SheetDescription>
                   </div>
                 </div>
               </SheetHeader>
@@ -208,7 +306,14 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
                   {patientNav.map((it) => {
                     const active = pathname.startsWith(it.to);
                     return (
-                      <MobileNavItem key={it.to} to={it.to} label={it.label} Icon={it.icon} active={active} highlight={"highlight" in it && it.highlight} />
+                      <MobileNavItem
+                        key={it.to}
+                        to={it.to}
+                        label={it.label}
+                        Icon={it.icon}
+                        active={active}
+                        highlight={"highlight" in it && it.highlight}
+                      />
                     );
                   })}
                 </MobileNavGroup>
@@ -217,32 +322,57 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
                   <MobileNavGroup title="Voluntário(a)">
                     {proNav.map((it) => {
                       const active = pathname === it.to || pathname.startsWith(it.to + "/");
-                      return <MobileNavItem key={it.to} to={it.to} label={it.label} Icon={it.icon} active={active} />;
+                      return (
+                        <MobileNavItem
+                          key={it.to}
+                          to={it.to}
+                          label={it.label}
+                          Icon={it.icon}
+                          active={active}
+                        />
+                      );
                     })}
                   </MobileNavGroup>
                 )}
 
                 {isAdmin && (
                   <MobileNavGroup title="Administração">
-                    <MobileNavItem to="/admin" label="Painel admin" Icon={ShieldCheck} active={pathname.startsWith("/admin")} />
+                    <MobileNavItem
+                      to="/admin"
+                      label="Painel admin"
+                      Icon={ShieldCheck}
+                      active={pathname.startsWith("/admin")}
+                    />
                   </MobileNavGroup>
                 )}
               </nav>
 
               <div className="border-t border-border p-3">
                 <div className="mb-2 flex items-center gap-2 px-2">
-                  {alias && <img src={avatarUrl(alias, 64)} alt="" className="size-9 rounded-full ring-1 ring-border" />}
+                  {alias && (
+                    <img
+                      src={avatarUrl(alias, 64)}
+                      alt=""
+                      className="size-9 rounded-full ring-1 ring-border"
+                    />
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-foreground">{alias || "..."}</p>
                     <p className="truncate text-[11px] text-muted-foreground">Apelido do app</p>
                   </div>
                   <SheetClose asChild>
-                    <button aria-label="Fechar menu" className="interactive grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground">
+                    <button
+                      aria-label="Fechar menu"
+                      className="interactive grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
                       <X aria-hidden className="size-4" />
                     </button>
                   </SheetClose>
                 </div>
-                <button onClick={signOut} className="interactive flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+                <button
+                  onClick={signOut}
+                  className="interactive flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
                   <LogOut aria-hidden className="size-4" /> Sair da conta
                 </button>
               </div>
@@ -255,7 +385,9 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             className="flex min-w-0 max-w-full items-center justify-center gap-2 overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Logo responsive decorative priority className="h-9 w-9 shrink-0" />
-            <span className="truncate text-sm font-semibold text-primary sm:text-base">Desabafo Amigo</span>
+            <span className="truncate text-sm font-semibold text-primary sm:text-base">
+              Desabafo Amigo
+            </span>
           </Link>
 
           <button
@@ -267,7 +399,6 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           </button>
         </header>
 
-
         <main
           key={pathname}
           className="min-h-0 min-w-0 flex-1 overflow-x-clip overflow-y-auto pb-4 md:pb-6"
@@ -276,10 +407,18 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
             <div className="border-b border-primary/15 bg-brand-soft/70 px-3 py-3 sm:px-6">
               <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-primary">Você está usando como visitante</p>
-                  <p className="text-xs leading-relaxed text-muted-foreground">Finalize seu cadastro para recuperar o acesso e continuar suas conversas em outro aparelho.</p>
+                  <p className="text-sm font-semibold text-primary">
+                    Você está usando como visitante
+                  </p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    Finalize seu cadastro para recuperar o acesso e continuar suas conversas em
+                    outro aparelho.
+                  </p>
                 </div>
-                <Link to="/finalizar-cadastro" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                <Link
+                  to="/finalizar-cadastro"
+                  className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                >
                   Manter minha conta
                 </Link>
               </div>
@@ -287,7 +426,10 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           )}
           <RouteFade>{children}</RouteFade>
         </main>
-        <nav aria-label="Navegação principal" className="grid shrink-0 grid-cols-4 border-t border-border bg-card safe-bottom md:hidden">
+        <nav
+          aria-label="Navegação principal"
+          className="grid shrink-0 grid-cols-4 border-t border-border bg-card safe-bottom md:hidden"
+        >
           {[
             { to: "/inicio", label: "Início", icon: Home },
             { to: "/ia", label: "Amigo IA", icon: Bot },
@@ -296,16 +438,22 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
           ].map((it) => {
             const active = pathname.startsWith(it.to);
             return (
-              <Link key={it.to} to={it.to} aria-current={active ? "page" : undefined} aria-label={it.label}
-                className={`interactive relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] ${active ? "nav-active-tab" : "text-muted-foreground hover:text-foreground"}`}>
-                <it.icon aria-hidden className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`} />
+              <Link
+                key={it.to}
+                to={it.to}
+                aria-current={active ? "page" : undefined}
+                aria-label={it.label}
+                className={`interactive relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] ${active ? "nav-active-tab" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <it.icon
+                  aria-hidden
+                  className={`size-5 ${it.to === "/respirar" && !active ? "text-sky-500" : ""}`}
+                />
                 <span className={active ? "font-semibold" : undefined}>{it.label}</span>
-
               </Link>
             );
           })}
         </nav>
-
       </div>
       {!isChatRoute && <EmergencyButton />}
       <OnboardingModal />
@@ -316,13 +464,27 @@ export function AppShell({ children, user, isPro, isAdmin }: { children: ReactNo
 function NavGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="mb-4">
-      <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+      <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </p>
       <div className="space-y-0.5">{children}</div>
     </div>
   );
 }
 
-function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; label: string; icon: typeof Home; active: boolean; highlight?: boolean }) {
+function NavItem({
+  to,
+  label,
+  icon: Icon,
+  active,
+  highlight,
+}: {
+  to: string;
+  label: string;
+  icon: typeof Home;
+  active: boolean;
+  highlight?: boolean;
+}) {
   const base = "interactive flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
   const cls = active
     ? "nav-active-row"
@@ -340,13 +502,27 @@ function NavItem({ to, label, icon: Icon, active, highlight }: { to: string; lab
 function MobileNavGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+      <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </p>
       <div className="flex flex-col gap-1">{children}</div>
     </div>
   );
 }
 
-function MobileNavItem({ to, label, Icon, active, highlight }: { to: string; label: string; Icon: typeof Home; active: boolean; highlight?: boolean }) {
+function MobileNavItem({
+  to,
+  label,
+  Icon,
+  active,
+  highlight,
+}: {
+  to: string;
+  label: string;
+  Icon: typeof Home;
+  active: boolean;
+  highlight?: boolean;
+}) {
   const base = "interactive flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 text-[15px]";
   const cls = active
     ? "nav-active-row"
@@ -355,9 +531,13 @@ function MobileNavItem({ to, label, Icon, active, highlight }: { to: string; lab
       : "text-foreground hover:bg-muted";
   return (
     <Link to={to} aria-current={active ? "page" : undefined} className={`${base} ${cls}`}>
-      <Icon aria-hidden className={`size-5 shrink-0 ${highlight && !active ? "text-sky-500" : ""}`} />
-      <span className={`min-w-0 flex-1 break-words leading-tight ${active ? "font-semibold" : ""}`}>{label}</span>
+      <Icon
+        aria-hidden
+        className={`size-5 shrink-0 ${highlight && !active ? "text-sky-500" : ""}`}
+      />
+      <span className={`min-w-0 flex-1 break-words leading-tight ${active ? "font-semibold" : ""}`}>
+        {label}
+      </span>
     </Link>
   );
 }
-

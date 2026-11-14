@@ -4,7 +4,11 @@ import { Loader2 } from "lucide-react";
 /** Spinner inline com label acessível. */
 export function InlineSpinner({ label = "Carregando…" }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 p-6 text-sm text-muted-foreground" role="status" aria-live="polite">
+    <div
+      className="flex items-center justify-center gap-2 p-6 text-sm text-muted-foreground"
+      role="status"
+      aria-live="polite"
+    >
       <Loader2 className="size-4 animate-spin text-primary" aria-hidden="true" />
       <span>{label}</span>
     </div>

@@ -9,9 +9,7 @@ const PHRASE_CATS = ["acolhimento", "coragem", "autocuidado", "motivacao", "resp
 
 export const autofillLibraryMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator(
-    (d: { kind: Kind; storagePath?: string; filename?: string; phraseText?: string }) => d,
-  )
+  .validator((d: { kind: Kind; storagePath?: string; filename?: string; phraseText?: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { chatCompletion, transcribeAudio } = await import("./ai-gateway.server");
@@ -103,7 +101,10 @@ export const autofillLibraryMedia = createServerFn({ method: "POST" })
         {
           role: "user",
           content: [
-            { type: "text", text: `Descreva e classifique. Nome do arquivo: ${filenameHint || "(sem nome)"}.` },
+            {
+              type: "text",
+              text: `Descreva e classifique. Nome do arquivo: ${filenameHint || "(sem nome)"}.`,
+            },
             { type: "image_url", image_url: { url: dataUrl } },
           ],
         },
@@ -128,7 +129,9 @@ function safeJson(raw: string): Record<string, string> {
 }
 
 function pickCat(v: unknown, cats: string[]): string {
-  const s = String(v ?? "").toLowerCase().trim();
+  const s = String(v ?? "")
+    .toLowerCase()
+    .trim();
   return cats.includes(s) ? s : cats[0];
 }
 

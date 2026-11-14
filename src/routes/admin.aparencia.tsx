@@ -9,7 +9,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/aparencia")({
   ssr: false,
-  beforeLoad: async () => { await ensureAdminAal2(); },
+  beforeLoad: async () => {
+    await ensureAdminAal2();
+  },
   component: AparenciaPage,
 });
 
@@ -44,8 +46,12 @@ function AparenciaPage() {
     const d = (localStorage.getItem(DENSITY_KEY) as Density) || "cozy";
     const f = Number(localStorage.getItem(FONT_KEY) || "1");
     const r = localStorage.getItem(REDUCE_MOTION_KEY) === "1";
-    setDensity(d); setFontScale(f); setReduceMotion(r);
-    applyDensity(d); applyFontScale(f); applyReduceMotion(r);
+    setDensity(d);
+    setFontScale(f);
+    setReduceMotion(r);
+    applyDensity(d);
+    applyFontScale(f);
+    applyReduceMotion(r);
   }, []);
 
   function pickTheme(t: Theme) {
@@ -54,11 +60,15 @@ function AparenciaPage() {
     toast.success("Tema atualizado.");
   }
   function pickDensity(d: Density) {
-    setDensity(d); localStorage.setItem(DENSITY_KEY, d); applyDensity(d);
+    setDensity(d);
+    localStorage.setItem(DENSITY_KEY, d);
+    applyDensity(d);
     toast.success("Densidade aplicada.");
   }
   function pickFont(v: number) {
-    setFontScale(v); localStorage.setItem(FONT_KEY, String(v)); applyFontScale(v);
+    setFontScale(v);
+    localStorage.setItem(FONT_KEY, String(v));
+    applyFontScale(v);
   }
   function toggleMotion(v: boolean) {
     setReduceMotion(v);
@@ -82,11 +92,13 @@ function AparenciaPage() {
             <span className="text-sm font-semibold text-primary">Aparência</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+            <Link
+              to="/admin"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+            >
               <ArrowLeft className="size-4" /> Voltar
             </Link>
           </div>
-
         </div>
       </header>
 
@@ -102,7 +114,8 @@ function AparenciaPage() {
           <div>
             <h1 className="text-xl font-semibold text-foreground">Aparência do painel</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Personalize tema, densidade e acessibilidade. As preferências ficam salvas neste navegador.
+              Personalize tema, densidade e acessibilidade. As preferências ficam salvas neste
+              navegador.
             </p>
           </div>
 
@@ -112,8 +125,18 @@ function AparenciaPage() {
               {(
                 [
                   { id: "light" as const, label: "Claro", icon: Sun, desc: "Ambiente iluminado" },
-                  { id: "dark" as const, label: "Escuro", icon: Moon, desc: "Menos brilho, ideal à noite" },
-                  { id: "auto" as const, label: "Sistema", icon: Monitor, desc: "Segue seu dispositivo" },
+                  {
+                    id: "dark" as const,
+                    label: "Escuro",
+                    icon: Moon,
+                    desc: "Menos brilho, ideal à noite",
+                  },
+                  {
+                    id: "auto" as const,
+                    label: "Sistema",
+                    icon: Monitor,
+                    desc: "Segue seu dispositivo",
+                  },
                 ] as const
               ).map((opt) => (
                 <OptionCard
@@ -129,15 +152,17 @@ function AparenciaPage() {
           </Card>
 
           {/* Densidade */}
-          <Card icon={LayoutGrid} title="Densidade" hint="Ajusta o espaçamento entre listas e tabelas.">
+          <Card
+            icon={LayoutGrid}
+            title="Densidade"
+            hint="Ajusta o espaçamento entre listas e tabelas."
+          >
             <div className="grid gap-3 sm:grid-cols-3">
-              {(
-                [
-                  { id: "compact" as Density, label: "Compacta", desc: "Mais itens visíveis" },
-                  { id: "cozy" as Density, label: "Confortável", desc: "Recomendada (padrão)" },
-                  { id: "comfortable" as Density, label: "Espaçosa", desc: "Foco e leitura fácil" },
-                ]
-              ).map((opt) => (
+              {[
+                { id: "compact" as Density, label: "Compacta", desc: "Mais itens visíveis" },
+                { id: "cozy" as Density, label: "Confortável", desc: "Recomendada (padrão)" },
+                { id: "comfortable" as Density, label: "Espaçosa", desc: "Foco e leitura fácil" },
+              ].map((opt) => (
                 <OptionCard
                   key={opt.id}
                   active={density === opt.id}
@@ -167,7 +192,8 @@ function AparenciaPage() {
               </span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              Prévia: <span className="text-foreground">O cuidado começa por escutar sem julgar.</span>
+              Prévia:{" "}
+              <span className="text-foreground">O cuidado começa por escutar sem julgar.</span>
             </p>
           </Card>
 
@@ -264,9 +290,7 @@ function OptionCard({
           : "border-border bg-background/40 hover:border-primary/40 hover:bg-muted"
       }`}
     >
-      {Icon && (
-        <Icon className={`size-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
-      )}
+      {Icon && <Icon className={`size-4 ${active ? "text-primary" : "text-muted-foreground"}`} />}
       <div className="flex w-full items-center justify-between gap-2">
         <span className="text-sm font-medium text-foreground">{label}</span>
         {active && <Check className="size-4 text-primary" />}

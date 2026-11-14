@@ -24,7 +24,7 @@ const FOCUSABLE = [
 export function useFocusTrap<T extends HTMLElement>(
   active: boolean,
   containerRef: RefObject<T | null>,
-  opts: { onEscape?: () => void; initialFocus?: RefObject<HTMLElement | null> } = {}
+  opts: { onEscape?: () => void; initialFocus?: RefObject<HTMLElement | null> } = {},
 ) {
   const { onEscape, initialFocus } = opts;
 
@@ -37,13 +37,16 @@ export function useFocusTrap<T extends HTMLElement>(
 
     const getFocusable = () =>
       Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (el) => !el.hasAttribute("data-focus-trap-ignore") && el.offsetParent !== null
+        (el) => !el.hasAttribute("data-focus-trap-ignore") && el.offsetParent !== null,
       );
 
     // Foco inicial
     const focusFirst = () => {
       const explicit = initialFocus?.current;
-      if (explicit) { explicit.focus(); return; }
+      if (explicit) {
+        explicit.focus();
+        return;
+      }
       const nodes = getFocusable();
       (nodes[0] ?? container).focus();
     };
@@ -60,7 +63,11 @@ export function useFocusTrap<T extends HTMLElement>(
       }
       if (e.key !== "Tab") return;
       const nodes = getFocusable();
-      if (nodes.length === 0) { e.preventDefault(); container?.focus(); return; }
+      if (nodes.length === 0) {
+        e.preventDefault();
+        container?.focus();
+        return;
+      }
       const first = nodes[0];
       const last = nodes[nodes.length - 1];
       const activeEl = document.activeElement as HTMLElement | null;

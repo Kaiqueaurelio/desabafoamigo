@@ -5,7 +5,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
-import { Loader2, LogOut, Check, X, Users, Clock, MessageCircleHeart, ShieldCheck } from "lucide-react";
+import {
+  Loader2,
+  LogOut,
+  Check,
+  X,
+  Users,
+  Clock,
+  MessageCircleHeart,
+  ShieldCheck,
+} from "lucide-react";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { AdminSidebar, AdminSidebarMobile, AdminSidebarToggle } from "@/components/AdminSidebar";
 
@@ -16,7 +25,6 @@ export const Route = createFileRoute("/admin/")({
   },
   component: AdminDashboard,
 });
-
 
 type Volunteer = {
   user_id: string;
@@ -36,8 +44,6 @@ type Volunteer = {
 };
 
 type Tab = "pending" | "approved" | "rejected";
-
-
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -81,7 +87,10 @@ function AdminDashboard() {
     const [{ count: c1 }, { count: c2 }, { count: c3 }] = await Promise.all([
       supabase.from("conversations").select("*", { count: "exact", head: true }),
       supabase.from("appointments").select("*", { count: "exact", head: true }),
-      supabase.from("appointments").select("*", { count: "exact", head: true }).in("status", ["scheduled", "in_progress"]),
+      supabase
+        .from("appointments")
+        .select("*", { count: "exact", head: true })
+        .in("status", ["scheduled", "in_progress"]),
     ]);
     setStats({ conversations: c1 ?? 0, appointments: c2 ?? 0, upcoming: c3 ?? 0 });
   }
@@ -102,7 +111,11 @@ function AdminDashboard() {
       // Ensure approval status set even if role already existed
       await supabase
         .from("volunteers")
-        .update({ approval_status: "approved", reviewed_at: new Date().toISOString(), rejection_reason: null })
+        .update({
+          approval_status: "approved",
+          reviewed_at: new Date().toISOString(),
+          rejection_reason: null,
+        })
         .eq("user_id", v.user_id);
       setSelected(null);
       await refresh();
@@ -159,28 +172,49 @@ function AdminDashboard() {
     <main className="min-h-dvh w-full max-w-full overflow-x-clip bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur safe-top">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
-          <Link to="/" aria-label="Desabafo Amigo — ir para o início" className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-1 transition-all duration-300 hover:bg-brand-soft/60 sm:gap-3 sm:px-1.5">
+          <Link
+            to="/"
+            aria-label="Desabafo Amigo — ir para o início"
+            className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-1 transition-all duration-300 hover:bg-brand-soft/60 sm:gap-3 sm:px-1.5"
+          >
             <span className="relative grid size-10 shrink-0 place-items-center rounded-2xl bg-white shadow-calm ring-2 ring-primary/40 transition-transform duration-300 group-hover:scale-105 sm:size-12">
-              <span aria-hidden className="absolute -inset-0.5 rounded-2xl bg-primary/25 opacity-40 blur-md transition-opacity duration-500 group-hover:opacity-80" />
-              <Logo responsive priority decorative className="relative h-8 w-8 drop-shadow-sm sm:h-10 sm:w-10" />
+              <span
+                aria-hidden
+                className="absolute -inset-0.5 rounded-2xl bg-primary/25 opacity-40 blur-md transition-opacity duration-500 group-hover:opacity-80"
+              />
+              <Logo
+                responsive
+                priority
+                decorative
+                className="relative h-8 w-8 drop-shadow-sm sm:h-10 sm:w-10"
+              />
             </span>
             <span className="min-w-0 leading-tight">
               <span className="block truncate text-sm font-bold text-primary">Desabafo Amigo</span>
-              <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:block">Painel administrativo</span>
+              <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:block">
+                Painel administrativo
+              </span>
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
-            <Link to="/inicio" className="hidden text-xs font-medium text-muted-foreground transition-colors hover:text-primary sm:inline">Ir ao app</Link>
-            <button onClick={signOut} aria-label="Sair" className="interactive flex items-center gap-1 rounded-md px-2 py-2 text-xs text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground">
+            <Link
+              to="/inicio"
+              className="hidden text-xs font-medium text-muted-foreground transition-colors hover:text-primary sm:inline"
+            >
+              Ir ao app
+            </Link>
+            <button
+              onClick={signOut}
+              aria-label="Sair"
+              className="interactive flex items-center gap-1 rounded-md px-2 py-2 text-xs text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground"
+            >
               <LogOut className="size-4" /> <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
-
         </div>
       </header>
 
       <div className="mx-auto w-full max-w-6xl overflow-x-clip px-3 py-6 sm:px-4 md:flex md:gap-6">
-
         <div className="hidden md:flex md:flex-col md:gap-2">
           <AdminSidebarToggle />
           <AdminSidebar />
@@ -192,87 +226,130 @@ function AdminDashboard() {
           <div className="mb-5">
             <h1 className="text-xl font-semibold text-foreground">Voluntários</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Analise inscrições, aprove novos voluntários e acompanhe indicadores rápidos da comunidade.
+              Analise inscrições, aprove novos voluntários e acompanhe indicadores rápidos da
+              comunidade.
             </p>
           </div>
 
           {/* Stats */}
           <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard icon={<Clock className="size-5 text-brand-green" />} label="Pendentes" value={counts.pending} />
-            <StatCard icon={<ShieldCheck className="size-5 text-brand-green" />} label="Voluntários ativos" value={counts.approved} />
-            <StatCard icon={<MessageCircleHeart className="size-5 text-brand-green" />} label="Conversas totais" value={stats.appointments} />
-            <StatCard icon={<Users className="size-5 text-brand-green" />} label="Conversas ativas" value={stats.upcoming} />
+            <StatCard
+              icon={<Clock className="size-5 text-brand-green" />}
+              label="Pendentes"
+              value={counts.pending}
+            />
+            <StatCard
+              icon={<ShieldCheck className="size-5 text-brand-green" />}
+              label="Voluntários ativos"
+              value={counts.approved}
+            />
+            <StatCard
+              icon={<MessageCircleHeart className="size-5 text-brand-green" />}
+              label="Conversas totais"
+              value={stats.appointments}
+            />
+            <StatCard
+              icon={<Users className="size-5 text-brand-green" />}
+              label="Conversas ativas"
+              value={stats.upcoming}
+            />
           </section>
 
-        {/* Tabs */}
+          {/* Tabs */}
           <div className="mb-4 grid w-full max-w-full grid-cols-3 gap-2 pb-1">
-          {(["pending", "approved", "rejected"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`min-w-0 rounded-full px-2 py-2 text-xs font-medium transition sm:px-4 sm:text-sm ${
-                tab === t ? "bg-primary text-primary-foreground shadow" : "bg-secondary text-secondary-foreground hover:bg-muted"
-              }`}
-            >
-              <span className="block truncate">
-                {t === "pending" ? "Pendentes" : t === "approved" ? "Aprovados" : "Rejeitados"} ({counts[t]})
-              </span>
-            </button>
-          ))}
-        </div>
+            {(["pending", "approved", "rejected"] as Tab[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`min-w-0 rounded-full px-2 py-2 text-xs font-medium transition sm:px-4 sm:text-sm ${
+                  tab === t
+                    ? "bg-primary text-primary-foreground shadow"
+                    : "bg-secondary text-secondary-foreground hover:bg-muted"
+                }`}
+              >
+                <span className="block truncate">
+                  {t === "pending" ? "Pendentes" : t === "approved" ? "Aprovados" : "Rejeitados"} (
+                  {counts[t]})
+                </span>
+              </button>
+            ))}
+          </div>
 
-
-        {/* Table */}
-        <section className="w-full max-w-full overflow-hidden rounded-2xl bg-card p-3 shadow-sm sm:p-5">
-          {filtered.length === 0 ? (
-            <p className="rounded-lg bg-brand-soft p-4 text-sm text-muted-foreground">
-              Nenhum voluntário nesta categoria.
-            </p>
-          ) : (
-            <div role="region" aria-label="Tabela de inscrições. Deslize horizontalmente para ver todas as colunas." tabIndex={0} className="w-full max-w-full touch-pan-x overscroll-x-contain overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              <table className="min-w-[720px] text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
-                    <th className="py-2 pr-4">Nome</th>
-                    <th className="py-2 pr-4">E-mail</th>
-                    <th className="py-2 pr-4">Tipo</th>
-                    <th className="py-2 pr-4">Inscrição</th>
-                    <th className="py-2 pr-4">Status</th>
-                    <th className="py-2 pr-4"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((v) => (
-                    <tr key={v.user_id} className="border-b border-border/50">
-                      <td className="py-3 pr-4 font-medium text-foreground">{v.full_name || v.display_alias || "—"}</td>
-                      <td className="py-3 pr-4 text-muted-foreground">{v.email || "—"}</td>
-                      <td className="py-3 pr-4">Voluntário(a)</td>
-                      <td className="py-3 pr-4 text-muted-foreground">{new Date(v.applied_at).toLocaleDateString()}</td>
-                      <td className="py-3 pr-4">
-                        <StatusPill status={v.approval_status} />
-                      </td>
-                      <td className="py-3 pr-4 text-right">
-                        <button onClick={() => setSelected(v)} className="text-xs font-medium text-primary hover:underline">
-                          Ver detalhes
-                        </button>
-                      </td>
+          {/* Table */}
+          <section className="w-full max-w-full overflow-hidden rounded-2xl bg-card p-3 shadow-sm sm:p-5">
+            {filtered.length === 0 ? (
+              <p className="rounded-lg bg-brand-soft p-4 text-sm text-muted-foreground">
+                Nenhum voluntário nesta categoria.
+              </p>
+            ) : (
+              <div
+                role="region"
+                aria-label="Tabela de inscrições. Deslize horizontalmente para ver todas as colunas."
+                tabIndex={0}
+                className="w-full max-w-full touch-pan-x overscroll-x-contain overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <table className="min-w-[720px] text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
+                      <th className="py-2 pr-4">Nome</th>
+                      <th className="py-2 pr-4">E-mail</th>
+                      <th className="py-2 pr-4">Tipo</th>
+                      <th className="py-2 pr-4">Inscrição</th>
+                      <th className="py-2 pr-4">Status</th>
+                      <th className="py-2 pr-4"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                  </thead>
+                  <tbody>
+                    {filtered.map((v) => (
+                      <tr key={v.user_id} className="border-b border-border/50">
+                        <td className="py-3 pr-4 font-medium text-foreground">
+                          {v.full_name || v.display_alias || "—"}
+                        </td>
+                        <td className="py-3 pr-4 text-muted-foreground">{v.email || "—"}</td>
+                        <td className="py-3 pr-4">Voluntário(a)</td>
+                        <td className="py-3 pr-4 text-muted-foreground">
+                          {new Date(v.applied_at).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 pr-4">
+                          <StatusPill status={v.approval_status} />
+                        </td>
+                        <td className="py-3 pr-4 text-right">
+                          <button
+                            onClick={() => setSelected(v)}
+                            className="text-xs font-medium text-primary hover:underline"
+                          >
+                            Ver detalhes
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         </div>
       </div>
 
       {/* Modal */}
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setSelected(null)}>
-          <div ref={modalRef} role="dialog" aria-modal="true" aria-label="Detalhes do voluntário" className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setSelected(null)}
+        >
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Detalhes do voluntário"
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-primary">{selected.full_name || selected.display_alias}</h3>
+                <h3 className="text-lg font-semibold text-primary">
+                  {selected.full_name || selected.display_alias}
+                </h3>
                 <p className="text-xs text-muted-foreground">{selected.email}</p>
               </div>
               <StatusPill status={selected.approval_status} />
@@ -288,20 +365,24 @@ function AdminDashboard() {
               <Field label="Trilha de treinamento">
                 {selected.training_completed_at ? (
                   <span className="inline-flex items-center gap-1 text-emerald-400">
-                    <Check className="size-3.5" /> Concluída em {new Date(selected.training_completed_at).toLocaleDateString()}
+                    <Check className="size-3.5" /> Concluída em{" "}
+                    {new Date(selected.training_completed_at).toLocaleDateString()}
                   </span>
                 ) : (
                   <span className="text-amber-400">Pendente — voluntário precisa concluir</span>
                 )}
               </Field>
-              {selected.rejection_reason && <Field label="Motivo da rejeição">{selected.rejection_reason}</Field>}
+              {selected.rejection_reason && (
+                <Field label="Motivo da rejeição">{selected.rejection_reason}</Field>
+              )}
             </dl>
 
             {selected.approval_status === "pending" && (
               <div className="mt-6 space-y-3">
                 {!selected.training_completed_at && (
                   <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
-                    Este voluntário ainda não concluiu a trilha de treinamento. A aprovação está bloqueada até a conclusão.
+                    Este voluntário ainda não concluiu a trilha de treinamento. A aprovação está
+                    bloqueada até a conclusão.
                   </p>
                 )}
                 <textarea
@@ -345,13 +426,20 @@ function AdminDashboard() {
 
             {selected.approval_status === "rejected" && (
               <div className="mt-6">
-                <button onClick={() => approve(selected)} disabled={busy} className="btn-primary w-full">
+                <button
+                  onClick={() => approve(selected)}
+                  disabled={busy}
+                  className="btn-primary w-full"
+                >
                   Aprovar mesmo assim
                 </button>
               </div>
             )}
 
-            <button onClick={() => setSelected(null)} className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-primary">
+            <button
+              onClick={() => setSelected(null)}
+              className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-primary"
+            >
               Fechar
             </button>
           </div>
@@ -388,5 +476,9 @@ function StatusPill({ status }: { status: "pending" | "approved" | "rejected" })
     rejected: { label: "Rejeitado", cls: "bg-red-100 text-red-800" },
   } as const;
   const { label, cls } = map[status];
-  return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>{label}</span>;
+  return (
+    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>
+      {label}
+    </span>
+  );
 }

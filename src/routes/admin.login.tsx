@@ -99,7 +99,6 @@ function AdminLogin() {
     }
   }
 
-
   return (
     <main className="flex min-h-dvh items-center justify-center bg-brand-soft px-6 py-10">
       <div className="w-full max-w-sm rounded-2xl bg-card p-8 shadow-lg">
@@ -110,56 +109,60 @@ function AdminLogin() {
         </div>
 
         <form onSubmit={submitPassword} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-medium text-foreground">E-mail</label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-medium text-foreground">Senha</label>
-              <PasswordInput
-                id="password"
-                required
-                value={password}
-                onChange={setPassword}
-                autoComplete="current-password"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 pr-10 outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
-              />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading ? "Entrando…" : "Continuar"}
-            </button>
+          <div>
+            <label htmlFor="email" className="mb-1 block text-sm font-medium text-foreground">
+              E-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="mb-1 block text-sm font-medium text-foreground">
+              Senha
+            </label>
+            <PasswordInput
+              id="password"
+              required
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 pr-10 outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <button type="submit" disabled={loading} className="btn-primary w-full">
+            {loading ? "Entrando…" : "Continuar"}
+          </button>
 
-            {isPasskeySupported() && (
-              <>
-                <div className="relative my-2 text-center text-xs text-muted-foreground">
-                  <span className="bg-card px-2">ou</span>
-                  <div className="absolute inset-x-0 top-1/2 -z-10 h-px bg-border" />
-                </div>
-                <button
-                  type="button"
-                  disabled={loading || !email || !password}
-                  onClick={loginPasskey}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/40 bg-card px-3 py-2 text-sm font-medium text-primary hover:bg-brand-soft disabled:opacity-50"
-                >
-                  <KeyRound className="h-4 w-4" /> Entrar com chave de acesso
-                </button>
-                <p className="text-center text-[11px] text-muted-foreground">
-                  Use biometria (Windows Hello, Touch ID, Face ID, Android) — sem código de 6 dígitos.
-                </p>
-              </>
-            )}
+          {isPasskeySupported() && (
+            <>
+              <div className="relative my-2 text-center text-xs text-muted-foreground">
+                <span className="bg-card px-2">ou</span>
+                <div className="absolute inset-x-0 top-1/2 -z-10 h-px bg-border" />
+              </div>
+              <button
+                type="button"
+                disabled={loading || !email || !password}
+                onClick={loginPasskey}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/40 bg-card px-3 py-2 text-sm font-medium text-primary hover:bg-brand-soft disabled:opacity-50"
+              >
+                <KeyRound className="h-4 w-4" /> Entrar com chave de acesso
+              </button>
+              <p className="text-center text-[11px] text-muted-foreground">
+                Use biometria (Windows Hello, Touch ID, Face ID, Android) — sem código de 6 dígitos.
+              </p>
+            </>
+          )}
         </form>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">

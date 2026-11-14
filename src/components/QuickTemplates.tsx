@@ -81,21 +81,30 @@ export function QuickTemplates({ onPick }: { onPick: (text: string) => void }) {
         >
           {mine.length > 0 && (
             <>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary">Meus modelos</p>
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                Meus modelos
+              </p>
               {Object.entries(byCategory).map(([cat, items]) => (
                 <div key={cat} className="mb-2">
-                  <p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">{cat}</p>
+                  <p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {cat}
+                  </p>
                   <ul className="space-y-1">
                     {items.map((t) => (
                       <li key={t.id}>
                         <button
                           type="button"
-                          onClick={() => { onPick(t.body); setOpen(false); }}
+                          onClick={() => {
+                            onPick(t.body);
+                            setOpen(false);
+                          }}
                           className="w-full rounded-lg border border-primary/20 bg-brand-soft/40 px-2 py-1.5 text-left text-[12px] leading-snug text-foreground hover:border-primary hover:bg-brand-soft"
                           title={t.body}
                         >
                           <span className="font-medium">{t.label}</span>
-                          <span className="block truncate text-[11px] text-muted-foreground">{t.body}</span>
+                          <span className="block truncate text-[11px] text-muted-foreground">
+                            {t.body}
+                          </span>
                         </button>
                       </li>
                     ))}
@@ -116,7 +125,10 @@ export function QuickTemplates({ onPick }: { onPick: (text: string) => void }) {
                   <li key={t}>
                     <button
                       type="button"
-                      onClick={() => { onPick(t); setOpen(false); }}
+                      onClick={() => {
+                        onPick(t);
+                        setOpen(false);
+                      }}
                       className="w-full rounded-lg px-2 py-1.5 text-left text-[12px] leading-snug text-foreground hover:bg-muted"
                     >
                       {t}
@@ -129,7 +141,10 @@ export function QuickTemplates({ onPick }: { onPick: (text: string) => void }) {
 
           <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-[10px] text-muted-foreground">
             <span>Adapte à pessoa — templates são só apoio.</span>
-            <a href="/pro/perfil#modelos" className="inline-flex items-center gap-1 text-primary hover:underline">
+            <a
+              href="/pro/perfil#modelos"
+              className="inline-flex items-center gap-1 text-primary hover:underline"
+            >
               <Settings2 className="size-3" /> gerenciar
             </a>
           </div>

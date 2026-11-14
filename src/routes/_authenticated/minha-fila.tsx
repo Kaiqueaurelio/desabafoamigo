@@ -71,7 +71,8 @@ function MinhaFila() {
   }
 
   async function load(soft = false) {
-    if (soft) setRefreshing(true); else setLoading(true);
+    if (soft) setRefreshing(true);
+    else setLoading(true);
     setError(null);
     const { data, error } = await supabase.rpc("my_queue_position");
     if (error) setError(error.message);
@@ -181,9 +182,7 @@ function MinhaFila() {
                   {fmtMin(row.waiting_seconds)}
                 </p>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                  {row.urgency === "high" && (
-                    <Badge variant="destructive">Urgência alta</Badge>
-                  )}
+                  {row.urgency === "high" && <Badge variant="destructive">Urgência alta</Badge>}
                   {row.urgency === "medium" && <Badge>Média</Badge>}
                   {row.urgency === "low" && <Badge variant="secondary">Fila padrão</Badge>}
                 </div>
@@ -204,9 +203,7 @@ function MinhaFila() {
                   initialAhead && initialAhead > 0
                     ? Math.min(
                         100,
-                        Math.round(
-                          ((initialAhead - (row.ahead_of_me ?? 0)) / initialAhead) * 100
-                        )
+                        Math.round(((initialAhead - (row.ahead_of_me ?? 0)) / initialAhead) * 100),
                       )
                     : row.ahead_of_me === 0
                       ? 100
@@ -251,9 +248,14 @@ function MinhaFila() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel disabled={cancelling}>Continuar aguardando</AlertDialogCancel>
+                    <AlertDialogCancel disabled={cancelling}>
+                      Continuar aguardando
+                    </AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={(e) => { e.preventDefault(); handleCancel(); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCancel();
+                      }}
                       disabled={cancelling}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >

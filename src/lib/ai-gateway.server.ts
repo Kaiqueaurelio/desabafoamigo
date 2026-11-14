@@ -1,6 +1,16 @@
 import { getServerEnv } from "./server-env";
 
-type ChatProvider = "nvidia" | "lovable";
+type ChatProvider = "nvidia";
+
+function nvidiaKey(): string {
+  const value = getServerEnv("NVIDIA_API_KEY");
+  const normalized = value
+    ?.replace(/^Bearer\s+/i, "")
+    .replace(/^['"]|['"]$/g, "")
+    .trim();
+  if (!normalized) throw new Error("NVIDIA_API_KEY não está configurada no servidor.");
+  return normalized;
+}
 
 function modelFor(body: Record<string, unknown>): string {
   const hasImage = JSON.stringify(body.messages ?? []).includes("image_url");
@@ -48,15 +58,38 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
     getServerEnv("NVIDIA_BASE_URL") || "https://integrate.api.nvidia.com/v1"
   ).replace(/\/$/, "");
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` };
-  let response = await fetch(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ ...body, model: modelFor(body), stream: false }),
-    signal: AbortSignal.timeout(30000),
-  });
+  const payload = { ...body, model: modelFor(body), stream: false };
+  const request = (requestBody: Record<string, unknown>) =>
+    fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(30000),
+    });
+  let response = await request(payload);
+
+  // Some NIM profiles reject optional structured-output parameters. Retry with
+  // portable chat fields while keeping NVIDIA as the only provider.
+  if (
+    !response.ok &&
+    (response.status === 400 || response.status === 422) &&
+    ("response_format" in payload || "chat_template_kwargs" in payload)
+  ) {
+    const detail = (await response.text()).slice(0, 500);
+    console.warn("[NVIDIA NIM] retrying without optional chat parameters", response.status, detail);
+    const {
+      response_format: _responseFormat,
+      chat_template_kwargs: _chatTemplateKwargs,
+      ...portablePayload
+    } = payload;
+    response = await request(portablePayload);
+  }
 
   if (response.status === 202) {
-    const requestId = response.headers.get("nvcf-reqid");
+    const requestId =
+      response.headers.get("nvcf-reqid") ||
+      response.headers.get("nvcf-request-id") ||
+      response.headers.get("x-nvcf-reqid");
     if (!requestId) throw new Error("A NVIDIA não retornou o identificador de processamento.");
     let completed = false;
     for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -76,65 +109,13 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
   return readCompletion(response, "NVIDIA NIM");
 }
 
-async function requestLovable(body: Record<string, unknown>, apiKey: string): Promise<string> {
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "Lovable-API-Key": apiKey,
-      "X-Lovable-AIG-SDK": "tanstack-ai",
-    },
-    body: JSON.stringify({
-      ...body,
-      model: getServerEnv("LOVABLE_AI_MODEL") || "google/gemini-3.7-flash",
-      stream: false,
-    }),
-    signal: AbortSignal.timeout(45000),
-  });
-  return readCompletion(response, "Lovable AI");
-}
-
-/**
- * Tenta NVIDIA quando configurada e usa Lovable AI como fallback real.
- * As duas credenciais são lidas exclusivamente no servidor.
- */
+/** NVIDIA NIM é o único provedor de chat usado pelo aplicativo. */
 export async function chatCompletionWithProvider(
   body: Record<string, unknown>,
 ): Promise<{ content: string; provider: ChatProvider }> {
-  const nvidiaKey = getServerEnv("NVIDIA_API_KEY");
-  const lovableKey = getServerEnv("LOVABLE_API_KEY");
-  const errors: string[] = [];
-
-  if (nvidiaKey) {
-    try {
-      const content = await requestNvidia(body, nvidiaKey);
-      if (content.trim()) return { content, provider: "nvidia" };
-      errors.push("NVIDIA retornou uma resposta vazia.");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "erro desconhecido";
-      console.warn("[aiChat] NVIDIA indisponível; tentando Lovable AI:", message);
-      errors.push(message);
-    }
-  } else {
-    errors.push("NVIDIA_API_KEY ausente.");
-  }
-
-  if (lovableKey) {
-    try {
-      const content = await requestLovable(body, lovableKey);
-      if (content.trim()) return { content, provider: "lovable" };
-      errors.push("Lovable AI retornou uma resposta vazia.");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "erro desconhecido";
-      console.error("[aiChat] Lovable AI também indisponível:", message);
-      errors.push(message);
-    }
-  } else {
-    errors.push("LOVABLE_API_KEY ausente no runtime.");
-  }
-
-  throw new Error(`Nenhum provedor de IA conseguiu responder. ${errors.join(" ")}`);
+  const content = await requestNvidia(body, nvidiaKey());
+  if (!content.trim()) throw new Error("A NVIDIA retornou uma resposta vazia.");
+  return { content, provider: "nvidia" };
 }
 
 /** Compatibilidade para chamadas existentes que só precisam do texto. */

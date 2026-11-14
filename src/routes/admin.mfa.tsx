@@ -121,9 +121,7 @@ function AdminMfa() {
             {secret && (
               <div className="rounded-lg border border-border bg-muted p-3">
                 <p className="mb-1 text-xs font-medium text-muted-foreground">Chave manual</p>
-                <code className="block select-all break-all text-sm text-foreground">
-                  {secret}
-                </code>
+                <code className="block select-all break-all text-sm text-foreground">{secret}</code>
               </div>
             )}
 
@@ -143,7 +141,11 @@ function AdminMfa() {
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-center text-lg tracking-[0.5em] outline-none focus:border-primary focus:ring-2 focus:ring-ring/40"
               />
               {error && <p className="text-sm text-destructive">{error}</p>}
-              <button type="submit" disabled={busy || code.length !== 6} className="btn-primary w-full">
+              <button
+                type="submit"
+                disabled={busy || code.length !== 6}
+                className="btn-primary w-full"
+              >
                 {busy ? "Validando…" : "Ativar e entrar"}
               </button>
             </form>

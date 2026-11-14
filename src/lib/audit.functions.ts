@@ -33,4 +33,3 @@ export const getMyAuditTrail = createServerFn({ method: "GET" })
       role: r.actor_id === userId ? "actor" : "target",
     }));
   });
-

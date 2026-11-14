@@ -17,7 +17,8 @@ export function MoodCheckIn({ userId }: { userId: string }) {
 
   useEffect(() => {
     (async () => {
-      const since = new Date(); since.setHours(0, 0, 0, 0);
+      const since = new Date();
+      since.setHours(0, 0, 0, 0);
       const { data } = await supabase
         .from("mood_entries")
         .select("mood, created_at")
@@ -33,8 +34,16 @@ export function MoodCheckIn({ userId }: { userId: string }) {
   async function pick(mood: number) {
     if (saving) return;
     setSaving(true);
-    const { data } = await supabase.from("mood_entries").insert({ user_id: userId, mood }).select("mood, created_at").single();
-    if (data) { setLast(data); setJustSaved(true); setTimeout(() => setJustSaved(false), 2000); }
+    const { data } = await supabase
+      .from("mood_entries")
+      .insert({ user_id: userId, mood })
+      .select("mood, created_at")
+      .single();
+    if (data) {
+      setLast(data);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
+    }
     setSaving(false);
   }
 
@@ -45,7 +54,11 @@ export function MoodCheckIn({ userId }: { userId: string }) {
           <h3 className="text-sm font-semibold text-foreground">Como você está agora?</h3>
           <p className="text-xs text-muted-foreground">Um toque no rosto que mais combina.</p>
         </div>
-        {justSaved && <span className="inline-flex items-center gap-1 text-xs text-primary"><Check className="size-3.5" /> Registrado</span>}
+        {justSaved && (
+          <span className="inline-flex items-center gap-1 text-xs text-primary">
+            <Check className="size-3.5" /> Registrado
+          </span>
+        )}
       </div>
       <div className="mt-4 grid grid-cols-5 gap-2">
         {MOODS.map((m) => (

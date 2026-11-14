@@ -16,7 +16,12 @@ export const Route = createFileRoute("/admin/observabilidade")({
 
 type Range = "24h" | "7d" | "30d" | "90d";
 
-const RANGE_HOURS: Record<Range, number> = { "24h": 24, "7d": 24 * 7, "30d": 24 * 30, "90d": 24 * 90 };
+const RANGE_HOURS: Record<Range, number> = {
+  "24h": 24,
+  "7d": 24 * 7,
+  "30d": 24 * 30,
+  "90d": 24 * 90,
+};
 
 type ErrorRow = {
   id: string;
@@ -94,7 +99,10 @@ function ObservabilityPage() {
             <Logo size={28} />
             <span className="text-sm font-semibold text-primary">Observabilidade</span>
           </div>
-          <Link to="/admin" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+          <Link
+            to="/admin"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+          >
             <ArrowLeft className="size-4" /> Voltar
           </Link>
         </div>
@@ -108,7 +116,9 @@ function ObservabilityPage() {
                 key={r}
                 onClick={() => setRange(r)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                  range === r ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-muted"
+                  range === r
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground hover:bg-muted"
                 }`}
               >
                 {r}
@@ -121,7 +131,9 @@ function ObservabilityPage() {
                 key={t}
                 onClick={() => setTab(t)}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                  tab === t ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-muted"
+                  tab === t
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground hover:bg-muted"
                 }`}
               >
                 {t === "errors" ? "Erros" : "NPS"}
@@ -138,7 +150,11 @@ function ObservabilityPage() {
         ) : tab === "errors" ? (
           <section className="space-y-4">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <Metric label="Eventos" value={errorMetrics.total} icon={<AlertTriangle className="size-4" />} />
+              <Metric
+                label="Eventos"
+                value={errorMetrics.total}
+                icon={<AlertTriangle className="size-4" />}
+              />
               <Metric label="Mensagens distintas" value={errorMetrics.top.length} />
               <Metric label="URLs afetadas" value={errorMetrics.uniquePaths} />
             </div>
@@ -180,7 +196,9 @@ function ObservabilityPage() {
                             {new Date(e.created_at).toLocaleString()}
                           </td>
                           <td className="py-2 pr-4 text-foreground">{e.message}</td>
-                          <td className="py-2 pr-4 text-xs text-muted-foreground">{shortPath(e.url)}</td>
+                          <td className="py-2 pr-4 text-xs text-muted-foreground">
+                            {shortPath(e.url)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -192,7 +210,11 @@ function ObservabilityPage() {
         ) : (
           <section className="space-y-4">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <Metric label="Respostas" value={npsMetrics.total} icon={<Star className="size-4" />} />
+              <Metric
+                label="Respostas"
+                value={npsMetrics.total}
+                icon={<Star className="size-4" />}
+              />
               <Metric label="Média" value={npsMetrics.avg ? npsMetrics.avg.toFixed(1) : "—"} />
               <Metric label="NPS" value={npsMetrics.total ? npsMetrics.nps : "—"} />
               <Metric label="Promotores" value={npsMetrics.promoters} />
@@ -221,7 +243,11 @@ function ObservabilityPage() {
                         </span>
                         <span>{new Date(n.created_at).toLocaleString()}</span>
                       </div>
-                      <p className="text-sm text-foreground">{n.comment?.trim() || <span className="text-muted-foreground">Sem comentário</span>}</p>
+                      <p className="text-sm text-foreground">
+                        {n.comment?.trim() || (
+                          <span className="text-muted-foreground">Sem comentário</span>
+                        )}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -234,7 +260,15 @@ function ObservabilityPage() {
   );
 }
 
-function Metric({ label, value, icon }: { label: string; value: number | string; icon?: React.ReactNode }) {
+function Metric({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: number | string;
+  icon?: React.ReactNode;
+}) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">

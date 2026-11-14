@@ -1,6 +1,8 @@
 // Server-only helper for sending Web Push notifications.
 // Filename ends in `.server.ts` so it is blocked from client bundles.
 import webpush from "web-push";
+import type { Database } from "@/integrations/supabase/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type PushPayload = {
   title: string;
@@ -25,7 +27,7 @@ function ensureConfigured() {
 }
 
 export async function sendPushToUser(
-  supabaseAdmin: any,
+  supabaseAdmin: SupabaseClient<Database>,
   userId: string,
   payload: PushPayload,
 ): Promise<{ sent: number; failed: number }> {
@@ -68,12 +70,16 @@ export async function sendPushToUser(
           title: payload.title?.slice(0, 200) ?? null,
           tag: payload.tag ?? null,
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         failed += 1;
-        const status = err?.statusCode ?? null;
+        const details =
+          err && typeof err === "object"
+            ? (err as { statusCode?: unknown; body?: unknown; message?: unknown })
+            : {};
+        const status = typeof details.statusCode === "number" ? details.statusCode : null;
         const isStale = status === 404 || status === 410;
         if (isStale) staleIds.push(s.id);
-        else console.warn("[push] delivery failed", status, err?.body);
+        else console.warn("[push] delivery failed", status, details.body);
         logRows.push({
           user_id: userId,
           subscription_id: s.id,
@@ -82,7 +88,10 @@ export async function sendPushToUser(
           status_code: status,
           success: false,
           stale: isStale,
-          error_body: typeof err?.body === "string" ? err.body.slice(0, 500) : (err?.message ?? "unknown").slice(0, 500),
+          error_body:
+            typeof details.body === "string"
+              ? details.body.slice(0, 500)
+              : (typeof details.message === "string" ? details.message : "unknown").slice(0, 500),
           title: payload.title?.slice(0, 200) ?? null,
           tag: payload.tag ?? null,
         });
@@ -91,10 +100,7 @@ export async function sendPushToUser(
   );
 
   if (staleIds.length) {
-    await supabaseAdmin
-      .from("push_subscriptions")
-      .update({ active: false })
-      .in("id", staleIds);
+    await supabaseAdmin.from("push_subscriptions").update({ active: false }).in("id", staleIds);
   }
 
   if (logRows.length) {
@@ -113,7 +119,7 @@ function safeHost(endpoint: string): string {
 }
 
 export async function sendPushToRole(
-  supabaseAdmin: any,
+  supabaseAdmin: SupabaseClient<Database>,
   role: "admin" | "volunteer" | "user",
   payload: PushPayload,
 ): Promise<{ recipients: number; sent: number; failed: number }> {
@@ -122,7 +128,9 @@ export async function sendPushToRole(
     .from("user_roles")
     .select("user_id")
     .eq("role", role);
-  const userIds: string[] = Array.from(new Set((roleRows ?? []).map((r: { user_id: string }) => r.user_id)));
+  const userIds: string[] = Array.from(
+    new Set((roleRows ?? []).map((r: { user_id: string }) => r.user_id)),
+  );
   if (!userIds.length) return { recipients: 0, sent: 0, failed: 0 };
 
   let sent = 0;

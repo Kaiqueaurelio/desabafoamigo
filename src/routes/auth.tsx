@@ -197,7 +197,13 @@ function AuthPage() {
     setErr("");
     setGuestLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInAnonymously();
+      const request = () => supabase.auth.signInAnonymously();
+      let result = await request();
+      if (isNetworkError(result.error)) {
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+        result = await request();
+      }
+      const { data, error } = result;
       if (error) throw error;
       if (!data.user) throw new Error("Não foi possível iniciar sua sessão de convidado.");
       if (next) {

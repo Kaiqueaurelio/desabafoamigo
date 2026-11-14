@@ -183,25 +183,19 @@ export const aiChat = createServerFn({ method: "POST" })
         .delete()
         .eq("user_id", context.userId);
     }
-    const memoryMessage = savedMemory
-      ? {
-          role: "system",
-          content:
-            "Contexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: " +
-            savedMemory,
-        }
-      : null;
+    const systemContent = savedMemory
+      ? `${SYSTEM}\n\nContexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: ${savedMemory}`
+      : SYSTEM;
     const messages = [
-      { role: "system", content: SYSTEM },
-      ...(memoryMessage ? [memoryMessage] : []),
+      { role: "system", content: systemContent },
       ...data.messages.slice(0, -1),
       { role: "user", content: userContent },
     ];
     let raw = "";
-    let provider: "nvidia" | "lovable" | "none" = "none";
+    let provider: "nvidia" | "none" = "none";
     try {
-      const { chatCompletionWithProvider } = await import("./ai-gateway.server");
-      const completion = await chatCompletionWithProvider({
+      const { chatCompletion } = await import("./ai-gateway.server");
+      raw = await chatCompletion({
         messages,
         temperature: 0.35,
         top_p: 0.85,
@@ -209,11 +203,10 @@ export const aiChat = createServerFn({ method: "POST" })
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
-      raw = completion.content;
-      provider = completion.provider;
+      provider = "nvidia";
     } catch (error) {
       console.error(
-        "[aiChat] todos os provedores de IA indisponíveis",
+        "[aiChat] NVIDIA NIM indisponível",
         error instanceof Error ? error.message : error,
       );
     }

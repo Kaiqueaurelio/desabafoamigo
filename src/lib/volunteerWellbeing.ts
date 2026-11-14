@@ -37,7 +37,9 @@ export function registerConversationStart(): boolean {
     dismissedAt: stale ? 0 : s.dismissedAt,
   };
   write(next);
-  return next.count > 0 && next.count % PAUSE_EVERY === 0 && next.dismissedAt < next.lastAt - 60_000;
+  return (
+    next.count > 0 && next.count % PAUSE_EVERY === 0 && next.dismissedAt < next.lastAt - 60_000
+  );
 }
 
 export function getSessionCount(): number {

@@ -237,7 +237,8 @@ export const getLgpdDownloadUrl = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!req || req.user_id !== context.userId) throw new Error("Solicitação não encontrada.");
-    if (req.status !== "completed" || !req.file_path) throw new Error("Arquivo ainda não está pronto.");
+    if (req.status !== "completed" || !req.file_path)
+      throw new Error("Arquivo ainda não está pronto.");
 
     const { data: signed, error: signErr } = await context.supabase.storage
       .from("lgpd-exports")

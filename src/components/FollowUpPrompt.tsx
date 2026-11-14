@@ -47,7 +47,9 @@ export function FollowUpPrompt() {
           note: status === "replied" ? note.trim() || undefined : undefined,
         },
       });
-      toast.success(status === "replied" ? "Obrigado por compartilhar." : "Ok, guardamos com carinho.");
+      toast.success(
+        status === "replied" ? "Obrigado por compartilhar." : "Ok, guardamos com carinho.",
+      );
       setItem(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao responder.");
@@ -69,7 +71,8 @@ export function FollowUpPrompt() {
             Como você está desde nossa última conversa?
           </h3>
           <p className="mt-0.5 text-xs text-slate-300">
-            Queríamos saber se algo mudou, mesmo que pouco. Você não precisa responder — mas se quiser, estamos aqui.
+            Queríamos saber se algo mudou, mesmo que pouco. Você não precisa responder — mas se
+            quiser, estamos aqui.
           </p>
           <textarea
             value={note}

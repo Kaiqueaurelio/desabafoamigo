@@ -5,23 +5,56 @@ import { libraryMediaUrl } from "@/lib/library";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { BreathingButton } from "@/components/BreathingExercise";
 import {
-  BookOpen, Wind, HeartPulse, Sun, Users, PhoneCall,
-  Headphones, Quote, ImageIcon, Sparkles, ArrowRight, Play, ChevronRight,
+  BookOpen,
+  Wind,
+  HeartPulse,
+  Sun,
+  Users,
+  PhoneCall,
+  Headphones,
+  Quote,
+  ImageIcon,
+  Sparkles,
+  ArrowRight,
+  Play,
+  ChevronRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/apoio")({
   component: Apoio,
 });
 
-type Audio = { id: string; title: string; category: string; audio_url: string; cover_url: string | null };
+type Audio = {
+  id: string;
+  title: string;
+  category: string;
+  audio_url: string;
+  cover_url: string | null;
+};
 type Phrase = { id: string; text: string; author: string | null; category: string };
 type ImgRow = { id: string; title: string; caption: string | null; image_url: string };
 
 const TIPS = [
-  { icon: Wind, title: "Respiração 4-7-8", body: "Inspire 4s, segure 7s, solte 8s. Repita 4 ciclos." },
-  { icon: HeartPulse, title: "Grounding 5-4-3-2-1", body: "5 coisas que vê, 4 que toca, 3 que ouve, 2 que cheira, 1 que sente." },
-  { icon: Sun, title: "Autocuidado rápido", body: "Água, ar fresco e 10 min de movimento. Corpo cuidado, mente leve." },
-  { icon: Users, title: "Rede de apoio", body: "Fale com alguém de confiança. Pedir ajuda é força." },
+  {
+    icon: Wind,
+    title: "Respiração 4-7-8",
+    body: "Inspire 4s, segure 7s, solte 8s. Repita 4 ciclos.",
+  },
+  {
+    icon: HeartPulse,
+    title: "Grounding 5-4-3-2-1",
+    body: "5 coisas que vê, 4 que toca, 3 que ouve, 2 que cheira, 1 que sente.",
+  },
+  {
+    icon: Sun,
+    title: "Autocuidado rápido",
+    body: "Água, ar fresco e 10 min de movimento. Corpo cuidado, mente leve.",
+  },
+  {
+    icon: Users,
+    title: "Rede de apoio",
+    body: "Fale com alguém de confiança. Pedir ajuda é força.",
+  },
 ];
 
 const CONTACTS = [
@@ -32,11 +65,23 @@ const CONTACTS = [
 ];
 
 type BlockTone = "sky" | "blue" | "amber" | "emerald" | "rose";
-const BLOCKS: { id: string; label: string; icon: typeof Sparkles; desc: string; tone: BlockTone }[] = [
+const BLOCKS: {
+  id: string;
+  label: string;
+  icon: typeof Sparkles;
+  desc: string;
+  tone: BlockTone;
+}[] = [
   { id: "tecnicas", label: "Técnicas", icon: Sparkles, desc: "Respire e se acalme", tone: "sky" },
   { id: "audios", label: "Áudios", icon: Headphones, desc: "Sons e meditações", tone: "blue" },
   { id: "frases", label: "Frases", icon: Quote, desc: "Acolhimento em palavras", tone: "amber" },
-  { id: "imagens", label: "Imagens", icon: ImageIcon, desc: "Visuais para relaxar", tone: "emerald" },
+  {
+    id: "imagens",
+    label: "Imagens",
+    icon: ImageIcon,
+    desc: "Visuais para relaxar",
+    tone: "emerald",
+  },
   { id: "emergencia", label: "Emergência", icon: PhoneCall, desc: "Ajuda urgente", tone: "rose" },
 ];
 
@@ -66,10 +111,12 @@ function Apoio() {
       setPhrases((p.data ?? []) as Phrase[]);
       setImages((i.data ?? []) as ImgRow[]);
       const urls: Record<string, string> = {};
-      await Promise.all((i.data ?? []).map(async (row: ImgRow) => {
-        const u = await libraryMediaUrl(row.image_url);
-        if (u) urls[row.id] = u;
-      }));
+      await Promise.all(
+        (i.data ?? []).map(async (row: ImgRow) => {
+          const u = await libraryMediaUrl(row.image_url);
+          if (u) urls[row.id] = u;
+        }),
+      );
       setImgUrls(urls);
     })();
   }, []);
@@ -77,7 +124,10 @@ function Apoio() {
   return (
     <div className="relative min-h-full w-full max-w-full overflow-x-clip bg-gradient-to-b from-background via-background to-[#0a0f1c]">
       {/* Ambient glow */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-72 bg-[radial-gradient(60%_60%_at_50%_0%,theme(colors.blue.500/12),transparent_70%)]" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-72 bg-[radial-gradient(60%_60%_at_50%_0%,theme(colors.blue.500/12),transparent_70%)]"
+      />
 
       <div className="relative mx-auto w-full max-w-5xl overflow-x-clip px-4 py-6 sm:px-6 sm:py-12">
         {/* Hero — compacto em mobile */}
@@ -86,14 +136,20 @@ function Apoio() {
             <BookOpen className="size-6 text-blue-300 sm:size-7" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">Central de Apoio</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Central de Apoio
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground sm:text-lg">
               Tudo em um só lugar para te acolher agora.
             </p>
           </div>
         </header>
 
-        <Tabs value={tab} onValueChange={setTab} className="mt-6 w-full max-w-full overflow-x-clip sm:mt-10">
+        <Tabs
+          value={tab}
+          onValueChange={setTab}
+          className="mt-6 w-full max-w-full overflow-x-clip sm:mt-10"
+        >
           {/* Mobile: grade fixa para não gerar rolagem lateral. Desktop: grid glass. */}
           <div className="grid w-full max-w-full grid-cols-2 gap-2 pb-2 sm:grid-cols-3 sm:gap-4 sm:pb-0 md:grid-cols-5">
             {BLOCKS.map((b) => {
@@ -127,14 +183,24 @@ function Apoio() {
                   </span>
                   <span
                     className={`text-sm font-semibold sm:text-base ${
-                      active && isEmergency ? "text-rose-100" : active ? "text-white" : isEmergency ? "text-rose-200" : "text-foreground"
+                      active && isEmergency
+                        ? "text-rose-100"
+                        : active
+                          ? "text-white"
+                          : isEmergency
+                            ? "text-rose-200"
+                            : "text-foreground"
                     }`}
                   >
                     {b.label}
                   </span>
                   <span
                     className={`mt-0.5 line-clamp-2 text-[11px] leading-snug sm:mt-1 sm:text-xs ${
-                      active && !isEmergency ? "text-blue-200" : isEmergency ? "text-rose-400/80" : "text-muted-foreground"
+                      active && !isEmergency
+                        ? "text-blue-200"
+                        : isEmergency
+                          ? "text-rose-400/80"
+                          : "text-muted-foreground"
                     }`}
                   >
                     {b.desc}
@@ -156,8 +222,12 @@ function Apoio() {
                     <Wind className="size-5 sm:size-6" />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-base font-semibold text-foreground sm:text-lg">Respiração guiada</p>
-                    <p className="text-xs text-muted-foreground sm:text-sm">Sessões de 1, 5 ou 10 minutos com círculo que respira junto.</p>
+                    <p className="text-base font-semibold text-foreground sm:text-lg">
+                      Respiração guiada
+                    </p>
+                    <p className="text-xs text-muted-foreground sm:text-sm">
+                      Sessões de 1, 5 ou 10 minutos com círculo que respira junto.
+                    </p>
                   </div>
                 </div>
                 <span className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition group-hover:bg-sky-400 sm:w-auto">
@@ -169,14 +239,19 @@ function Apoio() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-foreground">Só uma pausa rápida?</p>
-                  <p className="text-xs text-muted-foreground">Abre um mini-exercício 4-7-8 sem sair da tela.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Abre um mini-exercício 4-7-8 sem sair da tela.
+                  </p>
                 </div>
                 <BreathingButton />
               </div>
             </div>
             <div className="mt-4 grid gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-4">
               {TIPS.map((t) => (
-                <article key={t.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.07] sm:rounded-3xl sm:p-6">
+                <article
+                  key={t.title}
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.07] sm:rounded-3xl sm:p-6"
+                >
                   <div className="mb-3 grid size-10 place-items-center rounded-xl bg-sky-500/10 text-sky-300 sm:mb-4 sm:size-11">
                     <t.icon className="size-5" />
                   </div>
@@ -204,8 +279,12 @@ function Apoio() {
                       <Play className="ml-0.5 size-5 fill-current" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-sm font-medium text-foreground sm:text-base">{a.title}</h3>
-                      <p className="mt-0.5 truncate text-xs capitalize text-muted-foreground">{a.category}</p>
+                      <h3 className="truncate text-sm font-medium text-foreground sm:text-base">
+                        {a.title}
+                      </h3>
+                      <p className="mt-0.5 truncate text-xs capitalize text-muted-foreground">
+                        {a.category}
+                      </p>
                     </div>
                     <ChevronRight className="size-5 shrink-0 text-muted-foreground/60 transition-colors group-hover:text-foreground" />
                   </Link>
@@ -227,8 +306,14 @@ function Apoio() {
                     className="rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/[0.08] via-white/[0.03] to-transparent p-4 sm:rounded-3xl sm:p-6"
                   >
                     <Quote className="mb-2 size-5 text-amber-300/80 sm:mb-3 sm:size-6" />
-                    <p className="text-sm leading-relaxed text-foreground sm:text-base">"{p.text}"</p>
-                    {p.author && <footer className="mt-2 text-xs text-muted-foreground sm:mt-3">— {p.author}</footer>}
+                    <p className="text-sm leading-relaxed text-foreground sm:text-base">
+                      "{p.text}"
+                    </p>
+                    {p.author && (
+                      <footer className="mt-2 text-xs text-muted-foreground sm:mt-3">
+                        — {p.author}
+                      </footer>
+                    )}
                   </blockquote>
                 ))}
               </div>
@@ -243,15 +328,25 @@ function Apoio() {
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                 {images.map((im) => (
-                  <figure key={im.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition hover:border-white/20">
+                  <figure
+                    key={im.id}
+                    className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition hover:border-white/20"
+                  >
                     {imgUrls[im.id] ? (
-                      <img src={imgUrls[im.id]} alt={im.title} loading="lazy" className="aspect-square w-full object-cover" />
+                      <img
+                        src={imgUrls[im.id]}
+                        alt={im.title}
+                        loading="lazy"
+                        className="aspect-square w-full object-cover"
+                      />
                     ) : (
                       <div className="aspect-square w-full animate-pulse bg-white/5" />
                     )}
                     <figcaption className="p-2.5 sm:p-3">
                       <p className="truncate text-sm font-medium text-foreground">{im.title}</p>
-                      {im.caption && <p className="truncate text-xs text-muted-foreground">{im.caption}</p>}
+                      {im.caption && (
+                        <p className="truncate text-xs text-muted-foreground">{im.caption}</p>
+                      )}
                     </figcaption>
                   </figure>
                 ))}
@@ -286,7 +381,8 @@ function Apoio() {
         </Tabs>
 
         <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-muted-foreground sm:mt-12">
-          Os conteúdos desta página são informativos e não substituem atendimento profissional de saúde.
+          Os conteúdos desta página são informativos e não substituem atendimento profissional de
+          saúde.
         </p>
       </div>
     </div>

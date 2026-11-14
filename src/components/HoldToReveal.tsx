@@ -21,7 +21,10 @@ export function HoldToReveal({
   const keyDownRef = useRef(false);
 
   const on = useCallback(() => setRevealed(true), []);
-  const off = useCallback(() => { setRevealed(false); keyDownRef.current = false; }, []);
+  const off = useCallback(() => {
+    setRevealed(false);
+    keyDownRef.current = false;
+  }, []);
 
   const onKeyDown = useCallback((e: React.KeyboardEvent) => {
     if ((e.key === " " || e.key === "Enter") && !keyDownRef.current) {
@@ -30,9 +33,15 @@ export function HoldToReveal({
       setRevealed(true);
     }
   }, []);
-  const onKeyUp = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === " " || e.key === "Enter") { e.preventDefault(); off(); }
-  }, [off]);
+  const onKeyUp = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        off();
+      }
+    },
+    [off],
+  );
 
   useEffect(() => {
     // Se a janela perde foco enquanto está segurando, cancela para evitar

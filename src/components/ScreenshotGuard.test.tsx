@@ -36,7 +36,11 @@ describe("ScreenshotGuard", () => {
 
   it("dispara onAttempt com severidade high em PrintScreen", () => {
     const spy = vi.fn();
-    render(<ScreenshotGuard onAttempt={spy}><div>x</div></ScreenshotGuard>);
+    render(
+      <ScreenshotGuard onAttempt={spy}>
+        <div>x</div>
+      </ScreenshotGuard>,
+    );
     act(() => {
       fireEvent.keyDown(window, { key: "PrintScreen" });
     });
@@ -47,7 +51,11 @@ describe("ScreenshotGuard", () => {
 
   it("dispara onAttempt em atalho Ctrl+Shift+S", () => {
     const spy = vi.fn();
-    render(<ScreenshotGuard onAttempt={spy}><div>x</div></ScreenshotGuard>);
+    render(
+      <ScreenshotGuard onAttempt={spy}>
+        <div>x</div>
+      </ScreenshotGuard>,
+    );
     act(() => {
       fireEvent.keyDown(window, { key: "s", ctrlKey: true, shiftKey: true });
     });
@@ -56,7 +64,11 @@ describe("ScreenshotGuard", () => {
   });
 
   it("borra conteúdo e mostra alerta acessível ao detectar", () => {
-    render(<ScreenshotGuard><div data-testid="c">x</div></ScreenshotGuard>);
+    render(
+      <ScreenshotGuard>
+        <div data-testid="c">x</div>
+      </ScreenshotGuard>,
+    );
     act(() => {
       fireEvent.keyDown(window, { key: "PrintScreen" });
     });
@@ -68,15 +80,27 @@ describe("ScreenshotGuard", () => {
   });
 
   it("cortina sticky em picture-in-picture só sai quando o modo termina", () => {
-    render(<ScreenshotGuard><div>x</div></ScreenshotGuard>);
-    act(() => { document.dispatchEvent(new Event("enterpictureinpicture")); });
+    render(
+      <ScreenshotGuard>
+        <div>x</div>
+      </ScreenshotGuard>,
+    );
+    act(() => {
+      document.dispatchEvent(new Event("enterpictureinpicture"));
+    });
     expect(screen.getByRole("alert").textContent).toMatch(/Picture-in-Picture/);
-    act(() => { document.dispatchEvent(new Event("leavepictureinpicture")); });
+    act(() => {
+      document.dispatchEvent(new Event("leavepictureinpicture"));
+    });
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("bloqueia menu de contexto", () => {
-    render(<ScreenshotGuard><div>x</div></ScreenshotGuard>);
+    render(
+      <ScreenshotGuard>
+        <div>x</div>
+      </ScreenshotGuard>,
+    );
     const evt = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
     const prevented = !document.dispatchEvent(evt);
     expect(prevented).toBe(true);
@@ -113,19 +137,27 @@ describe("HoldToReveal", () => {
     const btn = screen.getByRole("button");
     expect(btn).toHaveAttribute("aria-pressed", "false");
     expect(btn.textContent).toContain("Segurar para ver");
-    act(() => { fireEvent.mouseDown(btn); });
+    act(() => {
+      fireEvent.mouseDown(btn);
+    });
     expect(btn).toHaveAttribute("aria-pressed", "true");
     expect(btn.textContent).toContain("segredo");
-    act(() => { fireEvent.mouseUp(btn); });
+    act(() => {
+      fireEvent.mouseUp(btn);
+    });
     expect(btn).toHaveAttribute("aria-pressed", "false");
   });
 
   it("suporta teclado: Espaço para segurar e soltar", () => {
     render(<HoldToReveal>x</HoldToReveal>);
     const btn = screen.getByRole("button");
-    act(() => { fireEvent.keyDown(btn, { key: " " }); });
+    act(() => {
+      fireEvent.keyDown(btn, { key: " " });
+    });
     expect(btn).toHaveAttribute("aria-pressed", "true");
-    act(() => { fireEvent.keyUp(btn, { key: " " }); });
+    act(() => {
+      fireEvent.keyUp(btn, { key: " " });
+    });
     expect(btn).toHaveAttribute("aria-pressed", "false");
   });
 });

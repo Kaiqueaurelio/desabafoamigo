@@ -59,6 +59,7 @@ export function ScreenshotGuard({
   const prefersReducedMotion = useRef<boolean>(false);
 
   useEffect(() => {
+    const timers = new Set<number>();
     prefersReducedMotion.current =
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
@@ -72,7 +73,11 @@ export function ScreenshotGuard({
       onAttempt?.(attempt);
       if (!sticky) {
         const dur = prefersReducedMotion.current ? 1200 : 2500;
-        window.setTimeout(() => setCurtain((c) => (c && !c.sticky ? null : c)), dur);
+        const timer = window.setTimeout(() => {
+          timers.delete(timer);
+          setCurtain((c) => (c && !c.sticky ? null : c));
+        }, dur);
+        timers.add(timer);
       }
     }
 
@@ -97,7 +102,11 @@ export function ScreenshotGuard({
         );
       }
       if (k === "printscreen") {
-        try { navigator.clipboard?.writeText(" "); } catch { /* ignore */ }
+        try {
+          navigator.clipboard?.writeText(" ");
+        } catch {
+          /* ignore */
+        }
         e.preventDefault();
         flag("Tecla PrintScreen detectada");
         return;
@@ -111,9 +120,12 @@ export function ScreenshotGuard({
       bumpActivity();
     }
 
-
-    function onContext(e: MouseEvent) { e.preventDefault(); }
-    function onDrag(e: DragEvent) { e.preventDefault(); }
+    function onContext(e: MouseEvent) {
+      e.preventDefault();
+    }
+    function onDrag(e: DragEvent) {
+      e.preventDefault();
+    }
 
     // Cortina sticky enquanto a aba não estiver visível
     function onVisibility() {
@@ -126,10 +138,14 @@ export function ScreenshotGuard({
     function onFocus() {
       setCurtain((c) => (c?.sticky && /foco|visibilidade/i.test(c.reason) ? null : c));
     }
-    function onBlur() { flag("Janela perdeu o foco", true); }
+    function onBlur() {
+      flag("Janela perdeu o foco", true);
+    }
 
     // Picture-in-Picture: mantém cortina enquanto o modo estiver ativo
-    function onPipEnter() { flag("Picture-in-Picture ativado", true); }
+    function onPipEnter() {
+      flag("Picture-in-Picture ativado", true);
+    }
     function onPipLeave() {
       setCurtain((c) => (c?.sticky && /picture/i.test(c.reason) ? null : c));
     }
@@ -146,6 +162,8 @@ export function ScreenshotGuard({
     document.addEventListener("leavepictureinpicture", onPipLeave as EventListener);
 
     return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      timers.clear();
       window.removeEventListener("keydown", onKey, true);
       window.removeEventListener("keyup", bumpActivity, true);
       window.removeEventListener("mousemove", bumpActivity);
@@ -194,8 +212,8 @@ export function ScreenshotGuard({
                 {curtain.sticky ? "Conteúdo oculto" : "Captura bloqueada"}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {curtain.reason}. Para proteger o sigilo, a conversa fica
-                oculta enquanto a janela não está em foco.
+                {curtain.reason}. Para proteger o sigilo, a conversa fica oculta enquanto a janela
+                não está em foco.
               </p>
             </div>
           </div>

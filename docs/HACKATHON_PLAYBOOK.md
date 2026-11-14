@@ -19,6 +19,7 @@ Evite afirmar prevalência, número de vidas salvas ou impacto epidemiológico s
 ### 1:00–2:15 — Demonstração
 
 Abra `/hackathon` e percorra:
+
 1. Entrada e identidade de exibição.
 2. Consentimento e controles de privacidade.
 3. Conversa ilustrativa com o Amigo IA.
@@ -41,12 +42,14 @@ Deixe claro que os diálogos, a fila, os nomes e os números da demonstração s
 ## Como explicar a segurança sem exagerar
 
 Diga:
+
 - “A triagem é um mecanismo de sinalização, não um diagnóstico.”
 - “O sistema combina regras locais e análise do modelo; nenhum dos dois é infalível.”
 - “Em situação de risco imediato, orientamos a procurar atendimento de emergência e apoio presencial.”
 - “Estamos fortalecendo validação, supervisão humana, governança e proteção de dados.”
 
 Não diga:
+
 - “A IA detecta suicídio com 100% de precisão.”
 - “O aplicativo impede suicídios.”
 - “Tudo é anônimo” ou “ninguém consegue acessar os dados”.
@@ -56,34 +59,40 @@ Não diga:
 ## Perguntas prováveis da banca
 
 ### A IA substitui psicólogos?
+
 Não. É uma camada de apoio conversacional e orientação geral. A plataforma deixa explícito que não realiza diagnóstico nem psicoterapia e mantém o encaminhamento humano como parte central da proposta.
 
 ### Como lida com risco de suicídio?
+
 Observa sinais no contexto da conversa, pode elevar a prioridade de apoio humano e apresenta caminhos oficiais. Em emergência médica, SAMU 192; em perigo imediato ou violência, Polícia 190; CVV 188 oferece apoio emocional gratuito 24h. A sinalização pode falhar e precisa de supervisão e validação especializada.
 
 ### Como evita falsos positivos e falsos negativos?
+
 Não depende apenas de uma palavra isolada. Usa contexto, regras determinísticas e avaliação do modelo. Ainda assim, não é uma ferramenta clínica validada. O próximo passo é avaliação estruturada com profissionais, casos simulados e monitoramento de qualidade sem coletar conteúdo desnecessário.
 
 ### Como protege a privacidade?
+
 Explica o processamento por provedores externos, separa consentimento de IA e memória opcional e oferece controles de histórico e exclusão. Não prometemos anonimato absoluto ou criptografia ponta a ponta sem comprovação técnica.
 
 ### Como mede impacto?
+
 Primeiro, com métricas operacionais e de experiência: tempo até primeira resposta humana, taxa de conexão, abandono da fila, disponibilidade de voluntários, satisfação voluntária e conclusão do encaminhamento. Resultados clínicos só devem ser avaliados com protocolo, consentimento, instrumentos adequados e supervisão especializada.
 
 ### Como escala?
+
 A arquitetura web/PWA e o backend gerenciado permitem evoluir por etapas. A escala depende também de capacidade de voluntariado, governança, proteção de dados, moderação, treinamento e protocolos de crise — não apenas de infraestrutura.
 
 ## Métricas que vale instrumentar antes de alegar impacto
 
-| Métrica | Definição sugerida |
-|---|---|
-| Tempo até primeira resposta humana | Minutos entre entrada na fila e primeiro contato |
-| Taxa de conexão | Atendimentos aceitos / solicitações válidas |
-| Abandono da fila | Pessoas que saem antes de serem conectadas / solicitações |
-| Disponibilidade | Minutos com voluntário disponível / período observado |
-| Encaminhamento concluído | Encaminhamentos confirmados / encaminhamentos iniciados |
-| Experiência percebida | Pergunta opcional e não clínica após conversa |
-| Segurança operacional | Casos sinalizados revisados conforme protocolo, sem usar o indicador como diagnóstico |
+| Métrica                            | Definição sugerida                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------- |
+| Tempo até primeira resposta humana | Minutos entre entrada na fila e primeiro contato                                      |
+| Taxa de conexão                    | Atendimentos aceitos / solicitações válidas                                           |
+| Abandono da fila                   | Pessoas que saem antes de serem conectadas / solicitações                             |
+| Disponibilidade                    | Minutos com voluntário disponível / período observado                                 |
+| Encaminhamento concluído           | Encaminhamentos confirmados / encaminhamentos iniciados                               |
+| Experiência percebida              | Pergunta opcional e não clínica após conversa                                         |
+| Segurança operacional              | Casos sinalizados revisados conforme protocolo, sem usar o indicador como diagnóstico |
 
 Colete o mínimo necessário, agregue resultados e defina retenção e acesso antes de instrumentar.
 

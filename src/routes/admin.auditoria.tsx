@@ -7,7 +7,9 @@ import { TableRowsSkeleton } from "@/components/AdminSkeletons";
 
 export const Route = createFileRoute("/admin/auditoria")({
   ssr: false,
-  beforeLoad: async () => { await ensureAdminAal2(); },
+  beforeLoad: async () => {
+    await ensureAdminAal2();
+  },
   component: Auditoria,
 });
 
@@ -28,7 +30,11 @@ function Auditoria() {
 
   async function load() {
     setLoading(true);
-    let query = supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(200);
+    let query = supabase
+      .from("audit_log")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(200);
     if (q.trim()) {
       const term = `%${q.trim()}%`;
       query = query.or(`action.ilike.${term},target_type.ilike.${term},target_id.ilike.${term}`);
@@ -38,12 +44,17 @@ function Auditoria() {
     setLoading(false);
   }
 
-  useEffect(() => { void load(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => {
+    void load(); /* eslint-disable-next-line */
+  }, []);
 
   return (
     <main className="min-h-dvh bg-background">
       <div className="mx-auto max-w-5xl p-6">
-        <Link to="/admin" className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+        <Link
+          to="/admin"
+          className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+        >
           <ArrowLeft className="size-3" /> Voltar ao painel
         </Link>
         <div className="mb-4 flex items-center gap-2">
@@ -52,13 +63,25 @@ function Auditoria() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-primary">Auditoria</h1>
-            <p className="text-sm text-muted-foreground">Últimos 200 eventos. Retido por 365 dias.</p>
+            <p className="text-sm text-muted-foreground">
+              Últimos 200 eventos. Retido por 365 dias.
+            </p>
           </div>
         </div>
 
-        <form onSubmit={(e) => { e.preventDefault(); void load(); }} className="mb-3 flex gap-2">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filtrar por ação, tipo, id…"
-            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void load();
+          }}
+          className="mb-3 flex gap-2"
+        >
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Filtrar por ação, tipo, id…"
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          />
           <button className="btn-primary text-sm">Buscar</button>
         </form>
 
@@ -81,10 +104,16 @@ function Auditoria() {
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.id} className="border-b border-border/50 align-top">
-                    <td className="whitespace-nowrap p-2 text-muted-foreground">{new Date(r.created_at).toLocaleString("pt-BR")}</td>
-                    <td className="whitespace-nowrap p-2 font-mono text-[10px]">{r.actor_id?.slice(0, 8) ?? "—"}</td>
+                    <td className="whitespace-nowrap p-2 text-muted-foreground">
+                      {new Date(r.created_at).toLocaleString("pt-BR")}
+                    </td>
+                    <td className="whitespace-nowrap p-2 font-mono text-[10px]">
+                      {r.actor_id?.slice(0, 8) ?? "—"}
+                    </td>
                     <td className="p-2 font-semibold text-foreground">{r.action}</td>
-                    <td className="p-2">{r.target_type ? `${r.target_type}:${r.target_id?.slice(0, 8) ?? "—"}` : "—"}</td>
+                    <td className="p-2">
+                      {r.target_type ? `${r.target_type}:${r.target_id?.slice(0, 8) ?? "—"}` : "—"}
+                    </td>
                     <td className="max-w-sm p-2">
                       <pre className="max-h-24 overflow-auto whitespace-pre-wrap break-words rounded bg-background/60 p-1 text-[10px] text-muted-foreground">
                         {JSON.stringify(r.metadata ?? {}, null, 0)}

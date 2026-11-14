@@ -33,12 +33,25 @@ export const exportMyData = createServerFn({ method: "POST" })
 
     const [profile, moods, appts, myMsgs, ratings] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
-      supabase.from("mood_entries").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-      supabase.from("appointments").select("id, scheduled_at, topic, status, created_at")
+      supabase
+        .from("mood_entries")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("appointments")
+        .select("id, scheduled_at, topic, status, created_at")
         .or(`patient_id.eq.${userId},professional_id.eq.${userId}`),
-      supabase.from("messages").select("id, conversation_id, content, transcription, created_at")
-        .eq("sender_id", userId).order("created_at", { ascending: false }).limit(2000),
-      supabase.from("appointments").select("id, patient_rating, patient_feedback").eq("patient_id", userId),
+      supabase
+        .from("messages")
+        .select("id, conversation_id, content, transcription, created_at")
+        .eq("sender_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(2000),
+      supabase
+        .from("appointments")
+        .select("id, patient_rating, patient_feedback")
+        .eq("patient_id", userId),
     ]);
 
     await supabase.rpc("log_audit", {

@@ -33,11 +33,9 @@ const CATEGORY_LABELS: Record<(typeof CATEGORIES)[number], RegExp> = {
 
 function getSupabaseCreds() {
   const storageKey =
-    process.env.E2E_SUPABASE_STORAGE_KEY ??
-    process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY;
+    process.env.E2E_SUPABASE_STORAGE_KEY ?? process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY;
   const sessionJson =
-    process.env.E2E_SUPABASE_SESSION_JSON ??
-    process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
+    process.env.E2E_SUPABASE_SESSION_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
   return { storageKey, sessionJson };
 }
 
@@ -46,8 +44,7 @@ async function restoreSession(context: BrowserContext, page: Page) {
   if (!storageKey || !sessionJson) return false;
 
   const cookiesJson =
-    process.env.E2E_SUPABASE_COOKIES_JSON ??
-    process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON;
+    process.env.E2E_SUPABASE_COOKIES_JSON ?? process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON;
   if (cookiesJson) {
     try {
       const cookies = JSON.parse(cookiesJson).map((c: Record<string, unknown>) => ({
@@ -61,10 +58,10 @@ async function restoreSession(context: BrowserContext, page: Page) {
   }
 
   await page.goto("http://localhost:8080", { waitUntil: "domcontentloaded" });
-  await page.evaluate(
-    ({ key, value }) => window.localStorage.setItem(key, value),
-    { key: storageKey, value: sessionJson }
-  );
+  await page.evaluate(({ key, value }) => window.localStorage.setItem(key, value), {
+    key: storageKey,
+    value: sessionJson,
+  });
   return true;
 }
 
@@ -97,19 +94,35 @@ async function simulateSafeArea(page: Page, safeBottom: number) {
 /** Retorna os rects dos overlays inferiores fixos (bottom nav + botão SOS). */
 async function getBottomOverlays(page: Page) {
   return page.evaluate(() => {
-    const rects: Array<{ label: string; top: number; bottom: number; left: number; right: number }> = [];
-    const nav = document.querySelector('nav[aria-label="Navegação principal"]') as HTMLElement | null;
+    const rects: Array<{
+      label: string;
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    }> = [];
+    const nav = document.querySelector(
+      'nav[aria-label="Navegação principal"]',
+    ) as HTMLElement | null;
     if (nav && getComputedStyle(nav).display !== "none") {
       const r = nav.getBoundingClientRect();
-      rects.push({ label: "bottom-nav", top: r.top, bottom: r.bottom, left: r.left, right: r.right });
+      rects.push({
+        label: "bottom-nav",
+        top: r.top,
+        bottom: r.bottom,
+        left: r.left,
+        right: r.right,
+      });
     }
     // botão de emergência (colapsado ou expandido). Marcado por aria-label
     // contendo "emergência" / "Preciso de ajuda" ou pelo texto "SOS".
-    const sos = Array.from(document.querySelectorAll<HTMLElement>('[class*="fixed"]')).filter((el) => {
-      const t = (el.innerText || "").toLowerCase();
-      const a = (el.getAttribute("aria-label") || "").toLowerCase();
-      return /sos|ajuda urgente|188|emergência/.test(t + " " + a);
-    });
+    const sos = Array.from(document.querySelectorAll<HTMLElement>('[class*="fixed"]')).filter(
+      (el) => {
+        const t = (el.innerText || "").toLowerCase();
+        const a = (el.getAttribute("aria-label") || "").toLowerCase();
+        return /sos|ajuda urgente|188|emergência/.test(t + " " + a);
+      },
+    );
     for (const el of sos) {
       const r = el.getBoundingClientRect();
       if (r.width > 0 && r.height > 0) {
@@ -146,7 +159,9 @@ async function assertNoCtaCovered(page: Page, viewport: { width: number; height:
     for (const ov of overlays) {
       if (overlaps(rect, ov)) {
         const text = (await el.innerText().catch(() => "")).slice(0, 40);
-        covered.push(`"${text}" coberto por ${ov.label} (cta.bottom=${Math.round(rect.bottom)}, ov.top=${Math.round(ov.top)})`);
+        covered.push(
+          `"${text}" coberto por ${ov.label} (cta.bottom=${Math.round(rect.bottom)}, ov.top=${Math.round(ov.top)})`,
+        );
         break;
       }
     }
@@ -189,7 +204,10 @@ for (const vp of MOBILE_WIDTHS) {
       expect(info, "elemento <main> deve existir").not.toBeNull();
       // 7rem = 112px. safe-area em Chromium headless resolve como 0,
       // então o mínimo garantido é 112px.
-      expect(info!.paddingBottom, `padding-bottom=${info!.paddingBottom}px < 112`).toBeGreaterThanOrEqual(112);
+      expect(
+        info!.paddingBottom,
+        `padding-bottom=${info!.paddingBottom}px < 112`,
+      ).toBeGreaterThanOrEqual(112);
     });
 
     test("bottom nav não cobre nenhum CTA (aba Técnicas)", async ({ page }) => {
@@ -215,7 +233,12 @@ for (const vp of MOBILE_WIDTHS) {
       if (!box) return;
 
       const overlays = await getBottomOverlays(page);
-      const rect = { top: box.y, bottom: box.y + box.height, left: box.x, right: box.x + box.width };
+      const rect = {
+        top: box.y,
+        bottom: box.y + box.height,
+        left: box.x,
+        right: box.x + box.width,
+      };
       for (const ov of overlays) {
         expect(
           overlaps(rect, ov),
