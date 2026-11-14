@@ -24,11 +24,9 @@ const ORG_JSONLD = JSON.stringify({
   name: "Desabafo Amigo",
   url: "https://desabaoamigo.lovable.app",
   logo: "https://desabaoamigo.lovable.app/favicon.png",
-  description:
-    "Escuta acolhedora anônima por voluntários treinados, via mensagens de texto.",
+  description: "Escuta acolhedora anônima por voluntários treinados, via mensagens de texto.",
   sameAs: [],
 });
-
 
 function NotFoundComponent() {
   return (
