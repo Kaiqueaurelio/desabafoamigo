@@ -107,7 +107,20 @@ export function parseAiJson(
         severity?: unknown;
         memorySummary?: unknown;
       };
-      const severityValue = Number(parsed.severity);
+      const severityLabels: Record<string, number> = {
+        none: 0,
+        low: 1,
+        mild: 1,
+        moderate: 2,
+        medium: 2,
+        high: 3,
+        urgent: 3,
+        critical: 3,
+      };
+      const severityValue =
+        typeof parsed.severity === "string"
+          ? (severityLabels[parsed.severity.trim().toLowerCase()] ?? Number(parsed.severity))
+          : Number(parsed.severity);
       const severity =
         parsed.severity === undefined || parsed.severity === null ? null : severityValue;
       if (
