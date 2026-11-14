@@ -5,6 +5,7 @@ import { Logo } from "@/components/Logo";
 import { PasswordInput } from "@/components/PasswordInput";
 import { Sparkles } from "lucide-react";
 import { z } from "zod";
+import { getAuthErrorMessage, isNetworkError } from "@/lib/authErrors";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — Desabafo Amigo" }] }),
@@ -55,11 +56,28 @@ function AuthPage() {
   }, []);
 
 
+  async function signInWithNetworkRetry(normalizedEmail: string, normalizedPassword: string) {
+    const request = () =>
+      supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: normalizedPassword,
+      });
+
+    try {
+      const firstAttempt = await request();
+      if (!isNetworkError(firstAttempt.error)) return firstAttempt;
+    } catch (error) {
+      if (!isNetworkError(error)) throw error;
+    }
+
+    // Safari on iOS can surface a transient transport failure as "Load failed".
+    // Retry once only for network failures; credential and server errors are not retried.
+    await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+    return request();
+  }
+
   async function signInAndRoute(normalizedEmail: string, normalizedPassword: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password: normalizedPassword,
-    });
+    const { data, error } = await signInWithNetworkRetry(normalizedEmail, normalizedPassword);
     if (error) throw error;
 
     const userId = data.user?.id;
@@ -71,18 +89,25 @@ function AuthPage() {
       return;
     }
 
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
+    // A autenticação já foi concluída. Uma falha temporária na consulta de papel
+    // não deve desfazer o login; o fallback é sempre a área comum, nunca a área admin.
+    let isAdmin = false;
+    try {
+      const { data: roles, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
 
-    const isAdmin = (roles ?? []).some((role) => role.role === "admin");
-    if (isAdmin) {
-      navigate({ to: "/admin" });
-      return;
+      if (roleError) {
+        console.warn("[Auth] Login concluído; não foi possível confirmar o papel administrativo.");
+      } else {
+        isAdmin = (roles ?? []).some((role) => role.role === "admin");
+      }
+    } catch {
+      console.warn("[Auth] Login concluído; consulta de papel indisponível. Usando acesso comum.");
     }
 
-    navigate({ to: "/inicio" });
+    navigate({ to: isAdmin ? "/admin" : "/inicio" });
   }
 
   async function submit(e: React.FormEvent) {
@@ -135,7 +160,7 @@ function AuthPage() {
       } else if (lower.includes("rate limit") || lower.includes("over_email_send_rate_limit")) {
         setErr("Muitas tentativas. Aguarde alguns minutos e tente novamente.");
       } else {
-        setErr(raw);
+        setErr(getAuthErrorMessage(e, typeof navigator !== "undefined" ? navigator.onLine : undefined));
       }
     } finally { setLoading(false); }
   }
@@ -158,7 +183,7 @@ function AuthPage() {
       if (lower.includes("anonymous") || lower.includes("disabled") || lower.includes("not enabled")) {
         setErr("O acesso como convidado ainda precisa ser ativado nas configurações de autenticação do Supabase. Tente novamente mais tarde.");
       } else {
-        setErr(message || "Não foi possível entrar como convidado. Verifique sua conexão e tente novamente.");
+        setErr(getAuthErrorMessage(e, typeof navigator !== "undefined" ? navigator.onLine : undefined));
       }
     } finally {
       setGuestLoading(false);
