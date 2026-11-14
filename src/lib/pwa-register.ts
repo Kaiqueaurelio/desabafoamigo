@@ -56,6 +56,19 @@ async function purgeAppCaches(): Promise<void> {
   }
 }
 
+export async function recoverAppFromRootError(): Promise<void> {
+  if (typeof window === "undefined") return;
+
+  // Remove apenas o service worker e os caches pertencentes ao app.
+  await unregisterAppSw();
+  await purgeAppCaches();
+
+  const recoveryUrl = new URL("/auth", window.location.origin);
+  recoveryUrl.searchParams.set("sw", "off");
+  recoveryUrl.searchParams.set("recovery", "1");
+  window.location.replace(recoveryUrl.toString());
+}
+
 export async function registerPwa(): Promise<void> {
   if (typeof window === "undefined") return;
   if (!("serviceWorker" in navigator)) return;
@@ -64,10 +77,7 @@ export async function registerPwa(): Promise<void> {
   const killSwitch = url.searchParams.get("sw") === "off";
 
   const shouldRefuse =
-    !import.meta.env.PROD ||
-    inIframe() ||
-    isPreviewHost(window.location.hostname) ||
-    killSwitch;
+    !import.meta.env.PROD || inIframe() || isPreviewHost(window.location.hostname) || killSwitch;
 
   if (shouldRefuse) {
     await unregisterAppSw();
