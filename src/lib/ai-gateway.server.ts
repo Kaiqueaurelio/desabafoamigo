@@ -13,9 +13,16 @@ function modelFor(body: Record<string, unknown>): string {
 
 function extractContent(data: unknown): string {
   const result = data as {
-    choices?: { message?: { content?: string | Array<{ type?: string; text?: string }> } }[];
+    choices?: {
+      text?: string;
+      message?: {
+        content?: string | Array<{ type?: string; text?: string }> | null;
+        output_text?: string;
+      };
+    }[];
   };
-  const content = result.choices?.[0]?.message?.content;
+  const message = result.choices?.[0]?.message;
+  const content = message?.content ?? message?.output_text ?? result.choices?.[0]?.text;
   if (typeof content === "string") return content;
   if (Array.isArray(content)) return content.map((part) => part.text ?? "").join("");
   return "";
@@ -72,7 +79,11 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
 async function requestLovable(body: Record<string, unknown>, apiKey: string): Promise<string> {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "Lovable-API-Key": apiKey,
+    },
     body: JSON.stringify({
       ...body,
       model: getServerEnv("LOVABLE_AI_MODEL") || "google/gemini-2.5-flash",
