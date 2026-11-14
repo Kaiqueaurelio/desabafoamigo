@@ -19,7 +19,7 @@ function modelFor(body: Record<string, unknown>): string {
     ? getServerEnv("NVIDIA_VISION_MODEL") ||
         getServerEnv("NVIDIA_MODEL") ||
         "meta/llama-3.2-11b-vision-instruct"
-    : getServerEnv("NVIDIA_MODEL") || "meta/llama-3.1-8b-instruct";
+    : getServerEnv("NVIDIA_MODEL") || "nvidia/nemotron-3.5-lightning-30b-a3b";
 }
 
 /** Gateway único NVIDIA NIM; nenhuma chamada ou chave Lovable no runtime. */
