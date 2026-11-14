@@ -44,13 +44,18 @@ jobs:
           NVIDIA_API_KEY_VOICE: ${{ secrets.NVIDIA_API_KEY_VOICE }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NVIDIA_ASR_HTTP_URL: ${{ secrets.NVIDIA_ASR_HTTP_URL }}
           NVIDIA_API_KEY_ASR: ${{ secrets.NVIDIA_API_KEY_ASR }}
           NVIDIA_ASR_FUNCTION_ID: ${{ secrets.NVIDIA_ASR_FUNCTION_ID }}
           NVIDIA_ASR_LANGUAGE: ${{ vars.NVIDIA_ASR_LANGUAGE }}
+          NVIDIA_TTS_VOICE: ${{ vars.NVIDIA_TTS_VOICE }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: ${{ vars.VAPID_SUBJECT }}
         run: |
           set -euo pipefail
-          put_secret() {
+          put_required_secret() {
             name="$1"
             value="$2"
             if [ -z "$value" ]; then
@@ -59,14 +64,27 @@ jobs:
             fi
             printf '%s' "$value" | bunx wrangler secret put "$name" --name desabafo-amigo
           }
-          put_secret NVIDIA_API_KEY "$NVIDIA_API_KEY"
-          put_secret NVIDIA_API_KEY_VOICE "$NVIDIA_API_KEY_VOICE"
-          put_secret SUPABASE_URL "$SUPABASE_URL"
-          put_secret SUPABASE_PUBLISHABLE_KEY "$SUPABASE_PUBLISHABLE_KEY"
-          if [ -n "${NVIDIA_ASR_HTTP_URL:-}" ]; then bunx wrangler secret put NVIDIA_ASR_HTTP_URL --name desabafo-amigo <<< "$NVIDIA_ASR_HTTP_URL"; fi
-          if [ -n "${NVIDIA_API_KEY_ASR:-}" ]; then bunx wrangler secret put NVIDIA_API_KEY_ASR --name desabafo-amigo <<< "$NVIDIA_API_KEY_ASR"; fi
-          if [ -n "${NVIDIA_ASR_FUNCTION_ID:-}" ]; then bunx wrangler secret put NVIDIA_ASR_FUNCTION_ID --name desabafo-amigo <<< "$NVIDIA_ASR_FUNCTION_ID"; fi
-          if [ -n "${NVIDIA_ASR_LANGUAGE:-}" ]; then bunx wrangler secret put NVIDIA_ASR_LANGUAGE --name desabafo-amigo <<< "$NVIDIA_ASR_LANGUAGE"; fi
+          put_optional_secret() {
+            name="$1"
+            value="$2"
+            if [ -n "$value" ]; then
+              printf '%s' "$value" | bunx wrangler secret put "$name" --name desabafo-amigo
+            fi
+          }
+          put_required_secret NVIDIA_API_KEY "$NVIDIA_API_KEY"
+          # Voice can reuse the main NVIDIA credential when no separate key is configured.
+          put_required_secret NVIDIA_API_KEY_VOICE "${NVIDIA_API_KEY_VOICE:-$NVIDIA_API_KEY}"
+          put_required_secret SUPABASE_URL "$SUPABASE_URL"
+          put_required_secret SUPABASE_PUBLISHABLE_KEY "$SUPABASE_PUBLISHABLE_KEY"
+          put_optional_secret SUPABASE_SERVICE_ROLE_KEY "$SUPABASE_SERVICE_ROLE_KEY"
+          put_optional_secret NVIDIA_ASR_HTTP_URL "$NVIDIA_ASR_HTTP_URL"
+          put_optional_secret NVIDIA_API_KEY_ASR "$NVIDIA_API_KEY_ASR"
+          put_optional_secret NVIDIA_ASR_FUNCTION_ID "$NVIDIA_ASR_FUNCTION_ID"
+          put_optional_secret NVIDIA_ASR_LANGUAGE "$NVIDIA_ASR_LANGUAGE"
+          put_optional_secret NVIDIA_TTS_VOICE "$NVIDIA_TTS_VOICE"
+          put_optional_secret VAPID_PUBLIC_KEY "$VAPID_PUBLIC_KEY"
+          put_optional_secret VAPID_PRIVATE_KEY "$VAPID_PRIVATE_KEY"
+          put_optional_secret VAPID_SUBJECT "$VAPID_SUBJECT"
 
       - name: Deploy Worker
         run: bunx wrangler deploy
