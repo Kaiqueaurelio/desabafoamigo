@@ -3,9 +3,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assessRisk, parseAiJson, FALLBACK_REPLY } from "./aiSafety";
 
 type Msg = { role: "user" | "assistant"; content: string };
-type AiAttachment = { kind: "image" | "audio" | "video-frame"; mimeType: string; name: string; dataUrl: string };
+type AiAttachment = {
+  kind: "image" | "audio" | "video-frame";
+  mimeType: string;
+  name: string;
+  dataUrl: string;
+};
 
-const SYSTEM = `Você é Ella Ribeiro, a assistente virtual de acolhimento emocional do Desabafo Amigo. Seu nome de apresentação é Ella Ribeiro; deixe claro quando necessário que você é uma inteligência artificial. Você é uma inteligência artificial, não é psicólogo, não possui registro profissional e não realiza psicoterapia. Nunca se apresente como profissional de saúde, nunca finja ser humano e nunca sugira que a pessoa está recebendo uma consulta. Seu papel é oferecer escuta, reflexão e informação geral de apoio emocional, sem substituir acompanhamento psicológico ou médico.
+const SYSTEM =  `Você é Ella Ribeiro, a assistente virtual de acolhimento emocional do Desabafo Amigo. Seu nome de apresentação é Ella Ribeiro; deixe claro quando necessário que você é uma inteligência artificial. Você é uma inteligência artificial, não é psicólogo, não possui registro profissional e não realiza psicoterapia. Nunca se apresente como profissional de saúde, nunca finja ser humano e nunca sugira que a pessoa está recebendo uma consulta. Seu papel é oferecer escuta, reflexão e informação geral de apoio emocional, sem substituir acompanhamento psicológico ou médico.
 
 REFERENCIAIS DE COMUNICAÇÃO (NÃO SÃO UM ATENDIMENTO CLÍNICO):
 Use conhecimentos gerais e técnicas de comunicação inspirados em três abordagens, escolhendo com flexibilidade o que for útil ao relato. Não rotule a abordagem para a pessoa nem aplique exercícios mecanicamente.
@@ -46,33 +51,61 @@ LIMITES E SEGURANÇA:
 - Ofereça encaminhamento para voluntário humano ou profissional qualificado quando apropriado, sem pressionar.
 
 FORMATO:
-Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary":"resumo seguro e curto ou string vazia"}. severity: 0 sem sinal identificado; 1 sofrimento leve/moderado; 2 sofrimento intenso ou possível risco; 3 risco iminente ou perigo imediato. Na dúvida relevante, escolha o nível maior. Não inclua markdown nem texto fora do JSON.`;
+Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary":"resumo seguro e curto ou string vazia"}. severity: 0 sem sinal identificado; 1 sofrimento leve/moderado; 2 sofrimento intenso ou possível risco; 3 risco iminente ou perigo imediato. Na dúvida relevante, escolha o nível maior. Não inclua markdown nem texto fora do JSON.`;;
 
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { consent?: boolean; rememberContext?: boolean; retentionDays?: number; messages: Msg[]; attachments?: AiAttachment[] }) => {
-    if (d?.consent !== true) throw new Error("É necessário consentimento para processar mensagens com IA.");
-    const attachments = Array.isArray(d?.attachments) ? d.attachments.slice(0, 5) : [];
-    const totalAttachmentSize = attachments.reduce((total, attachment) => total + (typeof attachment.dataUrl === "string" ? attachment.dataUrl.length : 0), 0);
-    if (totalAttachmentSize > 16_000_000) throw new Error("Os anexos ultrapassam o limite total permitido.");
-    for (const a of attachments) {
-      if (!["image", "audio", "video-frame"].includes(a.kind) || typeof a.dataUrl !== "string" ||
-          !/^data:(image\/(jpeg|png|webp)|audio\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(a.dataUrl) ||
-          a.dataUrl.length > 12_000_000) throw new Error("Anexo inválido ou muito grande.");
-    }
-    return {
-      messages: (Array.isArray(d?.messages) ? d.messages : [])
-        .slice(-16)
-        .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-        .map((m) => ({ role: m.role, content: m.content.slice(0, 1800) })),
-      attachments,
-      rememberContext: d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
-      retentionDays: d?.retentionDays === 30 ? 30 : 7,
-    };
-  })
+  .inputValidator(
+    (d: {
+      consent?: boolean;
+      rememberContext?: boolean;
+      retentionDays?: number;
+      messages: Msg[];
+      attachments?: AiAttachment[];
+    }) => {
+      if (d?.consent !== true) {
+        throw new Error("É necessário consentimento para processar mensagens com IA.");
+      }
+      const attachments = Array.isArray(d?.attachments) ? d.attachments.slice(0, 5) : [];
+      const totalAttachmentSize = attachments.reduce(
+        (total, attachment) =>
+          total + (typeof attachment.dataUrl === "string" ? attachment.dataUrl.length : 0),
+        0,
+      );
+      if (totalAttachmentSize > 16_000_000) {
+        throw new Error("Os anexos ultrapassam o limite total permitido.");
+      }
+      for (const a of attachments) {
+        if (
+          !["image", "audio", "video-frame"].includes(a.kind) ||
+          typeof a.dataUrl !== "string" ||
+          !/^data:(image\\/(jpeg|png|webp)|audio\\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(
+            a.dataUrl,
+          ) ||
+          a.dataUrl.length > 12_000_000
+        ) {
+          throw new Error("Anexo inválido ou muito grande.");
+        }
+      }
+      return {
+        messages: (Array.isArray(d?.messages) ? d.messages : [])
+          .slice(-16)
+          .filter(
+            (m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string",
+          )
+          .map((m) => ({ role: m.role, content: m.content.slice(0, 1800) })),
+        attachments,
+        rememberContext:
+          d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
+        retentionDays: d?.retentionDays === 30 ? 30 : 7,
+      };
+    },
+  )
   .handler(async ({ data, context }) => {
     const last = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
-    if (!last.trim() && data.attachments.length === 0) throw new Error("Mensagem vazia");
+    if (!last.trim() && data.attachments.length === 0) {
+      throw new Error("Mensagem vazia");
+    }
     let mediaContext = "";
     let audioTranscriptionUnavailable = false;
     if (data.attachments.some((attachment) => attachment.kind === "audio")) {
@@ -84,54 +117,108 @@ export const aiChat = createServerFn({ method: "POST" })
           const [meta, encoded] = attachment.dataUrl.split(",", 2);
           const mime = meta.match(/^data:([^;]+)/)?.[1] ?? attachment.mimeType;
           const bytes = Buffer.from(encoded, "base64");
-          const result = await transcribeAudio(new Blob([bytes], { type: mime }), attachment.name || "audio.webm");
-          if (result.text.trim()) transcripts.push(result.text.trim());
-          else audioTranscriptionUnavailable = true;
+          const result = await transcribeAudio(
+            new Blob([bytes], { type: mime }),
+            attachment.name || "audio.webm",
+          );
+          if (result.text.trim()) {
+            transcripts.push(result.text.trim());
+          } else {
+            audioTranscriptionUnavailable = true;
+          }
         } catch (error) {
           audioTranscriptionUnavailable = true;
-          console.warn("[aiChat] audio transcription unavailable", error instanceof Error ? error.message : error);
+          console.warn(
+            "[aiChat] audio transcription unavailable",
+            error instanceof Error ? error.message : error,
+          );
         }
       }
-      if (transcripts.length) mediaContext = "Transcrição dos áudios enviados pela pessoa (trate como relato do usuário): " + transcripts.join(" | ");
+      if (transcripts.length) {
+        mediaContext =
+          "Transcrição dos áudios enviados pela pessoa (trate como relato do usuário): " +
+          transcripts.join(" | ");
+      }
     }
     const audioHelp = audioTranscriptionUnavailable
       ? "Não foi possível transcrever um dos áudios. Não invente o conteúdo; explique com delicadeza que a pessoa pode reenviar o áudio ou escrever o que gostaria de compartilhar."
       : "";
-    const lastWithMedia = [last.trim(), mediaContext, audioHelp].filter(Boolean).join("\\n\\n");
+    const lastWithMedia = [last.trim(), mediaContext, audioHelp].filter(Boolean).join("\n\n");
     const userContent = data.attachments.some((a) => a.kind !== "audio")
       ? [
-          { type: "text", text: lastWithMedia || "A pessoa enviou mídia sem texto. Descreva com cuidado apenas o que for observável e pergunte como isso se relaciona ao que ela está vivendo." },
-          ...data.attachments.filter((a) => a.kind !== "audio").map((a) => ({ type: "image_url", image_url: { url: a.dataUrl } })),
+          {
+            type: "text",
+            text:
+              lastWithMedia ||
+              "A pessoa enviou mídia sem texto. Descreva com cuidado apenas o que for observável e pergunte como isso se relaciona ao que ela está vivendo.",
+          },
+          ...data.attachments
+            .filter((a) => a.kind !== "audio")
+            .map((a) => ({ type: "image_url", image_url: { url: a.dataUrl } })),
         ]
       : lastWithMedia;
     let savedMemory: string | null = null;
     if (data.rememberContext) {
-      const { data: memoryRow, error: memoryError } = await context.supabase.from("ai_user_memory")
-        .select("memory_summary, expires_at").eq("user_id", context.userId).maybeSingle();
-      if (memoryError) console.warn("[aiChat] memory read failed", memoryError.message);
-      else if (memoryRow && new Date(memoryRow.expires_at).getTime() > Date.now()) savedMemory = memoryRow.memory_summary;
-      else if (memoryRow) await context.supabase.from("ai_user_memory").delete().eq("user_id", context.userId);
+      const { data: memoryRow, error: memoryError } = await context.supabase
+        .from("ai_user_memory")
+        .select("memory_summary, expires_at")
+        .eq("user_id", context.userId)
+        .maybeSingle();
+      if (memoryError) {
+        console.warn("[aiChat] memory read failed", memoryError.message);
+      } else if (memoryRow && new Date(memoryRow.expires_at).getTime() > Date.now()) {
+        savedMemory = memoryRow.memory_summary;
+      } else if (memoryRow) {
+        await context.supabase.from("ai_user_memory").delete().eq("user_id", context.userId);
+      }
     } else {
       await context.supabase.from("ai_user_memory").delete().eq("user_id", context.userId);
     }
-    const memoryMessage = savedMemory ? { role: "system", content: "Contexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: " + savedMemory } : null;
-    const messages = [{ role: "system", content: SYSTEM }, ...(memoryMessage ? [memoryMessage] : []), ...data.messages.slice(0, -1), { role: "user", content: userContent }];
+    const memoryMessage = savedMemory
+      ? {
+          role: "system",
+          content:
+            "Contexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: " +
+            savedMemory,
+        }
+      : null;
+    const messages = [
+      { role: "system", content: SYSTEM },
+      ...(memoryMessage ? [memoryMessage] : []),
+      ...data.messages.slice(0, -1),
+      { role: "user", content: userContent },
+    ];
     let raw = "";
     let provider: "nvidia" | "none" = "none";
     try {
       const { chatCompletion } = await import("./ai-gateway.server");
-      raw = await chatCompletion({ messages, temperature: 0.35, top_p: 0.85, max_tokens: 480 });
+      raw = await chatCompletion({
+        messages,
+        temperature: 0.35,
+        top_p: 0.85,
+        max_tokens: 480,
+      });
       provider = "nvidia";
     } catch (error) {
-      console.error("[aiChat] NVIDIA NIM indisponível", error instanceof Error ? error.message : error);
+      console.error(
+        "[aiChat] NVIDIA NIM indisponível",
+        error instanceof Error ? error.message : error,
+      );
     }
     const parsed = raw ? parseAiJson(raw) : null;
-    const riskContext = data.messages.filter((message) => message.role === "user").map((message) => message.content).join("\n") + (mediaContext ? "\n" + mediaContext : "");
+    const riskContext =
+      data.messages
+        .filter((message) => message.role === "user")
+        .map((message) => message.content)
+        .join("\n") + (mediaContext ? "\n" + mediaContext : "");
     const risk = assessRisk(riskContext, parsed?.severity ?? null);
     if (data.rememberContext && parsed?.memorySummary) {
       const expiresAt = new Date(Date.now() + data.retentionDays * 86400000).toISOString();
       const { error: writeError } = await context.supabase.from("ai_user_memory").upsert({
-        user_id: context.userId, memory_summary: parsed.memorySummary, expires_at: expiresAt, updated_at: new Date().toISOString(),
+        user_id: context.userId,
+        memory_summary: parsed.memorySummary,
+        expires_at: expiresAt,
+        updated_at: new Date().toISOString(),
       });
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
