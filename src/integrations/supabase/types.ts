@@ -1427,6 +1427,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      claim_queue_entry: {
+        Args: { _queue_id: string }
+        Returns: {
+          appointment_id: string
+          conversation_id: string
+        }[]
+      }
       log_audit: {
         Args: {
           _action: string
