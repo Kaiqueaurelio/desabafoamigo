@@ -120,12 +120,10 @@ export function parseAiJson(
       }
       return {
         reply: parsed.reply.trim().slice(0, 2000),
-        severity:
-          severity === null ? null : Math.max(0, Math.min(3, Math.round(severity))),
-        memorySummary:
-          typeof parsed.memorySummary === "string" && parsed.memorySummary.trim()
-            ? parsed.memorySummary.trim().slice(0, 1500)
-            : null,
+        severity: severity === null ? null : Math.max(0, Math.min(3, Math.round(severity))),
+        memorySummary: typeof parsed.memorySummary === "string" && parsed.memorySummary.trim()
+          ? parsed.memorySummary.trim().slice(0, 1500)
+          : null,
       };
     } catch {
       // Ignore malformed candidates and keep looking for a valid response.
