@@ -36,6 +36,32 @@ describe("triagem do Desabafo Amigo AI", () => {
     expect(parseAiJson("texto solto")).toBeNull();
     expect(parseAiJson('{"reply":"oi","severity":5}')?.severity).toBe(3);
   });
+  it("aceita JSON cercado por Markdown", () => {
+    expect(
+      parseAiJson('```json\\n{"reply":"Estou aqui com você.","severity":1}\\n```'),
+    ).toMatchObject({ reply: "Estou aqui com você.", severity: 1 });
+  });
+  it("encontra JSON válido depois de um preâmbulo de raciocínio", () => {
+    expect(
+      parseAiJson(
+        'Analisando o contexto.\\n{"reply":"Obrigado por compartilhar isso comigo.","severity":1}',
+      ),
+    ).toMatchObject({
+      reply: "Obrigado por compartilhar isso comigo.",
+      severity: 1,
+    });
+  });
+  it("ignora objeto inválido antes do JSON final válido", () => {
+    expect(
+      parseAiJson(
+        'resultado: {"analysis":"interno"}\\n{"reply":"Podemos conversar sobre isso.","severity":0}',
+      )?.reply,
+    ).toBe("Podemos conversar sobre isso.");
+  });
+  it("rejeita conteúdo vazio ou apenas raciocínio sem resposta", () => {
+    expect(parseAiJson("")).toBeNull();
+    expect(parseAiJson("Vou pensar cuidadosamente sobre isso.")).toBeNull();
+  });
   it("aceita resposta válida mesmo quando o modelo omite a severidade", () => {
     expect(parseAiJson('{"reply":"Estou aqui para ouvir você."}')).toMatchObject({
       reply: "Estou aqui para ouvir você.",
