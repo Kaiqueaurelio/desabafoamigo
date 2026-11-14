@@ -145,26 +145,7 @@ function AuthPage() {
     setGuestLoading(true);
     try {
       const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) {
-        const authError = error as typeof error & { code?: string };
-        const code = (authError.code || "").toLowerCase();
-        const detail = authError.message.toLowerCase();
-        const anonymousDisabled =
-          code === "anonymous_provider_disabled" ||
-          detail.includes("anonymous sign-ins are disabled") ||
-          detail.includes("anonymous provider is disabled") ||
-          detail.includes("anonymous sign-in is disabled") ||
-          detail.includes("anonymous users are disabled") ||
-          detail.includes("anonymous authentication is disabled");
-
-        if (anonymousDisabled) {
-          setErr(
-            "O acesso como convidado está temporariamente indisponível porque o login anônimo ainda não foi ativado no Supabase. Você ainda pode criar uma conta ou entrar com seu e-mail.",
-          );
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
       if (!data.user) throw new Error("Não foi possível iniciar sua sessão de convidado.");
       if (next) {
         window.location.assign(next);
@@ -174,14 +155,8 @@ function AuthPage() {
     } catch (e) {
       const message = e instanceof Error ? e.message : "";
       const lower = message.toLowerCase();
-      if (
-        lower.includes("anonymous_provider_disabled") ||
-        lower.includes("anonymous sign") ||
-        lower.includes("anonymous provider") ||
-        lower.includes("anonymous users") ||
-        lower.includes("not enabled")
-      ) {
-        setErr("O acesso como convidado está temporariamente indisponível porque o login anônimo ainda não foi ativado no Supabase. Você ainda pode criar uma conta ou entrar com seu e-mail.");
+      if (lower.includes("anonymous") || lower.includes("disabled") || lower.includes("not enabled")) {
+        setErr("O acesso como convidado ainda precisa ser ativado nas configurações de autenticação do Supabase. Tente novamente mais tarde.");
       } else {
         setErr(message || "Não foi possível entrar como convidado. Verifique sua conexão e tente novamente.");
       }
