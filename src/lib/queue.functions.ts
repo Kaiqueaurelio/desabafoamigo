@@ -50,7 +50,7 @@ export const matchQueueEntry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { queueId: string }) => d)
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase } = context;
     // Atomic claim + appointment + conversation creation. The database function
     // verifies the volunteer role and locks the waiting queue row in one transaction.
     const { data: matches, error: matchError } = await supabase.rpc("claim_queue_entry", {
