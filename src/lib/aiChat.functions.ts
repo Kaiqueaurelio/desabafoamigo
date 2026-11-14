@@ -51,7 +51,7 @@ LIMITES E SEGURANÇA:
 - Ofereça encaminhamento para voluntário humano ou profissional qualificado quando apropriado, sem pressionar.
 
 FORMATO:
-Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary":"resumo seguro e curto ou string vazia"}. severity: 0 sem sinal identificado; 1 sofrimento leve/moderado; 2 sofrimento intenso ou possível risco; 3 risco iminente ou perigo imediato. Na dúvida relevante, escolha o nível maior. Não inclua markdown nem texto fora do JSON.`;;
+Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary":"resumo seguro e curto ou string vazia"}. severity: 0 sem sinal identificado; 1 sofrimento leve/moderado; 2 sofrimento intenso ou possível risco; 3 risco iminente ou perigo imediato. Na dúvida relevante, escolha o nível maior. Não inclua markdown nem texto fora do JSON.`;
 
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
