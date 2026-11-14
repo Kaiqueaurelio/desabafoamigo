@@ -106,12 +106,6 @@ export type Database = {
           },
         ]
       }
-      ai_user_memory: {
-        Row: { user_id: string; memory_summary: string; expires_at: string; updated_at: string }
-        Insert: { user_id: string; memory_summary: string; expires_at: string; updated_at?: string }
-        Update: { user_id?: string; memory_summary?: string; expires_at?: string; updated_at?: string }
-        Relationships: []
-      }
       audit_log: {
         Row: {
           action: string
@@ -1426,14 +1420,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      claim_queue_entry: {
-        Args: { _queue_id: string }
-        Returns: {
-          user_id: string
-          appointment_id: string
-          conversation_id: string
-        }[]
       }
       log_audit: {
         Args: {

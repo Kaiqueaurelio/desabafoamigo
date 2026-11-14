@@ -7,6 +7,7 @@ import { downloadTxt, downloadPdf, type TranscriptExport } from "@/lib/transcrip
 import { Watermark, IdentityWatermark } from "@/components/Watermark";
 import { ScreenshotGuard } from "@/components/ScreenshotGuard";
 import { detectRisk } from "@/lib/riskWords";
+import { EmergencyButton } from "@/components/EmergencyButton";
 import { RiskAlert } from "@/components/RiskAlert";
 import { CrisisVolunteerPanel } from "@/components/CrisisVolunteerPanel";
 import { ReportButton } from "@/components/ReportDialog";

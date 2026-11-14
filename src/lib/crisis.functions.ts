@@ -5,7 +5,7 @@ import { z } from "zod";
 // Voluntário/admin marca uma conversa como risco alto para plantão
 export const raiseEscalation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { conversationId: string; userId: string; severity?: "high" | "critical"; notes?: string }) =>
+  .validator((input: { conversationId: string; userId: string; severity?: "high" | "critical"; notes?: string }) =>
     z
       .object({
         conversationId: z.string().uuid(),
@@ -54,7 +54,7 @@ export const listOpenEscalations = createServerFn({ method: "GET" })
 
 export const ackEscalation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -67,7 +67,7 @@ export const ackEscalation = createServerFn({ method: "POST" })
 
 export const resolveEscalation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string; notes?: string }) =>
+  .validator((input: { id: string; notes?: string }) =>
     z.object({ id: z.string().uuid(), notes: z.string().max(1000).optional() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -83,7 +83,7 @@ export const resolveEscalation = createServerFn({ method: "POST" })
 // Registra que o próprio usuário disparou uma ação de emergência (para transparência)
 export const logEmergencyAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { kind: "called_cvv" | "called_samu" | "shared_location_contact" | "opened_safety_plan"; metadata?: Record<string, unknown> }) =>
+  .validator((input: { kind: "called_cvv" | "called_samu" | "shared_location_contact" | "opened_safety_plan"; metadata?: Record<string, unknown> }) =>
     z
       .object({
         kind: z.enum(["called_cvv", "called_samu", "shared_location_contact", "opened_safety_plan"]),
@@ -114,7 +114,7 @@ export const getMySafetyPlan = createServerFn({ method: "GET" })
 
 export const saveMySafetyPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: {
+  .validator((input: {
     emergency_contact_name?: string | null;
     emergency_contact_phone?: string | null;
     reasons_to_live?: string | null;

@@ -1,3 +1,4 @@
+import { withPendingDatabaseTypes } from "./pending-database-types";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assessRisk, parseAiJson, FALLBACK_REPLY } from "./aiSafety";
@@ -55,7 +56,7 @@ Responda APENAS em JSON válido: {"reply":"texto","severity":0-3,"memorySummary"
 
 export const aiChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: {
       consent?: boolean;
       rememberContext?: boolean;
@@ -159,7 +160,7 @@ export const aiChat = createServerFn({ method: "POST" })
       : lastWithMedia;
     let savedMemory: string | null = null;
     if (data.rememberContext) {
-      const { data: memoryRow, error: memoryError } = await context.supabase
+      const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(context.supabase)
         .from("ai_user_memory")
         .select("memory_summary, expires_at")
         .eq("user_id", context.userId)
@@ -169,10 +170,10 @@ export const aiChat = createServerFn({ method: "POST" })
       } else if (memoryRow && new Date(memoryRow.expires_at).getTime() > Date.now()) {
         savedMemory = memoryRow.memory_summary;
       } else if (memoryRow) {
-        await context.supabase.from("ai_user_memory").delete().eq("user_id", context.userId);
+        await withPendingDatabaseTypes(context.supabase).from("ai_user_memory").delete().eq("user_id", context.userId);
       }
     } else {
-      await context.supabase.from("ai_user_memory").delete().eq("user_id", context.userId);
+      await withPendingDatabaseTypes(context.supabase).from("ai_user_memory").delete().eq("user_id", context.userId);
     }
     const memoryMessage = savedMemory
       ? {
@@ -214,7 +215,7 @@ export const aiChat = createServerFn({ method: "POST" })
     const risk = assessRisk(riskContext, parsed?.severity ?? null);
     if (data.rememberContext && parsed?.memorySummary) {
       const expiresAt = new Date(Date.now() + data.retentionDays * 86400000).toISOString();
-      const { error: writeError } = await context.supabase.from("ai_user_memory").upsert({
+      const { error: writeError } = await withPendingDatabaseTypes(context.supabase).from("ai_user_memory").upsert({
         user_id: context.userId,
         memory_summary: parsed.memorySummary,
         expires_at: expiresAt,

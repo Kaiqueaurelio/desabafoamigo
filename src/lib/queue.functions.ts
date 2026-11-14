@@ -1,9 +1,10 @@
+import { withPendingDatabaseTypes } from "./pending-database-types";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const enqueueMe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { topic: string; urgency?: "low" | "medium" | "high"; preferredLang?: string }) => d)
+  .validator((d: { topic: string; urgency?: "low" | "medium" | "high"; preferredLang?: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const urgency = data.urgency === "high" || data.urgency === "medium" ? data.urgency : "low";
@@ -37,7 +38,7 @@ export const enqueueMe = createServerFn({ method: "POST" })
 
 export const cancelMyQueue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { queueId: string }) => d)
+  .validator((d: { queueId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await supabase.from("queue").update({ status: "cancelled" })
@@ -48,12 +49,12 @@ export const cancelMyQueue = createServerFn({ method: "POST" })
 // Volunteer picks up next person or a specific queue entry
 export const matchQueueEntry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { queueId: string }) => d)
+  .validator((d: { queueId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     // Atomic claim + appointment + conversation creation. The database function
     // verifies the volunteer role and locks the waiting queue row in one transaction.
-    const { data: matches, error: matchError } = await supabase.rpc("claim_queue_entry", {
+    const { data: matches, error: matchError } = await withPendingDatabaseTypes(supabase).rpc("claim_queue_entry", {
       _queue_id: data.queueId,
     });
     if (matchError) {

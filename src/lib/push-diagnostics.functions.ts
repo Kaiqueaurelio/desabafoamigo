@@ -84,7 +84,7 @@ export const getPushOverview = createServerFn({ method: "GET" })
 
 export const searchPushUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ q: z.string().max(120).optional() }).parse(d))
+  .validator((d: unknown) => z.object({ q: z.string().max(120).optional() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -119,7 +119,7 @@ export const searchPushUsers = createServerFn({ method: "GET" })
 
 export const getUserPushLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() }).parse(d))
+  .validator((d: unknown) => z.object({ userId: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -150,7 +150,7 @@ export const getUserPushLogs = createServerFn({ method: "GET" })
 
 export const sendTestPushToUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -9,7 +9,7 @@ const PHRASE_CATS = ["acolhimento", "coragem", "autocuidado", "motivacao", "resp
 
 export const autofillLibraryMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (d: { kind: Kind; storagePath?: string; filename?: string; phraseText?: string }) => d,
   )
   .handler(async ({ data, context }) => {
