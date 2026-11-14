@@ -7,6 +7,7 @@ This document records repository-side hardening that can be prepared without acc
 - Local `.env` was removed from the tracked branch. `.env` and other local environment files are now ignored; `.env.example` contains placeholders only.
 - GitHub Actions receives the public Supabase URL and publishable key from repository secrets at build time instead of relying on a committed local environment file.
 - The atomic queue migration qualifies the queue columns in `RETURNING` to avoid PL/pgSQL output-parameter ambiguity.
+- The historical bootstrap migration source now generates an unknown random password hash instead of embedding a fixed administrator password for fresh installations. Existing databases will not rerun an already-applied migration; they need the separate forward rotation migration.
 - Crisis escalation server functions now enforce volunteer/admin authorization, verify that the selected conversation exists and that the supplied user matches its participant, and restrict escalation review/acknowledgement/resolution to administrators.
 
 ## Seeded administrator credential
