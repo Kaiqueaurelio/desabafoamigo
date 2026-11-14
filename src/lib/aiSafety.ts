@@ -107,10 +107,9 @@ export function parseAiJson(
         severity?: unknown;
         memorySummary?: unknown;
       };
+      const severityValue = Number(parsed.severity);
       const severity =
-        parsed.severity === undefined || parsed.severity === null
-          ? null
-          : Number(parsed.severity);
+        parsed.severity === undefined || parsed.severity === null ? null : severityValue;
       if (
         typeof parsed.reply !== "string" ||
         !parsed.reply.trim() ||
@@ -118,12 +117,14 @@ export function parseAiJson(
       ) {
         continue;
       }
+      const memorySummary =
+        typeof parsed.memorySummary === "string"
+          ? parsed.memorySummary.trim().slice(0, 1500) || null
+          : null;
       return {
         reply: parsed.reply.trim().slice(0, 2000),
         severity: severity === null ? null : Math.max(0, Math.min(3, Math.round(severity))),
-        memorySummary: typeof parsed.memorySummary === "string" && parsed.memorySummary.trim()
-          ? parsed.memorySummary.trim().slice(0, 1500)
-          : null,
+        memorySummary,
       };
     } catch {
       // Ignore malformed candidates and keep looking for a valid response.
