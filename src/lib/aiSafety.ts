@@ -24,7 +24,7 @@ export function assessRisk(text: string, aiSeverity: unknown): RiskAssessment {
   // Evaluate each clause independently. A denial before "mas/porém" must
   // never suppress a later positive statement of intent in the same message.
   const clauses = normalized
-    .split(/\b(?:mas|por[eé]m|contudo|todavia|no entanto|s[oó] que)\b/i)
+    .split(/\n+|\b(?:mas|por[eé]m|contudo|todavia|no entanto|s[oó] que)\b/i)
     .map((clause) => clause.trim())
     .filter(Boolean);
   const denial =
