@@ -4,8 +4,11 @@ type DenoRuntime = { env?: { get(name: string): string | undefined } };
 
 function normalized(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed || undefined;
+  let cleaned = value.trim();
+  cleaned = cleaned.replace(/^(['"])(.*)\1$/, "$2").trim();
+  cleaned = cleaned.replace(/^Bearer\s+/i, "").trim();
+  cleaned = cleaned.replace(/^(['"])(.*)\1$/, "$2").trim();
+  return cleaned || undefined;
 }
 
 /**

@@ -1,0 +1,7 @@
+# Copy this file to .dev.vars for local Cloudflare Worker development.
+# Wrangler and @cloudflare/vite-plugin load .dev.vars automatically.
+# Never commit the copied .dev.vars file.
+NVIDIA_API_KEY=replace_with_nvidia_api_key
+NVIDIA_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b
+LOVABLE_API_KEY=replace_with_lovable_api_key
+LOVABLE_MODEL=google/gemini-2.5-flash

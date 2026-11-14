@@ -192,10 +192,10 @@ export const aiChat = createServerFn({ method: "POST" })
       { role: "user", content: userContent },
     ];
     let raw = "";
-    let provider: "nvidia" | "none" = "none";
+    let provider: "nvidia" | "lovable" | "none" = "none";
     try {
-      const { chatCompletion } = await import("./ai-gateway.server");
-      raw = await chatCompletion({
+      const { chatCompletionWithProvider } = await import("./ai-gateway.server");
+      const result = await chatCompletionWithProvider({
         messages,
         temperature: 0.35,
         top_p: 0.85,
@@ -203,11 +203,14 @@ export const aiChat = createServerFn({ method: "POST" })
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
-      provider = "nvidia";
+      raw = result.content;
+      provider = result.provider;
     } catch (error) {
       console.error(
-        "[aiChat] NVIDIA NIM indisponível",
-        error instanceof Error ? error.message : error,
+        "[aiChat] NVIDIA e fallback Lovable indisponíveis",
+        error instanceof Error
+          ? { name: error.name, message: error.message, stack: error.stack }
+          : error,
       );
     }
     const parsed = raw ? parseAiJson(raw) : null;
