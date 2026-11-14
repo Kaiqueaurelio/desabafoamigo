@@ -86,7 +86,7 @@ async function requestLovable(body: Record<string, unknown>, apiKey: string): Pr
     },
     body: JSON.stringify({
       ...body,
-      model: getServerEnv("LOVABLE_AI_MODEL") || "google/gemini-2.5-flash",
+      model: getServerEnv("LOVABLE_AI_MODEL") || "google/gemini-3.7-flash",
       stream: false,
     }),
     signal: AbortSignal.timeout(45000),
