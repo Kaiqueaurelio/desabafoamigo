@@ -23,29 +23,30 @@ O Desabafo Amigo é uma plataforma de apoio emocional que combina uma experiênc
 - Supabase (Auth, PostgreSQL e Realtime)
 - Vitest e Testing Library
 - Playwright para testes end-to-end e responsividade
-- Vite, PWA e Cloudflare Workers (hospedagem)\n- NVIDIA NIM para LLM; NVIDIA Magpie para síntese de voz
+- Vite, PWA e Cloudflare Workers (hospedagem)
+- NVIDIA NIM para LLM; NVIDIA Magpie para síntese de voz
 
 ## Executar localmente
 
-Requisitos: Node.js 22, npm e variáveis de ambiente do Supabase e NVIDIA.
+Requisitos: Bun, Node.js 22 e as variáveis descritas em `.env.example`.
 
 ```bash
 git clone https://github.com/Kaiqueaurelio/desabafoamigo.git
 cd desabafoamigo
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
-Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `NVIDIA_API_KEY` e `NVIDIA_API_KEY_VOICE` no ambiente do servidor. Para desenvolvimento local, use `.env` (não versionado). **Nunca coloque chaves privadas, tokens de serviço ou credenciais reais no Git.**
+Configure o `.env` local a partir de `.env.example`. No servidor, mantenha as chaves nas configurações criptografadas do provedor: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` e `NVIDIA_API_KEY` são as principais. `NVIDIA_API_KEY_VOICE` pode ser separada ou usar a chave principal; transcrição de anexos exige `NVIDIA_ASR_FUNCTION_ID` (endpoint NVCF habilitado) ou `NVIDIA_ASR_HTTP_URL` (endpoint HTTP próprio). Notificações push exigem `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY`. **Nunca coloque chaves privadas, tokens de serviço ou credenciais reais no Git ou em variáveis `VITE_*`.**
 
 ## Qualidade e testes
 
 ```bash
-npm run lint
-npm run test
-npm run build:dev
-npm run build:prod
-npm run test:e2e
+bun run lint
+bun run test
+bun run build:dev
+bun run build:prod
+bun run test:e2e
 ```
 
 Para testar rotas autenticadas no Playwright, configure `E2E_AUTH_STORAGE_STATE` com um arquivo de sessão de teste. Para testar uma conversa humana específica, configure também `E2E_TEST_APPOINTMENT_ID`. Use somente contas e dados fictícios preparados para teste.
@@ -76,25 +77,30 @@ A demonstração usa cenários e indicadores fictícios. Não confunda a simula�
 
 ## Links
 
-- Aplicativo: será publicado no endereço `*.workers.dev` após configurar o Cloudflare Workers
+- Aplicativo publicado: https://desabafoamigo.lovable.app
 - Repositório: https://github.com/Kaiqueaurelio/desabafoamigo
 
 
 ## Deploy independente do Lovable (Cloudflare Workers)
 
-O deploy automático está em `.github/workflows/deploy-cloudflare.yml`. Configure os seguintes **GitHub Actions Secrets** no repositório:
+O deploy alternativo para Cloudflare está em `.github/workflows/deploy-cloudflare.yml` e é **manual** (`workflow_dispatch`). O aplicativo principal continua hospedado no Lovable. Para usar Cloudflare, configure os seguintes **GitHub Actions Secrets** no repositório:
 
 - `CLOUDFLARE_API_TOKEN` — token com permissões Workers Scripts: Edit e Account Settings: Read.
 - `CLOUDFLARE_ACCOUNT_ID` — ID da conta Cloudflare.
 - `SUPABASE_URL` — URL do projeto Supabase existente.
 - `SUPABASE_PUBLISHABLE_KEY` — chave pública/publishable do Supabase.
 - `NVIDIA_API_KEY` — chave NVIDIA NIM para chat.
-- `NVIDIA_API_KEY_VOICE` — chave NVIDIA para Magpie TTS (pode ser a mesma credencial, se autorizada pela NVIDIA).\n- `NVIDIA_ASR_HTTP_URL` — opcional; endpoint HTTP de um NVIDIA Riva próprio para transcrever anexos de áudio.
+- `NVIDIA_API_KEY_VOICE` — chave NVIDIA para Magpie TTS (pode ser a mesma credencial, se autorizada pela NVIDIA).
+- `NVIDIA_API_KEY_ASR` — opcional; credencial de transcrição (pode usar a chave principal se autorizada).
+- `NVIDIA_ASR_FUNCTION_ID` — opcional; Function ID de endpoint NVCF de ASR habilitado.
+- `NVIDIA_ASR_HTTP_URL` — opcional; endpoint HTTP de ASR próprio.
+- `SUPABASE_SERVICE_ROLE_KEY` — necessária para operações administrativas confiáveis do servidor.
+- `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY` — necessárias para Web Push.
 
 O workflow publica as chaves como secrets do Worker (não as inclui no bundle do navegador). O Supabase continua sendo o backend de autenticação, banco, storage e realtime; ele não depende do Lovable.
 
 A conversa por voz usa reconhecimento de fala do navegador em pt-BR, NVIDIA NIM para gerar a resposta e NVIDIA Magpie Multilingual para sintetizar áudio. Isso é uma conversa por turnos, não full-duplex. A síntese usa o Function ID oficial do Magpie Multilingual. A voz pt-BR é descoberta consultando a lista oficial do serviço; se necessário, configure `NVIDIA_TTS_VOICE` com um identificador retornado pela API.
 
-A transcrição de anexos de áudio enviados no chat exige um endpoint HTTP próprio do NVIDIA Riva em `NVIDIA_ASR_HTTP_URL`; o endpoint hospedado Parakeet documenta gRPC. Sem esse endpoint, o recurso informa a limitação e não envia áudio para um provedor alternativo.
+A transcrição de anexos de áudio enviados no chat exige uma implantação ASR habilitada: configure `NVIDIA_ASR_FUNCTION_ID` para o endpoint HTTP NVCF compatível ou `NVIDIA_ASR_HTTP_URL` para um endpoint HTTP próprio. A chave NVIDIA sozinha não cria um endpoint de transcrição. Sem endpoint, o aplicativo informa a limitação e não inventa o conteúdo do áudio.
 
-Depois de adicionar os GitHub Secrets, faça um push em `main` ou execute manualmente o workflow **Deploy Desabafo Amigo to Cloudflare Workers** em Actions. Configure o domínio em Workers & Pages após o primeiro deploy.
+Depois de adicionar os GitHub Secrets, execute manualmente o workflow **Deploy Desabafo Amigo to Cloudflare Workers** em Actions. O fluxo não é acionado automaticamente por push. Configure o domínio em Workers & Pages após o primeiro deploy.
