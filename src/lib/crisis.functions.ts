@@ -1,11 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 type CrisisRole = "admin" | "volunteer";
+type CrisisSupabase = SupabaseClient<Database>;
 
 async function hasCrisisRole(
-  supabase: { rpc: (name: string, args: Record<string, string>) => Promise<{ data: boolean | null; error: { message: string } | null }> },
+  supabase: CrisisSupabase,
   userId: string,
   role: CrisisRole,
 ): Promise<boolean> {
@@ -17,14 +20,14 @@ async function hasCrisisRole(
   return data === true;
 }
 
-async function assertAdmin(supabase: Parameters<typeof hasCrisisRole>[0], userId: string) {
+async function assertAdmin(supabase: CrisisSupabase, userId: string) {
   if (!(await hasCrisisRole(supabase, userId, "admin"))) {
     throw new Error("Acesso permitido somente a administradores.");
   }
 }
 
 async function assertVolunteerOrAdmin(
-  supabase: Parameters<typeof hasCrisisRole>[0],
+  supabase: CrisisSupabase,
   userId: string,
 ) {
   const [isAdmin, isVolunteer] = await Promise.all([
