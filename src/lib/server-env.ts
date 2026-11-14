@@ -5,10 +5,16 @@ import { env } from "cloudflare:workers";
  * process.env for Node.js/Lovable local runtimes. Call only from server code.
  */
 export function getServerEnv(name: string): string | undefined {
-  const bindings = env as unknown as Record<string, unknown>;
-  const bindingValue = bindings[name];
-  if (typeof bindingValue === "string" && bindingValue.length > 0) {
-    return bindingValue;
+  // Cloudflare bindings are supplied by the Workers runtime. A local module
+  // declaration keeps TypeScript aware of this runtime-only module.
+  try {
+    const bindings = env as unknown as Record<string, unknown>;
+    const bindingValue = bindings[name];
+    if (typeof bindingValue === "string" && bindingValue.length > 0) {
+      return bindingValue;
+    }
+  } catch {
+    // Fall back to process.env in Node.js/Lovable local runtimes.
   }
 
   if (typeof process !== "undefined") {
