@@ -25,9 +25,9 @@ function modelFor(body: Record<string, unknown>): string {
 /** Gateway único NVIDIA NIM; nenhuma chamada ou chave Lovable no runtime. */
 export async function chatCompletion(body: Record<string, unknown>): Promise<string> {
   const payload = { ...body, model: modelFor(body), stream: false };
-  const response = await fetch(\`\${nvidiaBaseUrl()}/chat/completions\`, {
+  const response = await fetch(`${nvidiaBaseUrl()}/chat/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: \`Bearer \${nvidiaKey()}\` },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${nvidiaKey()}` },
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(30000),
   });
@@ -39,7 +39,7 @@ export async function chatCompletion(body: Record<string, unknown>): Promise<str
         ? "A chave NVIDIA_API_KEY não foi aceita."
         : response.status === 429
           ? "A NVIDIA está temporariamente ocupada. Tente novamente."
-          : \`Falha no serviço NVIDIA (HTTP \${response.status}).\`,
+          : `Falha no serviço NVIDIA (HTTP ${response.status}).`,
     );
   }
   const result = (await response.json()) as {
@@ -69,7 +69,7 @@ export async function transcribeAudio(file: Blob, filename: string): Promise<Tra
   const endpoint =
     selfHostedEndpoint ||
     (functionId
-      ? \`https://\${functionId}.invocation.api.nvcf.nvidia.com/v1/audio/transcriptions\`
+      ? `https://${functionId}.invocation.api.nvcf.nvidia.com/v1/audio/transcriptions`
       : "");
 
   if (!endpoint) {
@@ -85,7 +85,7 @@ export async function transcribeAudio(file: Blob, filename: string): Promise<Tra
 
   const response = await fetch(endpoint, {
     method: "POST",
-    headers: { Authorization: \`Bearer \${apiKey}\` },
+    headers: { Authorization: `Bearer ${apiKey}` },
     body: form,
     signal: AbortSignal.timeout(60000),
   });
@@ -97,7 +97,7 @@ export async function transcribeAudio(file: Blob, filename: string): Promise<Tra
         ? "A credencial NVIDIA de transcrição não foi aceita."
         : response.status === 429
           ? "O serviço NVIDIA de transcrição está ocupado. Tente novamente."
-          : \`Falha na transcrição NVIDIA (HTTP \${response.status}).\`,
+          : `Falha na transcrição NVIDIA (HTTP ${response.status}).`,
     );
   }
   const data = (await response.json()) as {
