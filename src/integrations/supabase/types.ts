@@ -1430,6 +1430,7 @@ export type Database = {
       claim_queue_entry: {
         Args: { _queue_id: string }
         Returns: {
+          user_id: string
           appointment_id: string
           conversation_id: string
         }[]
