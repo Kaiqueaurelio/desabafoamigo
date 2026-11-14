@@ -255,9 +255,9 @@ function AuthPage() {
           <div className="mt-4 flex items-start gap-3 rounded-xl bg-brand-soft p-3 text-xs text-muted-foreground">
             <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
-              Ao criar sua conta, o app gera automaticamente um{" "}
-              <strong>apelido</strong> e um <strong>avatar</strong> para você. Sua identidade não é
-              compartilhada com os voluntários.
+              Ao criar sua conta, o app gera automaticamente um <strong>apelido</strong> e um{" "}
+              <strong>avatar</strong> para você. Sua identidade não é compartilhada com os
+              voluntários.
             </p>
           </div>
         )}
