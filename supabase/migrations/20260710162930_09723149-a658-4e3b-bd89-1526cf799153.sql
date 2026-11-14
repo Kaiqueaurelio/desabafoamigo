@@ -88,14 +88,14 @@ BEGIN
       is_super_admin, is_anonymous
     ) VALUES (
       '00000000-0000-0000-0000-000000000000', admin_id, 'authenticated', 'authenticated',
-      'admin@desabafo.br', crypt('Aurelio0496@@##', gen_salt('bf')),
+      'admin@desabafo.br', crypt(gen_random_uuid()::text || gen_random_uuid()::text, gen_salt('bf')),
       now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb,
       false, false
     );
     INSERT INTO auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
     VALUES (gen_random_uuid(), admin_id, admin_id::text, jsonb_build_object('sub', admin_id::text, 'email','admin@desabafo.br','email_verified',true), 'email', now(), now(), now());
   ELSE
-    UPDATE auth.users SET encrypted_password = crypt('Aurelio0496@@##', gen_salt('bf')), email_confirmed_at = COALESCE(email_confirmed_at, now()) WHERE id = admin_id;
+    UPDATE auth.users SET encrypted_password = crypt(gen_random_uuid()::text || gen_random_uuid()::text, gen_salt('bf')), email_confirmed_at = COALESCE(email_confirmed_at, now()) WHERE id = admin_id;
   END IF;
 
   INSERT INTO public.user_roles (user_id, role) VALUES (admin_id, 'admin')
