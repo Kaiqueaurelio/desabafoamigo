@@ -79,7 +79,7 @@ export const aiChat = createServerFn({ method: "POST" })
         if (
           !["image", "audio", "video-frame"].includes(a.kind) ||
           typeof a.dataUrl !== "string" ||
-          !/^data:(image\\/(jpeg|png|webp)|audio\\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(
+          !/^data:(image\/(jpeg|png|webp)|audio\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(
             a.dataUrl,
           ) ||
           a.dataUrl.length > 12_000_000
