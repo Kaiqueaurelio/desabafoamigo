@@ -2,6 +2,41 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+type CrisisRole = "admin" | "volunteer";
+
+async function hasCrisisRole(
+  supabase: { rpc: (name: string, args: Record<string, string>) => Promise<{ data: boolean | null; error: { message: string } | null }> },
+  userId: string,
+  role: CrisisRole,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc("has_role", {
+    _user_id: userId,
+    _role: role,
+  });
+  if (error) throw new Error("Não foi possível validar a permissão.");
+  return data === true;
+}
+
+async function assertAdmin(supabase: Parameters<typeof hasCrisisRole>[0], userId: string) {
+  if (!(await hasCrisisRole(supabase, userId, "admin"))) {
+    throw new Error("Acesso permitido somente a administradores.");
+  }
+}
+
+async function assertVolunteerOrAdmin(
+  supabase: Parameters<typeof hasCrisisRole>[0],
+  userId: string,
+) {
+  const [isAdmin, isVolunteer] = await Promise.all([
+    hasCrisisRole(supabase, userId, "admin"),
+    hasCrisisRole(supabase, userId, "volunteer"),
+  ]);
+  if (!isAdmin && !isVolunteer) {
+    throw new Error("Somente voluntários e administradores podem sinalizar uma crise.");
+  }
+  return { isAdmin, isVolunteer };
+}
+
 // Voluntário/admin marca uma conversa como risco alto para plantão
 export const raiseEscalation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -11,17 +46,36 @@ export const raiseEscalation = createServerFn({ method: "POST" })
         conversationId: z.string().uuid(),
         userId: z.string().uuid(),
         severity: z.enum(["high", "critical"]).optional(),
-        notes: z.string().max(1000).optional(),
+        notes: z.string().trim().max(1000).optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { isAdmin } = await assertVolunteerOrAdmin(supabase, userId);
+
+    // Never trust a user_id supplied by the browser: bind the escalation to
+    // the actual participant recorded on the selected conversation.
+    const { data: conversation, error: conversationError } = await supabase
+      .from("conversations")
+      .select("user_id, volunteer_id")
+      .eq("id", data.conversationId)
+      .maybeSingle();
+    if (conversationError || !conversation) {
+      throw new Error("Conversa não encontrada ou sem permissão de acesso.");
+    }
+    if (conversation.user_id !== data.userId) {
+      throw new Error("A pessoa informada não corresponde à conversa selecionada.");
+    }
+    if (!isAdmin && conversation.volunteer_id !== userId) {
+      throw new Error("Você só pode sinalizar crises das conversas que atende.");
+    }
+
     const { data: row, error } = await supabase
       .from("crisis_escalations")
       .insert({
         conversation_id: data.conversationId,
-        user_id: data.userId,
+        user_id: conversation.user_id,
         raised_by: userId,
         severity: data.severity ?? "high",
         notes: data.notes ?? null,
@@ -41,7 +95,8 @@ export const raiseEscalation = createServerFn({ method: "POST" })
 export const listOpenEscalations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertAdmin(supabase, userId);
     const { data, error } = await supabase
       .from("crisis_escalations")
       .select("id, conversation_id, user_id, raised_by, severity, notes, status, created_at, acknowledged_at, resolved_at")
@@ -57,6 +112,7 @@ export const ackEscalation = createServerFn({ method: "POST" })
   .validator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await assertAdmin(supabase, userId);
     const { error } = await supabase
       .from("crisis_escalations")
       .update({ status: "ack", acknowledged_by: userId, acknowledged_at: new Date().toISOString() })
@@ -68,10 +124,11 @@ export const ackEscalation = createServerFn({ method: "POST" })
 export const resolveEscalation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { id: string; notes?: string }) =>
-    z.object({ id: z.string().uuid(), notes: z.string().max(1000).optional() }).parse(input),
+    z.object({ id: z.string().uuid(), notes: z.string().trim().max(1000).optional() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    await assertAdmin(supabase, userId);
     const { error } = await supabase
       .from("crisis_escalations")
       .update({ status: "resolved", resolved_at: new Date().toISOString(), notes: data.notes ?? null })
