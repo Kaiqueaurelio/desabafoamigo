@@ -37,9 +37,7 @@ function createSupabaseClient() {
   const viteEnv = import.meta.env ?? {};
 
   const SUPABASE_URL =
-    viteEnv.VITE_SUPABASE_URL ||
-    runtimeEnv?.VITE_SUPABASE_URL ||
-    runtimeEnv?.SUPABASE_URL;
+    viteEnv.VITE_SUPABASE_URL || runtimeEnv?.VITE_SUPABASE_URL || runtimeEnv?.SUPABASE_URL;
 
   const SUPABASE_PUBLISHABLE_KEY =
     viteEnv.VITE_SUPABASE_PUBLISHABLE_KEY ||
@@ -48,13 +46,15 @@ function createSupabaseClient() {
     runtimeEnv?.VITE_SUPABASE_ANON_KEY ||
     runtimeEnv?.SUPABASE_PUBLISHABLE_KEY;
 
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ["VITE_SUPABASE_URL / SUPABASE_URL"] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY
-        ? ["VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY / SUPABASE_PUBLISHABLE_KEY"]
-        : []),
-    ];
+  const missing: string[] = [];
+  if (!SUPABASE_URL) missing.push("VITE_SUPABASE_URL / SUPABASE_URL");
+  if (!SUPABASE_PUBLISHABLE_KEY) {
+    missing.push(
+      "VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY / SUPABASE_PUBLISHABLE_KEY",
+    );
+  }
+
+  if (missing.length > 0) {
     console.error(
       `[Supabase] Missing environment variable(s): ${missing.join(", ")}. Public pages will render, but Supabase features remain unavailable until the hosting variables are configured.`,
     );
