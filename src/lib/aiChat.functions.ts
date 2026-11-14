@@ -160,8 +160,9 @@ export const aiChat = createServerFn({ method: "POST" })
       : lastWithMedia;
     let savedMemory: string | null = null;
     if (data.rememberContext) {
-      const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(context.supabase)
-        .from("ai_user_memory")
+      const { data: memoryRow, error: memoryError } = await withPendingDatabaseTypes(
+        context.supabase,
+      ).from("ai_user_memory")
         .select("memory_summary, expires_at")
         .eq("user_id", context.userId)
         .maybeSingle();
