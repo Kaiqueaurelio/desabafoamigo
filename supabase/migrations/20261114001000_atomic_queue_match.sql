@@ -1,8 +1,7 @@
 -- Atomically claim a waiting queue entry and create its appointment/conversation.
 -- All writes run in one transaction: a failure rolls back the claim and related rows.
-drop function if exists public.claim_queue_entry(uuid);
-
-create function public.claim_queue_entry(_queue_id uuid)
+-- CREATE OR REPLACE preserves existing grants and dependencies when re-applied.
+create or replace function public.claim_queue_entry(_queue_id uuid)
 returns table (user_id uuid, appointment_id uuid, conversation_id uuid)
 language plpgsql
 security definer
@@ -28,14 +27,15 @@ begin
   end if;
 
   -- The conditional UPDATE is the concurrency lock: only one caller can claim
-  -- a row while it is still waiting.
-  update public.queue
+  -- a row while it is still waiting. Qualify returned columns to avoid clashes
+  -- with PL/pgSQL OUT parameters (user_id).
+  update public.queue as q
      set status = 'matched',
          matched_volunteer_id = v_actor,
          updated_at = now()
-   where id = _queue_id
-     and status = 'waiting'
-  returning user_id, topic into v_patient, v_topic;
+   where q.id = _queue_id
+     and q.status = 'waiting'
+  returning q.user_id, q.topic into v_patient, v_topic;
 
   if not found then
     raise exception 'Entrada indisponível ou já assumida por outra pessoa'
