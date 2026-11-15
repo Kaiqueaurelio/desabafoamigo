@@ -383,8 +383,10 @@ export function EllaVoiceMode({
   const toggleMute = () => {
     if (muted) {
       setMuted(false);
-      if (speechFallbackRef.current) void startFallbackRecognition();
-      else startRecognitionRef.current?.();
+      window.setTimeout(() => {
+        if (speechFallbackRef.current) void startFallbackRecognition();
+        else startRecognitionRef.current?.();
+      }, 0);
     } else {
       setMuted(true);
       clearSilenceTimer();
