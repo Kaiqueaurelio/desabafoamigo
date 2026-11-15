@@ -63,25 +63,25 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
   const request = async (requestBody: Record<string, unknown>) => {
     let response: Response | undefined;
     let lastError: unknown;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
         response = await fetch(`${baseUrl}/chat/completions`, {
           method: "POST",
           headers,
           body: JSON.stringify(requestBody),
-          signal: AbortSignal.timeout(45000),
+          signal: AbortSignal.timeout(15000),
         });
         const retryable =
           response.status === 408 ||
           response.status === 425 ||
           response.status === 429 ||
           response.status >= 500;
-        if (!retryable || attempt === 2) return response;
-        await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+        if (!retryable || attempt === 1) return response;
+        await new Promise((resolve) => setTimeout(resolve, 250));
       } catch (error) {
         lastError = error;
-        if (attempt === 2) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+        if (attempt === 1) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 250));
       }
     }
     if (response) return response;
@@ -111,8 +111,8 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
       response.headers.get("x-nvcf-reqid");
     if (!requestId) throw new Error("A NVIDIA não retornou o identificador de processamento.");
     let completed = false;
-    for (let attempt = 0; attempt < 20; attempt += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 750));
+    for (let attempt = 0; attempt < 25; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 400));
       response = await fetch(`${baseUrl}/status/${encodeURIComponent(requestId)}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${apiKey}` },

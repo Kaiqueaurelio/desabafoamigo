@@ -199,7 +199,7 @@ export const aiChat = createServerFn({ method: "POST" })
         messages,
         temperature: 0.35,
         top_p: 0.85,
-        max_tokens: 700,
+        max_tokens: 450,
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
