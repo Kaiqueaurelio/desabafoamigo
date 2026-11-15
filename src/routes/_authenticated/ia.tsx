@@ -785,19 +785,25 @@ function Page() {
           size="icon"
           variant={recording ? "destructive" : "outline"}
           className="h-11 w-11 shrink-0"
-          disabled={busy || media.length >= 3}
+          disabled={busy || transcribing}
           onClick={() => void toggleAudioRecording()}
           aria-label={recording ? "Parar gravação de áudio" : "Gravar mensagem de voz para Ella"}
           title="Grave sua mensagem e envie para Ella transcrever"
         >
-          {recording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          {transcribing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : recording ? (
+            <StopCircle className="h-4 w-4" />
+          ) : (
+            <Mic className="h-4 w-4" />
+          )}
         </Button>
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={2}
           maxLength={2000}
-          placeholder="Escreva o que está sentindo…"
+          placeholder={recording ? "Gravando… toque no quadrado para enviar" : transcribing ? "Transcrevendo seu áudio…" : "Escreva o que está sentindo…"}
           aria-label="Mensagem"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
