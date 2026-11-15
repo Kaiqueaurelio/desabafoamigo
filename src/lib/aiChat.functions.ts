@@ -246,7 +246,7 @@ export const aiChat = createServerFn({ method: "POST" })
         });
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
-    const degraded = !raw || provider === "none";
+    const degraded = provider === "none" || reply === FALLBACK_REPLY;
     const eventId = crypto.randomUUID();
     let loggedEventId: string | null = null;
     try {
