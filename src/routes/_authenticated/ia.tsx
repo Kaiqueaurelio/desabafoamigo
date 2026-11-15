@@ -138,6 +138,7 @@ function Page() {
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
   const [handoffBusy, setHandoffBusy] = useState(false);
   const [handoffError, setHandoffError] = useState("");
+  const [lastAiResponseEventId, setLastAiResponseEventId] = useState<string | null>(null);
   const end = useRef<HTMLDivElement>(null);
   const chatScroll = useRef<HTMLDivElement>(null);
   const mediaInput = useRef<HTMLInputElement>(null);
@@ -268,6 +269,7 @@ function Page() {
           topic: topic.slice(0, 500),
           urgency: risk === "urgent" ? "high" : risk === "attention" ? "medium" : "low",
           preferredLang: navigator.language || "pt-BR",
+          aiResponseEventId: lastAiResponseEventId ?? undefined,
         },
       });
       setQueueId(result.queueId);
@@ -477,6 +479,7 @@ function Page() {
         },
       });
       setMsgs([...next, { role: "assistant", content: r.reply }]);
+      setLastAiResponseEventId(r.eventId ?? null);
       setDegraded(r.degraded);
       if (r.risk.level !== "none") setRisk((cur) => (cur === "urgent" ? cur : r.risk.level));
       if (r.risk.offerHuman) setOfferHuman(true);
@@ -504,6 +507,7 @@ function Page() {
     setMsgs([GREETING]);
     setRisk("none");
     setOfferHuman(false);
+    setLastAiResponseEventId(null);
     setMedia([]);
     localStorage.removeItem(AI_HISTORY_KEY);
   }
