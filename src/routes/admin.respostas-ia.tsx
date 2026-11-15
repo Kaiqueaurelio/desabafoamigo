@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { Activity, Bot, Clock3, HeartHandshake, RefreshCw, ShieldCheck } from "lucide-react";
+import type { ReactNode } from "react";
+import { Activity, AlertTriangle, Bot, HeartHandshake, RefreshCw, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureAdminAal2 } from "@/lib/adminGuard";
 import { withPendingDatabaseTypes } from "@/lib/pending-database-types";
@@ -146,7 +147,7 @@ function Page() {
         <Metric icon={<Activity className="size-4" />} label="Respostas registradas" value={stats.total.toLocaleString("pt-BR")} />
         <Metric icon={<HeartHandshake className="size-4" />} label="Encaminhadas a voluntários" value={stats.forwarded.toLocaleString("pt-BR")} />
         <Metric icon={<HeartHandshake className="size-4" />} label="Taxa de encaminhamento" value={`${handoffRate}%`} />
-        <Metric icon={<Clock3 className="size-4" />} label="Respostas degradadas" value={stats.degraded.toLocaleString("pt-BR")} />
+        <Metric icon={<AlertTriangle className="size-4" />} label="Respostas degradadas" value={stats.degraded.toLocaleString("pt-BR")} />
       </section>
 
       {error && (
@@ -230,7 +231,7 @@ function Metric({
   label,
   value,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
 }) {
