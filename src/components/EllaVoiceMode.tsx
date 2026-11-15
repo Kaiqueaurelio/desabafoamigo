@@ -421,7 +421,7 @@ export function EllaVoiceMode({
         <div className="flex min-h-[430px] flex-col items-center justify-center gap-5 py-4">
           <div className="relative grid size-64 place-items-center">
             <div className={`absolute inset-0 rounded-full bg-primary/10 blur-2xl transition-all duration-700 ${status === "speaking" ? "scale-125 opacity-100" : status === "listening" ? "scale-110 opacity-80" : "scale-90 opacity-40"}`} />
-            <div className={`absolute inset-5 rounded-full border border-primary/20 ${status === "thinking" || status === "connecting" ? "animate-spin border-t-primary" : ""} ${status === "listening" ? "animate-pulse" : ""}`} />
+            <div className={`absolute inset-5 rounded-full border border-primary/20 ${status === "connecting" ? "animate-spin border-t-primary" : ""} ${status === "listening" ? "animate-pulse" : ""}`} />
             <div className={`relative grid size-40 place-items-center rounded-full bg-gradient-to-br from-primary via-primary/90 to-violet-500 text-primary-foreground shadow-[0_0_70px_hsl(var(--primary)/0.28)] transition-transform duration-300 ${status === "speaking" ? "scale-110 animate-pulse" : status === "listening" ? "scale-105" : ""}`}>
               {status === "connecting" ? <Loader2 className="size-12 animate-spin" />
                 : status === "speaking" ? <Volume2 className="size-12" />
