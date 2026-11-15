@@ -3,9 +3,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const TTS_FUNCTION_ID =
   process.env.NVIDIA_TTS_FUNCTION_ID || "877104f7-e885-42b9-8de8-f6e4c6303969";
+let cachedBrazilianVoice: string | null = null;
 
 async function resolveBrazilianVoice(apiKey: string): Promise<string> {
   if (process.env.NVIDIA_TTS_VOICE) return process.env.NVIDIA_TTS_VOICE;
+  if (cachedBrazilianVoice) return cachedBrazilianVoice;
   const response = await fetch(
     `https://${TTS_FUNCTION_ID}.invocation.api.nvcf.nvidia.com/v1/audio/list_voices`,
     {
@@ -29,6 +31,7 @@ async function resolveBrazilianVoice(apiKey: string): Promise<string> {
     throw new Error(
       "O NVIDIA Magpie não retornou uma voz pt-BR. Configure NVIDIA_TTS_VOICE com um identificador disponível.",
     );
+  cachedBrazilianVoice = selected;
   return selected;
 }
 
@@ -56,7 +59,7 @@ export const synthesizeEllaSpeech = createServerFn({ method: "POST" })
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}` },
         body: form,
-        signal: AbortSignal.timeout(45000),
+        signal: AbortSignal.timeout(18000),
       },
     );
     if (!response.ok) {

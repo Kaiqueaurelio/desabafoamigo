@@ -833,6 +833,7 @@ function Page() {
           setRisk((current) => (current === "urgent" ? current : level));
           setOfferHuman(true);
         }}
+        onTransfer={() => void transferToVolunteer()}
       />
     </div>
   );

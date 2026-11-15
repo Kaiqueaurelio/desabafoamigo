@@ -63,6 +63,7 @@ export const aiChat = createServerFn({ method: "POST" })
       retentionDays?: number;
       messages: Msg[];
       attachments?: AiAttachment[];
+      voiceMode?: boolean;
     }) => {
       if (d?.consent !== true) {
         throw new Error("É necessário consentimento para processar mensagens com IA.");
@@ -96,6 +97,7 @@ export const aiChat = createServerFn({ method: "POST" })
           )
           .map((m) => ({ role: m.role, content: m.content.slice(0, 1800) })),
         attachments,
+        voiceMode: d?.voiceMode === true,
         rememberContext:
           d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
         retentionDays: d?.retentionDays === 30 ? 30 : 7,
@@ -183,9 +185,12 @@ export const aiChat = createServerFn({ method: "POST" })
         .delete()
         .eq("user_id", context.userId);
     }
-    const systemContent = savedMemory
+    const voiceGuidance = data.voiceMode
+      ? `\n\nMODO DE VOZ AO VIVO: responda em português brasileiro falado, com naturalidade, empatia e ritmo de conversa. Use de 1 a 3 frases curtas, sem listas, títulos, markdown ou enumerações. Vá direto ao ponto, evite introduções repetitivas e faça no máximo uma pergunta breve quando realmente ajudar. Em risco, priorize instruções claras e imediatas de segurança, mesmo que ultrapasse esse limite.`
+      : "";
+    const systemContent = (savedMemory
       ? `${SYSTEM}\n\nContexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: ${savedMemory}`
-      : SYSTEM;
+      : SYSTEM) + voiceGuidance;
     const messages = [
       { role: "system", content: systemContent },
       ...data.messages.slice(0, -1),
@@ -199,7 +204,7 @@ export const aiChat = createServerFn({ method: "POST" })
         messages,
         temperature: 0.35,
         top_p: 0.85,
-        max_tokens: 450,
+        max_tokens: data.voiceMode ? 220 : 450,
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
