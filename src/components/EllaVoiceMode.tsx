@@ -226,8 +226,13 @@ export function EllaVoiceMode({
       };
       utteranceRef.current = utterance;
       updateStatus("speaking");
-      window.speechSynthesis.speak(utterance);
-      return true;
+      try {
+        window.speechSynthesis.speak(utterance);
+        return true;
+      } catch {
+        utteranceRef.current = null;
+        return false;
+      }
     },
     [updateStatus],
   );
@@ -522,6 +527,7 @@ export function EllaVoiceMode({
         (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextConstructor) throw new Error("Áudio não suportado neste navegador.");
       const context = new AudioContextConstructor();
+      if (context.state === "suspended") await context.resume();
       const analyser = context.createAnalyser();
       analyser.fftSize = 1024;
       context.createMediaStreamSource(stream).connect(analyser);
