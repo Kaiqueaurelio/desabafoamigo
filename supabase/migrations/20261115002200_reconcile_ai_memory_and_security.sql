@@ -55,20 +55,12 @@ CREATE INDEX IF NOT EXISTS ai_response_events_forwarded_idx
   WHERE forwarded_to_volunteer;
 
 ALTER TABLE public.ai_response_events ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON TABLE public.ai_response_events FROM PUBLIC, anon;
-GRANT SELECT, INSERT ON TABLE public.ai_response_events TO authenticated;
-GRANT UPDATE (forwarded_to_volunteer, forwarded_at) ON TABLE public.ai_response_events TO authenticated;
+REVOKE ALL ON TABLE public.ai_response_events FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.ai_response_events TO authenticated;
 GRANT ALL ON TABLE public.ai_response_events TO service_role;
 
 DROP POLICY IF EXISTS "Users insert own AI response events" ON public.ai_response_events;
-CREATE POLICY "Users insert own AI response events"
-  ON public.ai_response_events FOR INSERT TO authenticated
-  WITH CHECK (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users mark own AI response handoff" ON public.ai_response_events;
-CREATE POLICY "Users mark own AI response handoff"
-  ON public.ai_response_events FOR UPDATE TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Admins read AI response events" ON public.ai_response_events;
 CREATE POLICY "Admins read AI response events"
   ON public.ai_response_events FOR SELECT TO authenticated
