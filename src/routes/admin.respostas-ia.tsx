@@ -215,6 +215,7 @@ function Page() {
                   <th className="px-4 py-3 font-medium">Estado</th>
                   <th className="px-4 py-3 font-medium">Sinal de risco</th>
                   <th className="px-4 py-3 font-medium">Tempo</th>
+                  <th className="px-4 py-3 font-medium">Tamanho</th>
                   <th className="px-4 py-3 font-medium">Encaminhamento</th>
                 </tr>
               </thead>
@@ -233,6 +234,9 @@ function Page() {
                     <td className="px-4 py-3">{severityLabel(event.severity)}</td>
                     <td className="whitespace-nowrap px-4 py-3 tabular-nums">
                       {event.latency_ms.toLocaleString("pt-BR")} ms
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 tabular-nums">
+                      {event.response_chars.toLocaleString("pt-BR")} caracteres
                     </td>
                     <td className="px-4 py-3">
                       {event.forwarded_to_volunteer ? (
