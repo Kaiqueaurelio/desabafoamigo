@@ -248,22 +248,30 @@ export const aiChat = createServerFn({ method: "POST" })
     }
     const degraded = !raw || provider === "none";
     const eventId = crypto.randomUUID();
-    const { error: eventError } = await withPendingDatabaseTypes(context.supabase)
-      .from("ai_response_events")
-      .insert({
-        id: eventId,
-        user_id: context.userId,
-        provider,
-        degraded,
-        severity: risk.level === "urgent" ? 3 : risk.level === "attention" ? 2 : 0,
-        response_chars: Math.min(reply.length, 2000),
-        latency_ms: Math.max(0, Date.now() - startedAt),
-      });
-    if (eventError) {
-      console.warn("[aiChat] response telemetry insert failed", eventError.message);
+    let loggedEventId: string | null = null;
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error: eventError } = await withPendingDatabaseTypes(supabaseAdmin)
+        .from("ai_response_events")
+        .insert({
+          id: eventId,
+          user_id: context.userId,
+          provider,
+          degraded,
+          severity: risk.level === "urgent" ? 3 : risk.level === "attention" ? 2 : 0,
+          response_chars: Math.min(reply.length, 2000),
+          latency_ms: Math.max(0, Date.now() - startedAt),
+        });
+      if (eventError) {
+        console.warn("[aiChat] response telemetry insert failed", eventError.message);
+      } else {
+        loggedEventId = eventId;
+      }
+    } catch (eventError) {
+      console.warn("[aiChat] response telemetry unavailable", eventError);
     }
 
-    return { reply, risk, provider, degraded, eventId: eventError ? null : eventId };
+    return { reply, risk, provider, degraded, eventId: loggedEventId };
   });
 
 /** Transcreve uma gravação de voz (estilo ChatGPT) usando a IA do Lovable. */
