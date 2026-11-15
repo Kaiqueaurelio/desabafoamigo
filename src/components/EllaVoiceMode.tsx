@@ -101,6 +101,7 @@ export function EllaVoiceMode({
   const statusRef = useRef<VoiceStatus>("idle");
   const startRecorderFallbackRef = useRef<() => Promise<void>>(async () => {});
   const startFallbackRecorderSegmentRef = useRef<() => void>(() => {});
+  const externalSpeechFallbackRef = useRef<(text: string) => Promise<void>>(async () => {});
 
   messagesRef.current = messages;
   callbacksRef.current = { onTranscript, onRisk, onTransferHuman };
@@ -225,7 +226,7 @@ export function EllaVoiceMode({
           return;
         }
         // Native speech is preferred for speed. NVIDIA Magpie is only a fallback.
-        void speakWithExternalFallback(text);
+        void externalSpeechFallbackRef.current(text);
       };
       utteranceRef.current = utterance;
       updateStatus("speaking");
@@ -265,6 +266,8 @@ export function EllaVoiceMode({
     },
     [synthesize, updateStatus],
   );
+
+  externalSpeechFallbackRef.current = speakWithExternalFallback;
 
   const speakReply = useCallback(
     async (text: string) => {
