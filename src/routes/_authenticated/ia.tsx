@@ -803,7 +803,13 @@ function Page() {
           onChange={(e) => setText(e.target.value)}
           rows={2}
           maxLength={2000}
-          placeholder={recording ? "Gravando… toque no quadrado para enviar" : transcribing ? "Transcrevendo seu áudio…" : "Escreva o que está sentindo…"}
+          placeholder={
+            recording
+              ? "Gravando… toque no quadrado para enviar"
+              : transcribing
+                ? "Transcrevendo seu áudio…"
+                : "Escreva o que está sentindo…"
+          }
           aria-label="Mensagem"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
@@ -833,6 +839,9 @@ function Page() {
           setRisk((current) => (current === "urgent" ? current : level));
           setOfferHuman(true);
         }}
+        onTransferHuman={() => void transferToVolunteer()}
+        handoffBusy={handoffBusy}
+        queueId={queueId}
       />
     </div>
   );

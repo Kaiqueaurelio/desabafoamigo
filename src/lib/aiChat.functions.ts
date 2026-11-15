@@ -61,6 +61,7 @@ export const aiChat = createServerFn({ method: "POST" })
       consent?: boolean;
       rememberContext?: boolean;
       retentionDays?: number;
+      voiceMode?: boolean;
       messages: Msg[];
       attachments?: AiAttachment[];
     }) => {
@@ -99,6 +100,7 @@ export const aiChat = createServerFn({ method: "POST" })
         rememberContext:
           d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
         retentionDays: d?.retentionDays === 30 ? 30 : 7,
+        voiceMode: d?.voiceMode === true,
       };
     },
   )
@@ -183,9 +185,12 @@ export const aiChat = createServerFn({ method: "POST" })
         .delete()
         .eq("user_id", context.userId);
     }
-    const systemContent = savedMemory
+    const baseSystemContent = savedMemory
       ? `${SYSTEM}\n\nContexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: ${savedMemory}`
       : SYSTEM;
+    const systemContent = data.voiceMode
+      ? `${baseSystemContent}\n\nMODO DE VOZ AO VIVO: responda como numa conversa falada, com 1 a 3 frases curtas, naturais e empáticas. Use português brasileiro coloquial, sem listas, títulos, markdown, emojis em excesso ou introduções repetidas. Responda diretamente ao último relato e faça no máximo uma pergunta curta. Em qualquer sinal de risco, priorize instruções de segurança claras e os canais humanos de ajuda, mesmo que a resposta fique um pouco maior. Gere JSON válido no formato exigido.`
+      : baseSystemContent;
     const messages = [
       { role: "system", content: systemContent },
       ...data.messages.slice(0, -1),
@@ -199,7 +204,7 @@ export const aiChat = createServerFn({ method: "POST" })
         messages,
         temperature: 0.35,
         top_p: 0.85,
-        max_tokens: 450,
+        max_tokens: data.voiceMode ? 220 : 450,
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },
       });
@@ -267,7 +272,16 @@ export const transcribeVoice = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("Transcrição indisponível no momento.");
     const [meta, encoded] = data.dataUrl.split(",", 2);
     const mime = (meta.match(/^data:([^;]+)/)?.[1] ?? "audio/webm").toLowerCase();
-    const ext = mime.includes("mp4") || mime.includes("m4a") ? "m4a" : mime.includes("ogg") ? "ogg" : mime.includes("wav") ? "wav" : mime.includes("mpeg") ? "mp3" : "webm";
+    const ext =
+      mime.includes("mp4") || mime.includes("m4a")
+        ? "m4a"
+        : mime.includes("ogg")
+          ? "ogg"
+          : mime.includes("wav")
+            ? "wav"
+            : mime.includes("mpeg")
+              ? "mp3"
+              : "webm";
     const bin = atob(encoded);
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
