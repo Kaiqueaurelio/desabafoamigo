@@ -833,6 +833,9 @@ function Page() {
           setRisk((current) => (current === "urgent" ? current : level));
           setOfferHuman(true);
         }}
+        onTransferHuman={() => void transferToVolunteer()}
+        handoffBusy={handoffBusy}
+        queueId={queueId}
       />
     </div>
   );
