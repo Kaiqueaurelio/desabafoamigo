@@ -252,7 +252,7 @@ CREATE OR REPLACE FUNCTION public.check_mfa_lock(_scope text)
 RETURNS TABLE(locked boolean, remaining_seconds integer, failed_count integer)
 LANGUAGE plpgsql
 STABLE
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public, pg_temp
 AS $$
 DECLARE
@@ -303,7 +303,7 @@ $$;
 CREATE OR REPLACE FUNCTION public.record_mfa_attempt(_scope text, _success boolean)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public, pg_temp
 AS $$
 DECLARE
