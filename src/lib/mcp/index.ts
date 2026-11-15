@@ -18,5 +18,12 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
+  // Do not send verified user identifiers or interaction metadata to external telemetry.
+  metrics: false,
+  // Bound both transport size and nested argument complexity before tool handlers run.
+  limits: {
+    maxRequestBodySize: 1_048_576,
+    maxToolInputElements: 10_000,
+  },
   tools: [whoamiTool, listConversationsTool, logMoodTool, myQueuePositionTool],
 });

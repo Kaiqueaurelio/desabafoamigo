@@ -20,7 +20,6 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as SejaVoluntarioRouteImport } from './routes/seja-voluntario'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SobreRouteImport } from './routes/sobre'
-import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedApoioRouteImport } from './routes/_authenticated/apoio'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
@@ -53,10 +52,10 @@ import { Route as AdminPalavrasRouteImport } from './routes/admin.palavras'
 import { Route as AdminPasskeysRouteImport } from './routes/admin.passkeys'
 import { Route as AdminPlantaoRouteImport } from './routes/admin.plantao'
 import { Route as AdminPushRouteImport } from './routes/admin.push'
+import { Route as AdminRespostasIaRouteImport } from './routes/admin.respostas-ia'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as ProCadastroRouteImport } from './routes/pro.cadastro'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
-import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AuthenticatedConsultaIdRouteImport } from './routes/_authenticated/consulta.$id'
 import { Route as AuthenticatedProIndexRouteImport } from './routes/_authenticated/pro.index'
 import { Route as AuthenticatedProFilaRouteImport } from './routes/_authenticated/pro.fila'
@@ -119,12 +118,6 @@ const SobreRoute = SobreRouteImport.update({
   path: '/sobre',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char91DotmcpChar93ListToolsRoute =
-  Char91DotmcpChar93ListToolsRouteImport.update({
-    id: '/.mcp/list-tools',
-    path: '/.mcp/list-tools',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -291,6 +284,11 @@ const AdminPushRoute = AdminPushRouteImport.update({
   path: '/admin/push',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRespostasIaRoute = AdminRespostasIaRouteImport.update({
+  id: '/admin/respostas-ia',
+  path: '/admin/respostas-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/admin/usuarios',
   path: '/admin/usuarios',
@@ -306,12 +304,6 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char91DotmcpChar93InvokeToolToolRoute =
-  Char91DotmcpChar93InvokeToolToolRouteImport.update({
-    id: '/.mcp/invoke-tool/$tool',
-    path: '/.mcp/invoke-tool/$tool',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const AuthenticatedConsultaIdRoute = AuthenticatedConsultaIdRouteImport.update({
   id: '/consulta/$id',
   path: '/consulta/$id',
@@ -361,7 +353,6 @@ export interface FileRoutesByFullPath {
   '/seja-voluntario': typeof SejaVoluntarioRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
-  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -393,11 +384,11 @@ export interface FileRoutesByFullPath {
   '/admin/passkeys': typeof AdminPasskeysRoute
   '/admin/plantao': typeof AdminPlantaoRoute
   '/admin/push': typeof AdminPushRoute
+  '/admin/respostas-ia': typeof AdminRespostasIaRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/mfa': typeof AuthenticatedProMfaRoute
@@ -417,7 +408,6 @@ export interface FileRoutesByTo {
   '/seja-voluntario': typeof SejaVoluntarioRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
-  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/apoio': typeof AuthenticatedApoioRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -449,11 +439,11 @@ export interface FileRoutesByTo {
   '/admin/passkeys': typeof AdminPasskeysRoute
   '/admin/plantao': typeof AdminPlantaoRoute
   '/admin/push': typeof AdminPushRoute
+  '/admin/respostas-ia': typeof AdminRespostasIaRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin': typeof AdminIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/pro/fila': typeof AuthenticatedProFilaRoute
   '/pro/mfa': typeof AuthenticatedProMfaRoute
@@ -475,7 +465,6 @@ export interface FileRoutesById {
   '/seja-voluntario': typeof SejaVoluntarioRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
-  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/apoio': typeof AuthenticatedApoioRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -507,11 +496,11 @@ export interface FileRoutesById {
   '/admin/passkeys': typeof AdminPasskeysRoute
   '/admin/plantao': typeof AdminPlantaoRoute
   '/admin/push': typeof AdminPushRoute
+  '/admin/respostas-ia': typeof AdminRespostasIaRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/pro/cadastro': typeof ProCadastroRoute
   '/admin/': typeof AdminIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/consulta/$id': typeof AuthenticatedConsultaIdRoute
   '/_authenticated/pro/fila': typeof AuthenticatedProFilaRoute
   '/_authenticated/pro/mfa': typeof AuthenticatedProMfaRoute
@@ -533,7 +522,6 @@ export interface FileRouteTypes {
     | '/seja-voluntario'
     | '/sitemap.xml'
     | '/sobre'
-    | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/apoio'
     | '/configuracoes'
@@ -565,11 +553,11 @@ export interface FileRouteTypes {
     | '/admin/passkeys'
     | '/admin/plantao'
     | '/admin/push'
+    | '/admin/respostas-ia'
     | '/admin/usuarios'
     | '/pro/cadastro'
     | '/admin/'
     | '/.lovable/oauth/consent'
-    | '/.mcp/invoke-tool/$tool'
     | '/consulta/$id'
     | '/pro/fila'
     | '/pro/mfa'
@@ -589,7 +577,6 @@ export interface FileRouteTypes {
     | '/seja-voluntario'
     | '/sitemap.xml'
     | '/sobre'
-    | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/apoio'
     | '/configuracoes'
@@ -621,11 +608,11 @@ export interface FileRouteTypes {
     | '/admin/passkeys'
     | '/admin/plantao'
     | '/admin/push'
+    | '/admin/respostas-ia'
     | '/admin/usuarios'
     | '/pro/cadastro'
     | '/admin'
     | '/.lovable/oauth/consent'
-    | '/.mcp/invoke-tool/$tool'
     | '/consulta/$id'
     | '/pro/fila'
     | '/pro/mfa'
@@ -646,7 +633,6 @@ export interface FileRouteTypes {
     | '/seja-voluntario'
     | '/sitemap.xml'
     | '/sobre'
-    | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/apoio'
     | '/_authenticated/configuracoes'
@@ -678,11 +664,11 @@ export interface FileRouteTypes {
     | '/admin/passkeys'
     | '/admin/plantao'
     | '/admin/push'
+    | '/admin/respostas-ia'
     | '/admin/usuarios'
     | '/pro/cadastro'
     | '/admin/'
     | '/.lovable/oauth/consent'
-    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/consulta/$id'
     | '/_authenticated/pro/fila'
     | '/_authenticated/pro/mfa'
@@ -704,7 +690,6 @@ export interface RootRouteChildren {
   SejaVoluntarioRoute: typeof SejaVoluntarioRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
-  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAparenciaRoute: typeof AdminAparenciaRoute
   AdminAtendimentoRoute: typeof AdminAtendimentoRoute
@@ -721,11 +706,11 @@ export interface RootRouteChildren {
   AdminPasskeysRoute: typeof AdminPasskeysRoute
   AdminPlantaoRoute: typeof AdminPlantaoRoute
   AdminPushRoute: typeof AdminPushRoute
+  AdminRespostasIaRoute: typeof AdminRespostasIaRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   ProCadastroRoute: typeof ProCadastroRoute
   AdminIndexRoute: typeof AdminIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
-  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHooksDailyMaintenanceRoute: typeof ApiPublicHooksDailyMaintenanceRoute
 }
 
@@ -806,13 +791,6 @@ declare module '@tanstack/react-router' {
       path: '/sobre'
       fullPath: '/sobre'
       preLoaderRoute: typeof SobreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/.mcp/list-tools': {
-      id: '/.mcp/list-tools'
-      path: '/.mcp/list-tools'
-      fullPath: '/.mcp/list-tools'
-      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource': {
@@ -1039,6 +1017,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPushRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/respostas-ia': {
+      id: '/admin/respostas-ia'
+      path: '/admin/respostas-ia'
+      fullPath: '/admin/respostas-ia'
+      preLoaderRoute: typeof AdminRespostasIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/usuarios': {
       id: '/admin/usuarios'
       path: '/admin/usuarios'
@@ -1058,13 +1043,6 @@ declare module '@tanstack/react-router' {
       path: '/.lovable/oauth/consent'
       fullPath: '/.lovable/oauth/consent'
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/.mcp/invoke-tool/$tool': {
-      id: '/.mcp/invoke-tool/$tool'
-      path: '/.mcp/invoke-tool/$tool'
-      fullPath: '/.mcp/invoke-tool/$tool'
-      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/consulta/$id': {
@@ -1182,7 +1160,6 @@ const rootRouteChildren: RootRouteChildren = {
   SejaVoluntarioRoute: SejaVoluntarioRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
-  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminAparenciaRoute: AdminAparenciaRoute,
@@ -1200,11 +1177,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPasskeysRoute: AdminPasskeysRoute,
   AdminPlantaoRoute: AdminPlantaoRoute,
   AdminPushRoute: AdminPushRoute,
+  AdminRespostasIaRoute: AdminRespostasIaRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   ProCadastroRoute: ProCadastroRoute,
   AdminIndexRoute: AdminIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
-  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHooksDailyMaintenanceRoute: ApiPublicHooksDailyMaintenanceRoute,
 }
 export const routeTree = rootRouteImport

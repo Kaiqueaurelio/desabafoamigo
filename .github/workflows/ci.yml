@@ -39,11 +39,11 @@ jobs:
           if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
             BASE_SHA="$(git rev-parse HEAD~1)"
           fi
-          FILES="$(git diff --name-only "$BASE_SHA"...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx')"
-          if [ -n "$FILES" ]; then
-            bunx eslint $FILES 2>&1 | tee build-logs/lint.log
+          mapfile -t FILES < <(git diff --name-only --diff-filter=ACMRT "$BASE_SHA"...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx')
+          if [ "${#FILES[@]}" -gt 0 ]; then
+            bunx eslint "${FILES[@]}" 2>&1 | tee build-logs/lint.log
           else
-            echo "Nenhum arquivo de código alterado para lint." | tee build-logs/lint.log
+            echo "Nenhum arquivo de código existente alterado para lint." | tee build-logs/lint.log
           fi
       - name: Test
         run: |

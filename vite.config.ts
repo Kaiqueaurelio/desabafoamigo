@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { VitePWA } from "vite-plugin-pwa";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
 // Dev-only: forward server secrets from the sandbox environment into the
 // local Worker runtime, which does not inherit process.env. Never applied to
@@ -13,6 +14,8 @@ const DEV_SECRET_NAMES = ["NVIDIA_API_KEY", "NVIDIA_API_KEY_ASR", "LOVABLE_API_K
 
 export default defineConfig(({ command }) => ({
   plugins: [
+    // Regenerate the current /mcp and OAuth metadata routes for the installed MCP SDK.
+    mcpPlugin(),
     cloudflare({
       viteEnvironment: { name: "ssr" },
       ...(command === "serve"

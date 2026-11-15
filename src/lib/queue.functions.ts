@@ -5,7 +5,22 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const enqueueMe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(
-    (d: { topic: string; urgency?: "low" | "medium" | "high"; preferredLang?: string }) => d,
+    (d: {
+      topic: string;
+      urgency?: "low" | "medium" | "high";
+      preferredLang?: string;
+      aiResponseEventId?: string;
+    }) => {
+      if (
+        d.aiResponseEventId !== undefined &&
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          d.aiResponseEventId,
+        )
+      ) {
+        throw new Error("Registro de resposta inválido.");
+      }
+      return d;
+    },
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -29,6 +44,26 @@ export const enqueueMe = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw error;
+
+    // Registra somente que houve solicitação de acolhimento humano; nunca grava o texto da conversa.
+    if (data.aiResponseEventId) {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { error: handoffError } = await withPendingDatabaseTypes(supabaseAdmin)
+          .from("ai_response_events")
+          .update({
+            forwarded_to_volunteer: true,
+            forwarded_at: new Date().toISOString(),
+          })
+          .eq("id", data.aiResponseEventId)
+          .eq("user_id", userId);
+        if (handoffError) {
+          console.warn("[queue] AI handoff telemetry update failed", handoffError.message);
+        }
+      } catch (handoffError) {
+        console.warn("[queue] AI handoff telemetry unavailable", handoffError);
+      }
+    }
 
     // Notifica voluntários aprovados sobre nova pessoa na fila (best-effort, não bloqueia)
     try {

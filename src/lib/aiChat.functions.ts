@@ -103,6 +103,7 @@ export const aiChat = createServerFn({ method: "POST" })
     },
   )
   .handler(async ({ data, context }) => {
+    const startedAt = Date.now();
     const last = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
     if (!last.trim() && data.attachments.length === 0) {
       throw new Error("Mensagem vazia");
@@ -245,7 +246,32 @@ export const aiChat = createServerFn({ method: "POST" })
         });
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
-    return { reply, risk, provider, degraded: !raw };
+    const degraded = provider === "none" || reply === FALLBACK_REPLY;
+    const eventId = crypto.randomUUID();
+    let loggedEventId: string | null = null;
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error: eventError } = await withPendingDatabaseTypes(supabaseAdmin)
+        .from("ai_response_events")
+        .insert({
+          id: eventId,
+          user_id: context.userId,
+          provider,
+          degraded,
+          severity: risk.level === "urgent" ? 3 : risk.level === "attention" ? 2 : 0,
+          response_chars: Math.min(reply.length, 2000),
+          latency_ms: Math.max(0, Date.now() - startedAt),
+        });
+      if (eventError) {
+        console.warn("[aiChat] response telemetry insert failed", eventError.message);
+      } else {
+        loggedEventId = eventId;
+      }
+    } catch (eventError) {
+      console.warn("[aiChat] response telemetry unavailable", eventError);
+    }
+
+    return { reply, risk, provider, degraded, eventId: loggedEventId };
   });
 
 /** Transcreve uma gravação de voz (estilo ChatGPT) usando a IA do Lovable. */
@@ -267,7 +293,16 @@ export const transcribeVoice = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("Transcrição indisponível no momento.");
     const [meta, encoded] = data.dataUrl.split(",", 2);
     const mime = (meta.match(/^data:([^;]+)/)?.[1] ?? "audio/webm").toLowerCase();
-    const ext = mime.includes("mp4") || mime.includes("m4a") ? "m4a" : mime.includes("ogg") ? "ogg" : mime.includes("wav") ? "wav" : mime.includes("mpeg") ? "mp3" : "webm";
+    const ext =
+      mime.includes("mp4") || mime.includes("m4a")
+        ? "m4a"
+        : mime.includes("ogg")
+          ? "ogg"
+          : mime.includes("wav")
+            ? "wav"
+            : mime.includes("mpeg")
+              ? "mp3"
+              : "webm";
     const bin = atob(encoded);
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
