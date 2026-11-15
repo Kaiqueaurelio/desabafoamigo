@@ -14,7 +14,7 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next }) => 
   const directives = existingPolicy
     .split(";")
     .map((directive) => directive.trim())
-    .filter((directive) => directive && !/^frame-ancestors\\b/i.test(directive));
+    .filter((directive) => directive && !/^frame-ancestors\b/i.test(directive));
   directives.push("frame-ancestors 'none'");
   headers.set("Content-Security-Policy", directives.join("; "));
   headers.set("X-Frame-Options", "DENY");
