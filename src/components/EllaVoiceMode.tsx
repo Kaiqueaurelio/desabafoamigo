@@ -178,6 +178,7 @@ export function EllaVoiceMode({
   const stop = useCallback(() => {
     activeRef.current = false;
     processingRef.current = false;
+    recorderFallbackRef.current = false;
     clearSilenceTimer();
     stopRecognition();
     stopPlayback();
@@ -362,6 +363,7 @@ export function EllaVoiceMode({
       void startRecorderFallbackRef.current();
       return;
     }
+    recorderFallbackRef.current = false;
     try {
       const recognition = new Constructor();
       recognition.lang = "pt-BR";
@@ -544,7 +546,7 @@ export function EllaVoiceMode({
         }
         const rms = Math.sqrt(energy / samples.length);
         const now = performance.now();
-        if (rms > 0.045) {
+        if (rms > 0.035) {
           fallbackHasSpeechRef.current = true;
           fallbackLastVoiceRef.current = now;
           if (statusRef.current === "speaking") {
