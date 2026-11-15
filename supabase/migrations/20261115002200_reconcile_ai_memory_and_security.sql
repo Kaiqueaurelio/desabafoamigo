@@ -100,6 +100,33 @@ CREATE POLICY "Permanent admins only"
   USING (public.is_persistent_user() AND public.has_role(auth.uid(), 'admin'::public.app_role))
   WITH CHECK (public.is_persistent_user() AND public.has_role(auth.uid(), 'admin'::public.app_role));
 
+DROP POLICY IF EXISTS "Permanent volunteer applications only" ON public.volunteers;
+CREATE POLICY "Permanent volunteer applications only"
+  ON public.volunteers AS RESTRICTIVE FOR ALL TO authenticated
+  USING (public.is_persistent_user())
+  WITH CHECK (public.is_persistent_user());
+
+DROP POLICY IF EXISTS "Approved volunteers raise own escalations" ON public.crisis_escalations;
+DROP POLICY IF EXISTS "volunteers raise their own" ON public.crisis_escalations;
+CREATE POLICY "Approved volunteers raise own escalations"
+  ON public.crisis_escalations FOR INSERT TO authenticated
+  WITH CHECK (
+    raised_by = auth.uid()
+    AND (
+      public.has_role(auth.uid(), 'volunteer'::public.app_role)
+      OR public.has_role(auth.uid(), 'admin'::public.app_role)
+    )
+    AND EXISTS (
+      SELECT 1
+      FROM public.conversations AS c
+      WHERE c.id = crisis_escalations.conversation_id
+        AND (
+          c.volunteer_id = auth.uid()
+          OR public.has_role(auth.uid(), 'admin'::public.app_role)
+        )
+    )
+  );
+
 DROP POLICY IF EXISTS "Permanent volunteers only" ON public.volunteer_training_progress;
 CREATE POLICY "Permanent volunteers only"
   ON public.volunteer_training_progress AS RESTRICTIVE FOR ALL TO authenticated
@@ -235,8 +262,8 @@ DECLARE
   window_start timestamptz := now() - interval '15 minutes';
   lock_until timestamptz;
 BEGIN
-  IF uid IS NULL THEN
-    RAISE EXCEPTION 'not authenticated' USING ERRCODE = '42501';
+  IF uid IS NULL OR NOT public.is_persistent_user() THEN
+    RAISE EXCEPTION 'permanent authenticated account required' USING ERRCODE = '42501';
   END IF;
   IF _scope NOT IN ('pro', 'admin') THEN
     RAISE EXCEPTION 'invalid MFA scope' USING ERRCODE = '22023';
@@ -282,8 +309,8 @@ AS $$
 DECLARE
   uid uuid := auth.uid();
 BEGIN
-  IF uid IS NULL THEN
-    RAISE EXCEPTION 'not authenticated' USING ERRCODE = '42501';
+  IF uid IS NULL OR NOT public.is_persistent_user() THEN
+    RAISE EXCEPTION 'permanent authenticated account required' USING ERRCODE = '42501';
   END IF;
   IF _scope NOT IN ('pro', 'admin') THEN
     RAISE EXCEPTION 'invalid MFA scope' USING ERRCODE = '22023';
