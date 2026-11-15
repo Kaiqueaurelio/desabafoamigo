@@ -103,6 +103,7 @@ export const aiChat = createServerFn({ method: "POST" })
     },
   )
   .handler(async ({ data, context }) => {
+    const startedAt = Date.now();
     const last = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
     if (!last.trim() && data.attachments.length === 0) {
       throw new Error("Mensagem vazia");
@@ -245,7 +246,24 @@ export const aiChat = createServerFn({ method: "POST" })
         });
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
-    return { reply, risk, provider, degraded: !raw };
+    const degraded = !raw || provider === "none";
+    const eventId = crypto.randomUUID();
+    const { error: eventError } = await withPendingDatabaseTypes(context.supabase)
+      .from("ai_response_events")
+      .insert({
+        id: eventId,
+        user_id: context.userId,
+        provider,
+        degraded,
+        severity: risk.level === "urgent" ? 3 : risk.level === "attention" ? 2 : 0,
+        response_chars: Math.min(reply.length, 2000),
+        latency_ms: Math.max(0, Date.now() - startedAt),
+      });
+    if (eventError) {
+      console.warn("[aiChat] response telemetry insert failed", eventError.message);
+    }
+
+    return { reply, risk, provider, degraded, eventId: eventError ? null : eventId };
   });
 
 /** Transcreve uma gravação de voz (estilo ChatGPT) usando a IA do Lovable. */
