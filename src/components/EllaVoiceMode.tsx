@@ -66,6 +66,8 @@ export function EllaVoiceMode({
   const callbacksRef = useRef({ onTranscript, onRisk, onTransfer });
   const silenceTimerRef = useRef<number | null>(null);
   const pendingTranscriptRef = useRef("");
+  const finalTranscriptRef = useRef("");
+  const interimTranscriptRef = useRef("");
   const fallbackStreamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -112,6 +114,8 @@ export function EllaVoiceMode({
     busyRef.current = false;
     clearSilenceTimer();
     pendingTranscriptRef.current = "";
+    finalTranscriptRef.current = "";
+    interimTranscriptRef.current = "";
     recognitionRef.current?.abort();
     recognitionRef.current = null;
     stopPlayback();
@@ -176,6 +180,8 @@ export function EllaVoiceMode({
     busyRef.current = true;
     clearSilenceTimer();
     pendingTranscriptRef.current = "";
+    finalTranscriptRef.current = "";
+    interimTranscriptRef.current = "";
     recognitionRef.current?.stop();
     stopFallbackCapture();
     stopPlayback();
@@ -253,11 +259,12 @@ export function EllaVoiceMode({
         stopPlayback();
         setStatus("listening");
       }
-      const accumulated = [pendingTranscriptRef.current, finalChunk, interimChunk]
-        .filter(Boolean)
-        .join(" ")
-        .slice(-1800);
-      scheduleTurn(accumulated);
+      if (finalChunk) {
+        finalTranscriptRef.current = [finalTranscriptRef.current, finalChunk].filter(Boolean).join(" ").slice(-1800);
+        interimTranscriptRef.current = "";
+      }
+      if (interimChunk) interimTranscriptRef.current = interimChunk;
+      scheduleTurn([finalTranscriptRef.current, interimTranscriptRef.current].filter(Boolean).join(" ").slice(-1800));
     };
     recognition.onerror = (event) => {
       if (!activeRef.current || event.error === "aborted" || event.error === "no-speech") return;
