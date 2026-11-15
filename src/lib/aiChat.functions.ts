@@ -186,7 +186,7 @@ export const aiChat = createServerFn({ method: "POST" })
         .eq("user_id", context.userId);
     }
     const voiceGuidance = data.voiceMode
-      ? `\\n\\nMODO DE VOZ AO VIVO: responda em português brasileiro falado, com naturalidade, empatia e ritmo de conversa. Use de 1 a 3 frases curtas, sem listas, títulos, markdown ou enumerações. Vá direto ao ponto, evite introduções repetitivas e faça no máximo uma pergunta breve quando realmente ajudar. Em risco, priorize instruções claras e imediatas de segurança, mesmo que ultrapasse esse limite.`
+      ? `\n\nMODO DE VOZ AO VIVO: responda em português brasileiro falado, com naturalidade, empatia e ritmo de conversa. Use de 1 a 3 frases curtas, sem listas, títulos, markdown ou enumerações. Vá direto ao ponto, evite introduções repetitivas e faça no máximo uma pergunta breve quando realmente ajudar. Em risco, priorize instruções claras e imediatas de segurança, mesmo que ultrapasse esse limite.`
       : "";
     const systemContent = (savedMemory
       ? `${SYSTEM}\n\nContexto resumido de conversas anteriores, salvo com consentimento e ainda dentro do prazo escolhido. Use com delicadeza, não trate como diagnóstico ou verdade imutável e aceite correções: ${savedMemory}`
