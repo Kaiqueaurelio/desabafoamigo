@@ -12,6 +12,8 @@ ALTER TABLE public.ai_user_memory ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.ai_user_memory FROM PUBLIC, anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.ai_user_memory TO authenticated;
 GRANT ALL ON TABLE public.ai_user_memory TO service_role;
+COMMENT ON TABLE public.ai_user_memory IS
+  'Private per-user AI memory. RLS restricts access to the authenticated owner.';
 
 DROP POLICY IF EXISTS "Users can read their own AI memory" ON public.ai_user_memory;
 CREATE POLICY "Users can read their own AI memory"
@@ -58,6 +60,8 @@ ALTER TABLE public.ai_response_events ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.ai_response_events FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON TABLE public.ai_response_events TO authenticated;
 GRANT ALL ON TABLE public.ai_response_events TO service_role;
+COMMENT ON TABLE public.ai_response_events IS
+  'Privacy-preserving AI response telemetry; never stores prompts, replies, or attachments.';
 
 DROP POLICY IF EXISTS "Users insert own AI response events" ON public.ai_response_events;
 DROP POLICY IF EXISTS "Users mark own AI response handoff" ON public.ai_response_events;
@@ -160,6 +164,8 @@ CREATE POLICY "Permanent volunteers manage templates"
 ALTER TABLE public.webauthn_challenges ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.webauthn_challenges FROM PUBLIC, anon, authenticated;
 GRANT ALL ON TABLE public.webauthn_challenges TO service_role;
+COMMENT ON TABLE public.webauthn_challenges IS
+  'Server-only WebAuthn challenge store. No browser role has table privileges or RLS policies.';
 
 -- Reassert the private-bucket policy: users may read only media referenced by
 -- published library records; admins may read unpublished drafts. Unreferenced
