@@ -238,22 +238,26 @@ export function EllaVoiceMode({
     recognition.interimResults = true;
     recognition.onresult = (event) => {
       if (!activeRef.current || muted) return;
-      let combined = "";
-      let hasSpeech = false;
-      for (let index = 0; index < event.results.length; index += 1) {
+      let finalChunk = "";
+      let interimChunk = "";
+      const startAt = event.resultIndex ?? 0;
+      for (let index = startAt; index < event.results.length; index += 1) {
         const item = event.results[index];
         const transcript = item?.[0]?.transcript?.trim();
-        if (transcript) {
-          combined += (combined ? " " : "") + transcript;
-          hasSpeech = true;
-        }
+        if (!transcript) continue;
+        if (item.isFinal) finalChunk += (finalChunk ? " " : "") + transcript;
+        else interimChunk += (interimChunk ? " " : "") + transcript;
       }
-      if (!hasSpeech) return;
+      if (!finalChunk && !interimChunk) return;
       if (speakingRef.current) {
         stopPlayback();
         setStatus("listening");
       }
-      scheduleTurn(combined.slice(-1800));
+      const accumulated = [pendingTranscriptRef.current, finalChunk, interimChunk]
+        .filter(Boolean)
+        .join(" ")
+        .slice(-1800);
+      scheduleTurn(accumulated);
     };
     recognition.onerror = (event) => {
       if (!activeRef.current || event.error === "aborted" || event.error === "no-speech") return;
