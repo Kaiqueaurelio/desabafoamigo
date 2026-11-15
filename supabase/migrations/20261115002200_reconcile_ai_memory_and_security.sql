@@ -91,10 +91,23 @@ CREATE POLICY "Permanent accounts only"
   WITH CHECK (public.is_persistent_user());
 
 DROP POLICY IF EXISTS "Permanent admins only" ON public.webauthn_credentials;
-CREATE POLICY "Permanent admins only"
+DROP POLICY IF EXISTS "Permanent admins and volunteers only" ON public.webauthn_credentials;
+CREATE POLICY "Permanent admins and volunteers only"
   ON public.webauthn_credentials AS RESTRICTIVE FOR ALL TO authenticated
-  USING (public.is_persistent_user() AND public.has_role(auth.uid(), 'admin'::public.app_role))
-  WITH CHECK (public.is_persistent_user() AND public.has_role(auth.uid(), 'admin'::public.app_role));
+  USING (
+    public.is_persistent_user()
+    AND (
+      public.has_role(auth.uid(), 'admin'::public.app_role)
+      OR public.has_role(auth.uid(), 'volunteer'::public.app_role)
+    )
+  )
+  WITH CHECK (
+    public.is_persistent_user()
+    AND (
+      public.has_role(auth.uid(), 'admin'::public.app_role)
+      OR public.has_role(auth.uid(), 'volunteer'::public.app_role)
+    )
+  );
 
 DROP POLICY IF EXISTS "Permanent volunteer applications only" ON public.volunteers;
 CREATE POLICY "Permanent volunteer applications only"
