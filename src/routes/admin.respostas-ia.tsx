@@ -108,9 +108,7 @@ function Page() {
     void loadEvents();
   }, [loadEvents]);
 
-  const handoffRate = stats.total
-    ? Math.round((stats.forwarded / stats.total) * 100)
-    : 0;
+  const handoffRate = stats.total ? Math.round((stats.forwarded / stats.total) * 100) : 0;
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
@@ -122,7 +120,8 @@ function Page() {
           <div>
             <h1 className="font-display text-2xl font-semibold">Respostas da IA</h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Histórico técnico das respostas da Ella e acompanhamento dos pedidos de acolhimento humano.
+              Histórico técnico das respostas da Ella e acompanhamento dos pedidos de acolhimento
+              humano.
             </p>
           </div>
         </div>
@@ -139,22 +138,49 @@ function Page() {
 
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground">
         <ShieldCheck className="mr-2 inline size-4 text-primary" aria-hidden />
-        Privacidade: este painel não armazena nem exibe mensagens, respostas, anexos ou conteúdo emocional.
-        Ele registra apenas provedor, desempenho, nível de risco e solicitação de encaminhamento.
+        Privacidade: este painel não armazena nem exibe mensagens, respostas, anexos ou conteúdo
+        emocional. Ele registra apenas provedor, desempenho, nível de risco e solicitação de
+        encaminhamento.
       </div>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Indicadores de respostas da IA">
-        <Metric icon={<Activity className="size-4" />} label="Respostas registradas" value={stats.total.toLocaleString("pt-BR")} />
-        <Metric icon={<HeartHandshake className="size-4" />} label="Encaminhadas a voluntários" value={stats.forwarded.toLocaleString("pt-BR")} />
-        <Metric icon={<HeartHandshake className="size-4" />} label="Taxa de encaminhamento" value={`${handoffRate}%`} />
-        <Metric icon={<AlertTriangle className="size-4" />} label="Respostas degradadas" value={stats.degraded.toLocaleString("pt-BR")} />
+      <section
+        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+        aria-label="Indicadores de respostas da IA"
+      >
+        <Metric
+          icon={<Activity className="size-4" />}
+          label="Respostas registradas"
+          value={stats.total.toLocaleString("pt-BR")}
+        />
+        <Metric
+          icon={<HeartHandshake className="size-4" />}
+          label="Encaminhadas a voluntários"
+          value={stats.forwarded.toLocaleString("pt-BR")}
+        />
+        <Metric
+          icon={<HeartHandshake className="size-4" />}
+          label="Taxa de encaminhamento"
+          value={`${handoffRate}%`}
+        />
+        <Metric
+          icon={<AlertTriangle className="size-4" />}
+          label="Respostas degradadas"
+          value={stats.degraded.toLocaleString("pt-BR")}
+        />
       </section>
 
       {error && (
-        <div role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
+        <div
+          role="alert"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm"
+        >
           <p className="font-medium">Não foi possível carregar os registros.</p>
           <p className="mt-1 text-muted-foreground">{error}</p>
-          <button type="button" onClick={() => void loadEvents()} className="mt-3 font-medium text-primary underline">
+          <button
+            type="button"
+            onClick={() => void loadEvents()}
+            className="mt-3 font-medium text-primary underline"
+          >
             Tentar novamente
           </button>
         </div>
@@ -164,9 +190,13 @@ function Page() {
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3">
           <div>
             <h2 className="font-semibold">Registros recentes</h2>
-            <p className="text-xs text-muted-foreground">Últimas 100 respostas, da mais recente para a mais antiga</p>
+            <p className="text-xs text-muted-foreground">
+              Últimas 100 respostas, da mais recente para a mais antiga
+            </p>
           </div>
-          <span className="text-xs text-muted-foreground">{events?.length ?? 0} registros carregados</span>
+          <span className="text-xs text-muted-foreground">
+            {events?.length ?? 0} registros carregados
+          </span>
         </div>
 
         {loading && events === null ? (
@@ -191,7 +221,9 @@ function Page() {
               <tbody className="divide-y divide-border">
                 {events.map((event) => (
                   <tr key={event.id} className="hover:bg-muted/30">
-                    <td className="whitespace-nowrap px-4 py-3 tabular-nums">{formatDate(event.created_at)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 tabular-nums">
+                      {formatDate(event.created_at)}
+                    </td>
                     <td className="px-4 py-3">{providerLabel[event.provider]}</td>
                     <td className="px-4 py-3">
                       <span className={event.degraded ? "text-destructive" : "text-emerald-600"}>
@@ -199,7 +231,9 @@ function Page() {
                       </span>
                     </td>
                     <td className="px-4 py-3">{severityLabel(event.severity)}</td>
-                    <td className="whitespace-nowrap px-4 py-3 tabular-nums">{event.latency_ms.toLocaleString("pt-BR")} ms</td>
+                    <td className="whitespace-nowrap px-4 py-3 tabular-nums">
+                      {event.latency_ms.toLocaleString("pt-BR")} ms
+                    </td>
                     <td className="px-4 py-3">
                       {event.forwarded_to_volunteer ? (
                         <span className="font-medium text-primary">Solicitado</span>
@@ -226,15 +260,7 @@ function Page() {
   );
 }
 
-function Metric({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
+function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <article className="rounded-xl border border-border bg-card p-4">
       <div className="flex items-center gap-2 text-muted-foreground">

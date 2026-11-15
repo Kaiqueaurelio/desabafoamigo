@@ -22,21 +22,19 @@ const csrfMiddlewareMarker = Symbol.for("tanstack-start:csrf-middleware");
  * the browser module graph in the affected Start releases.
  */
 export function createCsrfMiddleware(options: CsrfOptions = {}) {
-  const middleware = createMiddleware().server(
-    async ({ request, pathname, handlerType, next }) => {
-      const context: CsrfContext = { request, pathname, handlerType };
-      if (options.filter && !(await options.filter(context))) return next();
-      if (isSameOriginRequest(request)) return next();
+  const middleware = createMiddleware().server(async ({ request, pathname, handlerType, next }) => {
+    const context: CsrfContext = { request, pathname, handlerType };
+    if (options.filter && !(await options.filter(context))) return next();
+    if (isSameOriginRequest(request)) return next();
 
-      return new Response("Forbidden", {
-        status: 403,
-        headers: {
-          "Cache-Control": "no-store",
-          "Content-Type": "text/plain; charset=utf-8",
-        },
-      });
-    },
-  );
+    return new Response("Forbidden", {
+      status: 403,
+      headers: {
+        "Cache-Control": "no-store",
+        "Content-Type": "text/plain; charset=utf-8",
+      },
+    });
+  });
 
   // TanStack Start checks this symbol to recognize configured CSRF middleware.
   Object.defineProperty(middleware, csrfMiddlewareMarker, { value: true });
