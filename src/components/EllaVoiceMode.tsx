@@ -99,6 +99,8 @@ export function EllaVoiceMode({
   const fallbackLastVoiceRef = useRef(0);
   const fallbackStoppingRef = useRef(false);
   const statusRef = useRef<VoiceStatus>("idle");
+  const startRecorderFallbackRef = useRef<() => Promise<void>>(async () => {});
+  const startFallbackRecorderSegmentRef = useRef<() => void>(() => {});
 
   messagesRef.current = messages;
   callbacksRef.current = { onTranscript, onRisk, onTransferHuman };
@@ -314,7 +316,7 @@ export function EllaVoiceMode({
           callbacksRef.current.onRisk(result.risk.level);
         }
         processingRef.current = false;
-        if (recorderFallbackRef.current) startFallbackRecorderSegment();
+        if (recorderFallbackRef.current) startFallbackRecorderSegmentRef.current();
         else startRecognition();
         await speakReply(result.reply);
       } catch (cause) {
@@ -326,7 +328,7 @@ export function EllaVoiceMode({
         processingRef.current = false;
         updateStatus("error");
         if (activeRef.current) {
-          if (recorderFallbackRef.current) startFallbackRecorderSegment();
+          if (recorderFallbackRef.current) startFallbackRecorderSegmentRef.current();
           else startRecognition();
         }
       }
@@ -354,7 +356,7 @@ export function EllaVoiceMode({
     const Constructor = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
     if (!Constructor) {
       recorderFallbackRef.current = true;
-      void startRecorderFallback();
+      void startRecorderFallbackRef.current();
       return;
     }
     try {
@@ -403,7 +405,7 @@ export function EllaVoiceMode({
         // Browser speech service can fail on network restrictions; switch to VAD + transcription.
         stopRecognition();
         recorderFallbackRef.current = true;
-        void startRecorderFallback();
+        void startRecorderFallbackRef.current();
       };
       recognition.onend = () => {
         if (activeRef.current && !mutedRef.current && !processingRef.current) {
@@ -421,11 +423,10 @@ export function EllaVoiceMode({
     } catch {
       stopRecognition();
       recorderFallbackRef.current = true;
-      void startRecorderFallback();
+      void startRecorderFallbackRef.current();
     }
   }, [
     scheduleSpeechEnd,
-    startRecorderFallback,
     stopPlayback,
     stopRecognition,
     updateStatus,
@@ -451,7 +452,7 @@ export function EllaVoiceMode({
         if (result.text.trim()) await processTurn(result.text);
         else if (activeRef.current) {
           updateStatus("listening");
-          startFallbackRecorderSegment();
+          startFallbackRecorderSegmentRef.current();
         }
       } catch (cause) {
         processingRef.current = false;
@@ -462,7 +463,7 @@ export function EllaVoiceMode({
         );
         if (activeRef.current) {
           updateStatus("listening");
-          startFallbackRecorderSegment();
+          startFallbackRecorderSegmentRef.current();
         }
       }
     },
@@ -493,7 +494,7 @@ export function EllaVoiceMode({
           fallbackHasSpeechRef.current = false;
           void transcribeFallbackSegment(blob);
         } else if (activeRef.current && !mutedRef.current && !processingRef.current) {
-          startFallbackRecorderSegment();
+          startFallbackRecorderSegmentRef.current();
         }
       };
       recorder.start(250);
@@ -560,7 +561,7 @@ export function EllaVoiceMode({
         animationFrameRef.current = requestAnimationFrame(detectVoice);
       };
       animationFrameRef.current = requestAnimationFrame(detectVoice);
-      startFallbackRecorderSegment();
+      startFallbackRecorderSegmentRef.current();
       updateStatus("listening");
       setError("");
     } catch (cause) {
@@ -573,11 +574,13 @@ export function EllaVoiceMode({
       updateStatus("error");
     }
   }, [
-    startFallbackRecorderSegment,
     stopPlayback,
     stopRecorderFallback,
     updateStatus,
   ]);
+
+  startRecorderFallbackRef.current = startRecorderFallback;
+  startFallbackRecorderSegmentRef.current = startFallbackRecorderSegment;
 
   const start = useCallback(() => {
     if (!consent) {
@@ -605,12 +608,11 @@ export function EllaVoiceMode({
       if (statusRef.current !== "speaking") updateStatus("idle");
     } else if (activeRef.current) {
       updateStatus("connecting");
-      if (recorderFallbackRef.current) void startRecorderFallback();
+      if (recorderFallbackRef.current) void startRecorderFallbackRef.current();
       else startRecognition();
     }
   }, [
     startRecognition,
-    startRecorderFallback,
     stopRecorderFallback,
     stopRecognition,
     updateStatus,
