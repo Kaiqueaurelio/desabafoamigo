@@ -190,13 +190,7 @@ export function EllaVoiceMode({
     setMuted(false);
     setRisk("none");
     updateStatus("idle");
-  }, [
-    clearSilenceTimer,
-    stopPlayback,
-    stopRecognition,
-    stopRecorderFallback,
-    updateStatus,
-  ]);
+  }, [clearSilenceTimer, stopPlayback, stopRecognition, stopRecorderFallback, updateStatus]);
 
   const speakWithBrowser = useCallback(
     (text: string): boolean => {
@@ -244,9 +238,7 @@ export function EllaVoiceMode({
       try {
         const result = await synthesize({ data: { consent: true, text: text.slice(0, 900) } });
         if (!activeRef.current) return;
-        const audio = new Audio(
-          `data:${result.mimeType};base64,${result.audioBase64}`,
-        );
+        const audio = new Audio(`data:${result.mimeType};base64,${result.audioBase64}`);
         audioRef.current = audio;
         audio.onended = () => {
           audioRef.current = null;
@@ -261,7 +253,9 @@ export function EllaVoiceMode({
       } catch (cause) {
         console.warn("[Ella voice] external TTS fallback unavailable", cause);
         if (activeRef.current) {
-          setError("A voz do aparelho não está disponível agora. Você ainda pode continuar falando e ler as legendas.");
+          setError(
+            "A voz do aparelho não está disponível agora. Você ainda pode continuar falando e ler as legendas.",
+          );
           updateStatus("listening");
         }
       }
@@ -381,10 +375,9 @@ export function EllaVoiceMode({
           else interim += `${value} `;
         }
         if (finalParts.length) {
-          pendingTranscriptRef.current = [
-            pendingTranscriptRef.current,
-            ...finalParts,
-          ].filter(Boolean).join(" ");
+          pendingTranscriptRef.current = [pendingTranscriptRef.current, ...finalParts]
+            .filter(Boolean)
+            .join(" ");
         }
         interimTranscriptRef.current = interim.trim();
         if (interim.trim() || finalParts.length) {
@@ -394,9 +387,7 @@ export function EllaVoiceMode({
             updateStatus("listening");
           }
           setLastText(
-            [pendingTranscriptRef.current, interimTranscriptRef.current]
-              .filter(Boolean)
-              .join(" "),
+            [pendingTranscriptRef.current, interimTranscriptRef.current].filter(Boolean).join(" "),
           );
           scheduleSpeechEnd();
         }
@@ -431,12 +422,7 @@ export function EllaVoiceMode({
       recorderFallbackRef.current = true;
       void startRecorderFallbackRef.current();
     }
-  }, [
-    scheduleSpeechEnd,
-    stopPlayback,
-    stopRecognition,
-    updateStatus,
-  ]);
+  }, [scheduleSpeechEnd, stopPlayback, stopRecognition, updateStatus]);
 
   startRecognitionRef.current = startRecognition;
 
@@ -516,7 +502,9 @@ export function EllaVoiceMode({
   const startRecorderFallback = useCallback(async () => {
     if (!activeRef.current || mutedRef.current || mediaStreamRef.current) return;
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-      setError("Este navegador não oferece reconhecimento de voz nem captura de áudio compatível. Tente Chrome ou Safari atualizado.");
+      setError(
+        "Este navegador não oferece reconhecimento de voz nem captura de áudio compatível. Tente Chrome ou Safari atualizado.",
+      );
       updateStatus("error");
       return;
     }
@@ -530,7 +518,8 @@ export function EllaVoiceMode({
       }
       mediaStreamRef.current = stream;
       const AudioContextConstructor =
-        window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        window.AudioContext ||
+        (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextConstructor) throw new Error("Áudio não suportado neste navegador.");
       const context = new AudioContextConstructor();
       const analyser = context.createAnalyser();
@@ -581,18 +570,16 @@ export function EllaVoiceMode({
       );
       updateStatus("error");
     }
-  }, [
-    stopPlayback,
-    stopRecorderFallback,
-    updateStatus,
-  ]);
+  }, [stopPlayback, stopRecorderFallback, updateStatus]);
 
   startRecorderFallbackRef.current = startRecorderFallback;
   startFallbackRecorderSegmentRef.current = startFallbackRecorderSegment;
 
   const start = useCallback(() => {
     if (!consent) {
-      setError("É necessário consentir com o processamento de mensagens por IA nas configurações de privacidade.");
+      setError(
+        "É necessário consentir com o processamento de mensagens por IA nas configurações de privacidade.",
+      );
       updateStatus("error");
       return;
     }
@@ -619,11 +606,7 @@ export function EllaVoiceMode({
       if (recorderFallbackRef.current) void startRecorderFallbackRef.current();
       else startRecognitionRef.current();
     }
-  }, [
-    stopRecorderFallback,
-    stopRecognition,
-    updateStatus,
-  ]);
+  }, [stopRecorderFallback, stopRecognition, updateStatus]);
 
   useEffect(() => {
     if (!open) stop();
@@ -693,7 +676,12 @@ export function EllaVoiceMode({
               <motion.div
                 className="absolute inset-8 rounded-full border border-cyan-300/20"
                 animate={{
-                  scale: status === "listening" ? [1, 1.16, 1] : status === "speaking" ? [1, 1.24, 1] : 1,
+                  scale:
+                    status === "listening"
+                      ? [1, 1.16, 1]
+                      : status === "speaking"
+                        ? [1, 1.24, 1]
+                        : 1,
                   opacity: status === "idle" ? 0.25 : [0.25, 0.7, 0.25],
                 }}
                 transition={{ duration: status === "speaking" ? 1 : 2.2, repeat: Infinity }}
@@ -710,7 +698,11 @@ export function EllaVoiceMode({
                 <motion.div
                   className="absolute inset-3 rounded-full bg-gradient-to-tr from-white/5 via-white/25 to-transparent"
                   animate={{ rotate: status === "thinking" ? 360 : 0 }}
-                  transition={{ duration: 8, repeat: status === "thinking" ? Infinity : 0, ease: "linear" }}
+                  transition={{
+                    duration: 8,
+                    repeat: status === "thinking" ? Infinity : 0,
+                    ease: "linear",
+                  }}
                 />
                 {status === "thinking" ? (
                   <Loader2 className="relative h-12 w-12 animate-spin text-white" />
@@ -752,15 +744,20 @@ export function EllaVoiceMode({
                   Sua segurança vem primeiro. Você não precisa passar por isso sozinho(a).
                 </p>
                 <p className="mt-2 text-sm text-white/75">
-                  Se houver perigo imediato, tentativa, ferimento ou intoxicação, ligue para o SAMU 192.
-                  O CVV 188 oferece apoio emocional gratuito. Procure alguém de confiança para ficar com você.
+                  Se houver perigo imediato, tentativa, ferimento ou intoxicação, ligue para o SAMU
+                  192. O CVV 188 oferece apoio emocional gratuito. Procure alguém de confiança para
+                  ficar com você.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button asChild size="sm" variant="secondary">
-                    <a href="tel:188"><Phone className="mr-1 h-4 w-4" /> CVV 188</a>
+                    <a href="tel:188">
+                      <Phone className="mr-1 h-4 w-4" /> CVV 188
+                    </a>
                   </Button>
                   <Button asChild size="sm" variant="secondary">
-                    <a href="tel:192"><Phone className="mr-1 h-4 w-4" /> SAMU 192</a>
+                    <a href="tel:192">
+                      <Phone className="mr-1 h-4 w-4" /> SAMU 192
+                    </a>
                   </Button>
                   <Button
                     size="sm"
@@ -768,7 +765,11 @@ export function EllaVoiceMode({
                     disabled={handoffBusy || Boolean(queueId)}
                   >
                     <HeartHandshake className="mr-1 h-4 w-4" />
-                    {queueId ? "Encaminhamento solicitado" : handoffBusy ? "Conectando…" : "Falar com voluntário"}
+                    {queueId
+                      ? "Encaminhamento solicitado"
+                      : handoffBusy
+                        ? "Conectando…"
+                        : "Falar com voluntário"}
                   </Button>
                 </div>
               </div>
