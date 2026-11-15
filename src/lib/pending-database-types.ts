@@ -21,6 +21,37 @@ type PendingDatabase = Omit<Database, "public"> & {
         };
         Relationships: [];
       };
+      ai_response_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          provider: "nvidia" | "lovable" | "none";
+          degraded: boolean;
+          severity: number;
+          response_chars: number;
+          latency_ms: number;
+          forwarded_to_volunteer: boolean;
+          forwarded_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          provider: "nvidia" | "lovable" | "none";
+          degraded?: boolean;
+          severity?: number;
+          response_chars?: number;
+          latency_ms?: number;
+          forwarded_to_volunteer?: boolean;
+          forwarded_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          forwarded_to_volunteer?: boolean;
+          forwarded_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: Database["public"]["Functions"] & {
       claim_queue_entry: {
