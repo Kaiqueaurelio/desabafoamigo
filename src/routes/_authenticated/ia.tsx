@@ -122,6 +122,8 @@ async function extractVideoFrames(file: File): Promise<string[]> {
 
 function Page() {
   const send = useServerFn(aiChat);
+  const transcribe = useServerFn(transcribeVoice);
+  const [transcribing, setTranscribing] = useState(false);
   const enqueue = useServerFn(enqueueMe);
   const cancelQueue = useServerFn(cancelMyQueue);
   const [prefs, setPrefs] = useState<PrivacyPrefs | null>(null);
@@ -352,12 +354,7 @@ function Page() {
         stream.getTracks().forEach((track) => track.stop());
         recordingStreamRef.current = null;
         const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        if (blob.size) {
-          const extension = blob.type.includes("mp4") ? "m4a" : "webm";
-          addMediaFiles([
-            new File([blob], `gravacao-${Date.now()}.${extension}`, { type: blob.type }),
-          ]);
-        }
+        if (blob.size) void transcribeAndSend(blob);
         recorderRef.current = null;
       };
       recorder.start();
@@ -400,10 +397,28 @@ function Page() {
     window.speechSynthesis.speak(utterance);
   }
 
-  async function submit() {
-    const t = text.trim();
+  async function transcribeAndSend(blob: Blob) {
+    setTranscribing(true);
+    setMediaError("");
+    try {
+      const dataUrl = await toDataUrl(new File([blob], "voz", { type: blob.type }));
+      const r = await transcribe({ data: { dataUrl } });
+      if (!r.text) {
+        setMediaError("Não consegui ouvir nada no áudio. Tente gravar de novo.");
+        return;
+      }
+      await submit(r.text);
+    } catch (error) {
+      setMediaError(error instanceof Error ? error.message : "Falha ao transcrever o áudio.");
+    } finally {
+      setTranscribing(false);
+    }
+  }
+
+  async function submit(override?: string) {
+    const t = (override ?? text).trim();
     if ((!t && !media.length) || busy) return;
-    const selected = media;
+    const selected = override ? [] : media;
     const labels = selected.map((item) => `[Anexo: ${item.file.name}]`).join(" ");
     const next = [
       ...msgs,
@@ -420,8 +435,8 @@ function Page() {
       setRisk((current) => (current === "urgent" ? current : localRisk.level));
     if (localRisk.offerHuman) setOfferHuman(true);
     setMsgs(next);
-    setText("");
-    setMedia([]);
+    if (!override) setText("");
+    if (!override) setMedia([]);
     setBusy(true);
     try {
       const attachments: {
