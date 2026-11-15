@@ -35,6 +35,7 @@ import {
   ShieldCheck,
   Menu,
   BellRing,
+  Bot,
 } from "lucide-react";
 
 const groups: {
@@ -66,6 +67,7 @@ const groups: {
       { to: "/admin/metricas", label: "Métricas", icon: BarChart3 },
       { to: "/admin/observabilidade", label: "Observabilidade", icon: Activity },
       { to: "/admin/inteligencia", label: "Inteligência de Acolhimento", icon: BarChart3 },
+      { to: "/admin/respostas-ia", label: "Respostas da IA", icon: Bot },
     ],
   },
 
