@@ -118,7 +118,7 @@ CREATE POLICY "Permanent volunteer applications only"
 DROP POLICY IF EXISTS "Approved volunteers raise own escalations" ON public.crisis_escalations;
 DROP POLICY IF EXISTS "volunteers raise their own" ON public.crisis_escalations;
 CREATE POLICY "Approved volunteers raise own escalations"
-  ON public.crisis_escalations FOR INSERT TO authenticated
+  ON public.crisis_escalations AS RESTRICTIVE FOR INSERT TO authenticated
   WITH CHECK (
     raised_by = auth.uid()
     AND (
@@ -190,7 +190,8 @@ CREATE POLICY "library media read published assets"
   USING (
     bucket_id = 'library-media'
     AND (
-      public.has_role(auth.uid(), 'admin'::public.app_role)
+      owner = auth.uid()
+      OR public.has_role(auth.uid(), 'admin'::public.app_role)
       OR EXISTS (
         SELECT 1 FROM public.library_audios AS a
         WHERE a.published IS TRUE
@@ -201,6 +202,27 @@ CREATE POLICY "library media read published assets"
         WHERE i.published IS TRUE
           AND i.image_url = objects.name
       )
+    )
+  );
+
+-- A restrictive guard prevents any other permissive Storage policy from
+-- exposing unowned, unpublished objects in this private bucket.
+DROP POLICY IF EXISTS "library media owner or published only" ON storage.objects;
+CREATE POLICY "library media owner or published only"
+  ON storage.objects AS RESTRICTIVE FOR SELECT TO authenticated
+  USING (
+    bucket_id <> 'library-media'
+    OR owner = auth.uid()
+    OR public.has_role(auth.uid(), 'admin'::public.app_role)
+    OR EXISTS (
+      SELECT 1 FROM public.library_audios AS a
+      WHERE a.published IS TRUE
+        AND (a.audio_url = objects.name OR a.cover_url = objects.name)
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.library_images AS i
+      WHERE i.published IS TRUE
+        AND i.image_url = objects.name
     )
   );
 
