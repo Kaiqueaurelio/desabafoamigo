@@ -98,11 +98,9 @@ async function requestNvidia(body: Record<string, unknown>, apiKey: string): Pro
   ) {
     const detail = (await response.text()).slice(0, 500);
     console.warn("[NVIDIA NIM] retrying without optional chat parameters", response.status, detail);
-    const {
-      response_format: _responseFormat,
-      chat_template_kwargs: _chatTemplateKwargs,
-      ...portablePayload
-    } = payload;
+    const portablePayload: Record<string, unknown> = { ...payload };
+    delete portablePayload.response_format;
+    delete portablePayload.chat_template_kwargs;
     response = await request(portablePayload);
   }
 

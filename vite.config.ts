@@ -6,9 +6,25 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig({
+// Dev-only: forward server secrets from the sandbox environment into the
+// local Worker runtime, which does not inherit process.env. Never applied to
+// production builds, so secrets are not written into build output.
+const DEV_SECRET_NAMES = ["NVIDIA_API_KEY", "NVIDIA_API_KEY_ASR", "LOVABLE_API_KEY"];
+
+export default defineConfig(({ command }) => ({
   plugins: [
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    cloudflare({
+      viteEnvironment: { name: "ssr" },
+      ...(command === "serve"
+        ? {
+            config: {
+              vars: Object.fromEntries(
+                DEV_SECRET_NAMES.filter((n) => process.env[n]).map((n) => [n, process.env[n]!]),
+              ),
+            },
+          }
+        : {}),
+    }),
     tanstackStart({ server: { entry: "server" } }),
     react(),
     tailwindcss(),
@@ -67,4 +83,4 @@ export default defineConfig({
       },
     }),
   ],
-});
+}));
