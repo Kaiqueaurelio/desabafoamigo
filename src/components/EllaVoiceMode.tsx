@@ -617,7 +617,7 @@ export function EllaVoiceMode({
     } else if (activeRef.current) {
       updateStatus("connecting");
       if (recorderFallbackRef.current) void startRecorderFallbackRef.current();
-      else startRecognition();
+      else startRecognitionRef.current();
     }
   }, [
     stopRecorderFallback,
