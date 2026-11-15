@@ -80,7 +80,7 @@ export const aiChat = createServerFn({ method: "POST" })
         if (
           !["image", "audio", "video-frame"].includes(a.kind) ||
           typeof a.dataUrl !== "string" ||
-          !/^data:(image\/(jpeg|png|webp)|audio\/(webm|mp4|mpeg|wav|ogg|mp4|m4a));base64,/i.test(
+          !/^data:(image\/(jpeg|png|webp)|audio\/[a-z0-9.+-]+)(;[^,;]*)*;base64,/i.test(
             a.dataUrl,
           ) ||
           a.dataUrl.length > 12_000_000
@@ -246,4 +246,52 @@ export const aiChat = createServerFn({ method: "POST" })
       if (writeError) console.warn("[aiChat] memory write failed", writeError.message);
     }
     return { reply, risk, provider, degraded: !raw };
+  });
+
+/** Transcreve uma gravação de voz (estilo ChatGPT) usando a IA do Lovable. */
+export const transcribeVoice = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: { dataUrl: string; name?: string }) => {
+    if (
+      typeof d?.dataUrl !== "string" ||
+      !/^data:audio\/[a-z0-9.+-]+(;[^,]*)?,/i.test(d.dataUrl) ||
+      d.dataUrl.length > 25_000_000
+    ) {
+      throw new Error("Áudio inválido ou muito longo.");
+    }
+    return { dataUrl: d.dataUrl, name: typeof d.name === "string" ? d.name.slice(0, 80) : "" };
+  })
+  .handler(async ({ data }) => {
+    const { getServerEnv } = await import("./server-env");
+    const apiKey = getServerEnv("LOVABLE_API_KEY");
+    if (!apiKey) throw new Error("Transcrição indisponível no momento.");
+    const [meta, encoded] = data.dataUrl.split(",", 2);
+    const mime = (meta.match(/^data:([^;]+)/)?.[1] ?? "audio/webm").toLowerCase();
+    const ext = mime.includes("mp4") || mime.includes("m4a") ? "m4a" : mime.includes("ogg") ? "ogg" : mime.includes("wav") ? "wav" : mime.includes("mpeg") ? "mp3" : "webm";
+    const bin = atob(encoded);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const form = new FormData();
+    form.append("model", "openai/gpt-transcribe");
+    form.append("file", new File([bytes], `voz.${ext}`, { type: mime }));
+    form.append("response_format", "json");
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: form,
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!res.ok) {
+      const detail = (await res.text()).slice(0, 300);
+      console.error("[transcribeVoice] falhou", res.status, detail);
+      throw new Error(
+        res.status === 402
+          ? "Créditos de IA esgotados para transcrição."
+          : res.status === 429
+            ? "Muitas transcrições agora. Tente de novo em instantes."
+            : "Não consegui entender o áudio. Tente gravar novamente.",
+      );
+    }
+    const json = (await res.json()) as { text?: string };
+    return { text: (json.text ?? "").trim() };
   });

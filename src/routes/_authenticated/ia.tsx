@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { aiChat } from "@/lib/aiChat.functions";
+import { aiChat, transcribeVoice } from "@/lib/aiChat.functions";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
 import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs";
 import { assessRisk, FALLBACK_REPLY, type RiskLevel } from "@/lib/aiSafety";
@@ -122,6 +122,8 @@ async function extractVideoFrames(file: File): Promise<string[]> {
 
 function Page() {
   const send = useServerFn(aiChat);
+  const transcribe = useServerFn(transcribeVoice);
+  const [transcribing, setTranscribing] = useState(false);
   const enqueue = useServerFn(enqueueMe);
   const cancelQueue = useServerFn(cancelMyQueue);
   const [prefs, setPrefs] = useState<PrivacyPrefs | null>(null);
@@ -352,12 +354,7 @@ function Page() {
         stream.getTracks().forEach((track) => track.stop());
         recordingStreamRef.current = null;
         const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        if (blob.size) {
-          const extension = blob.type.includes("mp4") ? "m4a" : "webm";
-          addMediaFiles([
-            new File([blob], `gravacao-${Date.now()}.${extension}`, { type: blob.type }),
-          ]);
-        }
+        if (blob.size) void transcribeAndSend(blob);
         recorderRef.current = null;
       };
       recorder.start();
@@ -400,10 +397,28 @@ function Page() {
     window.speechSynthesis.speak(utterance);
   }
 
-  async function submit() {
-    const t = text.trim();
+  async function transcribeAndSend(blob: Blob) {
+    setTranscribing(true);
+    setMediaError("");
+    try {
+      const dataUrl = await toDataUrl(new File([blob], "voz", { type: blob.type }));
+      const r = await transcribe({ data: { dataUrl } });
+      if (!r.text) {
+        setMediaError("Não consegui ouvir nada no áudio. Tente gravar de novo.");
+        return;
+      }
+      await submit(r.text);
+    } catch (error) {
+      setMediaError(error instanceof Error ? error.message : "Falha ao transcrever o áudio.");
+    } finally {
+      setTranscribing(false);
+    }
+  }
+
+  async function submit(override?: string) {
+    const t = (override ?? text).trim();
     if ((!t && !media.length) || busy) return;
-    const selected = media;
+    const selected = override ? [] : media;
     const labels = selected.map((item) => `[Anexo: ${item.file.name}]`).join(" ");
     const next = [
       ...msgs,
@@ -420,8 +435,8 @@ function Page() {
       setRisk((current) => (current === "urgent" ? current : localRisk.level));
     if (localRisk.offerHuman) setOfferHuman(true);
     setMsgs(next);
-    setText("");
-    setMedia([]);
+    if (!override) setText("");
+    if (!override) setMedia([]);
     setBusy(true);
     try {
       const attachments: {
@@ -770,19 +785,25 @@ function Page() {
           size="icon"
           variant={recording ? "destructive" : "outline"}
           className="h-11 w-11 shrink-0"
-          disabled={busy || media.length >= 3}
+          disabled={busy || transcribing}
           onClick={() => void toggleAudioRecording()}
           aria-label={recording ? "Parar gravação de áudio" : "Gravar mensagem de voz para Ella"}
           title="Grave sua mensagem e envie para Ella transcrever"
         >
-          {recording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          {transcribing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : recording ? (
+            <StopCircle className="h-4 w-4" />
+          ) : (
+            <Mic className="h-4 w-4" />
+          )}
         </Button>
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={2}
           maxLength={2000}
-          placeholder="Escreva o que está sentindo…"
+          placeholder={recording ? "Gravando… toque no quadrado para enviar" : transcribing ? "Transcrevendo seu áudio…" : "Escreva o que está sentindo…"}
           aria-label="Mensagem"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
