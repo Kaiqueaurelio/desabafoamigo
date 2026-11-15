@@ -102,6 +102,7 @@ export function EllaVoiceMode({
   const startRecorderFallbackRef = useRef<() => Promise<void>>(async () => {});
   const startFallbackRecorderSegmentRef = useRef<() => void>(() => {});
   const externalSpeechFallbackRef = useRef<(text: string) => Promise<void>>(async () => {});
+  const startRecognitionRef = useRef<() => void>(() => {});
 
   messagesRef.current = messages;
   callbacksRef.current = { onTranscript, onRisk, onTransferHuman };
@@ -321,7 +322,7 @@ export function EllaVoiceMode({
         }
         processingRef.current = false;
         if (recorderFallbackRef.current) startFallbackRecorderSegmentRef.current();
-        else startRecognition();
+        else startRecognitionRef.current();
         await speakReply(result.reply);
       } catch (cause) {
         const message =
@@ -333,7 +334,7 @@ export function EllaVoiceMode({
         updateStatus("error");
         if (activeRef.current) {
           if (recorderFallbackRef.current) startFallbackRecorderSegmentRef.current();
-          else startRecognition();
+          else startRecognitionRef.current();
         }
       }
     },
@@ -416,7 +417,7 @@ export function EllaVoiceMode({
         if (activeRef.current && !mutedRef.current && !processingRef.current) {
           window.setTimeout(() => {
             if (activeRef.current && !mutedRef.current && !processingRef.current) {
-              startRecognition();
+              startRecognitionRef.current();
             }
           }, 180);
         }
@@ -436,6 +437,8 @@ export function EllaVoiceMode({
     stopRecognition,
     updateStatus,
   ]);
+
+  startRecognitionRef.current = startRecognition;
 
   const transcribeFallbackSegment = useCallback(
     async (blob: Blob) => {
@@ -600,8 +603,8 @@ export function EllaVoiceMode({
     setRisk("none");
     setError("");
     updateStatus("connecting");
-    startRecognition();
-  }, [consent, startRecognition, stop, updateStatus]);
+    startRecognitionRef.current();
+  }, [consent, stop, updateStatus]);
 
   const toggleMute = useCallback(() => {
     const nextMuted = !mutedRef.current;
@@ -617,7 +620,6 @@ export function EllaVoiceMode({
       else startRecognition();
     }
   }, [
-    startRecognition,
     stopRecorderFallback,
     stopRecognition,
     updateStatus,
