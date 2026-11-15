@@ -104,7 +104,9 @@ export async function sendPushToUser(
   }
 
   if (logRows.length) {
-    await supabaseAdmin.from("push_delivery_log").insert(logRows);
+    await supabaseAdmin
+      .from("push_delivery_log")
+      .insert(logRows as unknown as Database["public"]["Tables"]["push_delivery_log"]["Insert"][]);
   }
 
   return { sent, failed };
@@ -127,7 +129,7 @@ export async function sendPushToRole(
   const { data: roleRows } = await supabaseAdmin
     .from("user_roles")
     .select("user_id")
-    .eq("role", role);
+    .eq("role", role as Database["public"]["Enums"]["app_role"]);
   const userIds: string[] = Array.from(
     new Set((roleRows ?? []).map((r: { user_id: string }) => r.user_id)),
   );
