@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { aiChat } from "@/lib/aiChat.functions";
+import { aiChat, transcribeVoice } from "@/lib/aiChat.functions";
 import { enqueueMe, cancelMyQueue } from "@/lib/queue.functions";
 import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs";
 import { assessRisk, FALLBACK_REPLY, type RiskLevel } from "@/lib/aiSafety";
