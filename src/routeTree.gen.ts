@@ -45,6 +45,7 @@ import { Route as AdminBibliotecaRouteImport } from './routes/admin.biblioteca'
 import { Route as AdminDenunciasRouteImport } from './routes/admin.denuncias'
 import { Route as AdminIncidentesRouteImport } from './routes/admin.incidentes'
 import { Route as AdminInteligenciaRouteImport } from './routes/admin.inteligencia'
+import { Route as AdminRespostasIaRouteImport } from './routes/admin.respostas-ia'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminMetricasRouteImport } from './routes/admin.metricas'
 import { Route as AdminMfaRouteImport } from './routes/admin.mfa'
@@ -251,6 +252,11 @@ const AdminInteligenciaRoute = AdminInteligenciaRouteImport.update({
   path: '/admin/inteligencia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRespostasIaRoute = AdminRespostasIaRouteImport.update({
+  id: '/admin/respostas-ia',
+  path: '/admin/respostas-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -385,6 +391,7 @@ export interface FileRoutesByFullPath {
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/inteligencia': typeof AdminInteligenciaRoute
+  '/admin/respostas-ia': typeof AdminRespostasIaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -441,6 +448,7 @@ export interface FileRoutesByTo {
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/inteligencia': typeof AdminInteligenciaRoute
+  '/admin/respostas-ia': typeof AdminRespostasIaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -499,6 +507,7 @@ export interface FileRoutesById {
   '/admin/denuncias': typeof AdminDenunciasRoute
   '/admin/incidentes': typeof AdminIncidentesRoute
   '/admin/inteligencia': typeof AdminInteligenciaRoute
+  '/admin/respostas-ia': typeof AdminRespostasIaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/metricas': typeof AdminMetricasRoute
   '/admin/mfa': typeof AdminMfaRoute
@@ -557,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/inteligencia'
+    | '/admin/respostas-ia'
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
@@ -613,6 +623,7 @@ export interface FileRouteTypes {
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/inteligencia'
+    | '/admin/respostas-ia'
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
@@ -670,6 +681,7 @@ export interface FileRouteTypes {
     | '/admin/denuncias'
     | '/admin/incidentes'
     | '/admin/inteligencia'
+    | '/admin/respostas-ia'
     | '/admin/login'
     | '/admin/metricas'
     | '/admin/mfa'
@@ -713,6 +725,7 @@ export interface RootRouteChildren {
   AdminDenunciasRoute: typeof AdminDenunciasRoute
   AdminIncidentesRoute: typeof AdminIncidentesRoute
   AdminInteligenciaRoute: typeof AdminInteligenciaRoute
+  AdminRespostasIaRoute: typeof AdminRespostasIaRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMetricasRoute: typeof AdminMetricasRoute
   AdminMfaRoute: typeof AdminMfaRoute
@@ -983,6 +996,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInteligenciaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/respostas-ia': {
+      id: '/admin/respostas-ia'
+      path: '/admin/respostas-ia'
+      fullPath: '/admin/respostas-ia'
+      preLoaderRoute: typeof AdminRespostasIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
@@ -1192,6 +1212,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDenunciasRoute: AdminDenunciasRoute,
   AdminIncidentesRoute: AdminIncidentesRoute,
   AdminInteligenciaRoute: AdminInteligenciaRoute,
+  AdminRespostasIaRoute: AdminRespostasIaRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMetricasRoute: AdminMetricasRoute,
   AdminMfaRoute: AdminMfaRoute,
