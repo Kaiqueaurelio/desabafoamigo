@@ -240,8 +240,7 @@ export function EllaVoiceMode({
       if (!activeRef.current || muted) return;
       let combined = "";
       let hasSpeech = false;
-      const startAt = event.resultIndex ?? 0;
-      for (let index = startAt; index < event.results.length; index += 1) {
+      for (let index = 0; index < event.results.length; index += 1) {
         const item = event.results[index];
         const transcript = item?.[0]?.transcript?.trim();
         if (transcript) {
@@ -254,8 +253,7 @@ export function EllaVoiceMode({
         stopPlayback();
         setStatus("listening");
       }
-      const previous = pendingTranscriptRef.current;
-      scheduleTurn([previous, combined].filter(Boolean).join(" ").slice(-1800));
+      scheduleTurn(combined.slice(-1800));
     };
     recognition.onerror = (event) => {
       if (!activeRef.current || event.error === "aborted" || event.error === "no-speech") return;
