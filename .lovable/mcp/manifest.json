@@ -5,7 +5,9 @@
   "auth": {
     "type": "oauth",
     "issuer": "https://yczvbygxizzjzqvufocy.supabase.co/auth/v1",
-    "accepted_audiences": ["authenticated"]
+    "accepted_audiences": [
+      "authenticated"
+    ]
   },
   "mcp": {
     "server": {
@@ -51,7 +53,11 @@
             },
             "status": {
               "type": "string",
-              "enum": ["active", "ended", "waiting"],
+              "enum": [
+                "active",
+                "ended",
+                "waiting"
+              ],
               "description": "Filtrar por status. Omitir traz todas."
             }
           },
@@ -85,7 +91,9 @@
               "description": "Anotação opcional sobre como está se sentindo."
             }
           },
-          "required": ["mood"],
+          "required": [
+            "mood"
+          ],
           "additionalProperties": false,
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
