@@ -429,27 +429,25 @@ export function bindLiveConnection(
         controller.signal,
         () => {
           const updates = transcripts.slice(transcriptCursor);
-          if (updates.some(({ role, listeningSound }) => role === "user" && !listeningSound)) delete pending.plan;
           backendMessages.push(...updates.map(({ role, text }) => ({ role, content: text })));
           transcriptCursor = transcripts.length;
           taskRevision = revision;
         },
-        (plan) => {
-          pending.plan = plan;
-        },
       );
       if (closing || controller.signal.aborted) return;
       if (taskRevision !== revision) return;
-      deliverResult(id, answer.trim(), pending.plan);
+      deliverResult(id, answer.trim());
     } catch {
       if (closing || controller.signal.aborted) return;
       backendMessages.push({
         role: "assistant",
-        content:
-          "The backend attempt failed. Completed tool results remain valid; verify uncertain external actions before any retry.",
+        content: "A tentativa de apoio do backend falhou; nenhuma ação externa foi realizada.",
       });
       if (taskRevision !== revision) return;
-      deliverResult(id, "The backend could not finish the answer. Ask whether the user wants to try again.");
+      deliverResult(
+        id,
+        "Não consegui concluir esta resposta agora. Acolha a pessoa e pergunte com delicadeza se ela quer tentar novamente.",
+      );
     } finally {
       if (task === controller) task = undefined;
       scheduleDelegation();
@@ -514,6 +512,20 @@ export function bindLiveConnection(
         if (listeningSound) return;
         if (role === "user") {
           revision++;
+          const safety = assessRisk(
+            transcripts
+              .filter((item) => item.role === "user")
+              .map((item) => item.text)
+              .join(" ")
+              .slice(-6000),
+            0,
+          );
+          if (safety.level !== "none") {
+            emit({
+              type: "app.safety",
+              risk: { level: safety.level, offerHuman: safety.offerHuman },
+            });
+          }
           const offset = completedDelegation?.event.offset_ms;
           // Live has no transcript watermark; completed handoffs can receive late context.
           if (
@@ -548,7 +560,10 @@ export function bindLiveConnection(
     }
   }
 
-  async function startSession(sdp: string) {
+  async function startSession(
+    sdp: string,
+    history: Array<{ role: "user" | "assistant"; content: string }>,
+  ) {
     if (closing || browser.readyState !== 1) return;
     clearTimeout(startTimer);
     startupTimer = setTimeout(() => {
@@ -581,8 +596,21 @@ export function bindLiveConnection(
         session: {
           model: config.liveModel,
           instructions: conversationInstructions,
-          audio: { output: { voice: "marin" } },
+          audio: { output: { voice: "bossa" } },
           delegation: { type: "client" },
+          ...(history.length
+            ? {
+                input: history.map((message) => ({
+                  role: message.role,
+                  content: [
+                    {
+                      type: message.role === "assistant" ? "output_text" : "input_text",
+                      text: message.content,
+                    },
+                  ],
+                })),
+              }
+            : {}),
         },
         transport: { type: "webrtc", sdp },
       }),
@@ -600,8 +628,23 @@ export function bindLiveConnection(
           throw new Error("Voice startup message required");
         }
         starting = true;
+        const history = (Array.isArray(event.history) ? event.history : [])
+          .slice(-12)
+          .filter(
+            (message: unknown): message is { role: "user" | "assistant"; content: string } =>
+              Boolean(message) &&
+              typeof message === "object" &&
+              "role" in message &&
+              (message.role === "user" || message.role === "assistant") &&
+              "content" in message &&
+              typeof message.content === "string",
+          )
+          .map((message: { role: "user" | "assistant"; content: string }) => ({
+            role: message.role,
+            content: message.content.slice(0, 1800),
+          }));
         execution.waitUntil(
-          startSession(event.sdp).catch((error) => {
+          startSession(event.sdp, history).catch((error) => {
             if (!closing)
               emit({
                 type: "app.error",
