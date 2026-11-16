@@ -143,7 +143,11 @@ export function liveVoiceDev(): Plugin {
                 connectGateway,
               );
             });
-          } catch {
+          } catch (error) {
+            console.error(
+              "[live-voice-dev] connection rejected",
+              error instanceof Error ? error.message : error,
+            );
             rejectUpgrade(socket, 503);
           } finally {
             clearTimeout(timer);
