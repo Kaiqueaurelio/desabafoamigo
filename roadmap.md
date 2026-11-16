@@ -1,8 +1,8 @@
 # Tarefas
 
-- [x] Validar a migração `20261114001000_atomic_queue_match.sql` contra o banco real.
-- [x] Corrigir apenas a ambiguidade do `RETURNING`, com alias e colunas qualificadas.
-- [x] Aplicar a migração somente se todas as validações forem compatíveis.
-- [x] Confirmar `public.claim_queue_entry(uuid)` e seu retorno por consulta real.
-- [ ] Executar lint, testes unitários, build de produção e E2E responsivo.
-- [ ] Corrigir somente erros reproduzíveis e informar resultados ou bloqueios.
+- [ ] Implementar chamada de voz ao vivo da Ella com voz brasileira, interrupção e legendas.
+- [ ] Proteger a conexão ao vivo com consentimento e autorização curta por usuário.
+- [ ] Integrar alertas de risco, ajuda humana e encerramento imediato do microfone.
+- [ ] Testar autorização, conexão e interface da chamada sem expor credenciais.
+- [ ] Corrigir a regra de download da biblioteca sem bloquear materiais publicados.
+- [ ] Executar lint, testes unitários e E2E responsivo; informar resultados ou bloqueios.
