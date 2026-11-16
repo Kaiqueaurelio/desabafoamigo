@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { VitePWA } from "vite-plugin-pwa";
-import { liveVoiceDev } from "./live-vite-plugin";
+import { liveVoiceDev } from "./live-vite-plugin.ts";
 
 // Dev-only: forward server secrets from the sandbox environment into the
 // local Worker runtime, which does not inherit process.env. Never applied to

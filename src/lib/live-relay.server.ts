@@ -632,7 +632,7 @@ export function bindLiveConnection(
           .slice(-12)
           .filter(
             (message: unknown): message is { role: "user" | "assistant"; content: string } =>
-              Boolean(message) &&
+              message !== null &&
               typeof message === "object" &&
               "role" in message &&
               (message.role === "user" || message.role === "assistant") &&

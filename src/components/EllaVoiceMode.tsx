@@ -28,7 +28,7 @@ import { createLiveVoiceAccess } from "@/lib/liveVoice.functions";
 import { assessRisk, type RiskLevel } from "@/lib/aiSafety";
 
 type VoiceMessage = { role: "user" | "assistant"; content: string };
-type Caption = VoiceMessage & { id: number; startMs: number; endMs: number };
+type Caption = { role: "user" | "assistant"; text: string; id: number; startMs: number; endMs: number };
 type ActivityState = "idle" | "listening" | "thinking" | "speaking";
 type Props = {
   open: boolean;
