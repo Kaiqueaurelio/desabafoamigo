@@ -130,35 +130,17 @@ export async function handleLiveRequest(request: Request): Promise<Response> {
   return new Response(null, response);
 }
 
-const conversationInstructions = `You are Mira, a calm learning companion.
-Speak naturally in brief replies. Ask a focused question when details are unclear.
-Backchannel policy: Use moderate listening sounds without taking over.
-Interruption policy: Stop your answer and listen when the user interrupts.
+const conversationInstructions = `Você é Ella Ribeiro, uma inteligência artificial de apoio emocional do Desabafo Amigo.
+Fale sempre em português brasileiro, com voz calorosa, calma e natural. Deixe claro que é IA quando necessário; nunca finja ser humana, não faça diagnóstico e não substitua ajuda profissional ou de emergência.
+Use respostas faladas breves, normalmente de 1 a 3 frases. Acolha sem julgamentos, retome um detalhe do relato e faça no máximo uma pergunta aberta quando ajudar. Não pressione a pessoa.
+Backchannel policy: Use sons de escuta com moderação, sem tomar a vez da pessoa.
+Interruption policy: Pare a resposta principal e ouça quando a pessoa interromper. Preserve a tarefa de backend e aguarde o novo contexto para uma continuação segura.
+Se houver fala sobre suicídio, autolesão, violência ou perigo imediato, priorize proteção. Pergunte com calma se há perigo agora, incentive a pessoa a não ficar sozinha e a procurar alguém de confiança presencialmente. Oriente CVV 188 para apoio emocional, SAMU 192 em emergência médica e Polícia 190 em perigo imediato ou violência. Não prometa sigilo absoluto.
 Delegation policy:
-Backend tools: Reason through questions and plan study sessions across days.
-Delegate to the backend when: The user wants a study schedule or careful reasoning,
-or a correction changes a question already being worked on.
-Do not delegate to the backend when: Greeting, clarifying a question, or repeating
-a still-current answer. Wait for the backend result before presenting its answer.`;
-
-const studyScheduleInput = z
-  .object({
-    total_minutes: z.number().int().min(1).max(10_080),
-    days: z.number().int().min(1).max(30),
-  })
-  .strict();
-
-function planStudySchedule(args: z.infer<typeof studyScheduleInput>) {
-  const daily = Math.floor(args.total_minutes / args.days);
-  return {
-    total_minutes: args.total_minutes,
-    days: args.days,
-    sessions: Array.from({ length: args.days }, (_, index) => ({
-      day: index + 1,
-      minutes: daily + (index < args.total_minutes % args.days ? 1 : 0),
-    })),
-  };
-}
+Backend tools: O backend ajuda a formular respostas cuidadosas a partir das transcrições. Não existem ferramentas para agendar, chamar emergência ou confirmar entrada na fila.
+Delegate to the backend when: A pessoa compartilhar sofrimento, pedir orientação, mencionar risco ou corrigir uma resposta em andamento.
+Do not delegate to the backend when: For apenas cumprimentar, esclarecer algo simples ou repetir uma resposta ainda atual. Aguarde o resultado do backend antes de apresentá-lo.
+Quando a pessoa quiser apoio humano, oriente-a a tocar no botão Falar com voluntário na tela; nunca afirme que o encaminhamento já aconteceu.`;
 
 function isListeningSound(text: string) {
   const normalized = text.toLowerCase().replace(/[\s\p{Pd}]/gu, "");
@@ -171,7 +153,6 @@ async function answerQuestion(
   correlation: { runID: string; sessionID: string | undefined; delegationID: string },
   signal: AbortSignal,
   consumeInput: () => void,
-  onPlan: (plan: ReturnType<typeof planStudySchedule>) => void,
 ) {
   signal.throwIfAborted();
   const provider = createOpenAI({
@@ -188,7 +169,7 @@ async function answerQuestion(
     model: provider.responses(config.backendModel),
     abortSignal: signal,
     maxRetries: 0,
-    stopWhen: stepCountIs(50),
+    maxOutputTokens: 220,
     includeRawChunks: true,
     prepareStep() {
       consumeInput();
@@ -211,7 +192,7 @@ async function answerQuestion(
         ...(config.backendModel !== "openai/chat-latest"
           ? {
               forceReasoning: true,
-              reasoningEffort: "medium",
+              reasoningEffort: "low",
               reasoningSummary: "auto",
               include: ["reasoning.encrypted_content"],
             }
@@ -219,26 +200,15 @@ async function answerQuestion(
       },
     },
     system:
-      "Help a spoken learning companion answer the latest user question. " +
-      "Transcripts may be incomplete or corrected. Use the latest correction. " +
-      "Continue from completed tool results; do not repeat completed actions. " +
-      "Return verified facts and useful next steps in at most 150 words. " +
-      "To display a study schedule for the current request, call plan_study_schedule with its total minutes and days. " +
-      "Ask for missing details instead of guessing. The tool only calculates a draft plan; " +
-      "it does not save calendar events. You have no other tools.",
+      "Você apoia Ella, uma IA de acolhimento emocional, a responder à fala mais recente da pessoa. " +
+      "As transcrições podem estar incompletas ou corrigidas; use a correção mais recente. " +
+      "Responda em português brasileiro simples, caloroso e falado, com no máximo 70 palavras e sem markdown. " +
+      "Acolha sem julgar, não faça diagnóstico, não prescreva e não finja ser humano. Faça no máximo uma pergunta aberta. " +
+      "Diante de suicídio, autolesão, violência ou perigo imediato, priorize segurança: pergunte se há perigo agora, " +
+      "oriente não ficar sozinho, procurar alguém de confiança presencialmente, CVV 188, SAMU 192 em emergência médica " +
+      "e Polícia 190 em perigo imediato ou violência. Não afirme ter chamado ajuda ou voluntário. " +
+      "Se faltar contexto essencial, peça esclarecimento com delicadeza em vez de adivinhar.",
     messages,
-    tools: {
-      plan_study_schedule: tool({
-        description: "Distribute a total study time evenly across days and return a draft schedule.",
-        inputSchema: studyScheduleInput,
-        execute: async (args) => {
-          signal.throwIfAborted();
-          const plan = planStudySchedule(args);
-          onPlan(plan);
-          return plan;
-        },
-      }),
-    },
   });
   let completed = false;
   let stepCompleted = false;
@@ -302,10 +272,7 @@ export function bindLiveConnection(
   let finished = false;
   let revision = 0;
   let task: AbortController | undefined;
-  const pendingDelegations: Array<{
-    event: ProviderEvent;
-    plan?: ReturnType<typeof planStudySchedule>;
-  }> = [];
+  const pendingDelegations: Array<{ event: ProviderEvent }> = [];
   let completedDelegation: (typeof pendingDelegations)[number] | undefined;
   const backendMessages: ModelMessage[] = [];
   let transcriptCursor = 0;
@@ -425,7 +392,7 @@ export function bindLiveConnection(
     restartTimer = setTimeout(() => void runDelegation(), 300);
   }
 
-  function deliverResult(delegationID: string, answer: string, plan?: ReturnType<typeof planStudySchedule>) {
+  function deliverResult(delegationID: string, answer: string) {
     if (closing) return;
     if (gateway?.readyState !== 1) return stop();
     try {
@@ -439,7 +406,6 @@ export function bindLiveConnection(
           }),
         );
       }
-      if (plan) emit({ type: "app.study_schedule.plan", delegation_id: delegationID, plan });
       completedDelegation = pendingDelegations.shift();
     } catch {
       stop();
