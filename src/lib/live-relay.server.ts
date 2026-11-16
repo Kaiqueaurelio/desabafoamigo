@@ -1,7 +1,8 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { stepCountIs, streamText, tool, type ModelMessage } from "ai";
-import process from "node:process";
-import { z } from "zod";
+import { streamText, type ModelMessage } from "ai";
+import { assessRisk } from "./aiSafety";
+import { verifyLiveVoiceTicket } from "./live-voice-auth";
+import { getServerEnv } from "./server-env";
 
 export type LiveConfig = {
   baseURL: string;
@@ -11,8 +12,13 @@ export type LiveConfig = {
   openingInstructions?: string;
 };
 
-// Fill from co-loaded knowledge: the gateway URL, the Live model and the resolved chat model.
-const liveSettings = { baseURL: "", liveModel: "", backendModel: "" };
+const liveSettings = {
+  baseURL: "https://ai.gateway.lovable.dev",
+  liveModel: "openai/gpt-live-1",
+  backendModel: "openai/gpt-6-astra",
+  openingInstructions:
+    "Inicie agora em português brasileiro. Diga: Oi, eu sou a Ella, uma inteligência artificial de apoio emocional. Pode falar com calma; estou ouvindo. O que está pesando mais para você hoje?",
+};
 
 export type LiveSocket = {
   readonly readyState: number;
@@ -50,7 +56,7 @@ type ProviderEvent = {
 export function getLiveConfig(): LiveConfig {
   const config: LiveConfig = {
     ...liveSettings,
-    key: process.env["LOVABLE_API_KEY"] ?? "",
+    key: getServerEnv("LOVABLE_API_KEY") ?? "",
   };
   if ([config.baseURL, config.key, config.liveModel, config.backendModel].some((value) => !value)) {
     throw new Error("Missing Live relay configuration");
@@ -92,12 +98,25 @@ function workerSocket(socket: WorkerSocket): LiveSocket {
   };
 }
 
-export function handleLiveRequest(request: Request): Response {
+export async function authorizeLiveRequest(request: Request, secret: string): Promise<string | null> {
+  const ticket = new URL(request.url).searchParams.get("ticket") ?? "";
+  return verifyLiveVoiceTicket(ticket, secret);
+}
+
+export async function handleLiveRequest(request: Request): Promise<Response> {
   const waitUntil = (request as Request & Partial<LiveExecutionContext>).waitUntil;
   if (!waitUntil) return new Response("Live runtime unavailable", { status: 503 });
-  const config = getLiveConfig();
+  let config: LiveConfig;
+  try {
+    config = getLiveConfig();
+  } catch {
+    return new Response("Live voice is not configured", { status: 503 });
+  }
   const rejected = validateLiveUpgrade(request);
   if (rejected) return rejected;
+  if (!(await authorizeLiveRequest(request, config.key))) {
+    return new Response("Live voice authorization required", { status: 401 });
+  }
   const pair = new WebSocketPair();
   pair[1].accept();
   bindLiveConnection(workerSocket(pair[1]), config, { waitUntil }, async (url, headers, signal) => {
