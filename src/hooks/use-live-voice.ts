@@ -10,6 +10,9 @@ export type LiveEvent = {
   [key: string]: unknown;
 };
 
+export type LiveHistoryMessage = { role: "user" | "assistant"; content: string };
+export type LiveStartOptions = { ticket: string; history?: LiveHistoryMessage[] };
+
 type LiveState = {
   status: "idle" | "connecting" | "connected" | "stopping" | "closed";
   error: string | null;
@@ -53,7 +56,7 @@ export function useLiveVoice(
     };
   }, []);
 
-  const start = useCallback(() => {
+  const start = useCallback((startOptions?: LiveStartOptions) => {
     if (!mounted.current || controller.current) return;
     const audio = audioRef.current;
     if (!audio) {
@@ -65,6 +68,7 @@ export function useLiveVoice(
       endpoint = new URL(latest.current.url ?? "/api/live", window.location.href);
       if (endpoint.protocol === "https:") endpoint.protocol = "wss:";
       if (endpoint.protocol === "http:") endpoint.protocol = "ws:";
+      if (startOptions?.ticket) endpoint.searchParams.set("ticket", startOptions.ticket);
     } catch {
       setCall((previous) => ({ ...previous, error: "Invalid voice connection URL." }));
       return;
@@ -72,6 +76,7 @@ export function useLiveVoice(
     const voice = createLiveVoice({
       url: endpoint.href,
       audio,
+      history: startOptions?.history ?? [],
       onEvent(event) {
         if (!mounted.current || controller.current !== voice) return;
         if (event.type === "app.connected") {
@@ -122,6 +127,7 @@ export function useLiveVoice(
 type LiveOptions = {
   url: string;
   audio: HTMLAudioElement;
+  history: LiveHistoryMessage[];
   onEvent: (event: LiveEvent) => void;
 };
 
@@ -351,7 +357,7 @@ function createLiveVoice(options: LiveOptions) {
       deadline = setTimeout(() => fail("Voice session did not start"), 50_000);
       socket.onopen = () => {
         if (!starting()) return release();
-        send({ type: "app.start", sdp });
+        send({ type: "app.start", sdp, history: options.history });
       };
       socket.onmessage = ({ data }) => {
         try {

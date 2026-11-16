@@ -123,8 +123,12 @@ export function liveVoiceDev(): Plugin {
               "/src/lib/live-relay.server.ts",
             )) as typeof import("./src/lib/live-relay.server");
             const config = relay.getLiveConfig();
-            const rejection = relay.validateLiveUpgrade(upgradeRequest(request), { allowMissingOrigin: true });
+            const liveRequest = upgradeRequest(request);
+            const rejection = relay.validateLiveUpgrade(liveRequest, { allowMissingOrigin: true });
             if (rejection) return rejectUpgrade(socket, rejection.status);
+            if (!(await relay.authorizeLiveRequest(liveRequest, config.key))) {
+              return rejectUpgrade(socket, 401);
+            }
             if (socket.destroyed) return;
             sockets.handleUpgrade(request, socket, head, (connection) => {
               const browser = liveSocket(connection);
