@@ -17,26 +17,29 @@ export async function libraryMediaUrl(
   return data.signedUrl;
 }
 
-export async function uploadLibraryFile(file: File, kind: "audio" | "image"): Promise<string> {
+export async function uploadLibraryFile(file: File, kind: "audio" | "image", onProgress?: (percent: number) => void): Promise<string> {
   const ext = file.name.split(".").pop() ?? (kind === "audio" ? "mp3" : "jpg");
   const path = `${kind}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-    contentType: file.type || undefined,
-    upsert: false,
+  // Use TUS resumable protocol for reliability and real upload progress.
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !sessionData.session?.access_token) throw new Error("Sessão expirada. Entre novamente para enviar arquivos.");
+  const projectUrl = (import.meta.env.VITE_SUPABASE_URL || "").replace(/\/$/, "");
+  const projectId = projectUrl.match(/^https?:\/\/([^.]+)/)?.[1];
+  if (!projectId) throw new Error("Configuração do Supabase inválida para upload resumível.");
+  const endpoint = `https://${projectId}.storage.supabase.co/storage/v1/upload/resumable`;
+  const headers = { "Tus-Resumable": "1.0.0", "Upload-Length": String(file.size), "Upload-Metadata": `bucketName ${btoa(BUCKET)},objectName ${btoa(path)},contentType ${btoa(file.type || (kind === "audio" ? "audio/mpeg" : "image/jpeg"))},cacheControl ${btoa("3600")}`, "apikey": (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || ""), "Authorization": `Bearer ${sessionData.session.access_token}` };
+  const uploadUrl = await new Promise<string>((resolve, reject) => {
+    const xhr = new XMLHttpRequest(); xhr.open("POST", endpoint);
+    Object.entries(headers).forEach(([k,v])=>{ if(v) xhr.setRequestHeader(k,v); });
+    xhr.setRequestHeader("x-upsert","false");
+    xhr.onload=()=>{ if(xhr.status>=200 && xhr.status<300){ const loc=xhr.getResponseHeader("Location"); if(!loc) return reject(new Error("Storage não retornou URL de upload.")); resolve(new URL(loc,endpoint).toString()); } reject(new Error(`Falha ao iniciar upload (HTTP ${xhr.status}): ${xhr.responseText || xhr.statusText}`)); };
+    xhr.onerror=()=>reject(new Error("Falha de rede ao iniciar upload.")); xhr.send();
   });
-  if (error) {
-    const message = error.message || "Erro desconhecido";
-    const status = (error as { statusCode?: string }).statusCode;
-    const details = status ? ` (HTTP ${status})` : "";
-    if (/413|payload too large|entity too large/i.test(message)) {
-      throw new Error(`Arquivo muito grande para o armazenamento. ${message}${details}`);
-    }
-    if (/quota|storage limit|capacity/i.test(message)) {
-      throw new Error(`Limite de armazenamento atingido. ${message}${details}`);
-    }
-    throw new Error(`Falha ao enviar arquivo: ${message}${details}`);
+  let offset=0; const chunkSize=6*1024*1024;
+  while(offset<file.size){ const chunk=file.slice(offset,Math.min(offset+chunkSize,file.size));
+    await new Promise<void>((resolve,reject)=>{ const xhr=new XMLHttpRequest(); xhr.open("PATCH",uploadUrl); xhr.setRequestHeader("Tus-Resumable","1.0.0"); xhr.setRequestHeader("Upload-Offset",String(offset)); xhr.setRequestHeader("Content-Type","application/offset+octet-stream"); xhr.upload.onprogress=(e)=>{if(e.lengthComputable) onProgress?.(Math.min(99,Math.round((offset+e.loaded)/file.size*100)));}; xhr.onload=()=>{ if(xhr.status>=200&&xhr.status<300){ const next=Number(xhr.getResponseHeader("Upload-Offset")); if(!Number.isFinite(next)||next<=offset) return reject(new Error("Resposta inválida do upload resumível.")); offset=next; resolve(); } else reject(new Error(`Falha no envio do trecho (HTTP ${xhr.status}): ${xhr.responseText||xhr.statusText}`));}; xhr.onerror=()=>reject(new Error("Conexão interrompida durante upload.")); xhr.send(chunk); });
   }
-  return path;
+  onProgress?.(100); return path;
 }
 
 export async function removeLibraryFile(path: string) {
