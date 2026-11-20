@@ -52,13 +52,29 @@ export const autofillLibraryMedia = createServerFn({ method: "POST" })
 
     if (data.kind === "audio") {
       let transcript = "";
+      // Arquivos grandes são catalogados pelo nome, sem baixar/transcrever o áudio.
+      // Isso reduz consumo de memória e risco de timeout na função.
+      let skipTranscription = false;
       try {
-        const res = await fetch(signed.signedUrl);
-        const blob = await res.blob();
-        const tr = await transcribeAudio(blob, filenameHint || "audio.mp3");
-        transcript = (tr.text ?? "").slice(0, 2000);
+        const head = await fetch(signed.signedUrl, { method: "HEAD" });
+        const size = Number(head.headers.get("content-length") ?? 0);
+        skipTranscription = size > 15 * 1024 * 1024;
       } catch {
-        // segue sem transcript
+        // Se HEAD não estiver disponível, mantém o fluxo anterior.
+      }
+      if (!skipTranscription) {
+        try {
+          const res = await fetch(signed.signedUrl);
+          const blob = await res.blob();
+          if (blob.size > 15 * 1024 * 1024) {
+            skipTranscription = true;
+          } else {
+            const tr = await transcribeAudio(blob, filenameHint || "audio.mp3");
+            transcript = (tr.text ?? "").slice(0, 2000);
+          }
+        } catch {
+          // segue sem transcript
+        }
       }
       const raw = await chatCompletion({
         model: "google/gemini-2.5-flash",
