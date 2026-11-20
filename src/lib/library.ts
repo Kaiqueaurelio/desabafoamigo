@@ -24,7 +24,18 @@ export async function uploadLibraryFile(file: File, kind: "audio" | "image"): Pr
     contentType: file.type || undefined,
     upsert: false,
   });
-  if (error) throw error;
+  if (error) {
+    const message = error.message || "Erro desconhecido";
+    const status = (error as { statusCode?: string }).statusCode;
+    const details = status ? ` (HTTP ${status})` : "";
+    if (/413|payload too large|entity too large/i.test(message)) {
+      throw new Error(`Arquivo muito grande para o armazenamento. ${message}${details}`);
+    }
+    if (/quota|storage limit|capacity/i.test(message)) {
+      throw new Error(`Limite de armazenamento atingido. ${message}${details}`);
+    }
+    throw new Error(`Falha ao enviar arquivo: ${message}${details}`);
+  }
   return path;
 }
 
