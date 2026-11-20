@@ -297,7 +297,13 @@ function AudiosManager() {
 
   function addBulkFiles(files: FileList | null) {
     if (!files || !files.length) return;
-    const next: BulkItem[] = Array.from(files).map((f) => ({
+    const maxSize = 50 * 1024 * 1024;
+    const selected = Array.from(files);
+    const oversized = selected.filter((f) => f.size > maxSize);
+    if (oversized.length) toast.error(`Limite de 50 MB por áudio. ${oversized.length} arquivo(s) foram ignorados.`);
+    const accepted = selected.filter((f) => f.size <= maxSize);
+    if (!accepted.length) return;
+    const next: BulkItem[] = accepted.map((f) => ({
       id: crypto.randomUUID(),
       file: f,
       status: "pending",
