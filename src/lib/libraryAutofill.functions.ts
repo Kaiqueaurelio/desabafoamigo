@@ -85,7 +85,7 @@ export const autofillLibraryMedia = createServerFn({ method: "POST" })
           },
           {
             role: "user",
-            content: `Nome do arquivo: ${filenameHint || "(sem nome)"}\nTrecho transcrito (se houver): ${transcript || "(sem áudio compreensível)"}`,
+            content: `Nome do arquivo: ${filenameHint || "(sem nome)"}\nTrecho transcrito (se houver): ${transcript || (skipTranscription ? "(transcrição não realizada por tamanho; catalogar pelo nome)" : "(sem áudio compreensível)")}`,
           },
         ],
         response_format: { type: "json_object" },
