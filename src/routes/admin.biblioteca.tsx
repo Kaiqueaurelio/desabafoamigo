@@ -289,6 +289,7 @@ function AudiosManager() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [singleUploadProgress, setSingleUploadProgress] = useState<number | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkItems, setBulkItems] = useState<BulkItem[]>([]);
   const [bulkRunning, setBulkRunning] = useState(false);
@@ -418,7 +419,7 @@ function AudiosManager() {
     try {
       let audio_url = form.audio_url.trim();
       let cover_url = form.cover_url.trim();
-      if (audioFile) audio_url = await uploadLibraryFile(audioFile, "audio");
+      if (audioFile) audio_url = await uploadLibraryFile(audioFile, "audio", setSingleUploadProgress);
       if (coverFile) cover_url = await uploadLibraryFile(coverFile, "image");
       if (!audio_url) throw new Error("Envie um arquivo de áudio ou informe uma URL.");
       const { error } = await supabase.from("library_audios").insert({
@@ -431,6 +432,7 @@ function AudiosManager() {
       });
       if (error) throw error;
       toast.success("Áudio adicionado.");
+      setSingleUploadProgress(null);
       setForm({
         title: "",
         description: "",
@@ -447,8 +449,10 @@ function AudiosManager() {
       toast.error(err instanceof Error ? err.message : "Erro ao adicionar áudio.");
     } finally {
       setBusy(false);
+      setSingleUploadProgress(null);
     }
   }
+
 
   async function togglePublished(row: Audio) {
     await supabase.from("library_audios").update({ published: !row.published }).eq("id", row.id);
@@ -653,7 +657,19 @@ function AudiosManager() {
                 <input
                   type="file"
                   accept="audio/*"
-                  onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => {
+                    const selected = e.target.files?.[0] ?? null;
+                    setAudioFile(selected);
+                    if (selected) {
+                      const url = URL.createObjectURL(selected);
+                      const probe = new Audio(url);
+                      probe.onloadedmetadata = () => {
+                        if (Number.isFinite(probe.duration)) setForm((f) => ({ ...f, duration_seconds: String(Math.round(probe.duration)) }));
+                        URL.revokeObjectURL(url);
+                      };
+                      probe.onerror = () => URL.revokeObjectURL(url);
+                    }
+                  }}
                   className="input !py-2"
                 />
                 <input
@@ -676,6 +692,9 @@ function AudiosManager() {
                   placeholder="https://…"
                   className="input mt-2"
                 />
+              </Field>
+<Field label="Progresso do upload" full>
+                {singleUploadProgress !== null && <div className="space-y-1"><div className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-all" style={{ width: `${singleUploadProgress}%` }} /></div><p className="text-xs text-muted-foreground">{singleUploadProgress}% enviado</p></div>}
               </Field>
               <Field label="Duração (segundos)" hint="Opcional. Ex: 300 para 5 minutos.">
                 <input
