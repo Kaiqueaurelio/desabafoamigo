@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/public-config";
 
 const BUCKET = "library-media";
 
@@ -23,11 +24,11 @@ export async function uploadLibraryFile(file: File, kind: "audio" | "image", onP
   // Use TUS resumable protocol for reliability and real upload progress.
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError || !sessionData.session?.access_token) throw new Error("Sessão expirada. Entre novamente para enviar arquivos.");
-  const projectUrl = (import.meta.env.VITE_SUPABASE_URL || "").replace(/\/$/, "");
+  const projectUrl = (import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/$/, "");
   const projectId = projectUrl.match(/^https?:\/\/([^.]+)/)?.[1];
   if (!projectId) throw new Error("Configuração do Supabase inválida para upload resumível.");
   const endpoint = `https://${projectId}.storage.supabase.co/storage/v1/upload/resumable`;
-  const headers = { "Tus-Resumable": "1.0.0", "Upload-Length": String(file.size), "Upload-Metadata": `bucketName ${btoa(BUCKET)},objectName ${btoa(path)},contentType ${btoa(file.type || (kind === "audio" ? "audio/mpeg" : "image/jpeg"))},cacheControl ${btoa("3600")}`, "apikey": (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || ""), "Authorization": `Bearer ${sessionData.session.access_token}` };
+  const headers = { "Tus-Resumable": "1.0.0", "Upload-Length": String(file.size), "Upload-Metadata": `bucketName ${btoa(BUCKET)},objectName ${btoa(path)},contentType ${btoa(file.type || (kind === "audio" ? "audio/mpeg" : "image/jpeg"))},cacheControl ${btoa("3600")}`, "apikey": (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_PUBLISHABLE_KEY), "Authorization": `Bearer ${sessionData.session.access_token}` };
   const uploadUrl = await new Promise<string>((resolve, reject) => {
     const xhr = new XMLHttpRequest(); xhr.open("POST", endpoint);
     Object.entries(headers).forEach(([k,v])=>{ if(v) xhr.setRequestHeader(k,v); });
