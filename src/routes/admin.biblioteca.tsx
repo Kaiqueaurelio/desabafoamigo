@@ -57,6 +57,7 @@ type BulkItem = {
   category: string;
   description: string;
   error?: string;
+  progress?: number;
 };
 
 type Audio = {
@@ -320,7 +321,7 @@ function AudiosManager() {
       if (item.status === "saved") continue;
       try {
         updateBulk(item.id, { status: "uploading", error: undefined });
-        const path = await uploadLibraryFile(item.file, "audio");
+        const path = await uploadLibraryFile(item.file, "audio", (progress) => updateBulk(item.id, { progress }));
         let title = item.title;
         let category = item.category;
         let description = item.description;
@@ -549,13 +550,14 @@ function AudiosManager() {
                         {it.file.name} · {(it.file.size / 1024 / 1024).toFixed(1)} MB
                         {" · "}
                         {it.status === "pending" && "Aguardando"}
-                        {it.status === "uploading" && "Enviando…"}
+                        {it.status === "uploading" && `Enviando ${it.progress ?? 0}%`}
                         {it.status === "analyzing" && "Analisando com IA…"}
                         {it.status === "saving" && "Salvando…"}
                         {it.status === "saved" &&
                           `Salvo · ${AUDIO_CATEGORIES.find((c) => c.id === it.category)?.label ?? it.category}`}
                         {it.status === "error" && (it.error || "Erro")}
-                      </p>
+                      </p></p>
+                      {it.status === "uploading" && <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-all" style={{ width: `${it.progress ?? 0}%` }} /></div>
                     </div>
                     {it.status !== "saved" && !bulkRunning && (
                       <button
