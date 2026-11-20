@@ -76,7 +76,7 @@ type Attachment = {
 const MAX = {
   pdf: 10 * 1024 * 1024,
   image: 5 * 1024 * 1024,
-  audio: 10 * 1024 * 1024,
+  audio: 30 * 1024 * 1024,
   video: 30 * 1024 * 1024,
 };
 const LANGS: { code: string; label: string }[] = [
