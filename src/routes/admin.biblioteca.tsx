@@ -300,7 +300,10 @@ function AudiosManager() {
     const maxSize = 50 * 1024 * 1024;
     const selected = Array.from(files);
     const oversized = selected.filter((f) => f.size > maxSize);
-    if (oversized.length) toast.error(`Limite de 50 MB por áudio. ${oversized.length} arquivo(s) foram ignorados.`);
+    if (oversized.length)
+      toast.error(
+        `Limite de 50 MB por áudio. ${oversized.length} arquivo(s) foram ignorados.`,
+      );
     const accepted = selected.filter((f) => f.size <= maxSize);
     if (!accepted.length) return;
     const next: BulkItem[] = accepted.map((f) => ({
@@ -328,7 +331,9 @@ function AudiosManager() {
       if (item.status === "saved") continue;
       try {
         updateBulk(item.id, { status: "uploading", error: undefined });
-        const path = await uploadLibraryFile(item.file, "audio", (progress) => updateBulk(item.id, { progress }));
+        const path = await uploadLibraryFile(item.file, "audio", (progress) =>
+          updateBulk(item.id, { progress }),
+        );
         let title = item.title;
         let category = item.category;
         let description = item.description;
@@ -425,7 +430,8 @@ function AudiosManager() {
     try {
       let audio_url = form.audio_url.trim();
       let cover_url = form.cover_url.trim();
-      if (audioFile) audio_url = await uploadLibraryFile(audioFile, "audio", setSingleUploadProgress);
+      if (audioFile)
+        audio_url = await uploadLibraryFile(audioFile, "audio", setSingleUploadProgress);
       if (coverFile) cover_url = await uploadLibraryFile(coverFile, "image");
       if (!audio_url) throw new Error("Envie um arquivo de áudio ou informe uma URL.");
       const { error } = await supabase.from("library_audios").insert({
@@ -458,7 +464,6 @@ function AudiosManager() {
       setSingleUploadProgress(null);
     }
   }
-
 
   async function togglePublished(row: Audio) {
     await supabase.from("library_audios").update({ published: !row.published }).eq("id", row.id);
@@ -569,7 +574,10 @@ function AudiosManager() {
                       </p>
                       {it.status === "uploading" && (
                         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                          <div className="h-full bg-primary transition-all" style={{ width: `${it.progress ?? 0}%` }} />
+                          <div
+                            className="h-full bg-primary transition-all"
+                            style={{ width: `${it.progress ?? 0}%` }}
+                          />
                         </div>
                       )}
                     </div>
@@ -674,7 +682,11 @@ function AudiosManager() {
                       const url = URL.createObjectURL(selected);
                       const probe = new Audio(url);
                       probe.onloadedmetadata = () => {
-                        if (Number.isFinite(probe.duration)) setForm((f) => ({ ...f, duration_seconds: String(Math.round(probe.duration)) }));
+                        if (Number.isFinite(probe.duration))
+                          setForm((f) => ({
+                            ...f,
+                            duration_seconds: String(Math.round(probe.duration)),
+                          }));
                         URL.revokeObjectURL(url);
                       };
                       probe.onerror = () => URL.revokeObjectURL(url);
@@ -703,8 +715,18 @@ function AudiosManager() {
                   className="input mt-2"
                 />
               </Field>
-<Field label="Progresso do upload" full>
-                {singleUploadProgress !== null && <div className="space-y-1"><div className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-all" style={{ width: `${singleUploadProgress}%` }} /></div><p className="text-xs text-muted-foreground">{singleUploadProgress}% enviado</p></div>}
+              <Field label="Progresso do upload" full>
+                {singleUploadProgress !== null && (
+                  <div className="space-y-1">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full bg-primary transition-all"
+                        style={{ width: `${singleUploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{singleUploadProgress}% enviado</p>
+                  </div>
+                )}
               </Field>
               <Field label="Duração (segundos)" hint="Opcional. Ex: 300 para 5 minutos.">
                 <input
