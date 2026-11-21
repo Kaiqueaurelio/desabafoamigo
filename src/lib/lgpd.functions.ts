@@ -24,7 +24,9 @@ function toCsv(rows: Array<Record<string, unknown>>): string {
   const esc = (v: unknown) => {
     if (v == null) return "";
     const s = typeof v === "object" ? JSON.stringify(v) : String(v);
-    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    // Neutralize spreadsheet formulas in user-controlled CSV fields.
+    const safe = typeof v === "string" && /^[\s]*[=+\-@]/.test(s) ? `\u0027${s}` : s;
+    return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
   };
   return [cols.join(","), ...rows.map((r) => cols.map((c) => esc(r[c])).join(","))].join("\n");
 }
