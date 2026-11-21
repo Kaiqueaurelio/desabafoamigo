@@ -32,7 +32,7 @@ export default defineConfig(({ command }) => ({
     tailwindcss(),
     tsconfigPaths(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       injectRegister: null,
       filename: "sw.js",
       devOptions: { enabled: false },
