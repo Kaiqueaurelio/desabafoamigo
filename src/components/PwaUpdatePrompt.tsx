@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -6,6 +6,7 @@ export function PwaUpdatePrompt() {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const updateRequested = useRef(false);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -19,7 +20,7 @@ export function PwaUpdatePrompt() {
       }
     };
     const onControllerChange = () => {
-      if (!disposed) window.location.reload();
+      if (!disposed && updateRequested.current) window.location.reload();
     };
 
     navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
@@ -44,6 +45,7 @@ export function PwaUpdatePrompt() {
 
   function updateNow() {
     if (!waitingWorker) return;
+    updateRequested.current = true;
     setUpdating(true);
     waitingWorker.postMessage({ type: "SKIP_WAITING" });
   }
