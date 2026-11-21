@@ -567,7 +567,11 @@ function AudiosManager() {
                           `Salvo · ${AUDIO_CATEGORIES.find((c) => c.id === it.category)?.label ?? it.category}`}
                         {it.status === "error" && (it.error || "Erro")}
                       </p>
-                      {it.status === "uploading" && (\n                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">\n                          <div className="h-full bg-primary transition-all" style={{ width: `${it.progress ?? 0}%` }} />\n                        </div>\n                      )}
+                      {it.status === "uploading" && (
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                          <div className="h-full bg-primary transition-all" style={{ width: `${it.progress ?? 0}%` }} />
+                        </div>
+                      )}
                     </div>
                     {it.status !== "saved" && !bulkRunning && (
                       <button
