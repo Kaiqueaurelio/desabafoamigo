@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { getServerEnv } from "@/lib/server-env";
 
 const createSchema = z.object({
   kind: z.enum(["export", "delete"]),
@@ -30,8 +31,10 @@ function toCsv(rows: Array<Record<string, unknown>>): string {
 
 async function reauthenticate(email: string, password: string) {
   const { createClient } = await import("@supabase/supabase-js");
-  const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
-  const client = createClient(process.env.SUPABASE_URL!, key, {
+  const url = getServerEnv("SUPABASE_URL");
+  const key = getServerEnv("SUPABASE_PUBLISHABLE_KEY") || getServerEnv("SUPABASE_ANON_KEY");
+  if (!url || !key) throw new Error("Configuração do Supabase indisponível para reautenticação.");
+  const client = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
       fetch: (input, init) => {
