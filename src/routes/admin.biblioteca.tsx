@@ -301,9 +301,7 @@ function AudiosManager() {
     const selected = Array.from(files);
     const oversized = selected.filter((f) => f.size > maxSize);
     if (oversized.length)
-      toast.error(
-        `Limite de 50 MB por áudio. ${oversized.length} arquivo(s) foram ignorados.`,
-      );
+      toast.error(`Limite de 50 MB por áudio. ${oversized.length} arquivo(s) foram ignorados.`);
     const accepted = selected.filter((f) => f.size <= maxSize);
     if (!accepted.length) return;
     const next: BulkItem[] = accepted.map((f) => ({
