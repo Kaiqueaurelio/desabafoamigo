@@ -3,8 +3,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 
-const SUPABASE_URL =
-  process.env.VITE_SUPABASE_URL || "https://yczvbygxizzjzqvufocy.supabase.co";
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://yczvbygxizzjzqvufocy.supabase.co";
 const SUPABASE_KEY =
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   process.env.VITE_SUPABASE_ANON_KEY ||
@@ -14,9 +13,7 @@ const adminEmail = process.env.ADMIN_EMAIL || process.argv[2];
 const adminPassword = process.env.ADMIN_PASSWORD || process.argv[3];
 
 if (!adminEmail || !adminPassword) {
-  console.error(
-    "Uso: ADMIN_EMAIL=email ADMIN_PASSWORD=senha npx tsx scripts/upload-asmr.ts",
-  );
+  console.error("Uso: ADMIN_EMAIL=email ADMIN_PASSWORD=senha npx tsx scripts/upload-asmr.ts");
   process.exit(1);
 }
 
@@ -46,15 +43,13 @@ async function main() {
   console.log(
     `Fazendo upload de ${storagePath} (${(fileBuffer.length / 1024 / 1024).toFixed(2)} MB)...`,
   );
-  const { error: uploadError } = await supabase.storage.from("library-media").upload(
-    storagePath,
-    fileBuffer,
-    {
+  const { error: uploadError } = await supabase.storage
+    .from("library-media")
+    .upload(storagePath, fileBuffer, {
       contentType: "audio/mpeg",
       cacheControl: "3600",
       upsert: false,
-    },
-  );
+    });
 
   if (uploadError) {
     console.error("Erro no upload do storage:", uploadError.message);
