@@ -31,6 +31,7 @@ import { loadPrefs, AI_HISTORY_KEY, type PrivacyPrefs } from "@/lib/privacyPrefs
 import { assessRisk, FALLBACK_REPLY, type RiskLevel } from "@/lib/aiSafety";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { EllaVoiceMode } from "@/components/EllaVoiceMode";
+import { uploadAiChatAudio } from "@/lib/aiAudioUpload";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({
@@ -310,7 +311,7 @@ function Page() {
         setMediaError("Envie uma imagem, áudio ou vídeo.");
         continue;
       }
-      const limit = kind === "image" ? 5 : kind === "audio" ? 40 : 25;
+      const limit = kind === "image" ? 5 : kind === "audio" ? Number.POSITIVE_INFINITY : 25;
       if (file.size > limit * 1024 * 1024) {
         setMediaError(`O arquivo excede o limite de ${limit} MB.`);
         continue;
@@ -439,6 +440,7 @@ function Page() {
     if (!override) setMedia([]);
     setBusy(true);
     try {
+      const audioStoragePaths: string[] = [];
       const attachments: {
         kind: "image" | "audio" | "video-frame";
         mimeType: string;
@@ -456,6 +458,10 @@ function Page() {
               dataUrl,
             }),
           );
+        } else if (item.kind === "audio") {
+          audioStoragePaths.push(await uploadAiChatAudio(item.file, (percent) => {
+            setMediaError(percent < 100 ? `Enviando áudio: ${percent}%` : "");
+          }));
         } else {
           attachments.push({
             kind: item.kind,
@@ -474,6 +480,7 @@ function Page() {
           retentionDays: prefs?.retentionDays ?? 0,
           messages: next.slice(1),
           attachments,
+          audioStoragePaths,
         },
       });
       setMsgs([...next, { role: "assistant", content: r.reply }]);
