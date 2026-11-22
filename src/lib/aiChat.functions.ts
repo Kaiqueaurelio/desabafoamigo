@@ -98,7 +98,9 @@ export const aiChat = createServerFn({ method: "POST" })
           .map((m) => ({ role: m.role, content: m.content.slice(0, 1800) })),
         attachments,
         audioStoragePaths: Array.isArray(d?.audioStoragePaths)
-          ? d.audioStoragePaths.filter((path) => typeof path === "string" && path.length <= 512).slice(0, 3)
+          ? d.audioStoragePaths
+              .filter((path) => typeof path === "string" && path.length <= 512)
+              .slice(0, 3)
           : [],
         rememberContext:
           d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
@@ -113,7 +115,10 @@ export const aiChat = createServerFn({ method: "POST" })
     }
     let mediaContext = "";
     let audioTranscriptionUnavailable = false;
-    if (data.audioStoragePaths.length > 0 || data.attachments.some((attachment) => attachment.kind === "audio")) {
+    if (
+      data.audioStoragePaths.length > 0 ||
+      data.attachments.some((attachment) => attachment.kind === "audio")
+    ) {
       const { transcribeAudio } = await import("./ai-gateway.server");
       const transcripts: string[] = [];
       for (const path of data.audioStoragePaths) {
@@ -131,12 +136,16 @@ export const aiChat = createServerFn({ method: "POST" })
           else audioTranscriptionUnavailable = true;
         } catch (error) {
           audioTranscriptionUnavailable = true;
-          console.warn("[aiChat] stored audio transcription unavailable", error instanceof Error ? error.message : error);
+          console.warn(
+            "[aiChat] stored audio transcription unavailable",
+            error instanceof Error ? error.message : error,
+          );
         } finally {
           const { error: cleanupError } = await context.supabase.storage
             .from("ai-chat-audio")
             .remove([path]);
-          if (cleanupError) console.warn("[aiChat] temporary audio cleanup failed", cleanupError.message);
+          if (cleanupError)
+            console.warn("[aiChat] temporary audio cleanup failed", cleanupError.message);
         }
       }
       for (const attachment of data.attachments) {
