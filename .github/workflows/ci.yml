@@ -17,8 +17,13 @@ jobs:
   build-dev:
     name: Lint, test and build (development)
     runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -31,8 +36,8 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -o pipefail
-          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
-            BASE_SHA="$(git rev-parse HEAD~1)"
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA="$(git merge-base HEAD origin/main 2>/dev/null || git merge-base HEAD origin/master 2>/dev/null || git rev-parse HEAD~1)"
           fi
           FILES="$(git diff --name-only "$BASE_SHA"...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx')"
           if [ -n "$FILES" ]; then
@@ -69,6 +74,9 @@ jobs:
     name: Build (production)
     runs-on: ubuntu-latest
     needs: build-dev
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -137,6 +145,7 @@ jobs:
       - name: Generate release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.tag.outputs.value }}
         run: |
           PREV=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || true)
           {
@@ -152,7 +161,7 @@ jobs:
               git log "${PREV}..HEAD" --pretty=format:'- %s (%h) — %an' --no-merges
               echo ""
               echo ""
-              echo "**Diff completo:** ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV}...v${DATE}-${SHORT}"
+              echo "**Diff completo:** ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV}...${RELEASE_TAG}"
             else
               echo "_Primeiro release automático — exibindo os últimos 50 commits._"
               echo ""
@@ -161,7 +170,7 @@ jobs:
           } > RELEASE_NOTES.md
       - name: Package dist/
         run: |
-          TAG="v${{ github.run_id }}"
+          TAG="${{ steps.tag.outputs.value }}"
           mkdir -p release-assets
           zip -qr "release-assets/desabafa-amigo-${TAG}-dist.zip" dist
           tar -czf "release-assets/desabafa-amigo-${TAG}-dist.tar.gz" dist
