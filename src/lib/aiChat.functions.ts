@@ -73,7 +73,7 @@ export const aiChat = createServerFn({ method: "POST" })
           total + (typeof attachment.dataUrl === "string" ? attachment.dataUrl.length : 0),
         0,
       );
-      if (totalAttachmentSize > 36_000_000) {
+      if (totalAttachmentSize > 58_000_000) {
         throw new Error("Os anexos ultrapassam o limite total permitido.");
       }
       for (const a of attachments) {
@@ -83,7 +83,7 @@ export const aiChat = createServerFn({ method: "POST" })
           !/^data:(image\/(jpeg|png|webp)|audio\/[a-z0-9.+-]+)(;[^,;]*)*;base64,/i.test(
             a.dataUrl,
           ) ||
-          a.dataUrl.length > 35_000_000
+          a.dataUrl.length > 56_000_000
         ) {
           throw new Error("Anexo inválido ou muito grande.");
         }
@@ -255,7 +255,7 @@ export const transcribeVoice = createServerFn({ method: "POST" })
     if (
       typeof d?.dataUrl !== "string" ||
       !/^data:audio\/[a-z0-9.+-]+(;[^,]*)?,/i.test(d.dataUrl) ||
-      d.dataUrl.length > 35_000_000
+      d.dataUrl.length > 56_000_000
     ) {
       throw new Error("Áudio inválido ou muito longo.");
     }
