@@ -47,7 +47,7 @@ export async function uploadAiChatAudio(file: File, onProgress?: (percent: numbe
       xhr.setRequestHeader("Upload-Offset", String(offset));
       xhr.setRequestHeader("Content-Type", "application/offset+octet-stream");
       xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) onProgress?.(Math.min(99, Math.round(((offset + event.loaded) / file.size) * 100));
+        if (event.lengthComputable) onProgress?.(Math.min(99, Math.round(((offset + event.loaded) / file.size) * 100)));
       };
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
