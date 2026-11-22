@@ -132,6 +132,11 @@ export const aiChat = createServerFn({ method: "POST" })
         } catch (error) {
           audioTranscriptionUnavailable = true;
           console.warn("[aiChat] stored audio transcription unavailable", error instanceof Error ? error.message : error);
+        } finally {
+          const { error: cleanupError } = await context.supabase.storage
+            .from("ai-chat-audio")
+            .remove([path]);
+          if (cleanupError) console.warn("[aiChat] temporary audio cleanup failed", cleanupError.message);
         }
       }
       for (const attachment of data.attachments) {
