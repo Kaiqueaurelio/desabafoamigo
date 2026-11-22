@@ -1,15 +1,26 @@
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/public-config";
+import {
+  DEFAULT_SUPABASE_URL,
+  DEFAULT_SUPABASE_PUBLISHABLE_KEY,
+} from "@/integrations/supabase/public-config";
 
 /** Uploads AI-chat audio directly to private Supabase Storage using resumable TUS chunks. */
-export async function uploadAiChatAudio(file: File, onProgress?: (percent: number) => void): Promise<string> {
+export async function uploadAiChatAudio(
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<string> {
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const userId = sessionData.session?.user.id;
-  if (sessionError || !userId) throw new Error("Sessão expirada. Entre novamente para enviar áudio.");
+  if (sessionError || !userId)
+    throw new Error("Sessão expirada. Entre novamente para enviar áudio.");
 
-  const projectUrl = (import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/$/, "");
-  const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-    import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_PUBLISHABLE_KEY;
+  const projectUrl = (
+    import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
+  ).replace(/\/$/, "");
+  const apiKey =
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    DEFAULT_SUPABASE_PUBLISHABLE_KEY;
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const path = `${userId}/${crypto.randomUUID()}-${safeName}`;
   const endpoint = `${projectUrl}/storage/v1/upload/resumable`;
@@ -21,6 +32,7 @@ export async function uploadAiChatAudio(file: File, onProgress?: (percent: numbe
     Authorization: `Bearer ${sessionData.session.access_token}`,
     "x-upsert": "false",
   };
+
   const uploadUrl = await new Promise<string>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", endpoint);
@@ -47,19 +59,27 @@ export async function uploadAiChatAudio(file: File, onProgress?: (percent: numbe
       xhr.setRequestHeader("Upload-Offset", String(offset));
       xhr.setRequestHeader("Content-Type", "application/offset+octet-stream");
       xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) onProgress?.(Math.min(99, Math.round(((offset + event.loaded) / file.size) * 100)));
+        if (event.lengthComputable)
+          onProgress?.(
+            Math.min(99, Math.round(((offset + event.loaded) / file.size) * 100)),
+          );
       };
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           const nextOffset = Number(xhr.getResponseHeader("Upload-Offset"));
-          if (!Number.isFinite(nextOffset) || nextOffset <= offset) reject(new Error("Offset de upload inválido."));
-          else { offset = nextOffset; resolve(); }
+          if (!Number.isFinite(nextOffset) || nextOffset <= offset) {
+            reject(new Error("Offset de upload inválido."));
+          } else {
+            offset = nextOffset;
+            resolve();
+          }
         } else reject(new Error(`Falha no envio do bloco (HTTP ${xhr.status}).`));
       };
       xhr.onerror = () => reject(new Error("Conexão interrompida durante o upload."));
       xhr.send(chunk);
     });
   }
+
   onProgress?.(100);
   return path;
 }
