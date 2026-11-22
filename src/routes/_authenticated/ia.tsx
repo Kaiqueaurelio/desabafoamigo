@@ -310,7 +310,7 @@ function Page() {
         setMediaError("Envie uma imagem, áudio ou vídeo.");
         continue;
       }
-      const limit = kind === "image" ? 5 : kind === "audio" ? 25 : 25;
+      const limit = kind === "image" ? 5 : kind === "audio" ? 40 : 25;
       if (file.size > limit * 1024 * 1024) {
         setMediaError(`O arquivo excede o limite de ${limit} MB.`);
         continue;
