@@ -63,6 +63,7 @@ export const aiChat = createServerFn({ method: "POST" })
       retentionDays?: number;
       messages: Msg[];
       attachments?: AiAttachment[];
+      audioStoragePaths?: string[];
     }) => {
       if (d?.consent !== true) {
         throw new Error("É necessário consentimento para processar mensagens com IA.");
@@ -96,6 +97,9 @@ export const aiChat = createServerFn({ method: "POST" })
           )
           .map((m) => ({ role: m.role, content: m.content.slice(0, 1800) })),
         attachments,
+        audioStoragePaths: Array.isArray(d?.audioStoragePaths)
+          ? d.audioStoragePaths.filter((path) => typeof path === "string" && path.length <= 512).slice(0, 3)
+          : [],
         rememberContext:
           d?.rememberContext === true && (d?.retentionDays === 7 || d?.retentionDays === 30),
         retentionDays: d?.retentionDays === 30 ? 30 : 7,
@@ -104,14 +108,32 @@ export const aiChat = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const last = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
-    if (!last.trim() && data.attachments.length === 0) {
+    if (!last.trim() && data.attachments.length === 0 && data.audioStoragePaths.length === 0) {
       throw new Error("Mensagem vazia");
     }
     let mediaContext = "";
     let audioTranscriptionUnavailable = false;
-    if (data.attachments.some((attachment) => attachment.kind === "audio")) {
+    if (data.audioStoragePaths.length > 0 || data.attachments.some((attachment) => attachment.kind === "audio")) {
       const { transcribeAudio } = await import("./ai-gateway.server");
       const transcripts: string[] = [];
+      for (const path of data.audioStoragePaths) {
+        if (!path.startsWith(context.userId + "/") || path.includes("..")) {
+          audioTranscriptionUnavailable = true;
+          continue;
+        }
+        try {
+          const { data: audioFile, error: downloadError } = await context.supabase.storage
+            .from("ai-chat-audio")
+            .download(path);
+          if (downloadError || !audioFile) throw downloadError ?? new Error("Arquivo não encontrado");
+          const result = await transcribeAudio(audioFile, path.split("/").pop() || "audio");
+          if (result.text.trim()) transcripts.push(result.text.trim());
+          else audioTranscriptionUnavailable = true;
+        } catch (error) {
+          audioTranscriptionUnavailable = true;
+          console.warn("[aiChat] stored audio transcription unavailable", error instanceof Error ? error.message : error);
+        }
+      }
       for (const attachment of data.attachments) {
         if (attachment.kind !== "audio") continue;
         try {
