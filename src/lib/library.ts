@@ -1,5 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/public-config";
+import {
+  DEFAULT_SUPABASE_URL,
+  DEFAULT_SUPABASE_PUBLISHABLE_KEY,
+} from "@/integrations/supabase/public-config";
 const BUCKET = "library-media";
 const TUS_CHUNK_SIZE = 6 * 1024 * 1024;
 const MAX_AUDIO_SIZE = 50 * 1024 * 1024;
@@ -34,14 +37,24 @@ function xhrRequest<T>(
     });
     xhr.onload = () => {
       const responseHeaders = new Headers();
-      xhr.getAllResponseHeaders().trim().split(/[\r\n]+/).forEach((line) => {
-        const index = line.indexOf(":");
-        if (index > 0) responseHeaders.set(line.slice(0, index).trim(), line.slice(index + 1).trim());
+      xhr
+        .getAllResponseHeaders()
+        .trim()
+        .split(/[\r\n]+/)
+        .forEach((line) => {
+          const index = line.indexOf(":");
+          if (index > 0)
+            responseHeaders.set(line.slice(0, index).trim(), line.slice(index + 1).trim());
+        });
+      resolve({
+        status: xhr.status,
+        headers: responseHeaders,
+        responseText: xhr.responseText || "",
       });
-      resolve({ status: xhr.status, headers: responseHeaders, responseText: xhr.responseText || "" });
     };
     xhr.onerror = () => reject(new Error("Falha de conexão com o armazenamento."));
-    xhr.ontimeout = () => reject(new Error("O armazenamento demorou demais para responder. Tente novamente."));
+    xhr.ontimeout = () =>
+      reject(new Error("O armazenamento demorou demais para responder. Tente novamente."));
     xhr.onabort = () => reject(new Error("Envio cancelado."));
     xhr.send(body);
   });
@@ -49,23 +62,35 @@ function xhrRequest<T>(
 
 function storageError(status: number, detail = ""): Error {
   const suffix = detail.trim().slice(0, 180);
-  if (status === 413) return new Error("O armazenamento recusou o arquivo por tamanho. Verifique o limite do bucket.");
-  if (status === 401 || status === 403) return new Error("Sem permissão para enviar. Atualize sua sessão e tente novamente.");
-  if (status === 404) return new Error("Bucket de armazenamento não encontrado ou endpoint TUS indisponível.");
+  if (status === 413)
+    return new Error(
+      "O armazenamento recusou o arquivo por tamanho. Verifique o limite do bucket.",
+    );
+  if (status === 401 || status === 403)
+    return new Error("Sem permissão para enviar. Atualize sua sessão e tente novamente.");
+  if (status === 404)
+    return new Error("Bucket de armazenamento não encontrado ou endpoint TUS indisponível.");
   return new Error(`Falha no upload (HTTP ${status})${suffix ? `: ${suffix}` : ""}.`);
 }
 
 export async function uploadLibraryFile(
   file: File,
   kind: "audio" | "image",
-  onProgress?: (percent: number) => void
+  onProgress?: (percent: number) => void,
 ): Promise<string> {
   const maxSize = kind === "audio" ? MAX_AUDIO_SIZE : MAX_IMAGE_SIZE;
   if (file.size > maxSize) {
-    throw new Error(kind === "audio" ? "O áudio excede o limite de 50 MB." : "A imagem excede o limite de 5 MB.");
+    throw new Error(
+      kind === "audio" ? "O áudio excede o limite de 50 MB." : "A imagem excede o limite de 5 MB.",
+    );
   }
   if (file.size === 0) throw new Error("O arquivo está vazio.");
-  const ext = file.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10) || (kind === "audio" ? "mp3" : "jpg");
+  const ext =
+    file.name
+      .split(".")
+      .pop()
+      ?.replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 10) || (kind === "audio" ? "mp3" : "jpg");
   const path = `${kind}/${crypto.randomUUID()}.${ext}`;
 
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -102,9 +127,11 @@ export async function uploadLibraryFile(
     uploadUrl = new URL(location, endpoint).toString();
   } catch (tusInitError) {
     if (file.size > TUS_CHUNK_SIZE) {
-      throw new Error(tusInitError instanceof Error
-        ? `Upload resumível indisponível para arquivo grande: ${tusInitError.message}`
-        : "Upload resumível indisponível para arquivo grande. Tente novamente.");
+      throw new Error(
+        tusInitError instanceof Error
+          ? `Upload resumível indisponível para arquivo grande: ${tusInitError.message}`
+          : "Upload resumível indisponível para arquivo grande. Tente novamente.",
+      );
     }
     // Fallback multipart apenas para arquivos pequenos.
     const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
@@ -125,27 +152,41 @@ export async function uploadLibraryFile(
     while (!completed && attempts < 3) {
       attempts++;
       try {
-        const response = await xhrRequest("PATCH", uploadUrl, {
-          ...authHeaders,
-          "Upload-Offset": String(offset),
-          "Content-Type": "application/offset+octet-stream",
-        }, chunk);
+        const response = await xhrRequest(
+          "PATCH",
+          uploadUrl,
+          {
+            ...authHeaders,
+            "Upload-Offset": String(offset),
+            "Content-Type": "application/offset+octet-stream",
+          },
+          chunk,
+        );
         if (response.status >= 200 && response.status < 300) {
           const next = Number(response.headers.get("upload-offset"));
-          if (!Number.isFinite(next) || next <= offset) throw new Error("Resposta de offset inválida do Storage.");
+          if (!Number.isFinite(next) || next <= offset)
+            throw new Error("Resposta de offset inválida do Storage.");
           offset = next;
           completed = true;
         } else {
           throw storageError(response.status, response.responseText);
         }
       } catch (patchError) {
-        if (attempts >= 3) throw new Error(patchError instanceof Error ? patchError.message : "Falha ao enviar parte do arquivo.");
+        if (attempts >= 3)
+          throw new Error(
+            patchError instanceof Error ? patchError.message : "Falha ao enviar parte do arquivo.",
+          );
         // Se o servidor recebeu o chunk, mas a resposta se perdeu, recupera o offset
         // via HEAD para não reenviar bytes nem corromper o arquivo.
         try {
           const head = await xhrRequest("HEAD", uploadUrl, authHeaders);
           const serverOffset = Number(head.headers.get("upload-offset"));
-          if (head.status >= 200 && head.status < 300 && Number.isFinite(serverOffset) && serverOffset > offset) {
+          if (
+            head.status >= 200 &&
+            head.status < 300 &&
+            Number.isFinite(serverOffset) &&
+            serverOffset > offset
+          ) {
             offset = serverOffset;
             completed = true;
           }
