@@ -14,9 +14,7 @@ export async function uploadAiChatAudio(
   if (sessionError || !userId)
     throw new Error("Sessão expirada. Entre novamente para enviar áudio.");
 
-  const projectUrl = (
-    import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
-  ).replace(/\/$/, "");
+  const projectUrl = (import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/$/, "");
   const apiKey =
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
     import.meta.env.VITE_SUPABASE_ANON_KEY ||
@@ -60,9 +58,7 @@ export async function uploadAiChatAudio(
       xhr.setRequestHeader("Content-Type", "application/offset+octet-stream");
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable)
-          onProgress?.(
-            Math.min(99, Math.round(((offset + event.loaded) / file.size) * 100)),
-          );
+          onProgress?.(Math.min(99, Math.round(((offset + event.loaded) / file.size) * 100)));
       };
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
