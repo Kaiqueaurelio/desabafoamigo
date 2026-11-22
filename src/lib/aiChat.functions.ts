@@ -130,7 +130,9 @@ export const aiChat = createServerFn({ method: "POST" })
           const { data: audioFile, error: downloadError } = await context.supabase.storage
             .from("ai-chat-audio")
             .download(path);
-          if (downloadError || !audioFile) throw downloadError ?? new Error("Arquivo não encontrado");
+          if (downloadError || !audioFile) {
+            throw downloadError ?? new Error("Arquivo não encontrado");
+          }
           const result = await transcribeAudio(audioFile, path.split("/").pop() || "audio");
           if (result.text.trim()) transcripts.push(result.text.trim());
           else audioTranscriptionUnavailable = true;
@@ -303,7 +305,16 @@ export const transcribeVoice = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("Transcrição indisponível no momento.");
     const [meta, encoded] = data.dataUrl.split(",", 2);
     const mime = (meta.match(/^data:([^;]+)/)?.[1] ?? "audio/webm").toLowerCase();
-    const ext = mime.includes("mp4") || mime.includes("m4a") ? "m4a" : mime.includes("ogg") ? "ogg" : mime.includes("wav") ? "wav" : mime.includes("mpeg") ? "mp3" : "webm";
+    const ext =
+      mime.includes("mp4") || mime.includes("m4a")
+        ? "m4a"
+        : mime.includes("ogg")
+          ? "ogg"
+          : mime.includes("wav")
+            ? "wav"
+            : mime.includes("mpeg")
+              ? "mp3"
+              : "webm";
     const bin = atob(encoded);
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
